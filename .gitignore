@@ -1,0 +1,42 @@
+# Allowlist-style .gitignore
+# Ignore everything by default, then explicitly allow deployment files only.
+
+# ── Ignore everything ──────────────────────────────────
+*
+
+# ── Allow deployment files ─────────────────────────────
+!index.html
+!README.md
+!.gitignore
+
+# ── Explicitly ignore internal / private files ─────────
+# (belt-and-suspenders in case the allowlist above is overridden)
+.DS_Store
+.env
+.env.*
+node_modules/
+package.json
+package-lock.json
+*.backup
+*.backup.*
+*.pre-alignment
+*.pre-alignment.*
+agent-prompt.md
+agent-prompt-revised.md
+agent-prompt*.md
+SYSTEM_MEMORY.md
+alignment-assessment.md
+award-assessment.md
+design-assessment.md
+final-assessment.md
+*assessment*.md
+*-assessment.md
+improvements-report.md
+stage-revision-plan.md
+stress-test-guide.md
+stress-test-report.md
+stress-test-runner.js
+test-server.js
+alignment-implementation.md
+manual-test-checklist.md
+.claude/

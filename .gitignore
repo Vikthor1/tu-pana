@@ -6,6 +6,7 @@
 
 # ── Allow deployment files ─────────────────────────────
 !index.html
+!dify-embed-test.html
 !README.md
 !.gitignore
 

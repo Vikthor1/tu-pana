@@ -4477,6 +4477,73 @@
             .lang-btn { padding: 3px 6px; font-size: 0.6rem; }
         }
 
+        /* ── Coach Mode Toggle ── */
+        .coach-mode-toggle {
+            display: flex;
+            gap: 2px;
+            background: var(--bg-raised);
+            border: 1px solid var(--border-hi);
+            border-radius: var(--radius-full);
+            padding: 2px;
+            flex-shrink: 0;
+        }
+        .coach-mode-btn {
+            padding: 4px 10px;
+            border: 0;
+            border-radius: var(--radius-full);
+            background: transparent;
+            font-family: var(--font-body);
+            font-size: 0.70rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+            line-height: 1.4;
+        }
+        .coach-mode-btn.active {
+            background: var(--amber);
+            color: #fff;
+            box-shadow: var(--shadow-sm);
+        }
+        .coach-mode-btn:not(.active):hover { color: var(--text-primary); }
+
+        /* ── Dify Embed Panel ── */
+        .dify-embed-panel {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .dify-embed-panel.active { display: flex; }
+
+        .dify-test-notice {
+            display: flex; gap: 8px; align-items: flex-start;
+            padding: 8px 16px;
+            background: #fff8e6;
+            border-bottom: 1px solid #e8c97a;
+            font-size: 0.78rem; line-height: 1.5;
+            color: #7a4f10;
+            flex-shrink: 0;
+        }
+
+        .dify-iframe-wrap {
+            flex: 1;
+            position: relative;
+            min-height: 360px;
+            overflow: hidden;
+        }
+        .dify-fallback {
+            padding: 24px 20px;
+            font-size: 0.88rem; line-height: 1.65;
+            color: var(--text-sub);
+            background: var(--bg-raised);
+            border-radius: var(--radius-md);
+            margin: 12px;
+            border: 1px solid var(--border-mid);
+        }
+
         /* ── Copilot Studio Embed Panel ── */
         .copilot-embed-panel {
             display: none;
@@ -4729,6 +4796,10 @@
                 <svg viewBox="0 0 16 16" style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round" aria-hidden="true"><path d="M3 5h10M5 8h6M7 11h2"/></svg>
                 <span id="toneToggleLabel"><span class="show-es">Más suave</span><span class="lang-sep"> · </span><span class="show-en">Gentle</span></span>
             </button>
+            <div class="coach-mode-toggle" role="group" aria-label="Modo del coach · Coach mode" id="coachModeToggle">
+                <button class="coach-mode-btn active" data-mode="offline" onclick="setCoachMode('offline')" aria-pressed="true" title="Offline Coach / Copilot Studio">Offline</button>
+                <button class="coach-mode-btn" data-mode="dify" onclick="setCoachMode('dify')" aria-pressed="false" title="Dify AI Coach (test mode)">Dify AI</button>
+            </div>
         </div>
 
         <div class="chat-progress" id="chatProgress">
@@ -4828,6 +4899,17 @@
             </div>
             <div class="copilot-iframe-wrap" id="copilotIframeWrap">
                 <!-- iframe injected by initCopilotEmbed() -->
+            </div>
+        </div>
+
+        <!-- ── Dify AI Coach Embed Panel ── -->
+        <div class="dify-embed-panel" id="difyEmbedPanel" role="region" aria-label="Dify AI Coach (modo de prueba · test mode)">
+            <div class="dify-test-notice">
+                <svg viewBox="0 0 16 16" style="width:14px;height:14px;flex-shrink:0;margin-top:1px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round" aria-hidden="true"><path d="M8 2L1 14h14L8 2z"/><path d="M8 7v4M8 12v.5"/></svg>
+                <span>AI coach testing mode: Do not paste private information. Use this coach for writing guidance, not for generating final work. / Modo de prueba: No pegues información privada. Usa este coach para orientación, no para generar trabajo final.</span>
+            </div>
+            <div class="dify-iframe-wrap" id="difyIframeWrap">
+                <!-- iframe injected lazily by setCoachMode('dify') -->
             </div>
         </div>
 
@@ -5311,6 +5393,7 @@ const CONFIG = {
     directLineSecret: '',       // Keep blank in browser-served builds. Do not place Direct Line secrets in client-side code.
     copilotEmbedUrl:  'https://copilotstudio.microsoft.com/environments/Default-6f60f0b3-5f06-4e09-9715-989dba8cc7d8/bots/cr7e4_agentkFTdLB/webchat?__version__=2',
     useCopilotEmbed:  true,     // Set false to fall back to DirectLine / offline mode.
+    difyEmbedUrl:     'https://udify.app/chatbot/ZE9gRf5mVyst2LAX',  // Set '' to disable Dify mode.
     userId:   'student-' + Math.random().toString(36).slice(2, 10),
     userName: 'Estudiante'
 };
@@ -5610,6 +5693,7 @@ const state = {
     showAllJourney: false,
     tone:       'gentle',  // 'gentle' | 'direct'
     lang:       'es',      // 'es' | 'en' | 'both'
+    coachMode:  localStorage.getItem('tupana_coach_mode') || 'offline',  // 'offline' | 'dify'
     coachPerspectiveCallback: null,
     step:       1,
     welcomeShown:    false,
@@ -7859,6 +7943,82 @@ async function sendAppEvent(eventName, eventValue) {
     } catch(err) { console.error('appEvent:', err); }
 }
 
+function setCoachMode(mode) {
+    if (!['offline', 'dify'].includes(mode)) mode = 'offline';
+    state.coachMode = mode;
+    localStorage.setItem('tupana_coach_mode', mode);
+
+    // Sync toggle button states
+    document.querySelectorAll('.coach-mode-btn').forEach(btn => {
+        const on = btn.dataset.mode === mode;
+        btn.classList.toggle('active', on);
+        btn.setAttribute('aria-pressed', String(on));
+    });
+
+    const difyPanel     = document.getElementById('difyEmbedPanel');
+    const copilotPanel  = document.getElementById('copilotEmbedPanel');
+    const chatMessages  = document.getElementById('chatMessages');
+    const typingRow     = document.getElementById('typingRow');
+    const chatInputWrap = document.querySelector('.chat-input-wrap');
+
+    if (mode === 'dify') {
+        if (difyPanel)     difyPanel.classList.add('active');
+        if (copilotPanel)  copilotPanel.classList.remove('active');
+        if (chatMessages)  chatMessages.style.display = 'none';
+        if (typingRow)     typingRow.style.display    = 'none';
+        if (chatInputWrap) chatInputWrap.style.display = 'none';
+
+        D.chatStatus.innerHTML = '● Dify AI';
+        D.chatStatus.classList.remove('idle');
+
+        // Lazy-init Dify iframe once
+        if (difyPanel && !difyPanel.dataset.ready) {
+            difyPanel.dataset.ready = '1';
+            const wrap = document.getElementById('difyIframeWrap');
+            if (wrap) {
+                if (CONFIG.difyEmbedUrl) {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = CONFIG.difyEmbedUrl;
+                    iframe.setAttribute('frameborder', '0');
+                    iframe.setAttribute('title', 'Tu Pana de Escritura AI Writing Coach');
+                    iframe.style.cssText = 'width:100%;height:720px;min-height:700px;border:0;border-radius:12px;display:block;';
+                    iframe.addEventListener('error', () => {
+                        wrap.innerHTML = '<p class="dify-fallback">The AI coach could not load. Switch to Offline Coach mode to continue. / El coach no pudo cargar. Cambia al modo Offline para continuar.</p>';
+                    });
+                    wrap.appendChild(iframe);
+                } else {
+                    wrap.innerHTML = '<p class="dify-fallback">No Dify URL configured. Switch to Offline Coach mode. / URL no configurada. Usa el modo Offline.</p>';
+                }
+            }
+        }
+
+    } else {
+        // Offline mode: show Copilot if configured, else native chat
+        if (difyPanel) difyPanel.classList.remove('active');
+
+        if (CONFIG.useCopilotEmbed && CONFIG.copilotEmbedUrl) {
+            if (copilotPanel)  copilotPanel.classList.add('active');
+            if (chatMessages)  chatMessages.style.display  = 'none';
+            if (typingRow)     typingRow.style.display     = 'none';
+            if (chatInputWrap) chatInputWrap.style.display = 'none';
+
+            // Lazy-init Copilot iframe once
+            if (copilotPanel && !copilotPanel.dataset.ready) {
+                copilotPanel.dataset.ready = '1';
+                initCopilotEmbed();
+            } else {
+                D.chatStatus.innerHTML = '● <span class="show-es">Conectado · Copilot Studio</span><span class="lang-sep"> · </span><span class="show-en">Connected · Copilot Studio</span>';
+                D.chatStatus.classList.remove('idle');
+            }
+        } else {
+            if (copilotPanel)  copilotPanel.classList.remove('active');
+            if (chatMessages)  chatMessages.style.display  = '';
+            if (typingRow)     typingRow.style.display     = '';
+            if (chatInputWrap) chatInputWrap.style.display = '';
+        }
+    }
+}
+
 function initCopilotEmbed() {
     const panel = document.getElementById('copilotEmbedPanel');
     const wrap  = document.getElementById('copilotIframeWrap');
@@ -7888,9 +8048,15 @@ function initCopilotEmbed() {
 }
 
 async function initDL() {
+    // ── Route to Dify or native coach based on saved mode ─────
+    if (state.coachMode === 'dify' && CONFIG.difyEmbedUrl) {
+        setCoachMode('dify');
+        return;
+    }
+
     // ── Copilot Studio embed mode ──────────────────────────────
     if (CONFIG.useCopilotEmbed && CONFIG.copilotEmbedUrl) {
-        initCopilotEmbed();
+        setCoachMode('offline');  // initialises Copilot via setCoachMode
         return;
     }
 

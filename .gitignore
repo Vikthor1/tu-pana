@@ -7,6 +7,7 @@
 # ── Allow deployment files ─────────────────────────────
 !index.html
 !dify-embed-test.html
+!faculty-tedtalk-script.md
 !README.md
 !.gitignore
 

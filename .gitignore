@@ -11,6 +11,28 @@
 !README.md
 !.gitignore
 
+# ── Allow modular assets (JS modules + CSS) ─────────────
+!assets/
+!assets/css/
+!assets/css/styles.css
+!assets/js/
+!assets/js/config.js
+!assets/js/data.js
+!assets/js/prompts.js
+!assets/js/storage.js
+!assets/js/ui.js
+!assets/js/app.js
+
+# ── Allow project documentation ──────────────────────────
+!docs/
+!docs/project-brief.md
+!docs/current-architecture.md
+!docs/hermes-role.md
+
+# ── Allow prompt library ─────────────────────────────────
+!prompts/
+!prompts/qa-scenarios.md
+
 # ── Explicitly ignore internal / private files ─────────
 # (belt-and-suspenders in case the allowlist above is overridden)
 .DS_Store

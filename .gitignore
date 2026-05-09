@@ -25,9 +25,7 @@
 
 # ── Allow project documentation ──────────────────────────
 !docs/
-!docs/project-brief.md
-!docs/current-architecture.md
-!docs/hermes-role.md
+!docs/**
 
 # ── Allow prompt library ─────────────────────────────────
 !prompts/

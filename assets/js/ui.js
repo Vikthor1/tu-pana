@@ -2422,14 +2422,31 @@ async function callOllamaDirect({ text, context, baseUrl, model, lang, prevBotMs
             '\n\nStudent message:\n' + text +
             '\n\nRespond as Tu Pana de Escritura following the stage-specific rules and the language rule above.'
     });
+    const promptChars = messages.reduce((n, m) => n + m.content.length, 0);
+    const t0 = performance.now();
     const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, stream: false, messages })
+        body: JSON.stringify({
+            model,
+            stream:     false,
+            keep_alive: CONFIG.ollamaKeepAlive || '10m',
+            options:    CONFIG.ollamaOptions   || { temperature: 0.4, top_p: 0.85, num_predict: 400, num_ctx: 4096 },
+            messages
+        })
     });
     if (!res.ok) throw new Error('ollama_http_' + res.status);
     const data = await res.json();
-    return (data.message && data.message.content) ? data.message.content : '';
+    const reply = (data.message && data.message.content) ? data.message.content : '';
+    if (location.search.includes('dev=true')) {
+        console.info('[Tu Pana Ollama]', {
+            ms:            Math.round(performance.now() - t0),
+            model:         CONFIG.ollamaModel,
+            promptChars,
+            responseChars: reply.length
+        });
+    }
+    return reply;
 }
 
 async function callLocalCoachProvider(text) {

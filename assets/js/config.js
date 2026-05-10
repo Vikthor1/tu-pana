@@ -13,6 +13,16 @@ const CONFIG = {
     // Later this can point to a local proxy, e.g. http://localhost:3001, without changing any other code.
     ollamaUrl:   'http://localhost:11434',
     ollamaModel: 'qwen2.5:7b',
+    // Local Ollama performance settings.
+    // keep_alive reduces cold-start delays during testing.
+    // options constrain output length and improve rule-following consistency.
+    ollamaKeepAlive: '10m',
+    ollamaOptions: {
+        temperature: 0.4,
+        top_p:       0.85,
+        num_predict: 400,
+        num_ctx:     4096
+    },
     userId:   'student-' + Math.random().toString(36).slice(2, 10),  // Ephemeral. New random suffix per page load. Not persisted.
     userName: 'Estudiante'
 };

@@ -43,14 +43,49 @@ function buildCoachPrompt({
 }
 
 // ════════════════════════════════════════════════════════
-//  PROVIDER ROUTER — main entry point for coaching requests
-//  All AI requests from the workflow pass through here.
-//  Currently delegates to sendMsg() in ui.js (no behavior change).
+//  RAW TEXT GENERATOR — lower-level provider entry point
+//  Returns raw AI response text, or null if the active provider
+//  delivers its response asynchronously (DirectLine callback) or
+//  via an external iframe (Dify).  Callers manage UI state; this
+//  function is pure provider I/O.
 //
-//  Future Gemini path:
-//    if (AI_PROVIDER === 'gemini' && FEATURES.geminiProvider) {
-//        return callGeminiProvider({ message, stageId, studentContext, assignmentConfig });
-//    }
+//  Currently returns text for: Ollama.
+//  Returns null for: DirectLine, demo, offline, Dify.
+//
+//  Both sendCoachMessage() and Stage 10 requestCoachPerspective()
+//  use this function so the Ollama call path is never duplicated.
+//
+//  ui.js functions (callLocalCoachProvider, state) are available at
+//  call time — ai-provider.js loads first but is only invoked after
+//  all scripts are parsed.
+// ════════════════════════════════════════════════════════
+async function generateCoachResponse({ prompt, stageId, studentContext, assignmentConfig, responseFormat = 'text' } = {}) {
+    // Gemini (future, disabled by feature flag)
+    if (AI_PROVIDER === 'gemini' && FEATURES.geminiProvider) {
+        // return await callGeminiProvider({ prompt, stageId, studentContext, assignmentConfig, responseFormat });
+        console.warn('[Tu Pana] Gemini provider flagged but not implemented. Falling back.');
+    }
+
+    // Ollama: synchronously returns raw text
+    if (typeof state !== 'undefined' && state.coachMode === 'ollama') {
+        if (typeof callLocalCoachProvider === 'function') {
+            return await callLocalCoachProvider(prompt);
+        }
+    }
+
+    // DirectLine / demo / offline / Dify: response arrives via callback or iframe
+    return null;
+}
+
+// ════════════════════════════════════════════════════════
+//  PROVIDER ROUTER — coaching UI entry point
+//  Calls generateCoachResponse() for providers that return raw text.
+//  Falls through to sendMsg() for async/iframe providers (DirectLine,
+//  demo, Dify) where sendMsg() manages typing state and display.
+//
+//  Note: sendCoachMessage() is not yet wired as the primary call site
+//  for normal chat. sendMsg() in ui.js remains the entry point for
+//  the main chat flow; this function is the future routing layer.
 // ════════════════════════════════════════════════════════
 async function sendCoachMessage({ message, stageId, studentContext, assignmentConfig } = {}) {
     // Authorship gate secondary check (primary enforcement is in ui.js updateDraftControls)
@@ -63,17 +98,14 @@ async function sendCoachMessage({ message, stageId, studentContext, assignmentCo
         }
     }
 
-    // Route: Gemini (future, disabled by feature flag)
-    if (AI_PROVIDER === 'gemini' && FEATURES.geminiProvider) {
-        // Placeholder — Gemini not connected yet
-        // return await callGeminiProvider({ message, stageId, studentContext, assignmentConfig });
-        console.warn('[Tu Pana] Gemini provider is flagged but not implemented. Falling back.');
+    // Try raw-text path (Ollama; future: Gemini)
+    const rawText = await generateCoachResponse({ prompt: message, stageId, studentContext, assignmentConfig });
+    if (rawText !== null) {
+        if (typeof addMsg === 'function') addMsg(rawText, 'bot');
+        return rawText;
     }
 
-    // Default: delegate to existing sendMsg() in ui.js
-    // sendMsg is a function declaration in ui.js (loaded after this file) — available at call time.
-    if (typeof sendMsg === 'function') {
-        return sendMsg(message);
-    }
+    // Async/iframe providers: delegate to sendMsg() which manages typing and waiting state
+    if (typeof sendMsg === 'function') return sendMsg(message);
     console.error('[Tu Pana] sendMsg not available — check script load order.');
 }

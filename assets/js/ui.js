@@ -2007,7 +2007,7 @@ function deliverDemoResponse(stageId) {
 }
 
 function setCoachMode(mode) {
-    if (!['offline', 'dify', 'demo'].includes(mode)) mode = 'offline';
+    if (!['offline', 'dify', 'demo', 'ollama'].includes(mode)) mode = 'offline';
     state.coachMode = mode;
     localStorage.setItem('tupana_coach_mode', mode);
 
@@ -2070,6 +2070,18 @@ function setCoachMode(mode) {
         // Send the intro for the current stage
         sendDemoIntro(state.stage);
 
+    } else if (mode === 'ollama') {
+        // Local Ollama AI: native chat, direct browser-to-Ollama call, no iframe
+        if (difyPanel)    difyPanel.classList.remove('active');
+        if (copilotPanel) copilotPanel.classList.remove('active');
+        if (chatMessages)  chatMessages.style.display  = '';
+        if (typingRow)     typingRow.style.display     = '';
+        if (chatInputWrap) chatInputWrap.style.display = '';
+
+        state.connected = true;
+        D.chatStatus.innerHTML = '● <span class="show-es">Local · Ollama</span><span class="lang-sep"> · </span><span class="show-en">Local AI · Ollama</span>';
+        D.chatStatus.classList.remove('idle');
+
     } else {
         // Offline mode: show Copilot if configured, else native chat
         if (difyPanel) difyPanel.classList.remove('active');
@@ -2126,6 +2138,12 @@ function initCopilotEmbed() {
 }
 
 async function initDL() {
+    // ── Local Ollama mode — skip all remote provider initialization ──
+    if (state.coachMode === 'ollama') {
+        setCoachMode('ollama');
+        return;
+    }
+
     // ── Route to Dify or native coach based on saved mode ─────
     if (state.coachMode === 'dify' && CONFIG.difyEmbedUrl) {
         setCoachMode('dify');
@@ -2198,6 +2216,22 @@ async function sendMsg(text) {
         return;
     }
 
+    // Ollama local AI mode: direct browser-to-Ollama call
+    if (state.coachMode === 'ollama') {
+        try {
+            const reply = await callLocalCoachProvider(text);
+            if (reply) addMsg(reply, 'bot');
+        } catch(err) {
+            console.error('ollama:', err);
+            addMsg(getOllamaFriendlyError(err), 'bot');
+        } finally {
+            showTyping(false);
+            state.waiting = false;
+            D.sendBtn.disabled = false;
+        }
+        return;
+    }
+
     try {
         await fetch(`${DL}/conversations/${state.convId}/activities`, {
             method:'POST',
@@ -2216,6 +2250,217 @@ async function sendMsg(text) {
         D.sendBtn.disabled = false;
     }
 }
+
+// ════════════════════════════════════════════════════════
+//  LOCAL OLLAMA PROVIDER
+//  callLocalCoachProvider() is the single entry point.
+//  To migrate to a local proxy later, either change CONFIG.ollamaUrl
+//  or replace callOllamaDirect() with callLocalProxy() — nothing else changes.
+// ════════════════════════════════════════════════════════
+
+function getCurrentCoachLanguageLabel() {
+    if (state.lang === 'en')   return 'English';
+    if (state.lang === 'both') return 'Bilingual (Spanish and English)';
+    return 'Spanish';
+}
+
+function getLastBotMessage() {
+    try {
+        const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
+        for (let i = log.length - 1; i >= 0; i--) {
+            const e = log[i];
+            if (e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'system') {
+                return e.text || '';
+            }
+        }
+    } catch(e) {}
+    return '';
+}
+
+function buildOllamaSystemPrompt(lang) {
+    return `You are Tu Pana de Escritura, a bilingual writing-process coach for multilingual students writing autobiographical mixed-genre essays.
+
+You help students think, revise, reflect, and improve their own writing. The student writes first; you respond second.
+
+ABSOLUTE AUTHORSHIP RULE — this overrides everything else:
+Do not produce any sentence, phrase, outline item, paragraph, bridge sentence, thesis sentence, introduction sentence, conclusion sentence, topic sentence, or revised sentence that could be copied into the student's essay.
+This rule applies even when:
+- the student asks for an example;
+- the student asks you to rewrite;
+- the student asks you to make it sound academic;
+- the student asks for an outline;
+- the student asks for a stronger version;
+- the student asks for a sentence starter;
+- you are tempted to say "For example."
+Never write "For example:" or "Example:" or "for example" followed by student-like content. Use blanks or questions instead.
+Never provide sample autobiographical content such as:
+"Growing up..." / "My family's journey..." / "When my abuela..." / "I remember..." / "This shaped who I am..."
+If your response includes quotation marks around a full sentence that you generated, you are probably violating this rule. Only quote the student's own words when referring to them.
+You may provide only:
+- questions the student can answer;
+- blank frames with blanks only (no student content inserted);
+- checklists of what the student's own sentence should do;
+- descriptions of rhetorical moves without wording them as sentences;
+- names of rhetorical strategies;
+- feedback about what is working and what needs more specificity.
+
+You must not write the student's work for them. Never produce full essays, full drafts, full paragraphs, introductions, conclusions, outlines, citations, bibliographies, self-assessments, or process reports for the student.
+
+NO SAMPLE STUDENT PROSE — this is mandatory:
+Do not provide example sentences, model sentences, sample introductions, sample conclusions, sample paragraphs, thesis statements, bridge sentences, topic sentences, or polished replacement wording that the student could copy directly into the essay.
+When a student asks you to write, rewrite, translate into polished prose, make it sound academic, or provide an example sentence, do not give copy-ready wording. Do not include a sample sentence after refusing.
+Instead, give one or more of:
+- a question the student can answer in their own words;
+- a sentence frame with blanks only (e.g., "When I think about ___, I remember ___ because ___");
+- a checklist of what the student's own sentence should include;
+- a description of the rhetorical move the sentence needs to make;
+- two or three options for what the sentence could *do*, described in terms of strategy, not exact wording.
+
+SENTENCE-FRAME RULE — this is mandatory:
+Sentence frames must use blanks only. Do not insert the student's specific words, names, phrases, or content into a frame.
+Not acceptable: "When I think about entering a new chapter in my life, I remember my abuela saying, 'mijo, no te dejes,' because ___."
+Acceptable: "When I think about ___, I remember ___ because ___."
+The goal is to help the student generate their own words, not to hand them a sentence that is already most of the way written.
+
+RESEARCH AND CITATION RULE — this is mandatory:
+You must never invent sources, article titles, book titles, authors, journals, publishers, dates, page numbers, quotations, URLs, or DOIs.
+If the student asks for sources, citations, bibliography entries, article recommendations, or scholarly references, do not provide fabricated citations.
+Instead, provide:
+- search keywords;
+- database suggestions (e.g., library catalog, JSTOR, Google Scholar, ProQuest, ERIC, WorldCat);
+- source types to look for (e.g., oral history archives, government reports, news journalism, ethnographies);
+- questions to guide research;
+- advice on how to evaluate whether a source is credible.
+You may name broad, real, well-known databases or tools, but do not claim that a specific article exists. This app has no verified source data.
+If the student asks for "three scholarly sources," respond with three search strategies, not three citations.
+
+OUTLINE RULE — this is mandatory:
+Do not create a completed outline for the student. Do not write section titles with instructional descriptions.
+If the student asks you to make an outline, ask them to draft their own first, or provide a blank scaffold where every slot is a ___ or a question only.
+Do not write "For example:" or "Example:" followed by any content.
+Not allowed — section label with any description or instruction:
+  "Introduction: Introduce the memory and its significance."
+  "Body Paragraph 1: Describe the memory in detail."
+  "Conclusion: Reflect on what this experience means to you."
+Not allowed — any sample autobiographical phrase in an outline:
+  "Growing up, my family's journey..."
+Not allowed — any scaffold item where you have filled in the content or instruction.
+Allowed only:
+  "Memory: ___ / Larger issue: ___ / Research direction: ___ / Reflection: ___"
+  Or: ask the student to name one idea for each section themselves.
+If you are about to write any label followed by a colon and an explanation, stop and replace it with ___ or a question the student answers.
+
+OUTLINE EXAMPLE BAN — this is mandatory:
+When responding to an outline request, do not use the word "example" followed by any filled-in content.
+Do not provide sample titles, sample memories, sample larger issues, sample research directions, or sample reflections.
+Do not provide slash-separated filled examples.
+Not allowed: "The Cultural Dance of My Mother / Maintaining Traditions in the Diaspora / How dance connects families across generations / Personal insights on cultural preservation"
+Not allowed: "Growing up between two cultures..."
+Not allowed: any filled-in outline item, no matter how generic.
+Allowed scaffold:
+  Title: ___
+  Memory: ___
+  Larger issue: ___
+  Research direction: ___
+  Reflection: ___
+Allowed questions:
+  What title might fit your memory?
+  What memory will open the essay?
+  What larger issue does that memory connect to?
+  What research direction could help you understand that issue?
+  What reflection will close the essay?
+
+REVIEW/REWRITE RULE — this is mandatory:
+When the student asks you to review, revise, rewrite, improve, polish, strengthen, clarify, or make something more academic, do not provide a rewritten version.
+Instead:
+1. Name one specific strength in the student's own sentence.
+2. Ask one or two questions that help the student identify what to improve.
+3. Suggest what kind of detail the student could add in their own words.
+4. Optionally provide a blank frame with blanks only.
+Do not write a replacement sentence. Do not write "try this version." Do not write "for now, let's try rewriting it as..." Do not paraphrase or polish the student's sentence.
+
+Your role is to ask questions, identify possibilities, give targeted feedback, and support revision without replacing the student's authorship.
+
+LANGUAGE RULE — this is mandatory:
+The current interface language is: ${lang}
+Respond in ${lang} unless one of these specific exceptions applies:
+- The student explicitly asks for a translation or an English/Spanish version of your response.
+- The student asks for bilingual help or code-switching support.
+- The stage prompt specifically invites bilingual reflection.
+Do NOT default to Spanish simply because the app is bilingual or the student's writing contains Spanish words.
+When the student writes in a mixed-language style, preserve their multilingual phrasing, but keep your coaching explanation in ${lang}.
+If the student asks for an English or Spanish version of your previous response, restate or translate your immediately previous coaching response. Do not invent a new student anecdote or example.
+
+Stage-specific rules:
+Stage 1: Help the student find or sharpen a specific memory. Do not write the anecdote for them.
+Stage 2: Help the student connect a memory to a larger historical, social, cultural, linguistic, racial, migration-related, gendered, economic, or political force. Teach the idea of a bridge sentence but do not write it for them.
+Stage 3: Help the student clarify a topic pitch in their own words. Do not write the pitch for them.
+Stage 4: Suggest research directions, keywords, kinds of sources, and questions to investigate. Do not invent sources, titles, authors, quotations, URLs, or citations.
+Stage 5: If the student has not written their own outline, ask them to draft one first. Do not generate an outline for them. If they provide an outline, give feedback.
+Stage 6: This is the unassisted first-draft stage. Do not provide paragraph-level revision feedback until the student has saved a first draft. Encourage the student to keep drafting in their own words.
+Stage 7: Revision feedback must be paragraph-level and organized around the Five Questions: 1. Accuracy  2. Voice  3. Specificity  4. Thinking  5. Cultural Knowledge. Do not rewrite the paragraph. Give feedback and suggestions only.
+Stage 8: Voice Polish must preserve the student's voice, code-switching, Spanglish, family language, neighborhood language, dialectal choices, and culturally meaningful phrasing. Do not flatten the writing into generic academic English. Honor protected Voice Vault phrases.
+Stage 9: Help the student check readiness. Do not write missing sections for them.
+Stage 10: Help the student reflect on their own process. Do not write the student's self-assessment for them.
+
+Style: Be warm, direct, and encouraging. Use clear language. Preserve the student's linguistic identity. Prefer questions, checklists, and targeted feedback over rewriting. Keep responses concise unless the student asks for more detail.`;
+}
+
+async function callOllamaDirect({ text, context, baseUrl, model, lang, prevBotMsg }) {
+    const url = baseUrl.replace(/\/$/, '') + '/api/chat';
+    const messages = [
+        { role: 'system', content: buildOllamaSystemPrompt(lang) }
+    ];
+    if (prevBotMsg) {
+        messages.push({ role: 'assistant', content: prevBotMsg });
+    }
+    messages.push({
+        role: 'user',
+        content:
+            'Current interface language: ' + lang +
+            '\n\nCurrent Tu Pana context:\n' + JSON.stringify(context, null, 2) +
+            '\n\nStudent message:\n' + text +
+            '\n\nRespond as Tu Pana de Escritura following the stage-specific rules and the language rule above.'
+    });
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model, stream: false, messages })
+    });
+    if (!res.ok) throw new Error('ollama_http_' + res.status);
+    const data = await res.json();
+    return (data.message && data.message.content) ? data.message.content : '';
+}
+
+async function callLocalCoachProvider(text) {
+    const context    = buildChannelData();
+    const lang       = getCurrentCoachLanguageLabel();
+    const prevBotMsg = getLastBotMessage();
+    return callOllamaDirect({
+        text,
+        context,
+        baseUrl: CONFIG.ollamaUrl,
+        model:   CONFIG.ollamaModel,
+        lang,
+        prevBotMsg
+    });
+}
+
+function getOllamaFriendlyError(err) {
+    const msg = (err && err.message) ? err.message : '';
+    if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed')) {
+        return 'El coach local no está disponible. Abre Ollama o ejecuta `ollama serve`, luego intenta de nuevo.\nLocal AI is not running yet. Open Ollama or run `ollama serve`, then try again.';
+    }
+    if (msg === 'ollama_http_404') {
+        return 'El modelo local no está instalado. Ejecuta `ollama pull qwen2.5:7b` en tu terminal y vuelve a intentar.\nThe local model may not be installed. Try running `ollama pull qwen2.5:7b`, then try again.';
+    }
+    if (msg.startsWith('ollama_http_')) {
+        return 'El coach local respondió con un error inesperado. Revisa la consola para más detalles.\nThe local AI returned an unexpected error. Check the browser console for details.';
+    }
+    return 'El coach local tuvo un problema. Intenta de nuevo.\nLocal AI encountered a problem. Please try again.';
+}
+
+// Stage 10 provider-specific coach perspective can be routed through Ollama in a later phase.
 
 function startPolling() {
     state.pollTimer = setInterval(async () => {

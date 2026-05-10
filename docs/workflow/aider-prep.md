@@ -11,7 +11,7 @@ Start Aider experiments on these files only:
 | File | Why it's safe |
 |------|--------------|
 | `assets/js/config.js` | 14 lines. One object. No dependencies on other files. |
-| `assets/js/storage.js` | 76 lines. Three isolated functions. |
+| `assets/js/storage.js` | 76 lines. Three isolated functions. **Key-array edits: use Claude's Edit tool directly — see Known unreliable patterns.** |
 | `assets/js/data.js` | ~282 lines. Pure data — no DOM, no state. |
 | `assets/js/prompts.js` | ~373 lines. Coaching content — no stage logic. |
 
@@ -72,6 +72,16 @@ Discard Aider/Hermes output and apply directly if the dry-run shows any of these
 Seeing one of the above is not a Hermes failure — it is the `--dry-run` protocol working correctly. Discard the output, apply the edit directly with Claude's Edit tool, verify with `git diff`, and proceed normally.
 
 **Confirmed on 2026-05-09** (data.js `getIcon` fix): Hermes correctly identified the `ah` line fix but missed the `style` fix, swapped attribute order, and added spurious inline comments. Dry-run prevented the write; Claude's Edit tool applied the correct 3-line change.
+
+### Known unreliable patterns — skip dry-run, use Claude's Edit tool directly
+
+Some task types have failed Hermes dry-runs three or more consecutive times with no clean output. For these, skip the dry-run entirely and apply with Claude's Edit tool, then verify with `git diff`.
+
+| File | Task type | Failure mode observed | Confirmed |
+|------|-----------|----------------------|-----------|
+| `assets/js/storage.js` | Adding a key to `exportData()` or `clearAllData()` key arrays | Three consecutive failures (2026-05-09): SEARCH block omitted `tupana_lang`; wrong section targeted (forEach body instead of array); completely wrong section (blob/download code) with unwanted additions and deletions | 2026-05-09 (M1a, M1b, S2) |
+
+**Protocol for known-unreliable patterns:** Apply the edit directly with Claude's Edit tool. Use unique surrounding context to disambiguate identical-looking lines (e.g., `tupana_lang` is present in `exportData`'s array but absent from `clearAllData`'s). Always run `git diff` after and confirm only the intended line changed before committing.
 
 **Standard Aider invocation for Hermes:**
 

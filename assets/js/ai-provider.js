@@ -98,14 +98,12 @@ async function sendCoachMessage({ message, stageId, studentContext, assignmentCo
         }
     }
 
-    // Try raw-text path (Ollama; future: Gemini)
-    const rawText = await generateCoachResponse({ prompt: message, stageId, studentContext, assignmentConfig });
-    if (rawText !== null) {
-        if (typeof addMsg === 'function') addMsg(rawText, 'bot');
-        return rawText;
-    }
-
-    // Async/iframe providers: delegate to sendMsg() which manages typing and waiting state
+    // Future: when Gemini (or another raw-text provider) is enabled, call
+    // generateCoachResponse() here, handle full UI setup/teardown, and return.
+    // For now, all providers route through sendMsg() which manages typing state,
+    // student message display, process logging, and Ollama internally via
+    // generateCoachResponse(). Adding a raw-text branch here before sendMsg()
+    // handles UI state would silently skip typing indicators and process events.
     if (typeof sendMsg === 'function') return sendMsg(message);
     console.error('[Tu Pana] sendMsg not available — check script load order.');
 }

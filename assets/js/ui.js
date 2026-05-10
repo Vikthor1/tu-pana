@@ -2597,7 +2597,7 @@ function submitChat() {
     D.chatInput.value = '';
     D.chatInput.style.height = 'auto';
     D.sendBtn.disabled = true;
-    sendMsg(t);
+    sendCoachMessage({ message: t, stageId: getStageId(state.stage) });
 }
 
 // ════════════════════════════════════════════════════════

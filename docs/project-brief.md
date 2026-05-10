@@ -20,13 +20,13 @@ Tu Pana is built on three commitments that must survive every future change:
 |---|------|-------------|
 | 1 | Anécdota | Personal moment — free writing |
 | 2 | Conexión | Connecting experience to context |
-| 3 | Tema | Thesis pitch |
+| 3 | Tu Pitch | Topic pitch — 4–6 sentence argument in the student's own words |
 | 4 | Investigación | Research questions and sources |
 | 5 | Esquema | Essay outline |
 | 6 | Borrador | **Authorship gate** — save before advancing |
 | 7 | Revisión | Five Questions protocol + revision decisions log |
 | 8 | Pulir Voz | Voice polish + Voice Vault |
-| 9 | Tu Voz | Positionality reflection |
+| 9 | Checklist | Verify all submission materials are complete before turning in |
 | 10 | Capstone | Self-assessment (10A) → Coach perspective (10B) → Student response (10C) → Instructor Report |
 
 ## Technical constraints (intentional, not incidental)

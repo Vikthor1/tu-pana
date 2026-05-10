@@ -13,7 +13,7 @@ tu-pana/
 │   │   └── styles.css      All CSS (~4,622 lines). Mobile breakpoints appended at end.
 │   └── js/
 │       ├── config.js       14 lines. CONFIG object: embed URLs, userId, coach mode flag.
-│       ├── data.js         ~282 lines. Pure data: ICONS, getIcon(), STAGES, TRANSITIONS, STEPS.
+│       ├── data.js         ~282 lines. Pure data: ICONS, getIcon(), STAGES, STAGE_TRANSITIONS, STAGE_STEPS.
 │       ├── prompts.js      ~373 lines. Coaching content + display functions (showStuckMini, etc.).
 │       ├── storage.js      76 lines. exportData(), importData(), clearAllData().
 │       ├── ui.js           ~4,480 lines. Everything else: state, DOM cache (D), all render functions.
@@ -29,7 +29,7 @@ tu-pana/
 
 ```html
 <script src="assets/js/config.js"></script>   <!-- 1. CONFIG global -->
-<script src="assets/js/data.js"></script>      <!-- 2. STAGES, ICONS, TRANSITIONS, STEPS -->
+<script src="assets/js/data.js"></script>      <!-- 2. STAGES, ICONS, STAGE_TRANSITIONS, STAGE_STEPS -->
 <script src="assets/js/prompts.js"></script>   <!-- 3. MICRO_PROMPTS, PANA_HINTS, REVISION_* -->
 <script src="assets/js/storage.js"></script>   <!-- 4. exportData, importData, clearAllData -->
 <script src="assets/js/ui.js"></script>        <!-- 5. state, D, all render functions -->
@@ -44,8 +44,8 @@ Order matters. `ui.js` depends on data from files 1–4. `app.js` calls function
 |--------|-----------|------------|
 | `CONFIG` | config.js | Embed URLs, userId, coach mode |
 | `STAGES` | data.js | Array of 10 stage objects `{id, es, en, desc}` |
-| `TRANSITIONS` | data.js | Per-stage CTA labels and completion text |
-| `STEPS` | data.js | Sub-steps within each stage |
+| `STAGE_TRANSITIONS` | data.js | Per-stage CTA labels and completion text |
+| `STAGE_STEPS` | data.js | Sub-steps within each stage |
 | `ICONS` | data.js | SVG icon library (keyed by name) |
 | `MICRO_PROMPTS` | prompts.js | Per-stage micro-task + sentence starter arrays |
 | `PANA_HINTS` | prompts.js | Coach nudge strings |
@@ -96,6 +96,9 @@ All keys use the `tupana_` prefix. **Do not rename** — renaming breaks existin
 | `tupana_report_meta` | JSON — `{studentName, assignmentTitle, courseSection}` |
 | `tupana_process_note` | Process note textarea content |
 | `tupana_completion_shown` | Completion celebration shown flag |
+| `tupana_eval_stats` | Evaluation streak stats (via `EVAL_STATS_KEY` in ui.js) |
+| `tupana_progress_collapsed` | Progress panel collapsed state (UI preference — survives reset) |
+| `tupana_spotlight_off` | Spotlight feature disabled preference (UI preference — survives reset) |
 
 ## Mobile architecture
 

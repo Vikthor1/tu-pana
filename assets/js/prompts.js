@@ -78,7 +78,7 @@ function showStuckMini() {
 
     const stage = state.stage;
     const prompts = MICRO_PROMPTS[stage] || MICRO_PROMPTS[6];
-    if (!stuckMiniIdx[stage]) stuckMiniIdx[stage] = 0;
+    if (stuckMiniIdx[stage] === undefined) stuckMiniIdx[stage] = 0;
     const idx   = stuckMiniIdx[stage] % prompts.length;
     const p     = prompts[idx];
     const aff   = STUCK_AFFIRMATIONS[Math.floor(Math.random() * STUCK_AFFIRMATIONS.length)];

@@ -250,6 +250,7 @@ function protectSelectedPhrase() {
     updateProtectBtn();
     showEditStatus(t('✓ Protegida · Protected', '✓ Phrase protected'));
     sendAppEvent('phraseProtected', { phrase: text, totalProtected: phrases.length });
+    logProcessEvent('voice_vault_phrase_added', `Voice Vault: phrase protected (${text.length} chars). Total: ${phrases.length}.`);
 }
 
 function renderVoiceVault() {
@@ -414,6 +415,7 @@ function submitCapstone() {
     const data = loadCapstoneData();
     data.completed = true;
     _saveCapstoneRaw(data);
+    logProcessEvent('capstone_self_assessment_completed', 'Stage 10A self-assessment submitted.');
 
     // Inject report trigger into done-message
     if (done && !document.getElementById('instrReportTrigger')) {
@@ -1247,6 +1249,7 @@ function goToStage(id) {
 
     if (id > 1) state.done.add(id - 1);
     state.stage = id;
+    logProcessEvent('stage_advanced', `Advanced to Stage ${id}${STAGES[id - 1] ? ' — ' + STAGES[id - 1].en : ''}.`);
     state.step  = loadStepForStage(id);
     const s = STAGES[id - 1];
     if (D.headerSub) {
@@ -1612,6 +1615,7 @@ function executeSave() {
         localStorage.setItem('tupana_draft_saved', 'true');
         localStorage.setItem('tupana_writing_s6',  D.draftArea.value);
     } catch(e) {}
+    logProcessEvent('first_draft_saved', `Unassisted first draft saved. Word count: ${D.draftArea.value.trim().split(/\s+/).filter(Boolean).length}.`);
 
     D.modalBg.classList.add('on');
     // Move focus to the Continue button for keyboard/screen-reader users
@@ -1704,6 +1708,10 @@ function addMsg(text, who, skipLog, msgType) {
         D.chatMessages.appendChild(strip);
         D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
         return msgId;
+    }
+
+    if (who === 'bot') {
+        logProcessEvent('coach_response_received', 'Coach response received.');
     }
 
     const wrap = document.createElement('div');
@@ -2219,7 +2227,10 @@ async function initDL() {
 
 async function sendMsg(text) {
     if (!state.connected || state.waiting) return;
-    if (text !== '__INIT__') addMsg(text, 'user');
+    if (text !== '__INIT__') {
+        addMsg(text, 'user');
+        logProcessEvent('coach_message_sent', 'Student sent message to coach.');
+    }
     state.waiting = true;
     showTyping(true);
     D.sendBtn.disabled = true;
@@ -2592,6 +2603,25 @@ function loadStageWork(stageNum) {
         if (stageNum >= 6) return localStorage.getItem('tupana_draft') || '';
         return '';
     } catch(e) { return ''; }
+}
+
+// ════════════════════════════════════════════════════════
+//  PROCESS LOG — structured event writer
+//  Key and schema defined in genre-template.js (PROCESS_LOG_KEY).
+//  Called at each of the 8 core pilot-evidence events.
+// ════════════════════════════════════════════════════════
+function logProcessEvent(actionType, summary) {
+    try {
+        const log = JSON.parse(localStorage.getItem(PROCESS_LOG_KEY) || '[]');
+        log.push({
+            timestamp:   new Date().toISOString(),
+            stageId:     getStageId(state.stage),
+            stageNumber: state.stage,
+            actionType:  actionType,
+            summary:     summary
+        });
+        localStorage.setItem(PROCESS_LOG_KEY, JSON.stringify(log));
+    } catch(e) {}
 }
 
 // ════════════════════════════════════════════════════════
@@ -3293,6 +3323,8 @@ function evalMsgPick(msgId, qKey, choice) {
         log.push({ q: q ? q.label : qKey, choice: choice, t: new Date().toISOString() });
         localStorage.setItem('tupana_decisions', JSON.stringify(log.slice(-50)));
     } catch(e) {}
+    const _evalQ = EVAL_QUESTIONS.find(x => x.key === qKey);
+    logProcessEvent('feedback_evaluated', `Feedback evaluated: "${_evalQ ? _evalQ.label : qKey}" — ${choice}.`);
 
     renderDecisionLog();
     renderBadges();
@@ -4759,6 +4791,8 @@ function injectInstructorReportPanel(scrollTo) {
     const finalStageObj = STAGES[state.stage - 1];
     const finalStageName = finalStageObj ? `${state.stage} — ${finalStageObj.en}` : state.stage;
     const stagesDone = Array.from({ length: 10 }, (_,i) => i + 1).filter(i => state.done.has(i) || i < state.stage);
+
+    logProcessEvent('instructor_report_generated', 'Instructor Process Report generated for Stage 10.');
 
     const panel = document.createElement('div');
     panel.className = 'instr-panel';

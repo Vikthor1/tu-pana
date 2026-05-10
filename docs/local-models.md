@@ -103,15 +103,15 @@ TOON is a possible future experiment for JSON → TOON → LLM context compressi
 
 ---
 
-## Aider Integration Notes (future)
+## Aider Integration Notes
 
-**Aider is not yet installed.** Preferred installation method when ready: `pipx` (isolates Aider from system Python with no ongoing maintenance overhead).
+**Aider is installed via pipx** (Python 3.9, isolates Aider from system Python with no ongoing maintenance overhead).
 
 ```bash
-pipx install aider-chat
+pipx install aider-chat --python /opt/homebrew/bin/python3.9
 ```
 
-When installed, pass Hermes as the local model:
+Pass Hermes as the local model (handled automatically by `.aider.conf.yml`):
 
 ```bash
 aider --model ollama/hermes3:8b

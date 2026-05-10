@@ -1,6 +1,6 @@
 # Aider Preparation Notes — Tu Pana de Escritura
 
-*Aider is not yet installed. This document records preparation so setup is fast when the time comes.*
+*Aider is installed via pipx (Python 3.9). Run from `/Users/Victor1/Sites/tupana`. Model and safety defaults are set in `.aider.conf.yml`.*
 
 ---
 
@@ -41,6 +41,31 @@ Start Aider experiments on these files only:
 - Ask Aider to add a new `<script>` tag or change the load order
 - Ask Aider to rename any `tupana_*` localStorage key
 - Accept a diff that touches more files than the task required
+
+---
+
+## Hermes model constraints
+
+These constraints were confirmed during the first live Aider session (2026-05-09). Violations produce destructive output caught only by `--dry-run`.
+
+| Constraint | Detail |
+|-----------|--------|
+| **Always use `--edit-format diff`** | Hermes fails the `whole` format on files longer than ~50 lines. It collapses content into `// ... rest of content ...` stubs, deleting the file body. |
+| **Never use whole-file edit mode** | Do not omit `--edit-format diff`. The default `whole` format is unsafe with Hermes for any non-trivial file. |
+| **Always target files explicitly** | Pass the file path as a positional argument: `aider docs/local-models.md`. Never let Aider infer what to edit. |
+| **Use `--dry-run` for all first attempts** | Any new task type or file not previously tested gets a dry-run before the live edit. Review the proposed diff before proceeding. |
+| **Review `git diff` before committing** | After every live Aider edit, run `git diff` and confirm only the intended lines changed. |
+| **No auto-commits** | `auto-commits: false` is set in `.aider.conf.yml`. Never override this. Human review and commit message are always required. |
+
+**Standard Aider invocation for Hermes:**
+
+```bash
+aider <file> \
+  --edit-format diff \
+  --message "..." \
+  --dry-run \       # remove after reviewing dry-run output
+  --yes-always
+```
 
 ---
 
@@ -90,9 +115,10 @@ Aider generates commits automatically. Rewrite the message to describe *why*:
 
 ---
 
-## Before installing Aider
+## First-session checklist (completed 2026-05-09)
 
-- [ ] `pip install aider-chat` (or `pipx install aider-chat`)
-- [ ] Test first on `config.js` — smallest possible change
-- [ ] Confirm Aider can read `docs/` context files
-- [ ] Confirm commit format matches project git log style
+- [x] `pipx install aider-chat --python /opt/homebrew/bin/python3.9`
+- [x] `.aider.conf.yml` configured: model, API base, safety defaults
+- [x] Dry-run validated on `docs/local-models.md` — caught destructive whole-file output from Hermes
+- [x] Confirmed `--edit-format diff` required for Hermes on files > ~50 lines
+- [ ] First code edit on `config.js` or `data.js` (next safe target)

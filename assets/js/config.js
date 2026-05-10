@@ -9,6 +9,6 @@ const CONFIG = {
     copilotEmbedUrl:  'https://copilotstudio.microsoft.com/environments/Default-6f60f0b3-5f06-4e09-9715-989dba8cc7d8/bots/cr7e4_agentkFTdLB/webchat?__version__=2',
     useCopilotEmbed:  true,     // Set false to fall back to DirectLine / offline mode.
     difyEmbedUrl:     'https://udify.app/chatbot/ZE9gRf5mVyst2LAX',  // Set '' to disable Dify mode.
-    userId:   'student-' + Math.random().toString(36).slice(2, 10),
+    userId:   'student-' + Math.random().toString(36).slice(2, 10),  // Ephemeral. New random suffix per page load. Not persisted.
     userName: 'Estudiante'
 };

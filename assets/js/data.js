@@ -36,9 +36,9 @@ const ICONS = {
 function getIcon(name, size, ariaHidden) {
     const svg = ICONS[name];
     if (!svg) return '';
-    const ah = ariaHidden !== false ? 'aria-hidden="true"' : '';
-    const style = size ? `style="width:${size}px;height:${size}px"` : '';
-    return `<span class="tp-icon" ${style} ${ah}>${svg}</span>`;
+    const ah = ariaHidden !== false ? ' aria-hidden="true"' : '';
+    const style = size ? ` style="width:${size}px;height:${size}px"` : '';
+    return `<span class="tp-icon"${style}${ah}>${svg}</span>`;
 }
 
 // ════════════════════════════════════════════════════════

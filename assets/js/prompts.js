@@ -65,7 +65,7 @@ const MICRO_PROMPTS = {
 const STUCK_AFFIRMATIONS = [
     "No pasa nada. Let's make this smaller.",
     'One sentence. That is all we need right now.',
-    'The blank page is acting dramatic. Let\'s give it one sentence and calm it down.',
+    "The blank page is acting dramatic. Let's give it one sentence and calm it down.",
     'This is not the whole essay. This is just one brave little sentence.',
     'Café first, panic later. Actually, no panic — just one sentence.'
 ];

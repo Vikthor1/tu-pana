@@ -731,20 +731,13 @@ async function requestCoachPerspective() {
     const compareBtn = document.getElementById('capstoneCompareBtn');
     if (compareBtn) { compareBtn.disabled = true; compareBtn.textContent = 'Generando... / Generating...'; }
 
-    if (!state.connected) {
-        renderCoachPerspectiveOffline();
-        return;
-    }
-
-    const data      = loadCapstoneData();
-    const ratings   = data.ratings || {};
-    const draft     = D.draftArea ? D.draftArea.value.trim() : '';
-
+    const data        = loadCapstoneData();
+    const ratings     = data.ratings || {};
+    const draft       = D.draftArea ? D.draftArea.value.trim() : '';
     const ratingLabel = val => {
         const r = CAPSTONE_RATINGS.find(r => r.val === val);
         return r ? r.en : 'Not rated';
     };
-
     const ratingsText = CAPSTONE_CRITERIA.map(c =>
         `- ${c.en}: ${ratingLabel(ratings[c.key])}`
     ).join('\n');
@@ -761,6 +754,32 @@ ${draft.slice(0, 1400)}
 Required JSON format (fill in all 8 dimensions; use only these rating values: "Still developing", "Taking shape", "Strong", "Very strong"):
 {"coachPerspective":[{"dimension":"Opening / Anecdote","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Connection","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Evidence / Specificity","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Voice","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Revision","rating":"...","observation":"...","suggestion":"..."},{"dimension":"AI Judgment","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Conocimiento / Cultural Knowledge","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Next Step","rating":"...","observation":"...","suggestion":"..."}],"limitations":"I cannot fully judge the cultural, community, or lived meaning of your examples. You and your professor are better positioned to decide whether those examples represent your experience accurately and respectfully."}`;
 
+    // Ollama path: route through local provider directly so the reply text can be
+    // passed to handleCoachPerspectiveResponse() instead of addMsg().
+    // sendCoachMessage() currently delegates to sendMsg() → addMsg(), which does not
+    // return the text — so we call callLocalCoachProvider() directly here, mirroring
+    // what sendMsg() does internally for every other ollama request.
+    if (state.coachMode === 'ollama') {
+        state.waiting = true;
+        showTyping(true);
+        try {
+            const reply = await callLocalCoachProvider(prompt);
+            handleCoachPerspectiveResponse(reply || '');
+        } catch(err) {
+            console.error('coachPerspective:ollama', err);
+            showTyping(false);
+            state.waiting = false;
+            renderCoachPerspectiveOffline();
+        }
+        return;
+    }
+
+    if (!state.connected) {
+        renderCoachPerspectiveOffline();
+        return;
+    }
+
+    // DirectLine path (Copilot / Bot Framework)
     state.coachPerspectiveCallback = text => handleCoachPerspectiveResponse(text);
     state.waiting = true;
     showTyping(true);

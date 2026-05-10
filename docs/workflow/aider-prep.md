@@ -53,9 +53,25 @@ These constraints were confirmed during the first live Aider session (2026-05-09
 | **Always use `--edit-format diff`** | Hermes fails the `whole` format on files longer than ~50 lines. It collapses content into `// ... rest of content ...` stubs, deleting the file body. |
 | **Never use whole-file edit mode** | Do not omit `--edit-format diff`. The default `whole` format is unsafe with Hermes for any non-trivial file. |
 | **Always target files explicitly** | Pass the file path as a positional argument: `aider docs/local-models.md`. Never let Aider infer what to edit. |
+| **Single targeted line changes only** | Hermes is reliable for 1 line per SEARCH/REPLACE block. For 2+ coordinated changes in the same block, use `--dry-run` and strongly prefer Claude's Edit tool if output shows any ambiguity. |
 | **Use `--dry-run` for all first attempts** | Any new task type or file not previously tested gets a dry-run before the live edit. Review the proposed diff before proceeding. |
+| **Reject imperfect dry-run output immediately** | If the dry-run shows partial application, reordered expressions, spurious comments, or scope errors — discard entirely. Do not try to salvage it. |
 | **Review `git diff` before committing** | After every live Aider edit, run `git diff` and confirm only the intended lines changed. |
 | **No auto-commits** | `auto-commits: false` is set in `.aider.conf.yml`. Never override this. Human review and commit message are always required. |
+
+### When to fall back to Claude's Edit tool
+
+Discard Aider/Hermes output and apply directly if the dry-run shows any of these:
+
+- **Partial application** — only some of the requested lines were changed
+- **Order changes** — attributes, arguments, or expressions reordered without being asked
+- **Spurious comments** — `// changed here`, `// modified`, or similar debug artifacts in production code
+- **Extra deletions or additions** — REPLACE block touches more lines than the SEARCH warranted
+- **Structural scope errors** — closing braces missing from or added to the REPLACE block
+
+Seeing one of the above is not a Hermes failure — it is the `--dry-run` protocol working correctly. Discard the output, apply the edit directly with Claude's Edit tool, verify with `git diff`, and proceed normally.
+
+**Confirmed on 2026-05-09** (data.js `getIcon` fix): Hermes correctly identified the `ah` line fix but missed the `style` fix, swapped attribute order, and added spurious inline comments. Dry-run prevented the write; Claude's Edit tool applied the correct 3-line change.
 
 **Standard Aider invocation for Hermes:**
 
@@ -121,4 +137,6 @@ Aider generates commits automatically. Rewrite the message to describe *why*:
 - [x] `.aider.conf.yml` configured: model, API base, safety defaults
 - [x] Dry-run validated on `docs/local-models.md` — caught destructive whole-file output from Hermes
 - [x] Confirmed `--edit-format diff` required for Hermes on files > ~50 lines
-- [ ] First code edit on `config.js` or `data.js` (next safe target)
+- [x] First code edit: `config.js` — single comment addition, clean SEARCH/REPLACE
+- [x] Second code edit: `storage.js` — single key added to array, clean SEARCH/REPLACE
+- [x] Third code edit: `data.js` — 3-line coordinated change; dry-run caught partial/incorrect output; Claude's Edit tool applied correctly. Confirmed Hermes reliable limit: 1 line per block.

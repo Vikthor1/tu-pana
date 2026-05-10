@@ -60,16 +60,6 @@
     </div>
 </div>
 
-<!-- ── Mobile Panel Tabs (phone only; hidden on desktop via CSS) ── -->
-<div class="mobile-tabs" id="mobileTabs" role="tablist" aria-label="Cambiar panel · Switch panel">
-    <button class="mobile-tab mobile-tab-active" id="tabDraft" role="tab" aria-selected="true" onclick="switchMobileTab('draft')">
-        <span class="show-es">Borrador</span><span class="show-en">Draft</span>
-    </button>
-    <button class="mobile-tab" id="tabChat" role="tab" aria-selected="false" onclick="switchMobileTab('chat')">
-        Tu Pana
-    </button>
-</div>
-
 <!-- ── Workspace ── -->
 <main class="workspace" id="main">
 
@@ -134,6 +124,7 @@
         <div class="draft-textarea-wrap">
             <textarea class="draft-textarea" id="draftArea"
                 aria-label="Tu borrador — escribe aquí primero · Your draft — write here first"
+                spellcheck="true"
                 placeholder="Empieza con tus propias palabras...&#10;&#10;Start with your own words. Don't worry about grammar or perfection.&#10;&#10;La primera vez que... / The first time I...&#10;En mi familia siempre... / In my family we always...&#10;Recuerdo el día que... / I remember the day when..."
             ></textarea>
             <div class="word-count" id="wordCount" aria-live="polite" aria-label="Conteo de palabras · Word count">0 palabras · words</div>
@@ -380,6 +371,16 @@
     </section>
 
 </main>
+
+<!-- ── Mobile Panel Tabs (phone only; below workspace for bottom-nav thumb reach) ── -->
+<div class="mobile-tabs" id="mobileTabs" role="tablist" aria-label="Cambiar panel · Switch panel">
+    <button class="mobile-tab mobile-tab-active" id="tabDraft" role="tab" aria-selected="true" onclick="switchMobileTab('draft')">
+        <span class="show-es">Borrador</span><span class="show-en">Draft</span>
+    </button>
+    <button class="mobile-tab" id="tabChat" role="tab" aria-selected="false" onclick="switchMobileTab('chat')">
+        Tu Pana
+    </button>
+</div>
 
 <!-- ════════════════════════════════════════
      PHASE CELEBRATION TOAST
@@ -800,7 +801,9 @@
 
 <script src="assets/js/config.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/genre-template.js"></script>
 <script src="assets/js/prompts.js"></script>
+<script src="assets/js/ai-provider.js"></script>
 <script src="assets/js/storage.js"></script>
 <script src="assets/js/ui.js"></script>
 <script src="assets/js/app.js"></script>

@@ -2079,7 +2079,7 @@
         }
         .instr-preview-head-label { font-size: 0.72rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.06em; }
         .instr-preview {
-            max-height: 220px; overflow-y: auto;
+            max-height: 520px; overflow-y: auto;
             padding: 14px 16px;
             font-size: 0.78rem; line-height: 1.7;
             color: var(--text-main); white-space: pre-wrap; word-break: break-word;
@@ -2662,17 +2662,36 @@
             border: 1px solid var(--border-mid);
             border-left: 3px solid var(--jade);
             border-radius: var(--radius-md);
-            padding: 10px 14px 12px;
+            padding: 8px 14px 10px;
             margin-top: 4px;
             animation: msgIn 0.3s ease;
             box-shadow: var(--shadow-sm);
         }
+        /* <details> reset */
+        .followup-panel summary { list-style: none; }
+        .followup-panel summary::-webkit-details-marker { display: none; }
         .followup-title {
             font-size: 0.68rem; font-weight: 700;
             letter-spacing: 0.07em; text-transform: uppercase;
             color: var(--jade-text);
-            margin-bottom: 8px;
             display: flex; align-items: center; gap: 6px;
+            cursor: pointer;
+        }
+        /* Collapsed state: no bottom margin; show a ▸ chevron */
+        .followup-summary {
+            margin-bottom: 0;
+            user-select: none;
+        }
+        .followup-summary::after {
+            content: ' ▸';
+            font-size: 0.62rem;
+            opacity: 0.6;
+        }
+        details.followup-panel[open] .followup-summary {
+            margin-bottom: 8px;
+        }
+        details.followup-panel[open] .followup-summary::after {
+            content: ' ▾';
         }
         .followup-chips {
             display: flex; flex-wrap: wrap; gap: 6px;
@@ -4131,7 +4150,7 @@
         /* Dim the entire opposite panel */
         body.spotlight-coach .draft-panel,
         body.spotlight-editor .chat-panel {
-            opacity: 0.22;
+            opacity: 0.10;
             pointer-events: none;
             transition: opacity 220ms ease;
         }
@@ -4139,19 +4158,19 @@
            message is targeted. When #chatMessages itself is the target (whole-window mode)
            children are left at full opacity so the entire window glows together. */
         body.spotlight-coach #chatMessages:not(.spotlight-target) > *:not(.spotlight-target) {
-            opacity: 0.18;
+            opacity: 0.08;
             pointer-events: none;
             transition: opacity 220ms ease;
         }
         /* During coach spotlight: dim chat panel chrome (header, input row, etc.) */
         body.spotlight-coach .chat-panel > *:not(#chatMessages):not(#fiveQStrip) {
-            opacity: 0.18;
+            opacity: 0.08;
             pointer-events: none;
             transition: opacity 220ms ease;
         }
         /* During editor spotlight: dim everything in draft panel except textarea wrap */
         body.spotlight-editor .draft-panel > *:not(.draft-textarea-wrap) {
-            opacity: 0.18;
+            opacity: 0.08;
             pointer-events: none;
             transition: opacity 220ms ease;
         }
@@ -4164,8 +4183,9 @@
         .spotlight-target {
             border-radius: var(--radius-md);
             box-shadow:
-                0 0 0 4px rgba(184, 92, 26, 0.32),
-                0 14px 40px rgba(42, 33, 28, 0.18);
+                0 0 0 3px rgba(184, 92, 26, 0.60),
+                0 0 0 8px rgba(184, 92, 26, 0.14),
+                0 16px 48px rgba(42, 33, 28, 0.28);
             transition: box-shadow 220ms ease;
         }
         .spotlight-label {
@@ -4752,12 +4772,14 @@ img, video, embed, object { max-width: 100%; height: auto; }
     /* Journey map hidden — stage info visible in current-task-bar */
     .journey-wrap { display: none; }
 
-    /* Mobile tab bar */
+    /* Mobile tab bar — positioned after <main> in DOM, sits at bottom naturally */
     .mobile-tabs {
         display: flex;
         flex-shrink: 0;
         background: var(--bg-surface);
-        border-bottom: 1px solid var(--border-mid);
+        border-top: 1px solid var(--border-mid);
+        /* Extend into iOS home-indicator safe area */
+        padding-bottom: env(safe-area-inset-bottom, 0px);
     }
     .mobile-tab {
         flex: 1;
@@ -4769,14 +4791,14 @@ img, video, embed, object { max-width: 100%; height: auto; }
         font-family: var(--font-body);
         background: none;
         border: none;
-        border-bottom: 3px solid transparent;
+        border-top: 3px solid transparent;
         color: var(--text-sub);
         cursor: pointer;
         transition: color 0.15s, border-color 0.15s, background 0.15s;
     }
     .mobile-tab.mobile-tab-active {
         color: var(--amber);
-        border-bottom-color: var(--amber);
+        border-top-color: var(--amber);
         background: var(--amber-glow);
     }
     /* Notification dot when coach replies while student is in draft tab */

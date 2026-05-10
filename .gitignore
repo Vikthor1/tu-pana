@@ -18,7 +18,9 @@
 !assets/js/
 !assets/js/config.js
 !assets/js/data.js
+!assets/js/genre-template.js
 !assets/js/prompts.js
+!assets/js/ai-provider.js
 !assets/js/storage.js
 !assets/js/ui.js
 !assets/js/app.js

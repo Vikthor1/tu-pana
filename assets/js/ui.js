@@ -1241,6 +1241,10 @@ function dismissStagePreview() {
 function goToStage(id) {
     exitDraftFocus();   // stage transition — coach takes visual priority
     const prev = state.stage;
+
+    // Persist current stage's textarea content before switching
+    saveStageWork(prev, D.draftArea.value);
+
     if (id > 1) state.done.add(id - 1);
     state.stage = id;
     state.step  = loadStepForStage(id);
@@ -1273,6 +1277,12 @@ function goToStage(id) {
     renderBadges();
     renderEvalStreak();
     updateDraftControls();
+
+    // Load the new stage's writing content
+    const _newContent = loadStageWork(id);
+    D.draftArea.value = _newContent;
+    editHistoryInit(_newContent);
+    D.draftArea.dispatchEvent(new Event('input'));
 
     // Inject Pana Hint for the new stage
     setTimeout(() => injectPanaHint(id), 500);
@@ -1600,6 +1610,7 @@ function executeSave() {
     try {
         localStorage.setItem('tupana_draft',       D.draftArea.value);
         localStorage.setItem('tupana_draft_saved', 'true');
+        localStorage.setItem('tupana_writing_s6',  D.draftArea.value);
     } catch(e) {}
 
     D.modalBg.classList.add('on');
@@ -1948,6 +1959,7 @@ function buildChannelData() {
     return {
         app: 'tupana',
         stage: state.stage,
+        stageId: getStageId(state.stage),
         stageName: STAGES[state.stage - 1] ? STAGES[state.stage - 1].es.replace('\n', ' ') + ' / ' + STAGES[state.stage - 1].en : '',
         draftSaved: state.draftSaved,
         maniDone: localStorage.getItem('tupana_mani_done') === 'true',
@@ -2083,10 +2095,10 @@ function setCoachMode(mode) {
         D.chatStatus.classList.remove('idle');
 
     } else {
-        // Offline mode: show Copilot if configured, else native chat
+        // Offline mode: show Copilot if configured AND enabled, else native chat
         if (difyPanel) difyPanel.classList.remove('active');
 
-        if (CONFIG.useCopilotEmbed && CONFIG.copilotEmbedUrl) {
+        if (FEATURES.copilotEmbed && CONFIG.useCopilotEmbed && CONFIG.copilotEmbedUrl) {
             if (copilotPanel)  copilotPanel.classList.add('active');
             if (chatMessages)  chatMessages.style.display  = 'none';
             if (typingRow)     typingRow.style.display     = 'none';
@@ -2151,7 +2163,9 @@ async function initDL() {
     }
 
     // ── Copilot Studio embed mode ──────────────────────────────
-    if (CONFIG.useCopilotEmbed && CONFIG.copilotEmbedUrl) {
+    // Gated by FEATURES.copilotEmbed to suppress botframework-webchat console
+    // errors during local dev. Set FEATURES.copilotEmbed = true to re-enable.
+    if (FEATURES.copilotEmbed && CONFIG.useCopilotEmbed && CONFIG.copilotEmbedUrl) {
         setCoachMode('offline');  // initialises Copilot via setCoachMode
         return;
     }
@@ -2278,6 +2292,12 @@ function getLastBotMessage() {
 }
 
 function buildOllamaSystemPrompt(lang) {
+    // Derive stage-specific rules from the active genre template.
+    // Swapping templates automatically updates coaching rules for the new genre.
+    const _stageRules = getActiveTemplate().stages
+        .map(s => `Stage ${s.number}: ${s.coachFocus}`)
+        .join('\n');
+
     return `You are Tu Pana de Escritura, a bilingual writing-process coach for multilingual students writing autobiographical mixed-genre essays.
 
 You help students think, revise, reflect, and improve their own writing. The student writes first; you respond second.
@@ -2381,6 +2401,12 @@ Do not write a replacement sentence. Do not write "try this version." Do not wri
 
 Your role is to ask questions, identify possibilities, give targeted feedback, and support revision without replacing the student's authorship.
 
+PERSONA BOUNDARIES — this is mandatory:
+Stay entirely focused on the student's writing task and the current stage. Do not mention food, beverages, coffee, café, or daily routines. Do not open or close responses with social pleasantries unrelated to writing ("Hope your day is going well," "Have a coffee and try again," etc.). If the student is stuck or frustrated, respond by making the task smaller — one sentence, one question, one specific detail — not by making casual references. Every sentence in your response should advance the student's writing work.
+
+ANTI-REPETITION RULE — this is mandatory:
+Before responding, consider what has already been discussed. Do not repeat a question you have already asked. Do not give the same checklist or framework twice. If the student has already answered a question, acknowledge their answer and move forward. When giving feedback, reference specific words or phrases from what the student actually wrote — not a generic version of their stage. If the response you are about to give could apply to any student at any stage, it is too generic: make it specific to this student's actual message.
+
 LANGUAGE RULE — this is mandatory:
 The current interface language is: ${lang}
 Respond in ${lang} unless one of these specific exceptions applies:
@@ -2392,16 +2418,7 @@ When the student writes in a mixed-language style, preserve their multilingual p
 If the student asks for an English or Spanish version of your previous response, restate or translate your immediately previous coaching response. Do not invent a new student anecdote or example.
 
 Stage-specific rules:
-Stage 1: Help the student find or sharpen a specific memory. Do not write the anecdote for them.
-Stage 2: Help the student connect a memory to a larger historical, social, cultural, linguistic, racial, migration-related, gendered, economic, or political force. Teach the idea of a bridge sentence but do not write it for them.
-Stage 3: Help the student clarify a topic pitch in their own words. Do not write the pitch for them.
-Stage 4: Suggest research directions, keywords, kinds of sources, and questions to investigate. Do not invent sources, titles, authors, quotations, URLs, or citations.
-Stage 5: If the student has not written their own outline, ask them to draft one first. Do not generate an outline for them. If they provide an outline, give feedback.
-Stage 6: This is the unassisted first-draft stage. Do not provide paragraph-level revision feedback until the student has saved a first draft. Encourage the student to keep drafting in their own words.
-Stage 7: Revision feedback must be paragraph-level and organized around the Five Questions: 1. Accuracy  2. Voice  3. Specificity  4. Thinking  5. Cultural Knowledge. Do not rewrite the paragraph. Give feedback and suggestions only.
-Stage 8: Voice Polish must preserve the student's voice, code-switching, Spanglish, family language, neighborhood language, dialectal choices, and culturally meaningful phrasing. Do not flatten the writing into generic academic English. Honor protected Voice Vault phrases.
-Stage 9: Help the student check readiness. Do not write missing sections for them.
-Stage 10: Help the student reflect on their own process. Do not write the student's self-assessment for them.
+${_stageRules}
 
 Style: Be warm, direct, and encouraging. Use clear language. Preserve the student's linguistic identity. Prefer questions, checklists, and targeted feedback over rewriting. Keep responses concise unless the student asks for more detail.`;
 }
@@ -2557,22 +2574,48 @@ function submitChat() {
 }
 
 // ════════════════════════════════════════════════════════
+//  PER-STAGE WRITING STORAGE
+//  Each stage saves its textarea content independently.
+//  Stage 6 also writes to tupana_draft (authorship gate).
+//  Stages 7–10 seed from tupana_draft when no stage-specific
+//  content exists yet (first time the student reaches revision).
+// ════════════════════════════════════════════════════════
+function saveStageWork(stageNum, text) {
+    try { localStorage.setItem(`tupana_writing_s${stageNum}`, text); } catch(e) {}
+}
+
+function loadStageWork(stageNum) {
+    try {
+        const perStage = localStorage.getItem(`tupana_writing_s${stageNum}`);
+        if (perStage !== null) return perStage;
+        // Stages 6+: fall back to saved first draft (backward compat + revision seeding)
+        if (stageNum >= 6) return localStorage.getItem('tupana_draft') || '';
+        return '';
+    } catch(e) { return ''; }
+}
+
+// ════════════════════════════════════════════════════════
 //  RESTORE DRAFT
 // ════════════════════════════════════════════════════════
 function restoreDraft() {
     try {
-        if (localStorage.getItem('tupana_draft_saved') !== 'true') return;
-        const saved = localStorage.getItem('tupana_draft') || '';
-        if (!saved) return;
-        state.draftSaved = true;
-        D.draftArea.value = saved;
-        D.saveBtn.classList.add('saved');
-        D.saveBtnLabel.textContent = 'Primer borrador guardado · First draft saved';
-        D.savedNotice.classList.add('on');
-        const w = saved.trim().split(/\s+/).filter(Boolean).length;
-        D.wordCount.innerHTML = `<span class="show-es">${w} palabras</span><span class="lang-sep"> · </span><span class="show-en">words</span>`;
-        renderDecisionLog();
-        addSys('↩ Borrador anterior restaurado · Previous draft restored from this device.');
+        // Load stage-specific content for the current stage
+        const stageContent = loadStageWork(state.stage);
+        if (stageContent) D.draftArea.value = stageContent;
+
+        // Restore authorship gate UI state if first draft was saved
+        if (localStorage.getItem('tupana_draft_saved') === 'true') {
+            state.draftSaved = true;
+            D.saveBtn.classList.add('saved');
+            D.saveBtnLabel.textContent = 'Primer borrador guardado · First draft saved';
+            D.savedNotice.classList.add('on');
+            const w = D.draftArea.value.trim().split(/\s+/).filter(Boolean).length;
+            D.wordCount.innerHTML = `<span class="show-es">${w} palabras</span><span class="lang-sep"> · </span><span class="show-en">words</span>`;
+            renderDecisionLog();
+            if (state.stage >= 6) {
+                addSys('↩ Borrador anterior restaurado · Previous draft restored from this device.');
+            }
+        }
     } catch(e) {}
     updateDraftControls();
 }
@@ -2727,19 +2770,32 @@ function showLandingMoment() {
             <div style="font-family:'Literata',Georgia,serif; font-size:2.0rem; font-style:italic; color:#F0EBE3; line-height:1.4; margin-bottom:20px;">
                 "Tu historia es donde comienza el argumento."
             </div>
-            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.05rem; color:#B0A898; letter-spacing:0.04em;">
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.05rem; color:#B0A898; letter-spacing:0.04em; margin-bottom:32px;">
                 "Your story is where the argument begins."
             </div>
+            <button id="landingContinueBtn" style="
+                font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.95rem; font-weight:600;
+                background: rgba(184,92,26,0.85); color:#fff; border:none; border-radius:40px;
+                padding: 10px 28px; cursor:pointer; letter-spacing:0.03em;
+                transition: background 0.2s ease;
+            " aria-label="Continuar · Continue">
+                Continuar · Continue
+            </button>
         </div>`;
     document.body.appendChild(overlay);
     requestAnimationFrame(() => { overlay.style.opacity = '1'; });
-    setTimeout(() => {
+
+    function dismissLanding() {
         overlay.style.opacity = '0';
-        setTimeout(() => {
-            overlay.remove();
-            openMani();
-        }, 600);
-    }, 1800);
+        setTimeout(() => { overlay.remove(); openMani(); }, 600);
+    }
+
+    // Manual dismiss via button
+    const btn = overlay.querySelector('#landingContinueBtn');
+    if (btn) btn.addEventListener('click', dismissLanding);
+
+    // Auto-dismiss after 5 s if student does not click
+    setTimeout(dismissLanding, 5000);
 }
 
 function showWelcomeBack() {
@@ -3068,15 +3124,16 @@ function injectFollowupPanel() {
 
     removeFollowupPanels();
 
-    const panel = document.createElement('div');
-    panel.className = 'followup-panel';
-    panel.setAttribute('role', 'region');
-    panel.setAttribute('aria-label', 'Seguir conversando · Keep talking');
+    // Render as a collapsed <details> to avoid competing with the main coach exchange.
+    // Student expands it when they want a suggested question.
+    const details = document.createElement('details');
+    details.className = 'followup-panel';
+    details.setAttribute('aria-label', 'Seguir conversando · Keep talking');
 
-    const title = document.createElement('div');
-    title.className = 'followup-title';
-    title.innerHTML = `${getIcon('thinking-brain', 14)} Seguir conversando · Keep talking`;
-    panel.appendChild(title);
+    const summary = document.createElement('summary');
+    summary.className = 'followup-title followup-summary';
+    summary.innerHTML = `${getIcon('thinking-brain', 14)} Seguir conversando · Keep talking`;
+    details.appendChild(summary);
 
     const chips = document.createElement('div');
     chips.className = 'followup-chips';
@@ -3090,8 +3147,8 @@ function injectFollowupPanel() {
         chips.appendChild(chip);
     });
 
-    panel.appendChild(chips);
-    D.chatMessages.appendChild(panel);
+    details.appendChild(chips);
+    D.chatMessages.appendChild(details);
     D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
 }
 
@@ -4536,16 +4593,21 @@ function generateInstructorReport() {
         ? `Stage ${state.stage} — ${finalStageObj.en}`
         : `Stage ${state.stage}`;
 
-    const na = (val, fallback = 'Not completed — student did not provide a response') =>
+    // na: for required student-written fields (Process Note Q3–Q8)
+    const na = (val, fallback = '[Not filled in — student completes this via the Process Note button in the app]') =>
         (val && val.trim()) ? val.trim() : fallback;
+
+    // naOpt: for genuinely optional fields (Stage 10 short reflections)
+    const naOpt = val => (val && val.trim()) ? val.trim() : '— (optional, not filled in)';
 
     const ratingLabel = val => {
         const r = CAPSTONE_RATINGS.find(r => r.val === val);
         return r ? r.en : 'Not rated';
     };
 
-    const ratings     = capstone.ratings     || {};
-    const reflections = capstone.reflections || {};
+    const ratings      = capstone.ratings        || {};
+    const reflections  = capstone.reflections    || {};
+    const studentResp  = capstone.studentResponse || {};
 
     const line = (n) => '='.repeat(n);
 
@@ -4587,21 +4649,37 @@ function generateInstructorReport() {
     r += `Feedback evaluations total : ${decisions.length}\n`;
     r += `  ✓ Accepted               : ${accepted}\n`;
     r += `  ? Thinking more about    : ${thinking}\n`;
-    r += `  ✗ Questioned / flagged   : ${questioned}\n\n`;
-
-    r += `${line(72)}\n`;
-    r += `SECTION 4 — VOICE VAULT: Phrases chosen to protect  [System-recorded]\n`;
-    r += `${line(72)}\n`;
-    if (protected_.length) {
-        protected_.forEach((p, i) => { r += `  ${i + 1}. "${p.text}"\n`; });
-    } else {
-        r += `  No phrases recorded.\n`;
+    r += `  ✗ Questioned / flagged   : ${questioned}\n`;
+    if (decisions.length) {
+        r += `\nDecision log (most recent first, up to 20):\n`;
+        const choiceLabel = c => c === 'good' ? '✓ Accepted' : c === 'warn' ? '? Thinking more' : '✗ Questioned';
+        decisions.slice(-20).reverse().forEach((d, i) => {
+            const ts = d.t ? new Date(d.t).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit', hour12:true }) : '';
+            r += `  ${i + 1}. ${choiceLabel(d.choice)} — "${d.q}"${ts ? ' (' + ts + ')' : ''}\n`;
+        });
     }
     r += `\n`;
 
     r += `${line(72)}\n`;
-    r += `SECTION 5 — PROCESS REFLECTIONS  [Student-written]\n`;
+    r += `SECTION 4 — VOICE VAULT: Phrases and passages chosen to protect  [System-recorded]\n`;
     r += `${line(72)}\n`;
+    if (protected_.length) {
+        protected_.forEach((p, i) => {
+            const kind = p.text.length > 60 ? '[passage]' : '[phrase] ';
+            r += `  ${i + 1}. ${kind} "${p.text}"\n`;
+        });
+    } else {
+        r += `  No phrases or passages recorded.\n`;
+    }
+    r += `\n`;
+
+    r += `${line(72)}\n`;
+    r += `SECTION 5 — PROCESS REFLECTIONS  [Student-written via Process Note]\n`;
+    r += `${line(72)}\n`;
+    r += `NOTE: These fields are filled by the student using the Process Note button\n`;
+    r += `in the app's draft footer. If a field shows "[Not filled in]", the student\n`;
+    r += `has not yet completed that question — it does not indicate a system error.\n`;
+    r += `See Section 6 for Stage 10 self-assessment data (separate from this section).\n\n`;
     const q3 = na(pnAnswers.q3); const q4 = na(pnAnswers.q4);
     const q5 = na(pnAnswers.q5); const q6 = na(pnAnswers.q6);
     const q7 = na(pnAnswers.q7); const q8 = na(pnAnswers.q8);
@@ -4615,13 +4693,24 @@ function generateInstructorReport() {
     r += `${line(72)}\n`;
     r += `SECTION 6 — SELF-ASSESSMENT  [Student-written, Stage 10]\n`;
     r += `${line(72)}\n`;
+    r += `10A — Self-Check Ratings\n`;
     CAPSTONE_CRITERIA.forEach(c => {
-        r += `${c.en.padEnd(38)} : ${ratingLabel(ratings[c.key])}\n`;
+        r += `  ${c.en.padEnd(36)} : ${ratingLabel(ratings[c.key])}\n`;
     });
-    r += `\n`;
-    r += `One thing I improved:\n${na(reflections.improved)}\n\n`;
-    r += `One thing that still needs work:\n${na(reflections.needs)}\n\n`;
-    r += `One decision I made to protect my voice:\n${na(reflections.voice)}\n\n`;
+    r += `\n10A — Short Reflections (optional)\n`;
+    r += `One thing I improved:\n${naOpt(reflections.improved)}\n\n`;
+    r += `One thing that still needs work:\n${naOpt(reflections.needs)}\n\n`;
+    r += `One decision I made to protect my voice:\n${naOpt(reflections.voice)}\n\n`;
+
+    const has10C = studentResp.agree || studentResp.disagree || studentResp.missing;
+    r += `10C — My Response to the Coach Perspective\n`;
+    if (has10C) {
+        r += `Where I agree:\n${naOpt(studentResp.agree)}\n\n`;
+        r += `Where I disagree:\n${naOpt(studentResp.disagree)}\n\n`;
+        r += `What the coach might be missing:\n${naOpt(studentResp.missing)}\n\n`;
+    } else {
+        r += `  Not yet completed — student has not yet compared with the coach perspective.\n\n`;
+    }
 
     r += `${line(72)}\n`;
     r += `SECTION 7 — AUTHORSHIP CONFIRMATION\n`;

@@ -10,7 +10,11 @@ function exportData() {
                   'tupana_lab_done','tupana_mani_sentence','tupana_decisions','tupana_theme',
                   'tupana_lang', 'tupana_stage','tupana_process_note','tupana_journey_expand',
                   'tupana_protected','tupana_report_meta','tupana_mani_claimed','tupana_completion_shown',
-                  'tupana_capstone','tupana_tone'];
+                  'tupana_capstone','tupana_tone',
+                  'tupana_schema_version','tupana_template_id','tupana_process_log',
+                  'tupana_writing_s1','tupana_writing_s2','tupana_writing_s3','tupana_writing_s4',
+                  'tupana_writing_s5','tupana_writing_s6','tupana_writing_s7','tupana_writing_s8',
+                  'tupana_writing_s9','tupana_writing_s10'];
     keys.forEach(k => {
         try { payload[k] = localStorage.getItem(k); } catch(e) {}
     });
@@ -42,6 +46,13 @@ function importData() {
                         localStorage.setItem(k, data[k]);
                     }
                 });
+                // Legacy backup files (pre-v1.0) have no schema version — mark them now.
+                if (!data['tupana_schema_version']) {
+                    try { localStorage.setItem('tupana_schema_version', '1.0'); } catch(e) {}
+                }
+                if (!data['tupana_template_id']) {
+                    try { localStorage.setItem('tupana_template_id', 'mixed-genre-autobiographical-essay'); } catch(e) {}
+                }
                 alert('Datos restaurados. La página se recargará.\nData restored. Page will reload.');
                 location.reload();
             } catch(err) {
@@ -70,7 +81,10 @@ function clearAllData() {
                   'tupana_lab_done','tupana_mani_sentence','tupana_decisions','tupana_theme',
                   'tupana_stage','tupana_process_note','tupana_journey_expand',
                   'tupana_protected','tupana_report_meta','tupana_mani_claimed','tupana_completion_shown',
-                  'tupana_capstone'];
+                  'tupana_capstone',
+                  'tupana_writing_s1','tupana_writing_s2','tupana_writing_s3','tupana_writing_s4',
+                  'tupana_writing_s5','tupana_writing_s6','tupana_writing_s7','tupana_writing_s8',
+                  'tupana_writing_s9','tupana_writing_s10'];
     keys.forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
     alert('Todos tus datos han sido borrados. La página se recargará.\nAll your data has been deleted. Page will reload.');
     location.reload();

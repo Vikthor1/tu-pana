@@ -10,7 +10,7 @@ function exportData() {
                   'tupana_lab_done','tupana_mani_sentence','tupana_decisions','tupana_theme',
                   'tupana_lang', 'tupana_stage','tupana_process_note','tupana_journey_expand',
                   'tupana_protected','tupana_report_meta','tupana_mani_claimed','tupana_completion_shown',
-                  'tupana_capstone'];
+                  'tupana_capstone','tupana_tone'];
     keys.forEach(k => {
         try { payload[k] = localStorage.getItem(k); } catch(e) {}
     });

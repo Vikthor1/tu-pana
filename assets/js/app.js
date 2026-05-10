@@ -37,7 +37,6 @@ restoreDraft();
 editHistoryInit(D.draftArea.value);
 updateDraftControls();
 initChatProgress();
-renderEvalStreak();
 initManiPrompt();
 
 // Restore Five Questions strip if returning to Stage 7+

@@ -9,7 +9,8 @@ function exportData() {
     const keys = ['tupana_draft','tupana_draft_saved','tupana_chatlog','tupana_mani_done',
                   'tupana_lab_done','tupana_mani_sentence','tupana_decisions','tupana_theme',
                   'tupana_lang', 'tupana_stage','tupana_process_note','tupana_journey_expand',
-                  'tupana_protected','tupana_report_meta','tupana_mani_claimed','tupana_completion_shown'];
+                  'tupana_protected','tupana_report_meta','tupana_mani_claimed','tupana_completion_shown',
+                  'tupana_capstone'];
     keys.forEach(k => {
         try { payload[k] = localStorage.getItem(k); } catch(e) {}
     });

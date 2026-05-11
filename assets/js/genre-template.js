@@ -117,7 +117,7 @@ const mixedGenreAutobiographicalEssay = {
             phase:   'Build',
             coachFocus: 'Suggest research directions, keywords, kinds of sources, and questions to investigate. Do not invent sources, titles, authors, quotations, URLs, or citations.',
             allowedSupport: ['search keywords', 'database suggestions', 'source-type guidance', 'research questions'],
-            blockedSupport: ['invent sources', 'generate citations', 'fabricate quotations', 'write bibliography']
+            blockedSupport: ['invent sources', 'generate citations', 'fabricate quotations', 'write bibliography', 'formatted citation examples', 'bibliographic entries even as examples']
         },
         {
             id:      'stage.outline',

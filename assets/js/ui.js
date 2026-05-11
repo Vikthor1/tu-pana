@@ -3394,14 +3394,6 @@ function evalMsgPick(msgId, qKey, choice) {
     renderDecisionLog();
     renderBadges();
     renderEvalStreak();
-
-    // Notify AI if connected
-    if (state.connected) {
-        const q = EVAL_QUESTIONS.find(x => x.key === qKey);
-        const typeMap = { good: '[Accepted]', warn: '[Thinking more]', flag: '[Flagged]' };
-        const evalText = `[Eval] ${q ? q.label : qKey}: ${typeMap[choice]}`;
-        sendMsg(evalText);
-    }
 }
 
 function updateMsgEval(msgId, qKey, choice) {
@@ -3524,15 +3516,9 @@ function evalPick(btn, type) {
     group.forEach(b => b.classList.remove('active-good','active-warn','active-flag'));
     btn.classList.add('active-' + type);
 
-    // Send eval feedback to AI as a user message so the AI can respond
+    // Store in local decision log
     const row = btn.closest('.eval-row');
     const label = row.querySelector('.eval-q-label').textContent.trim();
-    const typeMap = { good: '[Accepted] I accept this feedback',
-                      warn: '? needs more thought — I want to discuss this',
-                      flag: '[Flagged] I disagree or this does not fit my essay' };
-    const evalText = `[Eval card] ${label}: ${typeMap[type]}`;
-
-    // Store in local decision log
     try {
         const log = JSON.parse(localStorage.getItem('tupana_decisions') || '[]');
         log.push({ q: label, choice: type, t: new Date().toISOString() });
@@ -3542,11 +3528,6 @@ function evalPick(btn, type) {
     // Update the visible decision log
     renderDecisionLog();
     renderBadges();
-
-    // Send to AI if connected
-    if (state.connected) {
-        sendMsg(evalText);
-    }
 }
 
 // ════════════════════════════════════════════════════════

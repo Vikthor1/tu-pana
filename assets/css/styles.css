@@ -1,5 +1,6 @@
         /* ── Variables — Taller de Luz palette (theme-aware) ── */
         :root {
+            color-scheme: light;
             /* Light mode (default) — warm studio daylight */
             --bg-base:      #F5F1EB;
             --bg-surface:   #EDE8E0;
@@ -70,6 +71,7 @@
 
         /* Dark mode — rich warm night studio */
         [data-theme="dark"] {
+            color-scheme: dark;
             --bg-base:      #12100E;
             --bg-surface:   #1C1814;
             --bg-panel:     #1E1A14;

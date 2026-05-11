@@ -3981,6 +3981,8 @@
         .ctb-es  { color: var(--text-primary); font-weight: 500; }
         .ctb-sep { color: var(--border-hi); margin: 0 3px; }
         .ctb-en  { color: var(--text-muted); font-size: 0.75rem; }
+        /* "de 10 / of 10" — hidden on desktop where the journey map shows progress */
+        .ctb-of-total { display: none; }
         @media (max-width: 640px) {
             .current-task-bar { padding: 0 14px; }
             .ctb-sep, .ctb-en { display: none; }
@@ -4983,6 +4985,31 @@ img, video, embed, object { max-width: 100%; height: auto; }
 @media (max-width: 480px) {
     /* Journey map hidden — stage info visible in current-task-bar */
     .journey-wrap { display: none; }
+
+    /* Show "de 10 / of 10" so students know overall progress without the journey map */
+    .ctb-of-total {
+        display: inline;
+        color: var(--text-muted);
+        font-weight: 400;
+        font-size: 0.65rem;
+    }
+
+    /* Slim jade progress strip at bottom of current-task-bar (driven by --ctb-progress JS var) */
+    .current-task-bar {
+        position: relative;
+        overflow: visible;
+    }
+    .current-task-bar::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0;
+        height: 2px;
+        width: var(--ctb-progress, 10%);
+        background: var(--jade);
+        border-radius: 0 2px 2px 0;
+        transition: width 0.4s ease;
+        pointer-events: none;
+    }
 
     /* Mobile tab bar — positioned after <main> in DOM, sits at bottom naturally */
     .mobile-tabs {

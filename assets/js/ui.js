@@ -651,7 +651,14 @@ function updateCurrentTaskBar() {
     const stepData = steps[step - 1] || steps[0];
 
     const ctbStage = document.getElementById('ctbStage');
-    if (ctbStage) ctbStage.innerHTML = `<span class="show-es">Etapa ${state.stage} · ${escapeHtml(s.es.replace('\n', ' '))}</span><span class="lang-sep"> / </span><span class="show-en">Stage ${state.stage} · ${escapeHtml(s.en)}</span>`;
+    if (ctbStage) ctbStage.innerHTML =
+        `<span class="show-es">Etapa ${state.stage}<span class="ctb-of-total"> de 10</span> · ${escapeHtml(s.es.replace('\n', ' '))}</span>` +
+        `<span class="lang-sep"> / </span>` +
+        `<span class="show-en">Stage ${state.stage}<span class="ctb-of-total"> of 10</span> · ${escapeHtml(s.en)}</span>`;
+
+    // Mobile progress strip — set CSS variable consumed by ::after on current-task-bar
+    const ctbBar = document.getElementById('currentTaskBar');
+    if (ctbBar) ctbBar.style.setProperty('--ctb-progress', `${(state.stage / 10) * 100}%`);
 
     const ctbInstr = document.getElementById('ctbInstruction');
     if (ctbInstr) {

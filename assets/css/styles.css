@@ -3800,8 +3800,8 @@
             border: 1px solid var(--border);
             border-left: 3px solid var(--jade);
             border-radius: var(--radius-md);
-            padding: 16px;
-            margin: 8px 0 4px;
+            padding: 20px 20px 24px;
+            margin: 10px 0 6px;
             font-size: 0.85rem;
         }
         .capstone-panel-title {
@@ -3832,7 +3832,7 @@
             text-transform: uppercase;
             letter-spacing: 0.07em;
             color: var(--text-muted);
-            margin: 12px 0 6px;
+            margin: 18px 0 8px;
         }
         .capstone-criterion { margin-bottom: 11px; }
         .capstone-criterion-label {
@@ -3877,9 +3877,9 @@
         .capstone-divider {
             border: none;
             border-top: 1px solid var(--border);
-            margin: 14px 0 10px;
+            margin: 20px 0 14px;
         }
-        .capstone-reflection-field { margin-bottom: 9px; }
+        .capstone-reflection-field { margin-bottom: 14px; }
         .capstone-reflection-label {
             font-size: 0.77rem;
             color: var(--text-sub);
@@ -3889,16 +3889,16 @@
         }
         .capstone-reflection-text {
             width: 100%;
-            min-height: 50px;
+            min-height: 72px;
             background: var(--bg-input);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 7px 10px;
+            padding: 9px 11px;
             font-family: var(--font-body);
             font-size: 0.81rem;
             color: var(--text-primary);
             resize: vertical;
-            line-height: 1.5;
+            line-height: 1.55;
             transition: border-color var(--transition-fast);
         }
         .capstone-reflection-text:focus {
@@ -4916,8 +4916,14 @@ img, video, embed, object { max-width: 100%; height: auto; }
     .chat-input-wrap { padding: 8px 12px 10px; }
 
     /* ── Capstone panel ── */
-    .capstone-panel      { padding: 12px; }
-    .capstone-rating-btn { min-height: 38px; padding: 6px 10px; font-size: 0.72rem; }
+    .capstone-panel           { padding: 14px; }
+    .capstone-rating-btn      { min-height: 38px; padding: 6px 10px; font-size: 0.72rem; }
+    .capstone-reflection-text { min-height: 88px; }
+
+    /* ── Instructor report panel ── */
+    .instr-field-input { font-size: 1rem; }       /* prevent iOS auto-zoom on focus */
+    .instr-preview     { max-height: 55svh; }
+    .instr-action-row  { flex-direction: column; }
 
     /* ── Process note modal ── */
     .pn-modal-header  { padding: 14px 16px 12px; }

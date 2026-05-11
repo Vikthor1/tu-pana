@@ -778,6 +778,30 @@ Required JSON format (fill in all 8 dimensions; use only these rating values: "S
         return;
     }
 
+    // Gemini via Cloudflare Worker proxy
+    if (state.coachMode === 'gemini') {
+        state.waiting = true;
+        showTyping(true);
+        try {
+            const _gLang = getCurrentCoachLanguageLabel();
+            const _gCtx  = buildChannelData();
+            const geminiPrompt =
+                buildOllamaSystemPrompt(_gLang) +
+                '\n\n---\n\n' +
+                'Current interface language: ' + _gLang +
+                '\n\nCurrent Tu Pana context:\n' + JSON.stringify(_gCtx, null, 2) +
+                '\n\n' + prompt;
+            const reply = await generateCoachResponse({ prompt: geminiPrompt, stageId: getStageId(state.stage) });
+            handleCoachPerspectiveResponse(reply || '');
+        } catch(err) {
+            console.error('coachPerspective:gemini', err);
+            showTyping(false);
+            state.waiting = false;
+            renderCoachPerspectiveOffline();
+        }
+        return;
+    }
+
     if (!state.connected) {
         renderCoachPerspectiveOffline();
         return;

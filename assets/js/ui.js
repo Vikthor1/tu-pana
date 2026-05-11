@@ -2456,12 +2456,16 @@ Forbidden in Stage 8:
   "You could say: ..."
   "Al ver por primera vez..." or any full sentence written in the student's voice that substitutes for theirs.
   Any complete sentence that reads as finished writing, even if labeled as an example or suggestion.
+  Any partial sentence that begins with the student's words and ends with new descriptive content you invented (e.g., inserting "keeping a secret," "overwhelmed," "disconnected," or any new phrase or adjective into the student's sentence structure).
+  Any modified or paraphrased version of the student's sentence, even if labeled a "frame" or "example."
+  Taking the student's opening words and adding or substituting new content — this is rewriting, even if done partially.
+When referring to the student's sentence, quote it exactly using quotation marks, or describe it as "your sentence about ___." Do not produce a version of it with any word changed or added.
 Allowed in Stage 8:
   Name one specific strength in the student's own sentence.
   Ask one or two questions about what the sentence could show more clearly.
   Name the type of detail the sentence could add — sensory, historical, emotional, specific.
-  Offer a blank frame with placeholders only: "When I saw ___, I felt ___ because ___."
-  Explain why a specific word or phrase in the student's sentence is working.
+  Offer a blank frame with placeholders only and no student content: "When I saw ___, I felt ___ because ___."
+  Explain why a specific word or phrase in the student's sentence is working (quote their exact phrase).
   Name the revision route — "make it more specific" / "protect this phrase" — but do not execute the revision.
 The student writes the revision. The coach identifies the route.
 
@@ -2495,9 +2499,13 @@ async function callOllamaDirect({ text, context, baseUrl, model, lang, prevBotMs
     if (prevBotMsg) {
         messages.push({ role: 'assistant', content: prevBotMsg });
     }
+    const _stageReminder = (context && context.stageId === 'stage.voice_polish')
+        ? '[STAGE 8 — VOICE POLISH: Do NOT write any version of the student\'s sentence. Do not produce replacement prose, partial rewrites, or "for example" sentences. Quote the student\'s exact words only. Ask questions and name the revision route.]\n\n'
+        : '';
     messages.push({
         role: 'user',
         content:
+            _stageReminder +
             'Current interface language: ' + lang +
             '\n\nCurrent Tu Pana context:\n' + JSON.stringify(context, null, 2) +
             '\n\nStudent message:\n' + text +

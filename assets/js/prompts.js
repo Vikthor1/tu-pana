@@ -372,6 +372,70 @@ function selectRevisionFocus(btn, size) {
 }
 
 // ════════════════════════════════════════════════════════
+//  STAGE 4 — RESEARCH GUIDANCE CARD
+//  Clickable starters send a pre-formed question to the coach.
+//  The coach can suggest search terms and source types but
+//  must never invent sources or citations (enforced in system prompt).
+// ════════════════════════════════════════════════════════
+const RESEARCH_STRATEGIES = [
+    { es: '¿Qué términos de búsqueda me recomiendas para mi tema?',
+      en: 'What search terms do you recommend for my topic?' },
+    { es: '¿Qué tipos de fuentes debo buscar para este ensayo?',
+      en: 'What types of sources should I look for in this essay?' },
+    { es: '¿Cómo sé si una fuente es confiable?',
+      en: 'How can I tell if a source is credible?' },
+    { es: '¿En qué base de datos debo buscar — JSTOR, ProQuest, Google Scholar?',
+      en: 'Which database should I search — JSTOR, ProQuest, or Google Scholar?' },
+];
+
+function injectResearchCard() {
+    if (document.querySelector('.research-card')) return;
+    const items = RESEARCH_STRATEGIES.map(s =>
+        `<button class="research-strategy-btn" onclick="useResearchStarter(this)" type="button" ` +
+        `data-es="${escapeHtml(s.es)}" data-en="${escapeHtml(s.en)}" aria-pressed="false">` +
+        `<span class="show-es">${escapeHtml(s.es)}</span>` +
+        `<span class="lang-sep"> · </span>` +
+        `<span class="show-en">${escapeHtml(s.en)}</span>` +
+        `</button>`
+    ).join('');
+
+    const card = document.createElement('div');
+    card.className = 'research-card';
+    card.setAttribute('role', 'region');
+    card.setAttribute('aria-label', 'Guía de investigación · Research guidance');
+    card.innerHTML =
+        `<div class="research-card-title">Investigar con el coach · Researching with the coach</div>` +
+        `<div class="research-guardrail" role="note">` +
+            `<strong>El coach puede sugerir términos de búsqueda y tipos de fuentes — no puede inventar fuentes ni citas.</strong> ` +
+            `Verifica siempre en las bases de datos de tu biblioteca o materiales aprobados por tu instructor. · ` +
+            `The coach can suggest search terms and source types — but <strong>cannot invent sources or citations.</strong> ` +
+            `Always verify through library databases or instructor-approved materials.` +
+        `</div>` +
+        `<div class="research-card-sub">Empieza por aquí — toca una pregunta · Start here — tap a question</div>` +
+        `<div class="research-strategy-list">${items}</div>` +
+        `<p class="research-card-note">Cuando encuentres una fuente, regresa y cuéntasela al coach. · When you find a source, come back and tell the coach what you found.</p>`;
+
+    D.chatMessages.appendChild(card);
+    D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
+}
+
+function useResearchStarter(btn) {
+    const alreadySelected = btn.classList.contains('selected');
+    document.querySelectorAll('.research-strategy-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+    });
+    if (!alreadySelected) {
+        btn.classList.add('selected');
+        btn.setAttribute('aria-pressed', 'true');
+        const es = btn.dataset.es;
+        const en = btn.dataset.en;
+        const msg = state.lang === 'en' ? en : state.lang === 'es' ? es : `${es} · ${en}`;
+        sendMsg(msg);
+    }
+}
+
+// ════════════════════════════════════════════════════════
 //  DEMO MODE — pre-canned coaching responses per stage
 //  Index 0 = stage intro (auto-sent on entry)
 //  Index 1+ = follow-up replies to student messages

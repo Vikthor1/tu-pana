@@ -1312,6 +1312,9 @@ function goToStage(id) {
         if (fqs) fqs.classList.remove('hidden');
     }
 
+    // Inject research guidance card at Stage 4
+    if (id === 4) setTimeout(() => injectResearchCard(), 700);
+
     // Inject revision panel for revision stages
     if (id === 7 || id === 8) setTimeout(() => injectRevisionPanel(id), 700);
 

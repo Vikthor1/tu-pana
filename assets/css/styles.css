@@ -3805,6 +3805,55 @@
             border-top: 1px solid var(--border); padding-top: 10px;
         }
 
+        /* ── Stage 4 Research Guidance Card ── */
+        .research-card {
+            background: var(--bg-raised);
+            border: 1px solid var(--border-mid);
+            border-left: 3px solid var(--sky);
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            display: flex; flex-direction: column; gap: 12px;
+            margin: 6px 0 10px;
+        }
+        .research-card-title {
+            font-family: var(--font-display); font-size: 1rem; font-weight: 600;
+            color: var(--text-primary); line-height: 1.3;
+        }
+        .research-guardrail {
+            font-size: 0.82rem; color: var(--text-sub); line-height: 1.6;
+            background: var(--amber-glow); border: 1px solid var(--amber);
+            border-radius: var(--radius-sm);
+            padding: 10px 13px;
+        }
+        .research-guardrail strong { color: var(--amber-text); font-weight: 700; }
+        .research-card-sub {
+            font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em;
+            text-transform: uppercase; color: var(--sky);
+            margin-bottom: -4px;
+        }
+        .research-strategy-list {
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .research-strategy-btn {
+            text-align: left; background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 9px 13px;
+            font-family: var(--font-body); font-size: 0.84rem;
+            color: var(--text-primary); cursor: pointer;
+            transition: background var(--transition-fast), border-color var(--transition-fast);
+            line-height: 1.45; min-height: 44px;
+        }
+        .research-strategy-btn:hover  { background: var(--bg-surface); border-color: var(--sky); }
+        .research-strategy-btn.selected {
+            border-color: var(--sky); background: rgba(108,158,207,0.12);
+            color: var(--text-primary); font-weight: 600;
+        }
+        .research-card-note {
+            font-size: 0.78rem; color: var(--text-muted); line-height: 1.55;
+            border-top: 1px solid var(--border); padding-top: 10px;
+        }
+
         /* ── Current Task Bar ── */
         .current-task-bar {
             background: var(--bg-raised);

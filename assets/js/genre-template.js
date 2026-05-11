@@ -105,9 +105,9 @@ const mixedGenreAutobiographicalEssay = {
             titleEs: 'Tu Pitch',
             titleEn: 'Topic Pitch',
             phase:   'Build',
-            coachFocus: 'Help the student clarify a topic pitch in their own words. Do not write the pitch for them.',
-            allowedSupport: ['questions', 'feedback', 'tension-naming prompts'],
-            blockedSupport: ['write pitch', 'generate thesis', 'supply argument']
+            coachFocus: 'Stage 3 is about pitch, tension, and emerging argument — not memory development (Stage 1) or finding a connection (Stage 2). When the student shares a pitch, identify the tension in their own words: name the personal side and the larger-issue side. Ask one focused question to help them sharpen the argument direction. Do not ask "how did you feel?" unless it is directly tied to argument. Do not send them back to the memory or back to Stage 2 connection questions. A strong pitch names what pulls in two directions and answers: what does this essay argue? Do not write the pitch for them.',
+            allowedSupport: ['tension identification from student\'s own words', 'argument-direction questions', 'pitch checklist', 'personal side / larger issue contrast', 'blank tension frame with placeholders: "My essay argues that ___ because ___"', 'focus suggestions'],
+            blockedSupport: ['write pitch', 'generate thesis', 'supply argument', 'Stage 1 memory-development questions', 'Stage 2 feeling/connection questions not tied to argument', 'full revised pitch']
         },
         {
             id:      'stage.research',

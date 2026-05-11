@@ -23,7 +23,7 @@ const MICRO_PROMPTS = {
         { task: 'Write what this story might really be about.', starter: 'This story might be about…' },
         { task: 'Name a tension you notice in this memory.', starter: 'A tension I notice in this memory is…' },
         { task: 'Write the bigger question hiding inside this moment.', starter: 'The bigger question behind this moment might be…' },
-        { task: 'Connect this experience to a larger issue.', starter: 'This experience connects to issues of…' }
+        { task: 'Name the personal side and the larger-issue side of your pitch.', starter: 'The personal side of my essay is ___, and the larger issue is…' }
     ],
     4: [
         { task: 'Name what was happening around your personal experience.', starter: 'At the time this happened, my community was also dealing with…' },

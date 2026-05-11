@@ -2036,14 +2036,12 @@ function setCoachMode(mode) {
         btn.setAttribute('aria-pressed', String(on));
     });
 
-    const copilotPanel  = document.getElementById('copilotEmbedPanel');
     const chatMessages  = document.getElementById('chatMessages');
     const typingRow     = document.getElementById('typingRow');
     const chatInputWrap = document.querySelector('.chat-input-wrap');
 
     if (mode === 'ollama') {
         // Local Ollama AI: native chat, direct browser-to-Ollama call, no iframe
-        if (copilotPanel) copilotPanel.classList.remove('active');
         if (chatMessages)  chatMessages.style.display  = '';
         if (typingRow)     typingRow.style.display     = '';
         if (chatInputWrap) chatInputWrap.style.display = '';
@@ -2054,7 +2052,6 @@ function setCoachMode(mode) {
 
     } else if (mode === 'gemini') {
         // Gemini via Cloudflare Worker proxy: native chat UI, no iframe
-        if (copilotPanel) copilotPanel.classList.remove('active');
         if (chatMessages)  chatMessages.style.display  = '';
         if (typingRow)     typingRow.style.display     = '';
         if (chatInputWrap) chatInputWrap.style.display = '';
@@ -2064,57 +2061,13 @@ function setCoachMode(mode) {
         D.chatStatus.classList.remove('idle');
 
     } else {
-        // Offline mode: show Copilot if configured AND enabled, else native chat
-        if (FEATURES.copilotEmbed && CONFIG.useCopilotEmbed && CONFIG.copilotEmbedUrl) {
-            if (copilotPanel)  copilotPanel.classList.add('active');
-            if (chatMessages)  chatMessages.style.display  = 'none';
-            if (typingRow)     typingRow.style.display     = 'none';
-            if (chatInputWrap) chatInputWrap.style.display = 'none';
-
-            // Lazy-init Copilot iframe once
-            if (copilotPanel && !copilotPanel.dataset.ready) {
-                copilotPanel.dataset.ready = '1';
-                initCopilotEmbed();
-            } else {
-                D.chatStatus.innerHTML = '● <span class="show-es">Conectado · Copilot Studio</span><span class="lang-sep"> · </span><span class="show-en">Connected · Copilot Studio</span>';
-                D.chatStatus.classList.remove('idle');
-            }
-        } else {
-            if (copilotPanel)  copilotPanel.classList.remove('active');
-            if (chatMessages)  chatMessages.style.display  = '';
-            if (typingRow)     typingRow.style.display     = '';
-            if (chatInputWrap) chatInputWrap.style.display = '';
-        }
+        // Offline mode: native chat with built-in stage guidance
+        if (chatMessages)  chatMessages.style.display  = '';
+        if (typingRow)     typingRow.style.display     = '';
+        if (chatInputWrap) chatInputWrap.style.display = '';
     }
 }
 
-function initCopilotEmbed() {
-    const panel = document.getElementById('copilotEmbedPanel');
-    const wrap  = document.getElementById('copilotIframeWrap');
-    if (!panel || !wrap) return;
-
-    panel.classList.add('active');
-    document.getElementById('chatMessages').style.display   = 'none';
-    document.getElementById('typingRow').style.display      = 'none';
-    document.querySelector('.chat-input-wrap').style.display = 'none';
-
-    D.chatStatus.innerHTML = '● <span class="show-es">Conectado · Copilot Studio</span><span class="lang-sep"> · </span><span class="show-en">Connected · Copilot Studio</span>';
-    D.chatStatus.classList.remove('idle');
-
-    const iframe = document.createElement('iframe');
-    iframe.src   = CONFIG.copilotEmbedUrl;
-    iframe.setAttribute('frameborder', '0');
-    iframe.setAttribute('allow', 'microphone');
-    iframe.setAttribute('title', 'Tu Pana de Escritura — Coach en vivo · Live coach');
-    iframe.setAttribute('aria-label', 'Tu Pana AI coach');
-
-    iframe.addEventListener('error', () => {
-        wrap.innerHTML = '<p class="copilot-fallback">The live AI coach could not load. You can continue using the writing stages and offline guidance. / El coach no pudo cargar. Puedes continuar con las etapas de escritura y la guía offline.</p>';
-        document.getElementById('copilotStatusBar').style.display = 'none';
-    });
-
-    wrap.appendChild(iframe);
-}
 
 async function initDL() {
     // ── Gemini mode — skip all remote provider initialization ──
@@ -2126,14 +2079,6 @@ async function initDL() {
     // ── Local Ollama mode — skip all remote provider initialization ──
     if (state.coachMode === 'ollama') {
         setCoachMode('ollama');
-        return;
-    }
-
-    // ── Copilot Studio embed mode ──────────────────────────────
-    // Gated by FEATURES.copilotEmbed to suppress botframework-webchat console
-    // errors during local dev. Set FEATURES.copilotEmbed = true to re-enable.
-    if (FEATURES.copilotEmbed && CONFIG.useCopilotEmbed && CONFIG.copilotEmbedUrl) {
-        setCoachMode('offline');  // initialises Copilot via setCoachMode
         return;
     }
 

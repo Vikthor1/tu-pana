@@ -8,9 +8,6 @@
 //  No UI is exposed for any of these. Toggle here only.
 // ════════════════════════════════════════════════════════
 const FEATURES = {
-    copilotEmbed:        false,  // Copilot Studio iframe initialization. Set false to suppress
-                                 // botframework-webchat console errors during local dev/testing.
-                                 // All Copilot code is preserved; set true to re-enable.
     genreSelection:      false,  // future: genre picker in UI
     courseModeSelection: false,  // future: course-mode picker in UI
     spanishL2Mode:       false,  // future: Spanish L2 course mode

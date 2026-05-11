@@ -25,7 +25,7 @@ const CONFIG = {
     },
     // Gemini provider (future). geminiProxyUrl must point to a secure server-side proxy.
     // Never add a Gemini API key here — browser code is public.
-    geminiProxyUrl: '',
+    geminiProxyUrl: 'https://tupana-gemini-proxy.dr-torres-velez.workers.dev',
     geminiModel:    'gemini-2.5-flash-lite',
     userId:   'student-' + Math.random().toString(36).slice(2, 10),  // Ephemeral. New random suffix per page load. Not persisted.
     userName: 'Estudiante'

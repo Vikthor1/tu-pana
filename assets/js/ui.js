@@ -2309,7 +2309,20 @@ async function sendMsg(text) {
     // Gemini via Cloudflare Worker proxy
     if (state.coachMode === 'gemini') {
         try {
-            const reply = await generateCoachResponse({ prompt: text, stageId: state.stage });
+            const _gLang    = getCurrentCoachLanguageLabel();
+            const _gCtx     = buildChannelData();
+            const _gRemind  = (_gCtx.stageId === 'stage.voice_polish')
+                ? '[STAGE 8 — VOICE POLISH: Do NOT write any version of the student\'s sentence. Do not produce replacement prose, partial rewrites, or "for example" sentences. Quote the student\'s exact words only. Ask questions and name the revision route.]\n\n'
+                : '';
+            const geminiPrompt =
+                buildOllamaSystemPrompt(_gLang) +
+                '\n\n---\n\n' +
+                _gRemind +
+                'Current interface language: ' + _gLang +
+                '\n\nCurrent Tu Pana context:\n' + JSON.stringify(_gCtx, null, 2) +
+                '\n\nStudent message:\n' + text +
+                '\n\nRespond as Tu Pana de Escritura following the stage-specific rules and the language rule above.';
+            const reply = await generateCoachResponse({ prompt: geminiPrompt, stageId: state.stage });
             if (reply) addMsg(reply, 'bot');
         } catch(err) {
             console.error('gemini:', err);

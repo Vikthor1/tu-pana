@@ -9,7 +9,7 @@
  * Student writing is never logged.
  */
 
-const MAX_PROMPT_CHARS = 12000;
+const MAX_PROMPT_CHARS = 32000;  // accommodates full Tu Pana system prompt (~14-16k) + context + student message
 
 const ALLOWED_MODELS = new Set([
     'gemini-2.5-flash-lite',

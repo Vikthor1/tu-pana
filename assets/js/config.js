@@ -23,6 +23,10 @@ const CONFIG = {
         num_predict: 400,
         num_ctx:     4096
     },
+    // Gemini provider (future). geminiProxyUrl must point to a secure server-side proxy.
+    // Never add a Gemini API key here — browser code is public.
+    geminiProxyUrl: '',
+    geminiModel:    'gemini-2.5-flash-lite',
     userId:   'student-' + Math.random().toString(36).slice(2, 10),  // Ephemeral. New random suffix per page load. Not persisted.
     userName: 'Estudiante'
 };

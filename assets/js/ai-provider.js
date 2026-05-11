@@ -43,6 +43,18 @@ function buildCoachPrompt({
 }
 
 // ════════════════════════════════════════════════════════
+//  GEMINI PROVIDER — scaffolded, disabled by feature flag
+//  Gemini must be called through a secure proxy. Never expose API keys in browser code.
+// ════════════════════════════════════════════════════════
+async function callGeminiProviderViaProxy(coachPayload) {
+    if (!CONFIG.geminiProxyUrl) {
+        throw new Error('[Tu Pana] Gemini not configured: CONFIG.geminiProxyUrl is empty. Set a proxy URL before enabling Gemini.');
+    }
+    // Proxy fetch implementation goes here in a future patch.
+    throw new Error('[Tu Pana] Gemini provider is scaffolded but not yet implemented. Set up a proxy endpoint first.');
+}
+
+// ════════════════════════════════════════════════════════
 //  RAW TEXT GENERATOR — lower-level provider entry point
 //  Returns raw AI response text, or null if the active provider
 //  delivers its response asynchronously (DirectLine callback) or
@@ -60,10 +72,9 @@ function buildCoachPrompt({
 //  all scripts are parsed.
 // ════════════════════════════════════════════════════════
 async function generateCoachResponse({ prompt, stageId, studentContext, assignmentConfig, responseFormat = 'text' } = {}) {
-    // Gemini (future, disabled by feature flag)
-    if (AI_PROVIDER === 'gemini' && FEATURES.geminiProvider) {
-        // return await callGeminiProvider({ prompt, stageId, studentContext, assignmentConfig, responseFormat });
-        console.warn('[Tu Pana] Gemini provider flagged but not implemented. Falling back.');
+    // Gemini (disabled — requires FEATURES.geminiProvider = true AND AI_PROVIDER = 'gemini')
+    if (FEATURES.geminiProvider && AI_PROVIDER === 'gemini') {
+        return await callGeminiProviderViaProxy({ prompt, stageId, studentContext, assignmentConfig, responseFormat });
     }
 
     // Ollama: synchronously returns raw text

@@ -226,14 +226,14 @@ const PANA_HINTS = {
     },
     8: {
         gentle: {
-            title: 'Compara. ¿Cuál suena más como tú? · Compare. Which sounds more like you?',
-            body: 'Lee ambas versiones en voz alta. La respuesta suele ser clara. / Read both versions out loud. The answer is usually clear.',
-            action: 'Lee en voz alta la versión original y la revisada. · Read the original and revised versions out loud.'
+            title: 'Pulir voz empieza con una oración. · Voice polish starts with one sentence.',
+            body: 'Elige una oración o pasaje corto. Pregúntate si necesita claridad, especificidad o protección de voz. El coach sugiere una ruta — tú haces el cambio final. / Choose one sentence or short passage. Ask whether it needs clarity, specificity, or voice protection. The coach suggests a route — you make the final edit.',
+            action: 'Elige una oración. Selecciona una ruta en la tarjeta de abajo. · Choose one sentence. Pick a route in the card below.'
         },
         direct: {
-            title: 'Conserva lo tuyo. Rechaza lo plano. · Keep what is yours. Reject what flattens.',
-            body: 'Compara original y revisión. Lo que borra tu voz no entra. / Compare original and revision. What erases your voice does not go in.',
-            action: 'Marca una frase que vas a conservar sin cambios. · Mark one phrase you will keep unchanged.'
+            title: 'Una oración. Una ruta. Tú decides. · One sentence. One route. You decide.',
+            body: 'No revises todo a la vez. Elige una oración, nombra qué necesita, y haz el cambio tú mismo. / Do not revise everything at once. Choose one sentence, name what it needs, and make the change yourself.',
+            action: 'Pega una oración en el chat con la ruta elegida. · Paste one sentence in the chat with your chosen route.'
         }
     },
     9: {

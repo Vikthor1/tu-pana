@@ -3241,68 +3241,84 @@ function renderMsgEvalBar(msgId, evals) {
 }
 
 function openMsgEvalDrawer(msgId, qKey, evals) {
+    // Remove any existing eval modal (body-level) or legacy inline drawer
+    document.getElementById('evalModal')?.remove();
     const msgWrap = D.chatMessages.querySelector(`[data-msg-id="${msgId}"]`);
-    if (!msgWrap) return;
-
-    // Close any existing drawer on this message
-    const oldDrawer = msgWrap.querySelector('.msg-eval-drawer');
-    if (oldDrawer) oldDrawer.remove();
+    if (msgWrap) msgWrap.querySelector('.msg-eval-drawer')?.remove();
 
     const q = EVAL_QUESTIONS.find(x => x.key === qKey);
     if (!q) return;
 
-    const drawer = document.createElement('div');
-    drawer.className = 'msg-eval-drawer';
+    // Backdrop — click outside card to dismiss
+    const overlay = document.createElement('div');
+    overlay.className = 'eval-modal-bg';
+    overlay.id = 'evalModal';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', `Evaluar: ${q.label} · Evaluate: ${q.label}`);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 
-    const title = document.createElement('div');
-    title.className = 'msg-eval-drawer-q ' + q.cls;
-    title.innerHTML = `${getIcon(q.icon, 14)} ${q.label}`;
-    drawer.appendChild(title);
+    const card = document.createElement('div');
+    card.className = 'eval-modal-card';
 
+    // Criterion label + icon
+    const qTitle = document.createElement('div');
+    qTitle.className = 'eval-modal-q ' + q.cls;
+    qTitle.innerHTML = `${getIcon(q.icon, 16)} ${q.label}`;
+    card.appendChild(qTitle);
+
+    // Hint text
+    const hint = document.createElement('p');
+    hint.className = 'eval-modal-hint';
+    hint.textContent = q.hint;
+    card.appendChild(hint);
+
+    // Choice buttons
     const choices = document.createElement('div');
-    choices.className = 'msg-eval-choices';
-
+    choices.className = 'eval-modal-choices';
     const current = evals && evals[qKey];
-    const choiceData = [
-        { type: 'good', label: 'Sí · Yes', cls: 'picked-good' },
-        { type: 'warn', label: 'Pienso más · Think more', cls: 'picked-warn' },
-        { type: 'flag', label: 'Cuestiono · Question', cls: 'picked-flag' }
-    ];
-
-    choiceData.forEach(c => {
+    [
+        { type: 'good', label: 'Sí · Yes' },
+        { type: 'warn', label: 'Pienso más · Think more' },
+        { type: 'flag', label: 'Cuestiono · Question' }
+    ].forEach(c => {
         const b = document.createElement('button');
-        b.className = 'msg-eval-choice' + (current === c.type ? ' ' + c.cls : '');
+        b.className = 'eval-modal-choice' + (current === c.type ? ' picked-' + c.type : '');
         b.textContent = c.label;
         b.addEventListener('click', () => evalMsgPick(msgId, qKey, c.type));
         choices.appendChild(b);
     });
-    drawer.appendChild(choices);
+    card.appendChild(choices);
 
-    // Show feedback if already answered
+    // Feedback if already answered
     if (current && EVAL_FEEDBACK[qKey] && EVAL_FEEDBACK[qKey][current]) {
         const fb = document.createElement('div');
-        fb.className = 'msg-eval-feedback guide-card ' + current;
+        fb.className = 'eval-modal-feedback ' + current;
         const raw = EVAL_FEEDBACK[qKey][current];
-        // Split on first period after the bold lead-in to extract title/body
         const parts = raw.split(/\.\s+(?=[A-Z])/);
-        let title = parts[0];
-        let body = parts.slice(1).join('. ');
-        if (!body) { title = raw; body = ''; }
+        let fbTitle = parts[0];
+        let fbBody = parts.slice(1).join('. ');
+        if (!fbBody) { fbTitle = raw; fbBody = ''; }
         fb.innerHTML =
-            `<div class="guide-card-title">${escapeHtml(title)}</div>` +
-            (body ? `<div class="guide-card-body">${wrapBilingualHtml(body)}</div>` : '') +
-            `<div class="guide-card-action">${escapeHtml('Tu criterio es la última palabra. · Your judgment is final.')}</div>`;
-        drawer.appendChild(fb);
+            `<div class="eval-modal-fb-title">${escapeHtml(fbTitle)}</div>` +
+            (fbBody ? `<div class="eval-modal-fb-body">${wrapBilingualHtml(fbBody)}</div>` : '') +
+            `<div class="eval-modal-fb-action">Tu criterio es la última palabra. · Your judgment is final.</div>`;
+        card.appendChild(fb);
     }
 
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'msg-eval-close';
+    closeBtn.className = 'eval-modal-close';
+    closeBtn.setAttribute('aria-label', 'Cerrar · Close');
     closeBtn.textContent = 'Cerrar · Close';
-    closeBtn.addEventListener('click', () => drawer.remove());
-    drawer.appendChild(closeBtn);
+    closeBtn.addEventListener('click', () => overlay.remove());
+    card.appendChild(closeBtn);
 
-    msgWrap.appendChild(drawer);
-    drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+
+    // Focus first choice for keyboard/screen-reader users
+    const firstChoice = card.querySelector('.eval-modal-choice');
+    if (firstChoice) setTimeout(() => firstChoice.focus(), 40);
 }
 
 function evalMsgPick(msgId, qKey, choice) {
@@ -3317,8 +3333,8 @@ function evalMsgPick(msgId, qKey, choice) {
     if (msgWrap) {
         const oldBar = msgWrap.querySelector('.msg-eval-bar');
         if (oldBar) oldBar.remove();
-        const oldDrawer = msgWrap.querySelector('.msg-eval-drawer');
-        if (oldDrawer) oldDrawer.remove();
+        document.getElementById('evalModal')?.remove();
+        msgWrap.querySelector('.msg-eval-drawer')?.remove();
 
         // Read back evals from chatlog
         let evals = {};

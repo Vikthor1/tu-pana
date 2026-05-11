@@ -13,10 +13,11 @@
 
 // ════════════════════════════════════════════════════════
 //  ACTIVE PROVIDER
+//  'gemini' = Gemini Flash-Lite via Cloudflare Worker proxy (active)
 //  'current' = use existing state.coachMode routing in ui.js
-//  Future values: 'gemini' | 'ollama' | 'offline'
+//  Other values: 'ollama' | 'offline'
 // ════════════════════════════════════════════════════════
-const AI_PROVIDER = 'current';
+const AI_PROVIDER = 'gemini';
 
 // ════════════════════════════════════════════════════════
 //  LAYERED PROMPT BUILDER
@@ -105,7 +106,7 @@ async function callGeminiProviderViaProxy(coachPayload) {
 //  all scripts are parsed.
 // ════════════════════════════════════════════════════════
 async function generateCoachResponse({ prompt, stageId, studentContext, assignmentConfig, responseFormat = 'text' } = {}) {
-    // Gemini (disabled — requires FEATURES.geminiProvider = true AND AI_PROVIDER = 'gemini')
+    // Gemini via Cloudflare Worker proxy
     if (FEATURES.geminiProvider && AI_PROVIDER === 'gemini') {
         return await callGeminiProviderViaProxy({ prompt, stageId, studentContext, assignmentConfig, responseFormat });
     }

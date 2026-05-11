@@ -19,7 +19,7 @@ const state = {
     showAllJourney: false,
     tone:       'gentle',  // 'gentle' | 'direct'
     lang:       'es',      // 'es' | 'en' | 'both'
-    coachMode:  localStorage.getItem('tupana_coach_mode') || 'offline',  // 'offline' | 'dify'
+    coachMode:  localStorage.getItem('tupana_coach_mode') || 'gemini',   // 'offline' | 'dify' | 'demo' | 'ollama' | 'gemini'
     coachPerspectiveCallback: null,
     step:       1,
     welcomeShown:    false,
@@ -2058,7 +2058,7 @@ function deliverDemoResponse(stageId) {
 }
 
 function setCoachMode(mode) {
-    if (!['offline', 'dify', 'demo', 'ollama'].includes(mode)) mode = 'offline';
+    if (!['offline', 'dify', 'demo', 'ollama', 'gemini'].includes(mode)) mode = 'offline';
     state.coachMode = mode;
     localStorage.setItem('tupana_coach_mode', mode);
 
@@ -2133,6 +2133,18 @@ function setCoachMode(mode) {
         D.chatStatus.innerHTML = '● <span class="show-es">Local · Ollama</span><span class="lang-sep"> · </span><span class="show-en">Local AI · Ollama</span>';
         D.chatStatus.classList.remove('idle');
 
+    } else if (mode === 'gemini') {
+        // Gemini via Cloudflare Worker proxy: native chat UI, no iframe
+        if (difyPanel)    difyPanel.classList.remove('active');
+        if (copilotPanel) copilotPanel.classList.remove('active');
+        if (chatMessages)  chatMessages.style.display  = '';
+        if (typingRow)     typingRow.style.display     = '';
+        if (chatInputWrap) chatInputWrap.style.display = '';
+
+        state.connected = true;
+        D.chatStatus.innerHTML = '● <span class="show-es">Gemini AI</span><span class="lang-sep"> · </span><span class="show-en">Gemini AI</span>';
+        D.chatStatus.classList.remove('idle');
+
     } else {
         // Offline mode: show Copilot if configured AND enabled, else native chat
         if (difyPanel) difyPanel.classList.remove('active');
@@ -2189,6 +2201,12 @@ function initCopilotEmbed() {
 }
 
 async function initDL() {
+    // ── Gemini mode — skip all remote provider initialization ──
+    if (state.coachMode === 'gemini' && FEATURES.geminiProvider) {
+        setCoachMode('gemini');
+        return;
+    }
+
     // ── Local Ollama mode — skip all remote provider initialization ──
     if (state.coachMode === 'ollama') {
         setCoachMode('ollama');
@@ -2280,6 +2298,22 @@ async function sendMsg(text) {
         } catch(err) {
             console.error('ollama:', err);
             addMsg(getOllamaFriendlyError(err), 'bot');
+        } finally {
+            showTyping(false);
+            state.waiting = false;
+            D.sendBtn.disabled = false;
+        }
+        return;
+    }
+
+    // Gemini via Cloudflare Worker proxy
+    if (state.coachMode === 'gemini') {
+        try {
+            const reply = await generateCoachResponse({ prompt: text, stageId: state.stage });
+            if (reply) addMsg(reply, 'bot');
+        } catch(err) {
+            console.error('gemini:', err);
+            addMsg('El coach Gemini no está disponible en este momento. / Gemini coach is unavailable right now.', 'bot');
         } finally {
             showTyping(false);
             state.waiting = false;

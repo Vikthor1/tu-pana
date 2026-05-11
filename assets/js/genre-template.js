@@ -15,7 +15,7 @@ const FEATURES = {
     courseModeSelection: false,  // future: course-mode picker in UI
     spanishL2Mode:       false,  // future: Spanish L2 course mode
     heritageSpanishMode: false,  // future: Heritage Spanish course mode
-    geminiProvider:      false,  // future: Gemini Flash-Lite / Flash API
+    geminiProvider:      true,   // Gemini Flash-Lite via Cloudflare Worker proxy
     instructorSettings:  false   // future: instructor configuration panel
 };
 

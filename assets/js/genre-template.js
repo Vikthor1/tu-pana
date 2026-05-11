@@ -155,9 +155,9 @@ const mixedGenreAutobiographicalEssay = {
             titleEs: 'Pulir Voz',
             titleEn: 'Voice Polish',
             phase:   'Refine',
-            coachFocus: 'Voice Polish must preserve the student\'s voice, code-switching, Spanglish, family language, neighborhood language, dialectal choices, and culturally meaningful phrasing. Do not flatten the writing into generic academic English. Honor protected Voice Vault phrases.',
-            allowedSupport: ['voice comparison questions', 'read-aloud prompts', 'Voice Vault feedback'],
-            blockedSupport: ['flatten voice', 'replace dialectal phrasing', 'rewrite for academic register']
+            coachFocus: 'Voice Polish must preserve the student\'s voice, code-switching, Spanglish, family language, neighborhood language, dialectal choices, and culturally meaningful phrasing. Do not flatten the writing into generic academic English. Honor protected Voice Vault phrases. Do not provide a full rewritten sentence, polished alternative, or copy-paste-ready version of the student\'s sentence — identify what the sentence might need and suggest a route; the student writes the revision.',
+            allowedSupport: ['voice comparison questions', 'read-aloud prompts', 'Voice Vault feedback', 'blank sentence frames with placeholders only', 'route labels', 'word-level suggestions', 'revision questions', 'try-adding-X guidance'],
+            blockedSupport: ['flatten voice', 'replace dialectal phrasing', 'rewrite for academic register', 'copy-paste replacement sentences', 'polished alternative versions', 'better version examples', 'full rewritten sentences']
         },
         {
             id:      'stage.checklist',

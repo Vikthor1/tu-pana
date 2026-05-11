@@ -2646,6 +2646,89 @@ function submitChat() {
 }
 
 // ════════════════════════════════════════════════════════
+//  SELECTION-TO-COACH
+//  Floating action appears when text is selected in the
+//  draft editor. Inserts selected text into chat input
+//  with stage-aware framing. Never auto-sends.
+// ════════════════════════════════════════════════════════
+(function initSelectionToCoach() {
+    const btn = document.createElement('button');
+    btn.id    = 'sendSelToCoachBtn';
+    btn.className = 'sel-to-coach-btn';
+    btn.setAttribute('aria-label', 'Enviar texto seleccionado al coach · Send selected text to coach');
+    btn.innerHTML =
+        '<span class="show-es">Enviar al coach</span>' +
+        '<span class="lang-sep"> · </span>' +
+        '<span class="show-en">Send to Coach</span>';
+    btn.style.display = 'none';
+    document.body.appendChild(btn);
+
+    // Stage-aware framing — never asks the coach to rewrite
+    const FRAMES = {
+        2: 'Can you help me connect this to a larger issue — without rewriting it?\n\n',
+        3: 'Can you help me check the tension or argument here — without rewriting it?\n\n',
+        4: 'Can you help me turn this into search terms or source types? Do not invent sources or citations.\n\n',
+        7: 'Can you help me revise this passage — without rewriting it for me?\n\n',
+        8: 'Can you help me polish this sentence — without giving me a replacement version?\n\n',
+        9: 'Can you help me check this before my final reflection?\n\n',
+    };
+    const DEFAULT_FRAME = 'Can you help me think about this — without rewriting it?\n\n';
+
+    function getFrame()        { return FRAMES[state.stage] || DEFAULT_FRAME; }
+    function getSelectedText() {
+        return D.draftArea.value.substring(
+            D.draftArea.selectionStart,
+            D.draftArea.selectionEnd
+        ).trim();
+    }
+
+    function positionBtn() {
+        const rect = D.draftArea.getBoundingClientRect();
+        const bw   = btn.offsetWidth || 160;
+        btn.style.top  = (rect.top + 8) + 'px';
+        btn.style.left = Math.max(8, rect.right - bw - 8) + 'px';
+    }
+
+    let _pendingSel = '';
+
+    function showBtn(sel) {
+        _pendingSel = sel;
+        btn.style.display = '';
+        requestAnimationFrame(positionBtn);   // measure after paint so offsetWidth is real
+    }
+
+    function hideBtn() { btn.style.display = 'none'; _pendingSel = ''; }
+
+    function onSelChange() {
+        const sel = getSelectedText();
+        sel.length > 0 ? showBtn(sel) : hideBtn();
+    }
+
+    D.draftArea.addEventListener('mouseup', onSelChange);
+    D.draftArea.addEventListener('keyup',   onSelChange);
+
+    // Delay hide so click on the button fires before blur hides it
+    let _hideTimer = null;
+    D.draftArea.addEventListener('blur',   () => { _hideTimer = setTimeout(hideBtn, 200); });
+    btn.addEventListener('mousedown', () => clearTimeout(_hideTimer));
+    btn.addEventListener('focus',     () => clearTimeout(_hideTimer));
+    btn.addEventListener('blur', hideBtn);
+
+    btn.addEventListener('click', () => {
+        const sel = _pendingSel || getSelectedText();
+        if (!sel) return;
+        D.chatInput.value = getFrame() + '“' + sel + '”';
+        D.chatInput.dispatchEvent(new Event('input'));  // update send-btn state + height
+        hideBtn();
+        if (window.innerWidth <= 480) switchMobileTab('chat');
+        D.chatInput.focus();
+    });
+
+    // Reposition if window resizes while button is visible
+    window.addEventListener('resize', () => { if (btn.style.display !== 'none') positionBtn(); });
+})();
+
+// ════════════════════════════════════════════════════════
 //  PER-STAGE WRITING STORAGE
 //  Each stage saves its textarea content independently.
 //  Stage 6 also writes to tupana_draft (authorship gate).

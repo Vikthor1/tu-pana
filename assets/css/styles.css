@@ -5230,6 +5230,40 @@ img, video, embed, object { max-width: 100%; height: auto; }
     }
 }
 
+/* ── Selection-to-Coach Floating Button ─────────────────── */
+.sel-to-coach-btn {
+    position: fixed;
+    z-index: 1200;
+    display: inline-flex;
+    align-items: center;
+    background: var(--jade);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+    white-space: nowrap;
+    transition: background 0.12s;
+}
+.sel-to-coach-btn:hover { background: var(--jade-dk); }
+.sel-to-coach-btn:focus-visible {
+    outline: 2px solid var(--jade-text);
+    outline-offset: 2px;
+}
+@media (max-width: 480px) {
+    .sel-to-coach-btn {
+        font-size: 0.85rem;
+        padding: 9px 14px;
+        min-height: 44px;
+        border-radius: 8px;
+        max-width: calc(100vw - 16px);
+    }
+}
+
 /* ═══════════════════════════════════════════════════════════
    ≤ 375px — iPhone SE, small Android, 320 px support
    ═══════════════════════════════════════════════════════════ */

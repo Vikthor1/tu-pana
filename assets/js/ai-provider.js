@@ -48,10 +48,43 @@ function buildCoachPrompt({
 // ════════════════════════════════════════════════════════
 async function callGeminiProviderViaProxy(coachPayload) {
     if (!CONFIG.geminiProxyUrl) {
-        throw new Error('[Tu Pana] Gemini not configured: CONFIG.geminiProxyUrl is empty. Set a proxy URL before enabling Gemini.');
+        throw new Error('[Tu Pana] Gemini not configured: CONFIG.geminiProxyUrl is empty.');
     }
-    // Proxy fetch implementation goes here in a future patch.
-    throw new Error('[Tu Pana] Gemini provider is scaffolded but not yet implemented. Set up a proxy endpoint first.');
+
+    let response;
+    try {
+        response = await fetch(CONFIG.geminiProxyUrl, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt:           coachPayload.prompt           || '',
+                stageId:          coachPayload.stageId          || null,
+                studentContext:   coachPayload.studentContext   || {},
+                assignmentConfig: coachPayload.assignmentConfig || {},
+                responseFormat:   'text',
+                model:            CONFIG.geminiModel            || 'gemini-2.5-flash-lite'
+            })
+        });
+    } catch (err) {
+        throw new Error('[Tu Pana] Gemini proxy unreachable');
+    }
+
+    let data;
+    try {
+        data = await response.json();
+    } catch {
+        throw new Error('[Tu Pana] Gemini proxy returned an invalid response');
+    }
+
+    if (!response.ok) {
+        throw new Error('[Tu Pana] Gemini proxy error: ' + (data?.error || response.status));
+    }
+
+    if (!data?.text || typeof data.text !== 'string') {
+        throw new Error('[Tu Pana] Gemini proxy returned no text');
+    }
+
+    return data.text;
 }
 
 // ════════════════════════════════════════════════════════

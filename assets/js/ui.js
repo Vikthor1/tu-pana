@@ -3279,6 +3279,21 @@ function openMsgEvalDrawer(msgId, qKey, evals) {
     const card = document.createElement('div');
     card.className = 'eval-modal-card';
 
+    // Modal header
+    const header = document.createElement('div');
+    header.className = 'eval-modal-header';
+    header.textContent = 'Evaluando lo que dice el coach · Evaluating what the coach says';
+    card.appendChild(header);
+
+    // Intro explanation
+    const intro = document.createElement('p');
+    intro.className = 'eval-modal-intro';
+    intro.innerHTML =
+        'Antes de usar esta sugerencia, evalúala. <strong>Tu criterio es parte del trabajo.</strong> · ' +
+        'Before using this suggestion, evaluate it. <strong>Your judgment is part of the work.</strong>' +
+        '<br><span class="eval-modal-sub">No tienes que aceptar todo lo que dice el coach. · You do not have to accept everything the coach says.</span>';
+    card.appendChild(intro);
+
     // Criterion label + icon
     const qTitle = document.createElement('div');
     qTitle.className = 'eval-modal-q ' + q.cls;
@@ -3296,9 +3311,9 @@ function openMsgEvalDrawer(msgId, qKey, evals) {
     choices.className = 'eval-modal-choices';
     const current = evals && evals[qKey];
     [
-        { type: 'good', label: 'Sí · Yes' },
-        { type: 'warn', label: 'Pienso más · Think more' },
-        { type: 'flag', label: 'Cuestiono · Question' }
+        { type: 'good', label: 'Sí / Yes' },
+        { type: 'warn', label: 'Parcialmente / Partly' },
+        { type: 'flag', label: 'No / No' }
     ].forEach(c => {
         const b = document.createElement('button');
         b.className = 'eval-modal-choice' + (current === c.type ? ' picked-' + c.type : '');

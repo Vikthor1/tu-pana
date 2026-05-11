@@ -19,7 +19,7 @@ const state = {
     showAllJourney: false,
     tone:       'gentle',  // 'gentle' | 'direct'
     lang:       'es',      // 'es' | 'en' | 'both'
-    coachMode:  localStorage.getItem('tupana_coach_mode') || 'gemini',   // 'offline' | 'dify' | 'demo' | 'ollama' | 'gemini'
+    coachMode:  localStorage.getItem('tupana_coach_mode') || 'gemini',   // 'offline' | 'ollama' | 'gemini'
     coachPerspectiveCallback: null,
     step:       1,
     welcomeShown:    false,
@@ -1345,10 +1345,6 @@ function goToStage(id) {
         tone: state.tone
     });
 
-    // In demo mode, send the canned intro for the new stage
-    if (state.coachMode === 'demo') {
-        setTimeout(() => sendDemoIntro(id), 600);
-    }
 }
 
 function onStageClick(s) {
@@ -2027,38 +2023,9 @@ async function sendAppEvent(eventName, eventValue) {
     } catch(err) { console.error('appEvent:', err); }
 }
 
-function sendDemoIntro(stageId) {
-    const responses = DEMO_RESPONSES[stageId];
-    if (!responses || !responses[0]) return;
-    showTyping(true);
-    setTimeout(() => {
-        showTyping(false);
-        addMsg(responses[0], 'bot');
-    }, 900 + Math.random() * 600);
-}
-
-function deliverDemoResponse(stageId) {
-    const responses = DEMO_RESPONSES[stageId] || DEMO_RESPONSES[1];
-    const followups = responses.slice(1);
-    if (!followups.length) {
-        showTyping(false);
-        state.waiting = false;
-        D.sendBtn.disabled = false;
-        return;
-    }
-    if (_demoIdx[stageId] === undefined) _demoIdx[stageId] = 0;
-    const msg = followups[_demoIdx[stageId] % followups.length];
-    _demoIdx[stageId]++;
-    setTimeout(() => {
-        showTyping(false);
-        state.waiting = false;
-        D.sendBtn.disabled = false;
-        addMsg(msg, 'bot');
-    }, 1200 + Math.random() * 800);
-}
 
 function setCoachMode(mode) {
-    if (!['offline', 'dify', 'demo', 'ollama', 'gemini'].includes(mode)) mode = 'offline';
+    if (!['offline', 'ollama', 'gemini'].includes(mode)) mode = 'offline';
     state.coachMode = mode;
     localStorage.setItem('tupana_coach_mode', mode);
 
@@ -2069,61 +2036,13 @@ function setCoachMode(mode) {
         btn.setAttribute('aria-pressed', String(on));
     });
 
-    const difyPanel     = document.getElementById('difyEmbedPanel');
     const copilotPanel  = document.getElementById('copilotEmbedPanel');
     const chatMessages  = document.getElementById('chatMessages');
     const typingRow     = document.getElementById('typingRow');
     const chatInputWrap = document.querySelector('.chat-input-wrap');
 
-    if (mode === 'dify') {
-        if (difyPanel)     difyPanel.classList.add('active');
-        if (copilotPanel)  copilotPanel.classList.remove('active');
-        if (chatMessages)  chatMessages.style.display = 'none';
-        if (typingRow)     typingRow.style.display    = 'none';
-        if (chatInputWrap) chatInputWrap.style.display = 'none';
-
-        D.chatStatus.innerHTML = '● Dify AI';
-        D.chatStatus.classList.remove('idle');
-
-        // Lazy-init Dify iframe once
-        if (difyPanel && !difyPanel.dataset.ready) {
-            difyPanel.dataset.ready = '1';
-            const wrap = document.getElementById('difyIframeWrap');
-            if (wrap) {
-                if (CONFIG.difyEmbedUrl) {
-                    const iframe = document.createElement('iframe');
-                    iframe.src = CONFIG.difyEmbedUrl;
-                    iframe.setAttribute('frameborder', '0');
-                    iframe.setAttribute('title', 'Tu Pana de Escritura AI Writing Coach');
-                    iframe.style.cssText = 'width:100%;height:720px;min-height:700px;border:0;border-radius:12px;display:block;';
-                    iframe.addEventListener('error', () => {
-                        wrap.innerHTML = '<p class="dify-fallback">The AI coach could not load. Switch to Offline Coach mode to continue. / El coach no pudo cargar. Cambia al modo Offline para continuar.</p>';
-                    });
-                    wrap.appendChild(iframe);
-                } else {
-                    wrap.innerHTML = '<p class="dify-fallback">No Dify URL configured. Switch to Offline Coach mode. / URL no configurada. Usa el modo Offline.</p>';
-                }
-            }
-        }
-
-    } else if (mode === 'demo') {
-        // Demo mode: native chat with pre-canned stage responses, no API calls
-        if (difyPanel)    difyPanel.classList.remove('active');
-        if (copilotPanel) copilotPanel.classList.remove('active');
-        if (chatMessages)  chatMessages.style.display  = '';
-        if (typingRow)     typingRow.style.display     = '';
-        if (chatInputWrap) chatInputWrap.style.display = '';
-
-        state.connected = true;
-        D.chatStatus.innerHTML = '● <span class="show-es">Modo Demo</span><span class="lang-sep"> · </span><span class="show-en">Demo Mode</span>';
-        D.chatStatus.classList.remove('idle');
-
-        // Send the intro for the current stage
-        sendDemoIntro(state.stage);
-
-    } else if (mode === 'ollama') {
+    if (mode === 'ollama') {
         // Local Ollama AI: native chat, direct browser-to-Ollama call, no iframe
-        if (difyPanel)    difyPanel.classList.remove('active');
         if (copilotPanel) copilotPanel.classList.remove('active');
         if (chatMessages)  chatMessages.style.display  = '';
         if (typingRow)     typingRow.style.display     = '';
@@ -2135,7 +2054,6 @@ function setCoachMode(mode) {
 
     } else if (mode === 'gemini') {
         // Gemini via Cloudflare Worker proxy: native chat UI, no iframe
-        if (difyPanel)    difyPanel.classList.remove('active');
         if (copilotPanel) copilotPanel.classList.remove('active');
         if (chatMessages)  chatMessages.style.display  = '';
         if (typingRow)     typingRow.style.display     = '';
@@ -2147,8 +2065,6 @@ function setCoachMode(mode) {
 
     } else {
         // Offline mode: show Copilot if configured AND enabled, else native chat
-        if (difyPanel) difyPanel.classList.remove('active');
-
         if (FEATURES.copilotEmbed && CONFIG.useCopilotEmbed && CONFIG.copilotEmbedUrl) {
             if (copilotPanel)  copilotPanel.classList.add('active');
             if (chatMessages)  chatMessages.style.display  = 'none';
@@ -2210,12 +2126,6 @@ async function initDL() {
     // ── Local Ollama mode — skip all remote provider initialization ──
     if (state.coachMode === 'ollama') {
         setCoachMode('ollama');
-        return;
-    }
-
-    // ── Route to Dify or native coach based on saved mode ─────
-    if (state.coachMode === 'dify' && CONFIG.difyEmbedUrl) {
-        setCoachMode('dify');
         return;
     }
 
@@ -2283,12 +2193,6 @@ async function sendMsg(text) {
     state.waiting = true;
     showTyping(true);
     D.sendBtn.disabled = true;
-
-    // Demo mode: respond with canned message, no API call
-    if (state.coachMode === 'demo') {
-        deliverDemoResponse(state.stage);
-        return;
-    }
 
     // Ollama local AI mode: raw text via shared generateCoachResponse()
     if (state.coachMode === 'ollama') {

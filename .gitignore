@@ -33,11 +33,21 @@
 !prompts/
 !prompts/qa-scenarios.md
 
+# ── Allow Cloudflare Worker proxy scaffold ───────────────
+!server/
+!server/gemini-worker/
+!server/gemini-worker/wrangler.toml
+!server/gemini-worker/README.md
+!server/gemini-worker/src/
+!server/gemini-worker/src/index.js
+
 # ── Explicitly ignore internal / private files ─────────
 # (belt-and-suspenders in case the allowlist above is overridden)
 .DS_Store
 .env
 .env.*
+.dev.vars
+.dev.vars.*
 node_modules/
 package.json
 package-lock.json

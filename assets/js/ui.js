@@ -1256,6 +1256,8 @@ function confirmStagePreview() {
     pendingStageId = null;
     goToStage(id);
     scheduleCoachSpotlight(id);
+    // Mobile: bring student to coach tab so new stage instructions / cards are visible
+    if (window.innerWidth <= 480) switchMobileTab('chat');
 }
 
 function dismissStagePreview() {

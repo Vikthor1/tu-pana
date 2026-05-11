@@ -436,6 +436,139 @@ function useResearchStarter(btn) {
 }
 
 // ════════════════════════════════════════════════════════
+//  STAGE 8 — VOICE POLISH CARD
+//  Step-by-step guided flow. Route buttons pre-fill the chat input
+//  with a template so the student pastes their own sentence.
+//  The protect route shows a Voice Vault how-to note instead.
+//  Replaces the revision panel at Stage 8 to reduce clutter.
+// ════════════════════════════════════════════════════════
+const VOICE_POLISH_ROUTES = [
+    { key: 'clearer',
+      es: 'Quiero que esta oración sea más clara. Aquí está:',
+      en: 'I want to make this sentence clearer. Here it is:' },
+    { key: 'specific',
+      es: 'Quiero añadir detalles más específicos. Aquí está mi oración:',
+      en: 'I want to add more specific details. Here is my sentence:' },
+    { key: 'voice',
+      es: 'Quiero mantener mi voz aquí — que no pierda lo que es mío. Aquí está:',
+      en: 'I want to keep my voice here — without losing what is mine. Here it is:' },
+    { key: 'matters',
+      es: '¿Por qué importa esta oración en mi ensayo? Aquí está:',
+      en: 'Why does this sentence matter in my essay? Here it is:' },
+    { key: 'protect', es: '', en: '' },
+];
+
+function injectVoicePolishCard() {
+    if (document.querySelector('.voice-polish-card')) return;
+
+    function vpBtn(route) {
+        const r = VOICE_POLISH_ROUTES.find(x => x.key === route);
+        const labels = {
+            clearer:  { es: 'Que sea más clara',              en: 'Make it clearer' },
+            specific: { es: 'Que sea más específica',          en: 'Make it more specific' },
+            voice:    { es: 'Mantener mi voz',                 en: 'Keep my voice' },
+            matters:  { es: '¿Por qué importa esta oración?', en: 'Ask why this matters' },
+            protect:  { es: 'Proteger esta frase',             en: 'Protect this phrase' },
+        };
+        const lbl = labels[route];
+        const extraCls = route === 'protect' ? ' vp-route-protect' : '';
+        return `<button class="vp-route-btn${extraCls}" onclick="selectPolishRoute(this,'${route}')" ` +
+            `type="button" data-es="${escapeHtml(r.es)}" data-en="${escapeHtml(r.en)}" aria-pressed="false">` +
+            `<span class="show-es">${escapeHtml(lbl.es)}</span>` +
+            `<span class="lang-sep"> · </span>` +
+            `<span class="show-en">${escapeHtml(lbl.en)}</span>` +
+            `</button>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'voice-polish-card';
+    card.setAttribute('role', 'region');
+    card.setAttribute('aria-label', 'Guía de Pulir Voz · Voice Polish guide');
+    card.innerHTML =
+        `<div class="vp-card-title">` +
+            `<span class="show-es">Cómo usar la Etapa de Pulir Voz</span>` +
+            `<span class="lang-sep"> · </span>` +
+            `<span class="show-en">How to use Voice Polish</span>` +
+        `</div>` +
+        `<ol class="vp-steps">` +
+            `<li class="vp-step"><span class="vp-step-num">1</span><span>` +
+                `<span class="show-es">Elige <strong>una oración o pasaje corto</strong> de tu borrador.</span>` +
+                `<span class="lang-sep"> · </span>` +
+                `<span class="show-en">Choose <strong>one sentence or short passage</strong> from your draft.</span>` +
+            `</span></li>` +
+            `<li class="vp-step"><span class="vp-step-num">2</span><span>` +
+                `<span class="show-es">Elige qué tipo de ayuda necesitas (abajo).</span>` +
+                `<span class="lang-sep"> · </span>` +
+                `<span class="show-en">Choose what kind of help you need (below).</span>` +
+            `</span></li>` +
+            `<li class="vp-step"><span class="vp-step-num">3</span><span>` +
+                `<span class="show-es">Pega tu oración en el chat y envíala al coach.</span>` +
+                `<span class="lang-sep"> · </span>` +
+                `<span class="show-en">Paste your sentence into the chat and send it to the coach.</span>` +
+            `</span></li>` +
+            `<li class="vp-step"><span class="vp-step-num">4</span><span>` +
+                `<span class="show-es"><strong>Tú decides el cambio final.</strong> El coach no reescribe tu oración.</span>` +
+                `<span class="lang-sep"> · </span>` +
+                `<span class="show-en"><strong>You decide the final edit.</strong> The coach does not rewrite your sentence.</span>` +
+            `</span></li>` +
+        `</ol>` +
+        `<div class="vp-routes-label">` +
+            `<span class="show-es">¿Qué tipo de ayuda necesitas?</span>` +
+            `<span class="lang-sep"> · </span>` +
+            `<span class="show-en">What kind of help do you need?</span>` +
+        `</div>` +
+        `<div class="vp-routes">` +
+            vpBtn('clearer') + vpBtn('specific') + vpBtn('voice') +
+            vpBtn('matters') + vpBtn('protect') +
+        `</div>` +
+        `<p class="vp-guardrail">` +
+            `<span class="show-es">El coach identifica posibilidades y sugiere rutas de revisión — no reescribe tu oración. Tú haces el cambio final.</span>` +
+            `<span class="lang-sep"> · </span>` +
+            `<span class="show-en">The coach identifies possibilities and suggests revision routes — it does not rewrite your sentence. You make the final edit.</span>` +
+        `</p>`;
+
+    D.chatMessages.appendChild(card);
+    D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
+}
+
+function selectPolishRoute(btn, route) {
+    const alreadySelected = btn.classList.contains('selected');
+    document.querySelectorAll('.vp-route-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+    });
+    // Remove any existing protect note
+    document.querySelector('.vp-protect-note')?.remove();
+
+    if (alreadySelected && route === 'protect') return;
+
+    btn.classList.add('selected');
+    btn.setAttribute('aria-pressed', 'true');
+
+    if (route === 'protect') {
+        const note = document.createElement('p');
+        note.className = 'vp-protect-note';
+        note.innerHTML =
+            `<span class="show-es"><strong>Para proteger una frase:</strong> selecciona texto en tu borrador (panel izquierdo), luego haz clic en <strong>Proteger</strong> en la barra de herramientas. La Bóveda de voz (debajo del borrador) confirma qué frases están protegidas.</span>` +
+            `<span class="lang-sep"> · </span>` +
+            `<span class="show-en"><strong>To protect a phrase:</strong> select text in your draft (left panel), then click <strong>Protect</strong> in the toolbar above the draft. The Voice Vault (below the draft) shows which phrases are protected.</span>`;
+        btn.closest('.voice-polish-card').appendChild(note);
+        return;
+    }
+
+    const es = btn.dataset.es;
+    const en = btn.dataset.en;
+    const template = state.lang === 'en' ? en : state.lang === 'es' ? es : `${es} / ${en}`;
+    if (D.chatInput) {
+        D.chatInput.value = template + ' ';
+        D.chatInput.dispatchEvent(new Event('input'));
+        D.chatInput.focus();
+        const len = D.chatInput.value.length;
+        D.chatInput.setSelectionRange(len, len);
+    }
+}
+
+// ════════════════════════════════════════════════════════
 //  DEMO MODE — pre-canned coaching responses per stage
 //  Index 0 = stage intro (auto-sent on entry)
 //  Index 1+ = follow-up replies to student messages

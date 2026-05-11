@@ -1315,8 +1315,11 @@ function goToStage(id) {
     // Inject research guidance card at Stage 4
     if (id === 4) setTimeout(() => injectResearchCard(), 700);
 
-    // Inject revision panel for revision stages
-    if (id === 7 || id === 8) setTimeout(() => injectRevisionPanel(id), 700);
+    // Inject revision panel for Stage 7; Stage 8 gets the voice polish card instead
+    if (id === 7) setTimeout(() => injectRevisionPanel(id), 700);
+
+    // Inject Stage 8 voice polish step-by-step card
+    if (id === 8) setTimeout(() => injectVoicePolishCard(), 700);
 
     // Inject Voice Vault at Stage 8 (Voice Polish)
     if (id === 8) setTimeout(() => injectVoiceVaultPanel(), 800);

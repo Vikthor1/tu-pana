@@ -2890,19 +2890,34 @@ function showManiCelebration(onDone) {
     `;
     overlay.innerHTML = `
         <div style="max-width:560px;">
-            <div style="font-family:'Literata',Georgia,serif; font-size:1.5rem; line-height:1.55; color:${textColor}; margin-bottom:18px;">
+            <div style="font-family:'Literata',Georgia,serif; font-size:2.0rem; font-style:italic; color:${textColor}; line-height:1.4; margin-bottom:20px;">
                 You claimed your assets, and you named what you bring. Your memory, language, and lived knowledge belong in this conversation.
             </div>
-            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1rem; color:${subColor}; line-height:1.55;">
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.05rem; color:${subColor}; letter-spacing:0.04em; margin-bottom:32px;">
                 Reclamaste tus recursos y nombraste lo que traes. Tu memoria, tu lengua y tu conocimiento vivido pertenecen a esta conversación.
             </div>
+            <button id="maniCelebrationBtn" style="
+                font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.95rem; font-weight:600;
+                background: rgba(184,92,26,0.85); color:#fff; border:none; border-radius:40px;
+                padding: 10px 28px; cursor:pointer; letter-spacing:0.03em;
+                transition: background 0.2s ease;
+            " aria-label="Continue to the Lab · Sigue al laboratorio">
+                Continue to the Lab · Sigue al laboratorio
+            </button>
         </div>`;
     document.body.appendChild(overlay);
     requestAnimationFrame(() => { overlay.style.opacity = '1'; });
-    setTimeout(() => {
+
+    function dismiss() {
         overlay.style.opacity = '0';
         setTimeout(() => { overlay.remove(); onDone(); }, 500);
-    }, 3200);
+    }
+
+    const btn = overlay.querySelector('#maniCelebrationBtn');
+    if (btn) {
+        btn.addEventListener('click', dismiss);
+        setTimeout(() => btn.focus(), 600);
+    }
 }
 
 function maniProceed() {

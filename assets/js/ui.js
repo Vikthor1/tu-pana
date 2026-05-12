@@ -2777,10 +2777,10 @@ function showLandingMoment() {
     `;
     overlay.innerHTML = `
         <div style="
-            max-width:520px; width:100%;
+            max-width:680px; width:100%;
             background: ${cardBg};
             border-radius: 22px;
-            padding: 48px 40px 40px;
+            padding: 56px 52px 48px;
             text-align: center;
             box-shadow: 0 24px 64px rgba(0,0,0,0.35);
         ">

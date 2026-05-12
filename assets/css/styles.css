@@ -2191,6 +2191,7 @@
             content: '';
             position: absolute; top: 0; left: 0; right: 0; height: 3px;
             background: linear-gradient(90deg, var(--amber-dk), var(--amber), var(--amber-text), var(--jade), var(--amber));
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
         }
 
         .lab-header {
@@ -2280,8 +2281,8 @@
         .lab-q.on { display: block; }
         .lab-q.answered { border-color: var(--border-mid); opacity: 0.6; }
         .lab-q-label {
-            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
-            text-transform: uppercase; margin-bottom: 6px;
+            font-size: 1rem; font-weight: 700; letter-spacing: 0.04em;
+            text-transform: uppercase; margin-bottom: 10px;
         }
         .lab-q-label.q-accuracy    { color: var(--amber-text); }
         .lab-q-label.q-voice       { color: var(--rose); }

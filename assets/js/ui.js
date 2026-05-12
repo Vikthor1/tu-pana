@@ -1,6 +1,6 @@
 // Tu Pana de Escritura — ui.js
 // All DOM state and rendering: state object, DOM cache (D), tone/lang toggles, journey map,
-// draft panel, edit toolbar, chat messages, DirectLine, capstone, report, spotlight, and more.
+// draft panel, edit toolbar, chat messages, capstone, report, spotlight, and more.
 
 
 // ════════════════════════════════════════════════════════
@@ -12,18 +12,12 @@ const state = {
     draftSaved: false,
     connected:  false,
     waiting:    false,
-    convId:     null,
-    token:      null,
-    watermark:  null,
-    pollTimer:  null,
     showAllJourney: false,
     tone:       'gentle',  // 'gentle' | 'direct'
     lang:       'es',      // 'es' | 'en' | 'both'
     coachMode:  localStorage.getItem('tupana_coach_mode') || 'gemini',   // 'offline' | 'ollama' | 'gemini'
-    coachPerspectiveCallback: null,
     step:       1,
     welcomeShown:    false,
-    offlineMsgShown: false,
     spotlightTarget:        null,   // 'coach' | 'editor' | null
     spotlightStageId:       null,
     pendingSpotlightStageId: null,  // deferred when a phase toast is showing
@@ -249,7 +243,6 @@ function protectSelectedPhrase() {
     renderVoiceVault();
     updateProtectBtn();
     showEditStatus(t('✓ Protegida · Protected', '✓ Phrase protected'));
-    sendAppEvent('phraseProtected', { phrase: text, totalProtected: phrases.length });
     logProcessEvent('voice_vault_phrase_added', `Voice Vault: phrase protected (${text.length} chars). Total: ${phrases.length}.`);
 }
 
@@ -807,29 +800,6 @@ Required JSON format (fill in all 8 dimensions; use only these rating values: "S
         return;
     }
 
-    // DirectLine path (Copilot / Bot Framework)
-    state.coachPerspectiveCallback = text => handleCoachPerspectiveResponse(text);
-    state.waiting = true;
-    showTyping(true);
-
-    try {
-        await fetch(`${DL}/conversations/${state.convId}/activities`, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${state.token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'message',
-                from: { id: CONFIG.userId, name: CONFIG.userName },
-                text: prompt,
-                channelData: { ...buildChannelData(), capstoneCoachRequest: true }
-            })
-        });
-    } catch(err) {
-        console.error('coachRequest:', err);
-        showTyping(false);
-        state.waiting = false;
-        state.coachPerspectiveCallback = null;
-        renderCoachPerspectiveOffline();
-    }
 }
 
 function handleCoachPerspectiveResponse(text) {
@@ -1361,14 +1331,6 @@ function goToStage(id) {
     // Inject self-assessment capstone panel at stage 10
     if (id === 10) setTimeout(() => injectCapstonePanel(), 700);
 
-    // Notify AI of stage change
-    sendAppEvent('stageChange', {
-        stage: id,
-        stageName: s.es.replace('\n', ' ') + ' / ' + s.en,
-        previousStage: Math.max(1, prev),
-        tone: state.tone
-    });
-
 }
 
 function onStageClick(s) {
@@ -1681,13 +1643,6 @@ function executeSave() {
     wave.innerHTML = '<div class="wave-unlock-ring"></div>';
     document.body.appendChild(wave);
     setTimeout(() => wave.remove(), 1300);
-
-    // Notify AI of draft save milestone
-    sendAppEvent('draftSaved', {
-        wordCount: D.draftArea.value.trim().split(/\s+/).filter(Boolean).length,
-        stage: state.stage,
-        draftText: D.draftArea.value.trim()
-    });
 
     // Show decision log for revision tracking
     renderDecisionLog();
@@ -2006,11 +1961,6 @@ function showTyping(on) {
     if (on) D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
 }
 
-// ════════════════════════════════════════════════════════
-//  DIRECT LINE API
-// ════════════════════════════════════════════════════════
-const DL = 'https://directline.botframework.com/v3/directline';
-
 // Build channelData with full app context for AI stage awareness
 function buildChannelData() {
     let maniSentence = '';
@@ -2029,29 +1979,11 @@ function buildChannelData() {
     };
 }
 
-// Send app-context event to the AI (stage changes, draft saves, onboarding completion)
-async function sendAppEvent(eventName, eventValue) {
-    if (!state.connected || !state.convId) return;
-    try {
-        await fetch(`${DL}/conversations/${state.convId}/activities`, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${state.token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'event',
-                name: eventName,
-                from: { id: CONFIG.userId, name: CONFIG.userName },
-                value: eventValue,
-                channelData: buildChannelData()
-            })
-        });
-    } catch(err) { console.error('appEvent:', err); }
-}
-
-
 function setCoachMode(mode) {
     if (!['offline', 'ollama', 'gemini'].includes(mode)) mode = 'offline';
     state.coachMode = mode;
     localStorage.setItem('tupana_coach_mode', mode);
+    if (D.stuckBtn) D.stuckBtn.disabled = false;
 
     // Sync toggle button states
     document.querySelectorAll('.coach-mode-btn').forEach(btn => {
@@ -2094,63 +2026,15 @@ function setCoachMode(mode) {
 
 
 async function initDL() {
-    // ── Gemini mode — skip all remote provider initialization ──
     if (state.coachMode === 'gemini' && FEATURES.geminiProvider) {
         setCoachMode('gemini');
         return;
     }
-
-    // ── Local Ollama mode — skip all remote provider initialization ──
     if (state.coachMode === 'ollama') {
         setCoachMode('ollama');
         return;
     }
-
-    // ── DirectLine / offline fallback ──────────────────────────
-    if (!CONFIG.directLineSecret) {
-        D.setupBanner.classList.remove('hidden');
-        D.chatStatus.textContent = 'Setup needed';
-        D.chatStatus.classList.add('idle');
-        showTyping(false);
-        if (!state.offlineMsgShown) {
-            state.offlineMsgShown = true;
-            addMsg(
-                'El coach en vivo aún no está conectado — el instructor necesita agregar la clave.\nCoach offline for now. Keep writing; your draft is safe.',
-                'bot', false, 'system'
-            );
-        }
-        return;
-    }
-
-    try {
-        D.chatStatus.textContent = '● Conectando...';
-
-        const tRes  = await fetch(`${DL}/tokens/generate`, {
-            method:'POST', headers:{ Authorization:`Bearer ${CONFIG.directLineSecret}` }
-        });
-        const tData = await tRes.json();
-        state.token = tData.token;
-
-        const cRes  = await fetch(`${DL}/conversations`, {
-            method:'POST', headers:{ Authorization:`Bearer ${state.token}` }
-        });
-        const cData = await cRes.json();
-        state.convId    = cData.conversationId;
-        state.connected = true;
-
-        D.chatStatus.textContent = '● En línea · Online';
-        D.sendBtn.disabled = false;
-        D.stuckBtn.disabled = false;
-
-        startPolling();
-
-    } catch(err) {
-        console.error(err);
-        D.chatStatus.textContent = '● Error de conexión';
-        D.chatStatus.classList.add('idle');
-        showTyping(false);
-        addMsg('Tuve un problema conectándome. Verifica la configuración.\nThere was a connection error. Please check the setup.', 'bot');
-    }
+    setCoachMode('offline');
 }
 
 async function sendMsg(text) {
@@ -2208,23 +2092,6 @@ async function sendMsg(text) {
         return;
     }
 
-    try {
-        await fetch(`${DL}/conversations/${state.convId}/activities`, {
-            method:'POST',
-            headers:{ Authorization:`Bearer ${state.token}`, 'Content-Type':'application/json' },
-            body: JSON.stringify({
-                type:'message',
-                from:{ id: CONFIG.userId, name: CONFIG.userName },
-                text: text === '__INIT__' ? '' : text,
-                channelData: buildChannelData()
-            })
-        });
-    } catch(err) {
-        console.error(err);
-        showTyping(false);
-        state.waiting = false;
-        D.sendBtn.disabled = false;
-    }
 }
 
 // ════════════════════════════════════════════════════════
@@ -2486,37 +2353,6 @@ function getOllamaFriendlyError(err) {
     return 'El coach local tuvo un problema. Intenta de nuevo.\nLocal AI encountered a problem. Please try again.';
 }
 
-// Stage 10 provider-specific coach perspective can be routed through Ollama in a later phase.
-
-function startPolling() {
-    state.pollTimer = setInterval(async () => {
-        if (!state.connected) return;
-        try {
-            const url = `${DL}/conversations/${state.convId}/activities` +
-                        (state.watermark ? `?watermark=${state.watermark}` : '');
-            const res  = await fetch(url, { headers:{ Authorization:`Bearer ${state.token}` }});
-            const data = await res.json();
-            state.watermark = data.watermark;
-
-            const botMsgs = (data.activities || []).filter(
-                a => a.type === 'message' && a.from.id !== CONFIG.userId
-            );
-            if (botMsgs.length) {
-                showTyping(false);
-                state.waiting = false;
-                D.sendBtn.disabled = false;
-                if (state.coachPerspectiveCallback) {
-                    const cb = state.coachPerspectiveCallback;
-                    state.coachPerspectiveCallback = null;
-                    cb(botMsgs[0].text || '');
-                    botMsgs.slice(1).forEach(m => { if (m.text) addMsg(m.text, 'bot'); });
-                } else {
-                    botMsgs.forEach(m => { if (m.text) addMsg(m.text, 'bot'); });
-                }
-            }
-        } catch(err) { console.error('poll:', err); }
-    }, 1200);
-}
 
 // ════════════════════════════════════════════════════════
 //  CHAT INPUT
@@ -2957,13 +2793,6 @@ function openMani() {
 
 function maniProceed() {
     document.getElementById('maniBg').classList.remove('on');
-    // Notify AI of Tu Conocimiento completion
-    let maniSentence = '';
-    try { maniSentence = localStorage.getItem('tupana_mani_sentence') || ''; } catch(e) {}
-    sendAppEvent('tuConocimientoComplete', {
-        maniDone: true,
-        maniSentence: maniSentence.slice(0, 280)
-    });
     // short pause then open El Laboratorio
     setTimeout(() => {
         if (localStorage.getItem('tupana_lab_done') !== 'true') openLab();
@@ -3111,15 +2940,6 @@ function openLab() {
 function closeLab() {
     el('labBg').classList.remove('on');
     try { localStorage.setItem('tupana_lab_done', 'true'); } catch(e) {}
-
-    // Notify AI that onboarding is complete
-    let maniSentence = '';
-    try { maniSentence = localStorage.getItem('tupana_mani_sentence') || ''; } catch(e) {}
-    sendAppEvent('onboardingComplete', {
-        maniDone: true,
-        labDone: true,
-        maniSentence: maniSentence.slice(0, 280)
-    });
 
     // Post-onboarding welcome from the coach
     const welcomeMsg = state.connected

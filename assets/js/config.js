@@ -1,11 +1,10 @@
 // Tu Pana de Escritura — config.js
-// API settings, embed URLs, user identity. Edit this file to change coach mode or connection details.
+// API settings, user identity. Edit this file to change coach mode or connection details.
 
 // ════════════════════════════════════════════════════════
-//  CONFIG  —  Keep directLineSecret blank in browser-served builds.
+//  CONFIG
 // ════════════════════════════════════════════════════════
 const CONFIG = {
-    directLineSecret: '',       // Keep blank in browser-served builds. Do not place Direct Line secrets in client-side code.
     // Local AI provider. For direct Ollama testing use http://localhost:11434.
     // Later this can point to a local proxy, e.g. http://localhost:3001, without changing any other code.
     ollamaUrl:   'http://localhost:11434',
@@ -20,7 +19,7 @@ const CONFIG = {
         num_predict: 400,
         num_ctx:     4096
     },
-    // Gemini provider (future). geminiProxyUrl must point to a secure server-side proxy.
+    // Gemini provider via Cloudflare Worker proxy.
     // Never add a Gemini API key here — browser code is public.
     geminiProxyUrl: 'https://tupana-gemini-proxy.dr-torres-velez.workers.dev',
     geminiModel:    'gemini-2.5-flash-lite',

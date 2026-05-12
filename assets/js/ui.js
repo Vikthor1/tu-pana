@@ -2598,23 +2598,28 @@ function saveClaimedAssets(arr) {
     try { localStorage.setItem('tupana_mani_claimed', JSON.stringify(arr)); } catch(e) {}
 }
 
+function updateProceedBtn() {
+    const btn = document.getElementById('maniProceedBtn');
+    if (!btn) return;
+    const allClaimed  = maniClaimed === MANI_TOTAL;
+    const hasSentence = maniPromptInput ? maniPromptInput.value.trim().length > 0 : false;
+    btn.classList.toggle('on', allClaimed && hasSentence);
+}
+
 function updateManiCounter(count) {
     const counter = document.getElementById('maniCounter');
-    const btn     = document.getElementById('maniProceedBtn');
     const note    = document.getElementById('maniFreireNote');
     const card    = document.getElementById('maniCard');
 
     if (count === MANI_TOTAL) {
         counter.classList.add('all');
         counter.textContent = `All ${MANI_TOTAL} claimed · Las ${MANI_TOTAL} reclamadas`;
-        btn.classList.add('on');
         note.classList.add('on');
         card.classList.add('all-claimed');
         try { localStorage.setItem('tupana_mani_done', 'true'); } catch(e) {}
     } else {
         counter.classList.remove('all');
         counter.textContent = `Asset ${count + 1} of ${MANI_TOTAL} · Recurso ${count + 1} de ${MANI_TOTAL}`;
-        btn.classList.remove('on');
         note.classList.remove('on');
         card.classList.remove('all-claimed');
     }
@@ -2623,6 +2628,7 @@ function updateManiCounter(count) {
     void counter.offsetWidth;
     counter.classList.add('pulse');
     setTimeout(() => counter.classList.remove('pulse'), 900);
+    updateProceedBtn();
 }
 
 function updateManiAssetVisibility(claimed, focusActive = false) {
@@ -2797,6 +2803,7 @@ function showWelcomeBack() {
 
 function openMani() {
     document.getElementById('maniBg').classList.add('on');
+    initManiPrompt();
     restoreManiClaims();
     // attach keyboard listeners once
     const grid = document.getElementById('maniGrid');
@@ -2810,12 +2817,45 @@ function openMani() {
     }
 }
 
-function maniProceed() {
-    document.getElementById('maniBg').classList.remove('on');
-    // short pause then open El Laboratorio
+function showManiCelebration(onDone) {
+    const overlay = document.createElement('div');
+    overlay.id = 'maniCelebration';
+    const isDark    = document.documentElement.getAttribute('data-theme') === 'dark';
+    const bg        = isDark ? 'linear-gradient(135deg, #2A211C 0%, #1C1410 100%)'
+                             : 'linear-gradient(135deg, #F7F3EF 0%, #EDE8E2 100%)';
+    const textColor = isDark ? '#F0EBE3' : '#2A211C';
+    const subColor  = isDark ? '#B0A898' : '#6B5F55';
+    overlay.style.cssText = `
+        position:fixed; inset:0; z-index:1000;
+        background: ${bg};
+        display:flex; align-items:center; justify-content:center;
+        opacity:0; transition: opacity 0.5s ease;
+        padding: 40px 24px; text-align: center;
+    `;
+    overlay.innerHTML = `
+        <div style="max-width:560px;">
+            <div style="font-family:'Literata',Georgia,serif; font-size:1.5rem; line-height:1.55; color:${textColor}; margin-bottom:18px;">
+                You claimed your assets, and you named what you bring. Your memory, language, and lived knowledge belong in this conversation.
+            </div>
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1rem; color:${subColor}; line-height:1.55;">
+                Reclamaste tus recursos y nombraste lo que traes. Tu memoria, tu lengua y tu conocimiento vivido pertenecen a esta conversación.
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
     setTimeout(() => {
+        overlay.style.opacity = '0';
+        setTimeout(() => { overlay.remove(); onDone(); }, 500);
+    }, 3200);
+}
+
+function maniProceed() {
+    if (maniClaimed < MANI_TOTAL) return;
+    if (!maniPromptInput || maniPromptInput.value.trim().length === 0) return;
+    document.getElementById('maniBg').classList.remove('on');
+    showManiCelebration(() => {
         if (localStorage.getItem('tupana_lab_done') !== 'true') openLab();
-    }, 350);
+    });
 }
 
 // ── Tu Conocimiento writing prompt ──
@@ -2828,6 +2868,7 @@ function initManiPrompt() {
         const saved = localStorage.getItem('tupana_mani_sentence');
         if (saved && maniPromptInput) maniPromptInput.value = saved;
     } catch(e) {}
+    updateProceedBtn();
 }
 
 if (maniPromptInput) {
@@ -2845,6 +2886,7 @@ if (maniPromptInput) {
         } else {
             maniPromptSaved.classList.remove('on');
         }
+        updateProceedBtn();
     });
 }
 

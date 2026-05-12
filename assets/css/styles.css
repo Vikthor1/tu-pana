@@ -4559,6 +4559,33 @@
             }
         }
 
+        /* ── Post-onboarding chat focus ── */
+        body.post-onboarding-focus .draft-panel,
+        body.post-onboarding-focus .journey-wrap,
+        body.post-onboarding-focus .app-header,
+        body.post-onboarding-focus .current-task-bar {
+            opacity: 0.25;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        #chatMessages.post-onboarding-chat {
+            box-shadow:
+                0 0 0 2px rgba(184, 92, 26, 0.45),
+                0 0 0 8px rgba(184, 92, 26, 0.10),
+                0 8px 32px rgba(42, 33, 28, 0.18);
+            border-radius: var(--radius-md);
+            transition: box-shadow 0.5s ease;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            body.post-onboarding-focus .draft-panel,
+            body.post-onboarding-focus .journey-wrap,
+            body.post-onboarding-focus .app-header,
+            body.post-onboarding-focus .current-task-bar,
+            #chatMessages.post-onboarding-chat {
+                transition: none;
+            }
+        }
+
         /* ── Draft Focus Mode (persistent gentle writing state) ── */
         /* Textarea wrap: soft jade ring signals "write here" without relying on color alone */
         body.draft-focus-active .draft-textarea-wrap {

@@ -3085,9 +3085,24 @@ function openLab() {
     labShowStep(0);
 }
 
+function flashChatFocus() {
+    if (state.spotlightTarget) return;
+    document.body.classList.add('post-onboarding-focus');
+    D.chatMessages.classList.add('post-onboarding-chat');
+    let _focusTimer = setTimeout(clearFocus, 3200);
+    function clearFocus() {
+        clearTimeout(_focusTimer);
+        document.body.classList.remove('post-onboarding-focus');
+        D.chatMessages.classList.remove('post-onboarding-chat');
+        document.removeEventListener('click', clearFocus);
+    }
+    setTimeout(() => document.addEventListener('click', clearFocus), 300);
+}
+
 function closeLab() {
     el('labBg').classList.remove('on');
     try { localStorage.setItem('tupana_lab_done', 'true'); } catch(e) {}
+    flashChatFocus();
 
     // Post-onboarding welcome from the coach
     const welcomeMsg = state.connected

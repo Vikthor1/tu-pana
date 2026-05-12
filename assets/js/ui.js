@@ -80,7 +80,8 @@ const D = {
     toneToggleLabel:  el('toneToggleLabel'),
     pnModalBg:   el('pnModalBg'),
     pnModalBody: el('pnModalBody'),
-    completionBg: el('completionBg')
+    completionBg: el('completionBg'),
+    mobileStageSelect: el('mobileStageSelect')
 };
 
 // ════════════════════════════════════════════════════════
@@ -1137,6 +1138,29 @@ function buildMap() {
     const active = D.journeyTrack.querySelector('.stage-node.active');
     if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
+    buildMobileNav();
+}
+
+function buildMobileNav() {
+    const sel = D.mobileStageSelect;
+    if (!sel) return;
+    sel.innerHTML = '';
+    STAGES.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.id} · ${s.en}`;
+        if (s.id === state.stage) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+if (D.mobileStageSelect) {
+    D.mobileStageSelect.addEventListener('change', () => {
+        const id = parseInt(D.mobileStageSelect.value, 10);
+        const s = STAGES.find(st => st.id === id);
+        if (s) onStageClick(s);
+        D.mobileStageSelect.value = state.stage;
+    });
 }
 
 function toggleJourneyView() {

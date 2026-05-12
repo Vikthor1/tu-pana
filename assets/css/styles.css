@@ -757,6 +757,7 @@
             align-items: center;
             gap: 10px;
         }
+        .mobile-stage-nav { display: none; }
         .journey-scroll {
             flex: 1;
             overflow-x: auto;
@@ -5035,8 +5036,38 @@ img, video, embed, object { max-width: 100%; height: auto; }
    ≤ 480px — phones: tab interface + hide journey map
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
-    /* Journey map hidden — stage info visible in current-task-bar */
+    /* Journey map hidden — stage info visible in current-task-bar + mobile stage nav */
     .journey-wrap { display: none; }
+
+    /* Mobile stage navigator replaces journey map on phones */
+    .mobile-stage-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-mid);
+        flex-shrink: 0;
+    }
+    .mobile-stage-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-sub);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .mobile-stage-select {
+        flex: 1;
+        min-width: 0;
+        font-family: var(--font-body);
+        font-size: 0.88rem;
+        color: var(--text-main);
+        background: var(--bg-raised);
+        border: 1px solid var(--border-mid);
+        border-radius: var(--radius-sm);
+        padding: 6px 8px;
+        cursor: pointer;
+    }
 
     /* Show "de 10 / of 10" so students know overall progress without the journey map */
     .ctb-of-total {

@@ -2917,6 +2917,7 @@
 
 
         .mani-asset {
+            display: none;
             background: var(--bg-raised);
             border: 2px solid var(--border-mid);
             border-radius: var(--radius-md);
@@ -3044,6 +3045,7 @@
             .mani-asset-claimed-label {
                 transition: none;
             }
+            .mani-asset--active { animation: none; }
         }
 
         /* claim-all burst animation */
@@ -3053,6 +3055,17 @@
             100% { transform: scale(1); }
         }
         .mani-card.all-claimed { animation: claimBurst 0.5s ease; }
+
+        @keyframes maniCardIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .mani-asset--active {
+            display: block;
+            grid-column: 1 / -1;
+            animation: maniCardIn 0.3s ease;
+        }
+        .mani-prompt.hidden { display: none; }
 
         .mani-prompt {
             padding: 24px 28px;

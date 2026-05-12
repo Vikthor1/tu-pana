@@ -2555,6 +2555,7 @@ function restoreDraft() {
 // ════════════════════════════════════════════════════════
 let maniClaimed = 0;
 const MANI_TOTAL = 5;
+const MANI_ORDER = ['languages', 'community', 'journey', 'positionality', 'story'];
 
 const MANI_ASSET_DEFS = {
     languages: {
@@ -2584,14 +2585,6 @@ const MANI_ASSET_DEFS = {
     }
 };
 
-const MANI_SUMMARIES = [
-    'These claims help the coach protect your voice. · Estas reclamaciones ayudan al coach a proteger tu voz.',
-    'These claims help the coach protect your voice. · Estas reclamaciones ayudan al coach a proteger tu voz.',
-    'Your revision lens is getting stronger. · Tu lente de revisión se fortalece.',
-    'Your revision lens is getting stronger. · Tu lente de revisión se fortalece.',
-    'Almost there — one more to strengthen your foundation. · Casi llegas — una más para fortalecer tu base.',
-    'You have built a strong foundation for revising with your own judgment. · Has construido una base sólida para revisar con tu propio criterio.'
-];
 
 function getClaimedAssets() {
     try {
@@ -2610,18 +2603,17 @@ function updateManiCounter(count) {
     const btn     = document.getElementById('maniProceedBtn');
     const note    = document.getElementById('maniFreireNote');
     const card    = document.getElementById('maniCard');
-    const summary = MANI_SUMMARIES[count] || MANI_SUMMARIES[0];
 
     if (count === MANI_TOTAL) {
         counter.classList.add('all');
-        counter.textContent = `All ${MANI_TOTAL} claimed · Las ${MANI_TOTAL} reclamadas — ${summary}`;
+        counter.textContent = `All ${MANI_TOTAL} claimed · Las ${MANI_TOTAL} reclamadas`;
         btn.classList.add('on');
         note.classList.add('on');
         card.classList.add('all-claimed');
         try { localStorage.setItem('tupana_mani_done', 'true'); } catch(e) {}
     } else {
         counter.classList.remove('all');
-        counter.textContent = `${count} of ${MANI_TOTAL} claimed · ${count} de ${MANI_TOTAL} reclamados — ${summary}`;
+        counter.textContent = `Asset ${count + 1} of ${MANI_TOTAL} · Recurso ${count + 1} de ${MANI_TOTAL}`;
         btn.classList.remove('on');
         note.classList.remove('on');
         card.classList.remove('all-claimed');
@@ -2631,6 +2623,24 @@ function updateManiCounter(count) {
     void counter.offsetWidth;
     counter.classList.add('pulse');
     setTimeout(() => counter.classList.remove('pulse'), 900);
+}
+
+function updateManiAssetVisibility(claimed, focusActive = false) {
+    const grid = document.getElementById('maniGrid');
+    if (!grid) return;
+    const nextKey = MANI_ORDER.find(k => !claimed.includes(k));
+    grid.querySelectorAll('.mani-asset').forEach(el => {
+        const key = el.getAttribute('data-asset');
+        const isActive = key === nextKey;
+        el.classList.toggle('mani-asset--active', isActive);
+        el.setAttribute('tabindex', isActive ? '0' : '-1');
+    });
+    const prompt = document.getElementById('maniPrompt');
+    if (prompt) prompt.classList.toggle('hidden', !!nextKey);
+    if (focusActive && nextKey) {
+        const activeEl = grid.querySelector(`.mani-asset[data-asset="${nextKey}"]`);
+        if (activeEl) activeEl.focus();
+    }
 }
 
 function showClaimToast(assetKey) {
@@ -2659,6 +2669,7 @@ function claimAsset(el) {
     maniClaimed = claimed.length;
     updateManiCounter(maniClaimed);
     showClaimToast(assetKey);
+    updateManiAssetVisibility(claimed, true);
 }
 
 function restoreManiClaims() {
@@ -2676,6 +2687,7 @@ function restoreManiClaims() {
     });
 
     updateManiCounter(maniClaimed);
+    updateManiAssetVisibility(claimed);
 }
 
 function handleManiKey(e) {
@@ -2788,6 +2800,8 @@ function openMani() {
             el.setAttribute('data-mani-key', '1');
             el.addEventListener('keydown', handleManiKey);
         });
+        const active = grid.querySelector('.mani-asset--active');
+        if (active) setTimeout(() => active.focus(), 120);
     }
 }
 

@@ -2279,7 +2279,8 @@
             display: none;
         }
         .lab-q.on { display: block; }
-        .lab-q.answered { border-color: var(--border-mid); opacity: 0.6; }
+        .lab-q.answered { border-color: var(--border-mid); }
+        .lab-q.answered .lab-choices { opacity: 0.5; pointer-events: none; }
         .lab-q-label {
             font-size: 1rem; font-weight: 700; letter-spacing: 0.04em;
             text-transform: uppercase; margin-bottom: 10px;

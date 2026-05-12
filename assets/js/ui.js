@@ -2003,7 +2003,7 @@ function setCoachMode(mode) {
         if (chatInputWrap) chatInputWrap.style.display = '';
 
         state.connected = true;
-        D.chatStatus.innerHTML = '● <span class="show-es">Local · Ollama</span><span class="lang-sep"> · </span><span class="show-en">Local AI · Ollama</span>';
+        D.chatStatus.innerHTML = '<span class="status-dot" aria-hidden="true">●</span> <span class="show-es">Local · Ollama</span><span class="lang-sep"> · </span><span class="show-en">Local AI · Ollama</span>';
         D.chatStatus.classList.remove('idle');
 
     } else if (mode === 'gemini') {
@@ -2013,7 +2013,7 @@ function setCoachMode(mode) {
         if (chatInputWrap) chatInputWrap.style.display = '';
 
         state.connected = true;
-        D.chatStatus.innerHTML = '● <span class="show-es">Gemini AI</span><span class="lang-sep"> · </span><span class="show-en">Gemini AI</span>';
+        D.chatStatus.innerHTML = '<span class="status-dot" aria-hidden="true">●</span> <span class="show-es">Gemini AI</span><span class="lang-sep"> · </span><span class="show-en">Gemini AI</span>';
         D.chatStatus.classList.remove('idle');
 
     } else {

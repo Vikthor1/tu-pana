@@ -1424,6 +1424,18 @@
         .chat-name   { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; color: var(--text-primary); }
         .chat-status { font-size: 0.78rem; color: var(--jade-text); font-weight: 700; margin-top: 2px; letter-spacing: 0.04em; }
         .chat-status.idle { color: var(--text-muted); }
+        @keyframes status-pulse {
+            0%, 100% { transform: scale(1);    opacity: 1; }
+            50%       { transform: scale(1.22); opacity: 0.65; }
+        }
+        .status-dot {
+            display: inline-block;
+            animation: status-pulse 2s ease-in-out infinite;
+            will-change: transform, opacity;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .status-dot { animation: none; }
+        }
 
         .chat-stage-tag {
             margin-left: auto;

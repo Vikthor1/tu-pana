@@ -3007,8 +3007,13 @@
             transition: opacity 0.3s, transform 0.3s;
             pointer-events: none;
         }
+        @keyframes toastGlow {
+            0%, 100% { box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+            50%       { box-shadow: 0 2px 14px rgba(40,120,70,0.18); }
+        }
         .mani-claim-toast.on {
             opacity: 1; transform: translateY(0);
+            animation: toastGlow 2.4s ease-in-out 0.35s infinite;
         }
         .mani-claim-toast strong {
             color: var(--jade-dk); font-weight: 700;
@@ -3046,6 +3051,7 @@
                 transition: none;
             }
             .mani-asset--active { animation: none; }
+            .mani-claim-toast.on { animation: none; }
         }
 
         /* claim-all burst animation */

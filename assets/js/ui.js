@@ -2649,7 +2649,7 @@ function showClaimToast(assetKey) {
     const toast = document.getElementById('maniClaimToast');
     toast.innerHTML = `<strong>You claimed ${def.nameEn} · Reclamaste ${def.nameEs}</strong><br>${def.toastEn}<br>${def.toastEs}`;
     toast.classList.add('on');
-    setTimeout(() => toast.classList.remove('on'), 3200);
+    setTimeout(() => toast.classList.remove('on'), 4800);
 }
 
 function claimAsset(el) {
@@ -2700,19 +2700,24 @@ function handleManiKey(e) {
 function showLandingMoment() {
     const overlay = document.createElement('div');
     overlay.id = 'landingMoment';
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const bg         = isDark ? 'linear-gradient(135deg, #2A211C 0%, #1C1410 100%)'
+                               : 'linear-gradient(135deg, #F7F3EF 0%, #EDE8E2 100%)';
+    const quoteColor = isDark ? '#F0EBE3' : '#2A211C';
+    const subColor   = isDark ? '#B0A898' : '#6B5F55';
     overlay.style.cssText = `
         position:fixed; inset:0; z-index:999;
-        background: linear-gradient(135deg, #2A211C 0%, #1C1410 100%);
+        background: ${bg};
         display:flex; align-items:center; justify-content:center;
         opacity:0; transition: opacity 0.6s ease;
         padding: 40px 24px; text-align: center;
     `;
     overlay.innerHTML = `
         <div style="max-width:560px;">
-            <div style="font-family:'Literata',Georgia,serif; font-size:2.0rem; font-style:italic; color:#F0EBE3; line-height:1.4; margin-bottom:20px;">
+            <div style="font-family:'Literata',Georgia,serif; font-size:2.0rem; font-style:italic; color:${quoteColor}; line-height:1.4; margin-bottom:20px;">
                 "Tu historia es donde comienza el argumento."
             </div>
-            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.05rem; color:#B0A898; letter-spacing:0.04em; margin-bottom:32px;">
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.05rem; color:${subColor}; letter-spacing:0.04em; margin-bottom:32px;">
                 "Your story is where the argument begins."
             </div>
             <button id="landingContinueBtn" style="

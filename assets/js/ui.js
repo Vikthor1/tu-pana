@@ -2580,6 +2580,8 @@ function restoreDraft() {
 let maniClaimed = 0;
 const MANI_TOTAL = 5;
 const MANI_ORDER = ['languages', 'community', 'journey', 'positionality', 'story'];
+let maniAwaitingNext  = false;
+let maniJustClaimedKey = null;
 
 const MANI_ASSET_DEFS = {
     languages: {
@@ -2689,6 +2691,7 @@ function claimAsset(el) {
 
     el.classList.add('claimed');
     el.setAttribute('aria-label', `${MANI_ASSET_DEFS[assetKey].nameEn}, claimed · ${MANI_ASSET_DEFS[assetKey].nameEs}, reclamado`);
+    el.setAttribute('tabindex', '-1');
 
     const claimed = getClaimedAssets();
     if (!claimed.includes(assetKey)) {
@@ -2697,9 +2700,38 @@ function claimAsset(el) {
     }
 
     maniClaimed = claimed.length;
+    maniAwaitingNext  = true;
+    maniJustClaimedKey = assetKey;
     updateManiCounter(maniClaimed);
-    showClaimToast(assetKey);
-    updateManiAssetVisibility(claimed, true);
+
+    const def = MANI_ASSET_DEFS[assetKey];
+    const isLast  = maniClaimed === MANI_TOTAL;
+    const btnLabel = isLast
+        ? 'Continue to your sentence · Continúa con tu oración'
+        : 'Next asset · Próximo recurso';
+
+    const celebDiv = document.createElement('div');
+    celebDiv.className = 'mani-asset-celebration';
+    celebDiv.setAttribute('role', 'status');
+    celebDiv.innerHTML =
+        `<div class="mac-message">You claimed ${def.nameEn} · Reclamaste ${def.nameEs}</div>` +
+        `<div class="mac-sub">${def.toastEn}<br><span style="opacity:0.85">${def.toastEs}</span></div>` +
+        `<button class="mani-next-btn" type="button">${btnLabel}</button>`;
+    el.appendChild(celebDiv);
+
+    const nextBtn = celebDiv.querySelector('.mani-next-btn');
+    if (nextBtn) {
+        nextBtn.addEventListener('click', maniNextAsset);
+        setTimeout(() => nextBtn.focus(), 80);
+    }
+}
+
+function maniNextAsset() {
+    maniAwaitingNext  = false;
+    maniJustClaimedKey = null;
+    const grid = document.getElementById('maniGrid');
+    if (grid) grid.querySelectorAll('.mani-asset-celebration').forEach(p => p.remove());
+    updateManiAssetVisibility(getClaimedAssets(), true);
 }
 
 function restoreManiClaims() {

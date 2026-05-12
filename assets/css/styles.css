@@ -2883,6 +2883,7 @@
             background: linear-gradient(90deg,
                 var(--amber-dk) 0%, var(--amber) 30%,
                 var(--jade) 70%, var(--amber) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
         }
 
         .mani-header {
@@ -2934,6 +2935,7 @@
             position: absolute; inset: 0;
             background: radial-gradient(circle at 50% 0%, var(--amber-glow) 0%, transparent 70%);
             opacity: 0; transition: opacity 0.3s;
+            pointer-events: none;
         }
         .mani-asset:hover { border-color: var(--amber); transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .mani-asset:hover::before { opacity: 0.5; }

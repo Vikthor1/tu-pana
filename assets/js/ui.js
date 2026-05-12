@@ -2721,7 +2721,7 @@ function claimAsset(el) {
 
     const nextBtn = celebDiv.querySelector('.mani-next-btn');
     if (nextBtn) {
-        nextBtn.addEventListener('click', maniNextAsset);
+        nextBtn.addEventListener('click', e => { e.stopPropagation(); maniNextAsset(); });
         setTimeout(() => nextBtn.focus(), 80);
     }
 }
@@ -2753,6 +2753,7 @@ function restoreManiClaims() {
 }
 
 function handleManiKey(e) {
+    if (e.target.tagName === 'BUTTON') return;
     if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         claimAsset(e.currentTarget);
@@ -2799,12 +2800,12 @@ function showLandingMoment() {
         setTimeout(() => { overlay.remove(); openMani(); }, 600);
     }
 
-    // Manual dismiss via button
+    // Manual dismiss via button only — no auto-dismiss
     const btn = overlay.querySelector('#landingContinueBtn');
-    if (btn) btn.addEventListener('click', dismissLanding);
-
-    // Auto-dismiss after 5 s if student does not click
-    setTimeout(dismissLanding, 5000);
+    if (btn) {
+        btn.addEventListener('click', dismissLanding);
+        setTimeout(() => btn.focus(), 700);
+    }
 }
 
 function showWelcomeBack() {

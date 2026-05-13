@@ -96,13 +96,14 @@ When versioning becomes necessary (stable pilot vs. in-development), add `CHANGE
 ### Claude / ChatGPT session startup
 
 Paste in this order:
-1. `docs/project-brief.md`
-2. `docs/current-architecture.md`
-3. The specific file excerpt being worked on
+1. `SYSTEM_MEMORY.md` — comprehensive re-entry briefing (tier status, key functions, guardrails, what changed last)
+2. `docs/session-status.md` — WHERE WE LEFT OFF and next task
+3. The specific file excerpt being worked on (never full `ui.js`)
 
-This is sufficient for any AI assistant to reason correctly about constraints.
+`docs/project-brief.md` and `docs/current-architecture.md` are secondary references — use them when architectural constraints matter, not every session.
 
-**Never inject from `archive/` or `SYSTEM_MEMORY.md`** — both describe earlier versions of the app and will produce incorrect outputs.
+**Never inject from `archive/`** — describes earlier app versions and will produce incorrect outputs.
+`SYSTEM_MEMORY.md` is local-only and kept up to date — it is the recommended AI context doc.
 
 ### Hermes (when active)
 

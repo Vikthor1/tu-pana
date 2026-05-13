@@ -46,4 +46,4 @@ Tu Pana is built on three commitments that must survive every future change:
 - The Voice Vault protect/locate/remove flow (`injectVoiceVaultPanel`, `renderVoiceVault`)
 - Any student-facing string in Spanish
 - The localStorage key names (renaming them breaks existing student sessions)
-- The script load order: `config → data → prompts → storage → ui → app`
+- The script load order: `config → data → genre-template → prompts → ai-provider → storage → ui → app`

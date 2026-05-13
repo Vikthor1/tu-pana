@@ -3166,6 +3166,7 @@ const REFLECTION_CHECKPOINTS = [
         titleEn: 'Pause and Reflect',
         skill: 'Research verification',
         skillsGainsLabel: 'I practiced checking whether AI research advice needs verification.',
+        skillsGainsLabelEs: 'Practiqué verificar si el consejo de investigación del coach necesita comprobación.',
         promptEs: 'Antes de usar consejos de investigación de un coach de IA, pregúntate: ¿el coach me ayudó a buscar y verificar fuentes, o actuó como si las fuentes no necesitaran verificación?',
         promptEn: 'Before using research advice from an AI coach, pause and ask: Did the coach help me search and verify sources, or did it act as if sources do not need to be checked?',
         questionEs: '¿El coach te ayudó a pensar en dónde y cómo buscar, o hizo que la investigación pareciera ya terminada?',
@@ -3187,6 +3188,7 @@ const REFLECTION_CHECKPOINTS = [
         titleEn: 'Pause and Reflect',
         skill: 'Revision judgment',
         skillsGainsLabel: 'I practiced deciding whether AI revision advice supported my own choices as a writer.',
+        skillsGainsLabelEs: 'Practiqué decidir si el consejo de revisión del coach apoyó mis propias decisiones como escritor/a.',
         promptEs: 'Antes de aceptar consejo de revisión, pregúntate: ¿el coach me está ayudando a tomar mis propias decisiones, o está tomando el control de la escritura?',
         promptEn: 'Before accepting revision advice, pause and ask: Is the coach helping me make my own choices, or is it taking over the writing?',
         questionEs: '¿El coach te ayudó a revisar tu propio párrafo, o empezó a escribir por ti?',
@@ -3208,6 +3210,7 @@ const REFLECTION_CHECKPOINTS = [
         titleEn: 'Pause and Reflect',
         skill: 'Voice protection',
         skillsGainsLabel: 'I practiced checking whether AI advice protected my voice, language, and cultural knowledge.',
+        skillsGainsLabelEs: 'Practiqué verificar si el consejo del coach protegió mi voz, lenguaje y conocimiento cultural.',
         promptEs: 'Antes de pulir tu lenguaje, pregúntate: ¿el coach protegió tu voz, o empujó tu escritura hacia algo genérico?',
         promptEn: 'Before polishing your language, pause and ask: Did the coach protect your voice, or did it push your writing toward sounding generic?',
         questionEs: '¿El coach te ayudó a aclarar tu escritura preservando tu voz?',
@@ -3229,6 +3232,7 @@ const REFLECTION_CHECKPOINTS = [
         titleEn: 'Pause and Reflect',
         skill: 'AI advice evaluation',
         skillsGainsLabel: 'I practiced explaining how I accepted, questioned, changed, or rejected AI advice.',
+        skillsGainsLabelEs: 'Practiqué explicar cómo acepté, cuestioné, cambié o rechacé el consejo del coach.',
         promptEs: 'Piensa en un momento en que aceptaste, cuestionaste, cambiaste o rechazaste el consejo del coach. ¿Qué decidiste y por qué?',
         promptEn: 'Think about one moment when you accepted, questioned, changed, or rejected the coach\'s advice. What did you decide, and why?',
         questionEs: '¿Cómo describirías tu decisión más importante sobre el consejo del coach?',
@@ -5270,6 +5274,29 @@ function openToolkitPanel() {
         ? `<blockquote class="toolkit-claim-text">${escapeHtml(sentence)}</blockquote>`
         : `<p class="toolkit-claim-empty"><span class="show-es">Tu punto de partida aparecerá aquí después de la introducción.</span><span class="lang-sep"> · </span><span class="show-en">Your knowledge claim will appear here after onboarding.</span></p>`;
 
+    // Build Skills Gains HTML from completed reflection checkpoints
+    let skillsHtml = '';
+    try {
+        const decisions = JSON.parse(localStorage.getItem('tupana_decisions') || '[]');
+        const seenStages = new Set();
+        const earned = [];
+        for (const d of decisions) {
+            if (d.checkpoint === true && !seenStages.has(d.stage)) {
+                seenStages.add(d.stage);
+                const cp = REFLECTION_CHECKPOINTS.find(c => c.stageId === d.stage);
+                if (cp) earned.push(cp);
+            }
+        }
+        if (earned.length === 0) {
+            skillsHtml = `<p class="toolkit-skills-empty"><span class="show-es">Tus habilidades de alfabetización crítica de IA aparecerán aquí después de completar momentos de Pausa y reflexiona.</span><span class="lang-sep"> · </span><span class="show-en">Your critical AI literacy skills will appear here after you complete Pause and Reflect moments.</span></p>`;
+        } else {
+            skillsHtml = earned.map(cp => `<div class="toolkit-skill-gain" aria-label="${escapeHtml(cp.skill)}, practicado · practiced">
+                <div class="toolkit-skill-gain-name"><span class="toolkit-skill-check" aria-hidden="true">✓</span> <strong>${escapeHtml(cp.skill)}</strong></div>
+                <div class="toolkit-skill-gain-desc"><span class="show-es">${escapeHtml(cp.skillsGainsLabelEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(cp.skillsGainsLabel)}</span></div>
+            </div>`).join('');
+        }
+    } catch(e) { skillsHtml = ''; }
+
     const overlay = document.createElement('div');
     overlay.className = 'toolkit-modal-bg';
     overlay.id = 'toolkitModal';
@@ -5296,7 +5323,7 @@ function openToolkitPanel() {
         </div>
         <div class="toolkit-section">
             <div class="toolkit-section-title"><span class="show-es">Lo que estoy aprendiendo</span><span class="lang-sep"> · </span><span class="show-en">What I'm Learning</span></div>
-            <p class="toolkit-skills-placeholder"><span class="show-es">Las habilidades que practiques aparecerán aquí a medida que avances por las etapas de escritura.</span><span class="lang-sep"> · </span><span class="show-en">Skills you practice will appear here as you move through the writing stages.</span></p>
+            ${skillsHtml}
         </div>
     </div>`;
 

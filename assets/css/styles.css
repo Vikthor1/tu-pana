@@ -2833,6 +2833,35 @@
             border: 1px dashed var(--border-mid);
             border-radius: var(--radius-sm);
         }
+        .toolkit-skills-empty {
+            margin: 0;
+            font-size: 0.85rem; color: var(--text-muted);
+            line-height: 1.55; font-style: italic;
+            padding: 12px 14px;
+            border: 1px dashed var(--border-mid);
+            border-radius: var(--radius-sm);
+        }
+        .toolkit-skill-gain {
+            padding: 12px 14px;
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            margin-bottom: 8px;
+        }
+        .toolkit-skill-gain:last-child { margin-bottom: 0; }
+        .toolkit-skill-gain-name {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.88rem; color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .toolkit-skill-check {
+            color: var(--jade-text); font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .toolkit-skill-gain-desc {
+            font-size: 0.80rem; color: var(--text-sub);
+            line-height: 1.5;
+        }
 
         /* ── Reusable Guide Card Pattern ── */
         .guide-card {

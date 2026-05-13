@@ -15,10 +15,16 @@ All Tier 1, Tier 2, and Tier 3 items are complete and pushed to `main`.
 - CSS: `.reflect-btn-wrap`, `.reflect-btn`, `.reflect-option-btn`, etc. — no new localStorage keys
 - Tests: toolkit 29/29 ✅ · structural 18/18 ✅ · no API key ✅ · authorship gate intact ✅
 
+**Session 23 patch 2 — Skills Gains tab wired:**
+- `openToolkitPanel()`: computes `skillsHtml` from `tupana_decisions` filtered for `checkpoint:true`; deduplicates by stage; renders `.toolkit-skill-gain` chips (bilingual, EN+ES) or `.toolkit-skills-empty` if none earned
+- `REFLECTION_CHECKPOINTS`: added `skillsGainsLabelEs` to all 4 entries
+- CSS: `.toolkit-skill-gain`, `.toolkit-skill-gain-name`, `.toolkit-skill-check`, `.toolkit-skill-gain-desc`, `.toolkit-skills-empty`
+- `toolkit_test.mjs`: selector updated `.toolkit-skills-placeholder` → `.toolkit-skills-empty` (29/29 ✅)
+- `skills_gains_test.mjs`: added (20/20 ✅)
+
 **Next steps (session 24):**
-1. Wire Skills Gains tab in `openToolkitPanel()` — read `tupana_decisions` filtered for `checkpoint:true`, render earned skill labels
-2. Revisit `computeBadges()` thresholds — ≥5/≥10 decisions is now harder to reach under milestone model
-3. Stage 7 and 8 checkpoint UX — currently defined in data but button shows for ALL bot messages in those stages; consider milestone trigger (e.g., after Nth message or on stage completion)
+1. Revisit `computeBadges()` thresholds — ≥5/≥10 decisions harder to reach under milestone model; rebind to checkpoint completions
+2. Stage 7 and 8 checkpoint milestone triggers — currently button shows after ALL bot messages; add milestone gate (e.g., after specific stage event or N-th coach exchange)
 
 **All 18 Playwright selection-to-coach tests passing (last run 2026-05-11).**
 

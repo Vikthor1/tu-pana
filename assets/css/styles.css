@@ -2675,6 +2675,112 @@
         }
         .eval-modal-close:hover { border-color: var(--border-hi); }
 
+        /* ══════════════════════════════════════
+           Mi Toolkit · My Writing Toolkit
+        ══════════════════════════════════════ */
+        .toolkit-modal-bg {
+            position: fixed; inset: 0; z-index: 1100;
+            background: rgba(0,0,0,0.42);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            animation: pnModalIn 0.18s ease;
+        }
+        .toolkit-modal-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-lg);
+            padding: 24px 26px 22px;
+            max-width: 560px; width: 100%;
+            max-height: 82svh; overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+            animation: pnModalIn 0.2s ease;
+        }
+        .toolkit-modal-top {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .toolkit-modal-title {
+            font-family: var(--font-display);
+            font-size: 1.05rem; font-weight: 700;
+            color: var(--text-primary); line-height: 1.3;
+            margin: 0;
+        }
+        .toolkit-close {
+            flex-shrink: 0;
+            background: none;
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted); cursor: pointer;
+            width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center;
+            transition: border-color var(--transition-fast), color var(--transition-fast);
+        }
+        .toolkit-close:hover { border-color: var(--border-hi); color: var(--text-primary); }
+        .toolkit-close:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
+        .toolkit-section { margin-bottom: 20px; }
+        .toolkit-section-title {
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--jade-text);
+            margin-bottom: 10px;
+        }
+        .toolkit-asset-list { display: flex; flex-direction: column; gap: 8px; }
+        .toolkit-asset-chip {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+        }
+        .toolkit-asset-claimed { border-color: var(--border-mid); }
+        .toolkit-asset-unclaimed { opacity: 0.42; }
+        .toolkit-asset-body { flex: 1; min-width: 0; }
+        .toolkit-asset-name {
+            font-size: 0.86rem; font-weight: 600;
+            color: var(--text-primary); line-height: 1.3;
+            margin-bottom: 2px;
+        }
+        .toolkit-asset-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+        .toolkit-asset-check {
+            flex-shrink: 0;
+            color: var(--jade); font-weight: 700; font-size: 0.9rem;
+            margin-top: 2px;
+        }
+        .toolkit-claim-block {
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            background: var(--amber-glow);
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-md);
+        }
+        .toolkit-claim-label {
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 0.05em; text-transform: uppercase;
+            color: var(--amber-text); margin-bottom: 8px;
+        }
+        .toolkit-claim-text {
+            margin: 0;
+            font-size: 0.92rem; font-style: italic;
+            color: var(--text-primary); line-height: 1.55;
+            border-left: 3px solid var(--amber-text);
+            padding-left: 12px;
+        }
+        .toolkit-claim-empty {
+            margin: 0;
+            font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;
+        }
+        .toolkit-skills-placeholder {
+            margin: 0;
+            font-size: 0.85rem; color: var(--text-muted);
+            line-height: 1.55; font-style: italic;
+            padding: 12px 14px;
+            border: 1px dashed var(--border-mid);
+            border-radius: var(--radius-sm);
+        }
+
         /* ── Reusable Guide Card Pattern ── */
         .guide-card {
             background: var(--bg-panel);
@@ -4089,6 +4195,24 @@
             .ctb-stage { font-size: 0.68rem; }
             .ctb-instruction { font-size: 0.77rem; }
         }
+        .ctb-toolkit-col {
+            display: flex; align-items: center;
+            padding: 0 0 0 12px;
+            flex-shrink: 0;
+        }
+        .ctb-toolkit-btn {
+            font-family: var(--font-body);
+            font-size: 0.72rem; font-weight: 600;
+            color: var(--jade-text);
+            background: none;
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-full);
+            padding: 3px 10px;
+            cursor: pointer; white-space: nowrap;
+            transition: border-color var(--transition-fast), background var(--transition-fast);
+        }
+        .ctb-toolkit-btn:hover { border-color: var(--jade); background: var(--jade-glow); }
+        .ctb-toolkit-btn:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
 
         /* ── Pana Hint ── */
         .pana-hint {
@@ -5151,6 +5275,23 @@ img, video, embed, object { max-width: 100%; height: auto; }
         font-size: 0.65rem;
     }
 
+    /* Toolkit button: hide CTB version (mobile uses the mobile-stage-nav button) */
+    .ctb-toolkit-col { display: none; }
+    .mobile-toolkit-btn {
+        flex-shrink: 0;
+        font-family: var(--font-body);
+        font-size: 0.82rem; font-weight: 600;
+        color: var(--jade-text);
+        background: none;
+        border: 1px solid var(--border-mid);
+        border-radius: var(--radius-full);
+        padding: 5px 12px;
+        cursor: pointer; min-height: 36px;
+        transition: border-color var(--transition-fast);
+    }
+    .mobile-toolkit-btn:hover { border-color: var(--jade); }
+    .mobile-toolkit-btn:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
+
     /* Slim jade progress strip at bottom of current-task-bar (driven by --ctb-progress JS var) */
     .current-task-bar {
         position: relative;
@@ -5330,6 +5471,14 @@ img, video, embed, object { max-width: 100%; height: auto; }
     }
     .eval-modal-choices { flex-direction: column; }
     .eval-modal-choice  { width: 100%; min-height: 44px; }
+
+    /* ── Mi Toolkit — bottom sheet on mobile ── */
+    .toolkit-modal-bg { align-items: flex-end; padding: 0; }
+    .toolkit-modal-card {
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        max-height: 82svh;
+        padding: 20px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+    }
 
     /* ── Process note modal ── */
     .pn-modal-header  { padding: 14px 16px 12px; }

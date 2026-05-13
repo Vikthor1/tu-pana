@@ -5049,3 +5049,80 @@ function _downloadInstrAs(ext, mimeType) {
 function downloadInstructorReport()   { _downloadInstrAs('txt', 'text/plain'); }
 function downloadInstructorReportMd() { _downloadInstrAs('md',  'text/markdown'); }
 
+/* ─────────────────────────────────────────────────────────────
+   Mi Toolkit · My Writing Toolkit
+   Read-only panel. Reads existing data only — no new storage keys,
+   no stage logic, no provider changes.
+───────────────────────────────────────────────────────────── */
+function openToolkitPanel() {
+    document.getElementById('toolkitModal')?.remove();
+
+    const claimed = getClaimedAssets();
+    let sentence = '';
+    try { sentence = localStorage.getItem('tupana_mani_sentence') || ''; } catch(e) {}
+
+    const TOOLKIT_ICONS = {
+        languages:    'language-bridge',
+        community:    'community-map',
+        journey:      'footsteps',
+        positionality: 'positionality-compass',
+        story:        'luminous-page'
+    };
+
+    const assetsHtml = MANI_ORDER.map(key => {
+        const def = MANI_ASSET_DEFS[key];
+        const isClaimed = claimed.includes(key);
+        return `<div class="toolkit-asset-chip ${isClaimed ? 'toolkit-asset-claimed' : 'toolkit-asset-unclaimed'}" aria-label="${escapeHtml(def.nameEn)}${isClaimed ? ', claimed' : ', not yet claimed'}">
+            ${getIcon(TOOLKIT_ICONS[key], 28, true)}
+            <div class="toolkit-asset-body">
+                <div class="toolkit-asset-name"><span class="show-es">${escapeHtml(def.nameEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(def.nameEn)}</span></div>
+                <div class="toolkit-asset-desc"><span class="show-es">${escapeHtml(def.toastEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(def.toastEn)}</span></div>
+            </div>
+            ${isClaimed ? '<span class="toolkit-asset-check" aria-hidden="true">✓</span>' : ''}
+        </div>`;
+    }).join('');
+
+    const claimHtml = sentence
+        ? `<blockquote class="toolkit-claim-text">${escapeHtml(sentence)}</blockquote>`
+        : `<p class="toolkit-claim-empty"><span class="show-es">Tu punto de partida aparecerá aquí después de la introducción.</span><span class="lang-sep"> · </span><span class="show-en">Your knowledge claim will appear here after onboarding.</span></p>`;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'toolkit-modal-bg';
+    overlay.id = 'toolkitModal';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'toolkitModalTitle');
+
+    overlay.innerHTML = `<div class="toolkit-modal-card">
+        <div class="toolkit-modal-top">
+            <h2 id="toolkitModalTitle" class="toolkit-modal-title">
+                <span class="show-es">Mi Toolkit</span><span class="lang-sep"> · </span><span class="show-en">My Writing Toolkit</span>
+            </h2>
+            <button class="toolkit-close" aria-label="Cerrar · Close">
+                <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg>
+            </button>
+        </div>
+        <div class="toolkit-section">
+            <div class="toolkit-section-title"><span class="show-es">Lo que traigo</span><span class="lang-sep"> · </span><span class="show-en">What I Bring</span></div>
+            <div class="toolkit-asset-list">${assetsHtml}</div>
+        </div>
+        <div class="toolkit-claim-block">
+            <div class="toolkit-claim-label"><span class="show-es">Mi punto de partida</span><span class="lang-sep"> · </span><span class="show-en">My starting point</span></div>
+            ${claimHtml}
+        </div>
+        <div class="toolkit-section">
+            <div class="toolkit-section-title"><span class="show-es">Lo que estoy aprendiendo</span><span class="lang-sep"> · </span><span class="show-en">What I'm Learning</span></div>
+            <p class="toolkit-skills-placeholder"><span class="show-es">Las habilidades que practiques aparecerán aquí a medida que avances por las etapas de escritura.</span><span class="lang-sep"> · </span><span class="show-en">Skills you practice will appear here as you move through the writing stages.</span></p>
+        </div>
+    </div>`;
+
+    const closeModal = () => { overlay.remove(); document.removeEventListener('keydown', onEsc); };
+    const onEsc = e => { if (e.key === 'Escape') closeModal(); };
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+    overlay.querySelector('.toolkit-close').addEventListener('click', closeModal);
+    document.addEventListener('keydown', onEsc);
+
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.querySelector('.toolkit-close')?.focus(), 120);
+}
+

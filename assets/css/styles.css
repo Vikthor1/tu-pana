@@ -2676,6 +2676,59 @@
         .eval-modal-close:hover { border-color: var(--border-hi); }
 
         /* ══════════════════════════════════════
+           REFLECTION CHECKPOINT BUTTON + MODAL
+           Single optional button per bot message
+           (replaces the 5-question eval bar).
+           Modal reuses eval-modal-bg/card/header.
+        ══════════════════════════════════════ */
+        .reflect-btn-wrap {
+            display: flex; justify-content: flex-end;
+            padding: 4px 4px 2px;
+        }
+        .reflect-btn {
+            font-family: var(--font-body);
+            font-size: 0.75rem; font-weight: 600;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            padding: 3px 10px; min-height: 28px;
+            cursor: pointer; transition: all var(--transition-fast);
+            letter-spacing: 0.02em;
+        }
+        .reflect-btn:hover { border-color: var(--jade); color: var(--jade-text); }
+        .reflect-btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+        .reflect-skill-label {
+            font-size: 0.78rem; color: var(--text-muted);
+            margin-bottom: 14px; font-style: italic;
+        }
+        .reflect-options {
+            display: flex; flex-direction: column; gap: 8px;
+            margin-bottom: 16px;
+        }
+        .reflect-option-btn {
+            text-align: left; width: 100%; min-height: 44px;
+            padding: 10px 14px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body); font-size: 0.85rem;
+            color: var(--text-primary);
+            cursor: pointer; line-height: 1.4;
+            transition: all var(--transition-fast);
+        }
+        .reflect-option-btn:hover { border-color: var(--border-hi); transform: translateX(2px); }
+        .reflect-option-btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+        .reflect-option-btn.selected { background: rgba(74,124,89,0.10); border-color: var(--jade); color: var(--jade-text); font-weight: 600; }
+        @media (prefers-reduced-motion: reduce) {
+            .reflect-option-btn:hover { transform: none; }
+        }
+        @media (max-width: 430px) {
+            .reflect-btn { min-height: 36px; font-size: 0.8rem; }
+            .reflect-option-btn { min-height: 48px; font-size: 0.88rem; }
+        }
+
+        /* ══════════════════════════════════════
            Mi Toolkit · My Writing Toolkit
         ══════════════════════════════════════ */
         .toolkit-modal-bg {

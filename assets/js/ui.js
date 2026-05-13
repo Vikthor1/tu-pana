@@ -1798,9 +1798,9 @@ function addMsg(text, who, skipLog, msgType) {
         _activateCoachSpotlightOn(wrap);
     }
 
-    // inject inline eval bar after bot messages in revision stages (7+)
-    if (who === 'bot' && state.stage >= 7) {
-        setTimeout(() => renderMsgEvalBar(msgId, {}), 400);
+    // milestone-based reflection checkpoint button (stages 4+)
+    if (who === 'bot' && state.stage >= 4) {
+        setTimeout(() => renderReflectButton(msgId), 400);
     }
     // inject follow-up questions after every bot message
     if (who === 'bot') {
@@ -3150,6 +3150,190 @@ const EVAL_FEEDBACK = {
         flag: 'Esta conexión suena genérica — podría aplicarse a cualquier estudiante. La conexión debe salir de TU historia específica. Si no la sientes como tuya, no la uses. Escríbela tú mismo/a. / This connection sounds generic — it could apply to any student. The connection must come from YOUR specific story. If you do not feel it as yours, do not use it. Write it yourself.'
     }
 };
+
+// ════════════════════════════════════════════════════════
+//  MILESTONE-BASED REFLECTION CHECKPOINTS
+//  Appear as a single optional button after bot messages
+//  (stages 4+). Each checkpoint maps to a specific writing
+//  milestone and critical AI literacy skill. Picks are stored
+//  in tupana_decisions with checkpoint:true for report inclusion.
+// ════════════════════════════════════════════════════════
+
+const REFLECTION_CHECKPOINTS = [
+    {
+        stageId: 4,
+        titleEs: 'Pausa y reflexiona',
+        titleEn: 'Pause and Reflect',
+        skill: 'Research verification',
+        skillsGainsLabel: 'I practiced checking whether AI research advice needs verification.',
+        promptEs: 'Antes de usar consejos de investigación de un coach de IA, pregúntate: ¿el coach me ayudó a buscar y verificar fuentes, o actuó como si las fuentes no necesitaran verificación?',
+        promptEn: 'Before using research advice from an AI coach, pause and ask: Did the coach help me search and verify sources, or did it act as if sources do not need to be checked?',
+        questionEs: '¿El coach te ayudó a pensar en dónde y cómo buscar, o hizo que la investigación pareciera ya terminada?',
+        questionEn: 'Did the coach help you think about where and how to search, or did it make research sound already finished?',
+        options: [
+            { es: 'El coach sugirió términos de búsqueda o bases de datos.', en: 'The coach suggested search terms or databases.' },
+            { es: 'El coach me recordó verificar las fuentes.', en: 'The coach reminded me to verify sources.' },
+            { es: 'El coach me dio citas que todavía necesito verificar.', en: 'The coach gave me citations I still need to check.' },
+            { es: 'El coach pareció demasiado seguro sobre las fuentes.', en: 'The coach seemed too confident about sources.' },
+            { es: 'No estoy seguro/a de cómo verificar la investigación todavía.', en: 'I am not sure how to verify the research yet.' }
+        ],
+        writtenFrame: null,
+        required: false,
+        oncePerStage: true
+    },
+    {
+        stageId: 7,
+        titleEs: 'Pausa y reflexiona',
+        titleEn: 'Pause and Reflect',
+        skill: 'Revision judgment',
+        skillsGainsLabel: 'I practiced deciding whether AI revision advice supported my own choices as a writer.',
+        promptEs: 'Antes de aceptar consejo de revisión, pregúntate: ¿el coach me está ayudando a tomar mis propias decisiones, o está tomando el control de la escritura?',
+        promptEn: 'Before accepting revision advice, pause and ask: Is the coach helping me make my own choices, or is it taking over the writing?',
+        questionEs: '¿El coach te ayudó a revisar tu propio párrafo, o empezó a escribir por ti?',
+        questionEn: 'Did the coach help you revise your own paragraph, or did it start writing for you?',
+        options: [
+            { es: 'Me ayudó a notar lo que podía mejorar.', en: 'It helped me notice what I could improve.' },
+            { es: 'Me hizo preguntas útiles.', en: 'It asked useful questions.' },
+            { es: 'Me dio estrategias sin reemplazar mi párrafo.', en: 'It gave me strategies without replacing my paragraph.' },
+            { es: 'Empezó a sonar como si estuviera reescribiendo por mí.', en: 'It started to sound like it was rewriting for me.' },
+            { es: 'Necesito decidir qué consejo encaja con mi voz.', en: 'I need to decide which advice fits my voice.' }
+        ],
+        writtenFrame: null,
+        required: false,
+        oncePerStage: false
+    },
+    {
+        stageId: 8,
+        titleEs: 'Pausa y reflexiona',
+        titleEn: 'Pause and Reflect',
+        skill: 'Voice protection',
+        skillsGainsLabel: 'I practiced checking whether AI advice protected my voice, language, and cultural knowledge.',
+        promptEs: 'Antes de pulir tu lenguaje, pregúntate: ¿el coach protegió tu voz, o empujó tu escritura hacia algo genérico?',
+        promptEn: 'Before polishing your language, pause and ask: Did the coach protect your voice, or did it push your writing toward sounding generic?',
+        questionEs: '¿El coach te ayudó a aclarar tu escritura preservando tu voz?',
+        questionEn: 'Did the coach help clarify your writing while preserving your voice?',
+        options: [
+            { es: 'Me ayudó a hacer mi significado más claro.', en: 'It helped me make my meaning clearer.' },
+            { es: 'Respetó mi español, spanglish, o lengua familiar.', en: 'It respected my Spanish, Spanglish, or family language.' },
+            { es: 'No trató mi voz como un error.', en: 'It did not treat my voice as a mistake.' },
+            { es: 'Hizo que la escritura sonara demasiado genérica.', en: 'It made the writing sound too generic.' },
+            { es: 'Sugirió eliminar lenguaje que me importa.', en: 'It suggested removing language that matters to me.' }
+        ],
+        writtenFrame: null,
+        required: false,
+        oncePerStage: false
+    },
+    {
+        stageId: 10,
+        titleEs: 'Pausa y reflexiona',
+        titleEn: 'Pause and Reflect',
+        skill: 'AI advice evaluation',
+        skillsGainsLabel: 'I practiced explaining how I accepted, questioned, changed, or rejected AI advice.',
+        promptEs: 'Piensa en un momento en que aceptaste, cuestionaste, cambiaste o rechazaste el consejo del coach. ¿Qué decidiste y por qué?',
+        promptEn: 'Think about one moment when you accepted, questioned, changed, or rejected the coach\'s advice. What did you decide, and why?',
+        questionEs: '¿Cómo describirías tu decisión más importante sobre el consejo del coach?',
+        questionEn: 'How would you describe your most important decision about the coach\'s advice?',
+        options: [
+            { es: 'Acepté el consejo y mejoró mi ensayo.', en: 'I accepted the advice and it improved my essay.' },
+            { es: 'Cuestioné el consejo y lo modifiqué.', en: 'I questioned the advice and modified it.' },
+            { es: 'Rechacé el consejo porque no encajaba con mi voz.', en: 'I rejected the advice because it did not fit my voice.' },
+            { es: 'Usé parte del consejo y descarté el resto.', en: 'I used part of the advice and discarded the rest.' },
+            { es: 'El coach me ayudó a pensar sin decirme qué escribir.', en: 'The coach helped me think without telling me what to write.' }
+        ],
+        writtenFrame: 'Un consejo que acepté fue… · One piece of advice I accepted was… / Un consejo que cuestioné fue… · One piece of advice I questioned was… / Una razón de mi decisión fue… · One reason for my decision was…',
+        required: false,
+        oncePerStage: false
+    }
+];
+
+function renderReflectButton(msgId) {
+    const msgWrap = D.chatMessages.querySelector(`[data-msg-id="${msgId}"]`);
+    if (!msgWrap || msgWrap.querySelector('.reflect-btn-wrap')) return;
+    const cp = REFLECTION_CHECKPOINTS.find(c => c.stageId === state.stage);
+    const wrap = document.createElement('div');
+    wrap.className = 'reflect-btn-wrap';
+    const btn = document.createElement('button');
+    btn.className = 'reflect-btn';
+    btn.setAttribute('aria-label', 'Pausa y reflexiona · Pause and Reflect');
+    btn.textContent = 'Reflect · Pausa crítica';
+    btn.addEventListener('click', () => {
+        if (cp) openReflectionCheckpoint(cp);
+        else openMsgEvalDrawer(msgId, EVAL_QUESTIONS[0].key, {});
+    });
+    wrap.appendChild(btn);
+    msgWrap.appendChild(wrap);
+}
+
+function openReflectionCheckpoint(cp) {
+    document.getElementById('reflectModal')?.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'eval-modal-bg';
+    overlay.id = 'reflectModal';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', `${cp.titleEs} · ${cp.titleEn}`);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+    const card = document.createElement('div');
+    card.className = 'eval-modal-card';
+
+    const header = document.createElement('div');
+    header.className = 'eval-modal-header';
+    header.textContent = `${cp.titleEs} · ${cp.titleEn}`;
+    card.appendChild(header);
+
+    const skillLabel = document.createElement('div');
+    skillLabel.className = 'reflect-skill-label';
+    skillLabel.innerHTML = `<span class="show-es">Habilidad practicada</span><span class="lang-sep"> · </span><span class="show-en">Skill practiced</span>: <strong>${escapeHtml(cp.skill)}</strong>`;
+    card.appendChild(skillLabel);
+
+    const prompt = document.createElement('p');
+    prompt.className = 'eval-modal-intro';
+    prompt.innerHTML = `<span class="show-es">${escapeHtml(cp.promptEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(cp.promptEn)}</span>`;
+    card.appendChild(prompt);
+
+    const question = document.createElement('p');
+    question.className = 'eval-modal-hint';
+    question.innerHTML = `<span class="show-es">${escapeHtml(cp.questionEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(cp.questionEn)}</span>`;
+    card.appendChild(question);
+
+    const opts = document.createElement('div');
+    opts.className = 'reflect-options';
+    cp.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'reflect-option-btn';
+        btn.setAttribute('aria-pressed', 'false');
+        btn.innerHTML = `<span class="show-es">${escapeHtml(opt.es)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(opt.en)}</span>`;
+        btn.addEventListener('click', () => {
+            opts.querySelectorAll('.reflect-option-btn').forEach(b => { b.classList.remove('selected'); b.setAttribute('aria-pressed', 'false'); });
+            btn.classList.add('selected');
+            btn.setAttribute('aria-pressed', 'true');
+            try {
+                const log = JSON.parse(localStorage.getItem('tupana_decisions') || '[]');
+                log.push({ q: `${cp.titleEn} (Stage ${cp.stageId})`, choice: `option_${idx + 1}`, t: new Date().toISOString(), checkpoint: true, stage: cp.stageId, skill: cp.skill });
+                localStorage.setItem('tupana_decisions', JSON.stringify(log.slice(-50)));
+            } catch(e) {}
+            logProcessEvent('feedback_evaluated', `Reflection checkpoint Stage ${cp.stageId} (${cp.skill}): option ${idx + 1}.`);
+            renderBadges();
+            renderDecisionLog();
+            setTimeout(() => overlay.remove(), 700);
+        });
+        opts.appendChild(btn);
+    });
+    card.appendChild(opts);
+
+    const skipBtn = document.createElement('button');
+    skipBtn.className = 'eval-modal-close';
+    skipBtn.setAttribute('aria-label', 'Saltar por ahora · Skip for now');
+    skipBtn.textContent = 'Saltar por ahora · Skip for now';
+    skipBtn.addEventListener('click', () => overlay.remove());
+    card.appendChild(skipBtn);
+
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+    setTimeout(() => card.querySelector('.reflect-option-btn')?.focus(), 40);
+}
 
 function injectEvalCard() {
     if (state.stage < 7) return;

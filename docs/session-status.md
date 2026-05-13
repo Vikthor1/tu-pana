@@ -1,6 +1,6 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-13 (commit `352c19e`, pushed to `main`)
+Last updated: 2026-05-13 (session 23, pending commit — milestone-based reflection checkpoints)
 
 ---
 
@@ -8,9 +8,19 @@ Last updated: 2026-05-13 (commit `352c19e`, pushed to `main`)
 
 All Tier 1, Tier 2, and Tier 3 items are complete and pushed to `main`.
 
-**Tier 3 last completed:** Laboratorio Feedback Spotlight — answered-question opacity fix so feedback stays readable after choices recede (commit `352c19e`, 2026-05-12).
+**Session 23 (2026-05-13) — Milestone-based reflection checkpoints (first patch):**
+- `REFLECTION_CHECKPOINTS[]` data structure added to `ui.js` — 4 checkpoints (stages 4, 7, 8, 10)
+- `renderReflectButton(msgId)` — single optional "Reflect · Pausa crítica" button per bot message (stages 4+); replaces auto-inject of 5-question eval bar
+- `openReflectionCheckpoint(cp)` — modal using existing eval-modal CSS; picks stored to `tupana_decisions` with `checkpoint:true` flag
+- CSS: `.reflect-btn-wrap`, `.reflect-btn`, `.reflect-option-btn`, etc. — no new localStorage keys
+- Tests: toolkit 29/29 ✅ · structural 18/18 ✅ · no API key ✅ · authorship gate intact ✅
 
-**All 18 Playwright selection-to-coach tests passing.**
+**Next steps (session 24):**
+1. Wire Skills Gains tab in `openToolkitPanel()` — read `tupana_decisions` filtered for `checkpoint:true`, render earned skill labels
+2. Revisit `computeBadges()` thresholds — ≥5/≥10 decisions is now harder to reach under milestone model
+3. Stage 7 and 8 checkpoint UX — currently defined in data but button shows for ALL bot messages in those stages; consider milestone trigger (e.g., after Nth message or on stage completion)
+
+**All 18 Playwright selection-to-coach tests passing (last run 2026-05-11).**
 
 ---
 

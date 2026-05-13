@@ -4120,19 +4120,26 @@ function computeBadges() {
     const stage = state.stage;
     const done = state.done;
 
+    // Count distinct checkpoint stages (mirrors Skills Gains dedup logic)
+    const _cpStages = new Set();
+    for (const d of decisions) { if (d.checkpoint === true) _cpStages.add(d.stage); }
+    const checkpointCount = _cpStages.size;
+
     if (done.has(3) || stage > 3) {
         badges.push({ cls: 'story',  text: 'Fundador/a de Historia · Story Founder', icon: 'community-map' });
     }
     if (draftSaved) {
         badges.push({ cls: 'arch',   text: 'Arquitecto/a del Ensayo · Essay Architect', icon: 'first-draft-door' });
     }
-    if (decisions.length >= 5) {
+    // Earned by completing 1+ distinct reflection checkpoints, or by legacy ≥5 decisions
+    if (checkpointCount >= 1 || decisions.length >= 5) {
         badges.push({ cls: 'voice',  text: 'Guardián/a de la Voz · Voice Guardian', icon: 'voice-thread' });
     }
     if (done.has(8) || stage > 8) {
         badges.push({ cls: 'bridge', text: 'Constructor/a de Puentes · Bridge Builder', icon: 'language-bridge' });
     }
-    if (decisions.length >= 10) {
+    // Earned by completing 3+ distinct reflection checkpoints, or by legacy ≥10 decisions
+    if (checkpointCount >= 3 || decisions.length >= 10) {
         badges.push({ cls: 'editor', text: 'Editor/a con Criterio · Editor with Judgment', icon: 'critical-lens' });
     }
     if (done.has(9) || stage >= 9) {

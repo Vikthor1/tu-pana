@@ -22,9 +22,12 @@ All Tier 1, Tier 2, and Tier 3 items are complete and pushed to `main`.
 - `toolkit_test.mjs`: selector updated `.toolkit-skills-placeholder` → `.toolkit-skills-empty` (29/29 ✅)
 - `skills_gains_test.mjs`: added (20/20 ✅)
 
+**Session 23 patch 3 — Badge alignment with milestone model:**
+- `computeBadges()`: counts distinct checkpoint stages via Set; Voice Guardian = 1+ checkpoint OR legacy ≥5; Editor = 3+ OR legacy ≥10; 4 other badges unchanged
+- `badge_test.mjs` added (15/15 ✅); toolkit 29/29 ✅
+
 **Next steps (session 24):**
-1. Revisit `computeBadges()` thresholds — ≥5/≥10 decisions harder to reach under milestone model; rebind to checkpoint completions
-2. Stage 7 and 8 checkpoint milestone triggers — currently button shows after ALL bot messages; add milestone gate (e.g., after specific stage event or N-th coach exchange)
+1. Stage 7 and 8 checkpoint milestone triggers — button currently shows after ALL bot messages in those stages; add a milestone gate so the checkpoint appears once, at a pedagogically meaningful moment
 
 **All 18 Playwright selection-to-coach tests passing (last run 2026-05-11).**
 

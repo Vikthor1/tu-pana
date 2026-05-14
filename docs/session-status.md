@@ -1,6 +1,6 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-13 (session 24 patch 2, committed — transferable AI literacy cards in Mi Toolkit)
+Last updated: 2026-05-13 (session 24 patch 3, committed — Spanish copy pass; critical AI literacy layer complete)
 
 ---
 
@@ -52,6 +52,20 @@ All Tier 1, Tier 2, and Tier 3 items are complete and pushed to `main`.
 - No new storage keys. No checkboxes. No pop-ups. Static read-only display.
 - CSS: `.toolkit-transfer-intro`, `.toolkit-transfer-card`, `.toolkit-transfer-principle`, `.toolkit-transfer-skill`, `.toolkit-transfer-desc`
 - `toolkit_test.mjs`: section count 2 → 3 (29/29 ✅); `beyond_toolkit_test.mjs` added (21/21 ✅)
+
+**Session 24 patch 3 (2026-05-13) — Spanish copy pass; critical AI literacy layer complete:**
+- Beyond This Essay cards: principles tightened; Card 2 "pero no lo es" → "pero no es neutral"; Card 3 "pertenece a un prompt" → "debe compartirse en un prompt"; Card 5 "Pregunta si" → "Pregúntate si", "pertenece" → "corresponde"; desc lines removed (skill lines now self-contained and concise)
+- English updated to match Card 2 and Cards 3–5 for bilingual parity
+- beyond toolkit 21/21 ✅
+
+**Critical AI literacy layer is now complete across all 7 components:**
+1. Milestone-based reflection checkpoints (2996677)
+2. Skills Gains display (3fb3023)
+3. Badge alignment (c83a382)
+4. Stage 7/8 milestone gating (28f5091)
+5. Stage 10 capstone AI reflection (6fffa82)
+6. Beyond This Essay transferable cards (fef44ef)
+7. Spanish copy final pass (this commit)
 
 **Next steps (session 25):**
 - Tier 4 pilot logistics — requires real students

@@ -4400,6 +4400,12 @@
             margin: 20px 0 14px;
         }
         .capstone-reflection-field { margin-bottom: 14px; }
+        .capstone-reflection-hint {
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            line-height: 1.45;
+        }
         .capstone-reflection-label {
             font-size: 0.77rem;
             color: var(--text-sub);

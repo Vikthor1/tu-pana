@@ -1,6 +1,6 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-13 (session 23, committed — all 4 patches complete)
+Last updated: 2026-05-13 (session 24, committed — Stage 10 AI reflection wired into capstone flow)
 
 ---
 
@@ -34,9 +34,15 @@ All Tier 1, Tier 2, and Tier 3 items are complete and pushed to `main`.
 - `openReflectionCheckpoint()`: added `closeReflect`/`onEscReflect` for Escape key dismiss; skip button, backdrop click, and Escape all share one close path
 - `milestone_gate_test.mjs`: 22/22 ✅ · toolkit 29/29 ✅ · skills gains 20/20 ✅ · badges 15/15 ✅
 
-**Next steps (session 24):**
-1. Stage 10 capstone checkpoint — wire into `injectCapstonePanel()` or `requestCoachPerspective()` flow (deferred; no reliable post-message hook in current capstone path)
-2. Tier 4 pilot logistics — requires real students
+**Session 24 (2026-05-13) — Stage 10 AI reflection in capstone flow:**
+- New freetext field added to `showCapstoneCard10C()`: "Reflexión crítica de IA · Critical AI Reflection" with bilingual frame hint; autosaves to `tupana_capstone.studentResponse.aiAdvice`
+- `submitCapstone10C()`: saves `{ checkpoint:true, stage:10, skill:'AI advice evaluation / reflective decision-making', written:true, choice:aiAdviceText }` to `tupana_decisions` once; calls `renderBadges()` + `renderDecisionLog()`; duplicate-safe guard
+- `exportCapstone()`: includes `aiAdvice` in 10C export text when present
+- CSS: `.capstone-reflection-hint` (muted frame text below label)
+- `stage10_reflection_test.mjs` added (28/28 ✅) · milestone gate 22/22 ✅ · badges 15/15 ✅ · skills gains 20/20 ✅
+
+**Next steps (session 25):**
+- Tier 4 pilot logistics — requires real students
 
 **All 18 Playwright selection-to-coach tests passing (last run 2026-05-11).**
 

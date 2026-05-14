@@ -474,11 +474,14 @@ function exportCapstone() {
         text += `Coach limitation note: ${lim}\n\n`;
     }
 
-    if (resp.agree || resp.disagree || resp.missing) {
+    if (resp.agree || resp.disagree || resp.missing || resp.aiAdvice) {
         text += `---\n## 10C — My Response to the Coach / Mi respuesta al coach\n\n`;
         text += `**Where I agree / Donde estoy de acuerdo:**\n${resp.agree || '—'}\n\n`;
         text += `**Where I disagree / Donde no estoy de acuerdo:**\n${resp.disagree || '—'}\n\n`;
         text += `**What the coach might be missing / Lo que el coach podría estar pasando por alto:**\n${resp.missing || '—'}\n\n`;
+        if (resp.aiAdvice) {
+            text += `**AI advice I accepted, questioned, or rejected / Consejo de IA que acepté, cuestioné o rechacé:**\n${resp.aiAdvice}\n\n`;
+        }
     }
 
     navigator.clipboard.writeText(text).then(() => {
@@ -997,6 +1000,26 @@ function showCapstoneCard10C() {
             >${escapeHtml(savedResp.missing || '')}</textarea>
         </div>
 
+        <hr class="capstone-divider">
+        <div class="capstone-section-label">
+            Reflexión crítica de IA · Critical AI Reflection
+            <span style="font-weight:400;text-transform:none;font-size:0.71rem"> — opcional · optional</span>
+        </div>
+
+        <div class="capstone-reflection-field">
+            <label class="capstone-reflection-label" for="capstone10cAiAdvice">
+                Piensa en un momento en que aceptaste, cuestionaste, cambiaste o rechazaste el consejo del coach. / Think about one moment when you accepted, questioned, changed, or rejected the coach's advice.
+            </label>
+            <div class="capstone-reflection-hint">
+                <span lang="es">Un consejo que acepté fue… · Un consejo que cuestioné fue… · Una razón de mi decisión fue…</span>
+                <br><span lang="en" style="color:var(--text-muted)">One piece of advice I accepted was… / One piece of advice I questioned was… / One reason for my decision was…</span>
+            </div>
+            <textarea class="capstone-reflection-text" id="capstone10cAiAdvice" rows="3"
+                aria-label="Reflexión crítica de IA · Critical AI reflection"
+                oninput="saveCapstoneStudentResponse('aiAdvice',this.value)"
+            >${escapeHtml(savedResp.aiAdvice || '')}</textarea>
+        </div>
+
         <div class="capstone-action-row">
             <button class="capstone-final-btn" id="capstoneFinalBtn"
                 onclick="submitCapstone10C()"
@@ -1039,6 +1062,28 @@ function submitCapstone10C() {
     const data = loadCapstoneData();
     data.finalComplete = true;
     _saveCapstoneRaw(data);
+
+    // Save Stage 10 AI reflection as a checkpoint entry (once per session)
+    try {
+        const log = JSON.parse(localStorage.getItem('tupana_decisions') || '[]');
+        const alreadySaved = log.some(d => d.checkpoint === true && d.stage === 10);
+        if (!alreadySaved) {
+            const aiAdvice = (data.studentResponse && data.studentResponse.aiAdvice) || '';
+            log.push({
+                q: 'AI Use Reflection (Stage 10)',
+                choice: aiAdvice || 'completed',
+                t: new Date().toISOString(),
+                checkpoint: true,
+                stage: 10,
+                skill: 'AI advice evaluation / reflective decision-making',
+                written: true
+            });
+            localStorage.setItem('tupana_decisions', JSON.stringify(log.slice(-50)));
+        }
+    } catch(e) {}
+    logProcessEvent('capstone_ai_reflection_completed', 'Stage 10 AI use reflection submitted.');
+    renderBadges();
+    renderDecisionLog();
 }
 
 function pickHumor(key) {

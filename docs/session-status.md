@@ -1,6 +1,6 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-13 (session 24, committed — Stage 10 AI reflection wired into capstone flow)
+Last updated: 2026-05-13 (session 24 patch 2, committed — transferable AI literacy cards in Mi Toolkit)
 
 ---
 
@@ -40,6 +40,18 @@ All Tier 1, Tier 2, and Tier 3 items are complete and pushed to `main`.
 - `exportCapstone()`: includes `aiAdvice` in 10C export text when present
 - CSS: `.capstone-reflection-hint` (muted frame text below label)
 - `stage10_reflection_test.mjs` added (28/28 ✅) · milestone gate 22/22 ✅ · badges 15/15 ✅ · skills gains 20/20 ✅
+
+**Session 24 patch 2 (2026-05-13) — Transferable AI literacy cards:**
+- Mi Toolkit "What I'm Learning" section renamed to "Habilidades practicadas en este ensayo · Skills practiced in this essay"
+- New "Más allá de este ensayo · Beyond This Essay" section added below, with 5 static bilingual transfer cards:
+  1. AI is not a source (verification)
+  2. AI may sound neutral but is not (bias/cultural framing)
+  3. Not everything belongs in a prompt (privacy)
+  4. Use AI without surrendering judgment (authorship/dependency)
+  5. Ask whether AI belongs in this situation (appropriateness)
+- No new storage keys. No checkboxes. No pop-ups. Static read-only display.
+- CSS: `.toolkit-transfer-intro`, `.toolkit-transfer-card`, `.toolkit-transfer-principle`, `.toolkit-transfer-skill`, `.toolkit-transfer-desc`
+- `toolkit_test.mjs`: section count 2 → 3 (29/29 ✅); `beyond_toolkit_test.mjs` added (21/21 ✅)
 
 **Next steps (session 25):**
 - Tier 4 pilot logistics — requires real students

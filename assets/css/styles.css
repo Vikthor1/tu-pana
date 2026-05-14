@@ -2862,6 +2862,33 @@
             font-size: 0.80rem; color: var(--text-sub);
             line-height: 1.5;
         }
+        .toolkit-transfer-intro {
+            margin: 0 0 10px;
+            font-size: 0.79rem; color: var(--text-muted);
+            line-height: 1.5; font-style: italic;
+        }
+        .toolkit-transfer-card {
+            padding: 11px 13px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-panel);
+            margin-bottom: 7px;
+        }
+        .toolkit-transfer-card:last-child { margin-bottom: 0; }
+        .toolkit-transfer-principle {
+            font-size: 0.84rem; font-weight: 700;
+            color: var(--text-primary); margin-bottom: 3px;
+            line-height: 1.35;
+        }
+        .toolkit-transfer-skill {
+            font-size: 0.81rem; font-weight: 500;
+            color: var(--text-sub); margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .toolkit-transfer-desc {
+            font-size: 0.77rem; color: var(--text-muted);
+            line-height: 1.45;
+        }
 
         /* ── Reusable Guide Card Pattern ── */
         .guide-card {

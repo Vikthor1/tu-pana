@@ -5389,8 +5389,37 @@ function openToolkitPanel() {
             ${claimHtml}
         </div>
         <div class="toolkit-section">
-            <div class="toolkit-section-title"><span class="show-es">Lo que estoy aprendiendo</span><span class="lang-sep"> · </span><span class="show-en">What I'm Learning</span></div>
+            <div class="toolkit-section-title"><span class="show-es">Habilidades practicadas en este ensayo</span><span class="lang-sep"> · </span><span class="show-en">Skills practiced in this essay</span></div>
             ${skillsHtml}
+        </div>
+        <div class="toolkit-section">
+            <div class="toolkit-section-title"><span class="show-es">Más allá de este ensayo</span><span class="lang-sep"> · </span><span class="show-en">Beyond This Essay</span></div>
+            <p class="toolkit-transfer-intro"><span class="show-es">Habilidades de alfabetización de IA que puedes usar en otras clases, trabajos y situaciones digitales cotidianas.</span><span class="lang-sep"> · </span><span class="show-en">AI literacy skills you can use in other classes, jobs, and everyday digital life.</span></p>
+            <div class="toolkit-transfer-card">
+                <div class="toolkit-transfer-principle"><span class="show-es">La IA no es una fuente.</span><span class="lang-sep"> · </span><span class="show-en">AI is not a source.</span></div>
+                <div class="toolkit-transfer-skill"><span class="show-es">Puedo verificar las afirmaciones de la IA antes de confiar en ellas.</span><span class="lang-sep"> · </span><span class="show-en">I can check AI claims before trusting or using them.</span></div>
+                <div class="toolkit-transfer-desc"><span class="show-es">Cuando la IA da hechos, citas, estadísticas o información institucional, debo verificarlos con fuentes confiables antes de usarlos.</span><span class="lang-sep"> · </span><span class="show-en">When AI gives facts, citations, statistics, or institutional information, I should verify it with credible sources before using it.</span></div>
+            </div>
+            <div class="toolkit-transfer-card">
+                <div class="toolkit-transfer-principle"><span class="show-es">La IA puede sonar neutral, pero no lo es.</span><span class="lang-sep"> · </span><span class="show-en">AI may sound neutral, but it is not neutral.</span></div>
+                <div class="toolkit-transfer-skill"><span class="show-es">Puedo notar cuándo el consejo de la IA puede reflejar sesgos o suposiciones dominantes.</span><span class="lang-sep"> · </span><span class="show-en">I can notice when AI advice may reflect bias or dominant assumptions.</span></div>
+                <div class="toolkit-transfer-desc"><span class="show-es">La IA puede reproducir suposiciones sobre lenguaje, raza, clase, género o cómo debe sonar la escritura "correcta". Puedo cuestionar el consejo que aplana mi voz o conocimiento vivido.</span><span class="lang-sep"> · </span><span class="show-en">AI can reproduce assumptions about language, race, class, gender, or what "correct" writing should sound like. I can question advice that flattens my voice or lived knowledge.</span></div>
+            </div>
+            <div class="toolkit-transfer-card">
+                <div class="toolkit-transfer-principle"><span class="show-es">No todo pertenece a un prompt.</span><span class="lang-sep"> · </span><span class="show-en">Not everything belongs in a prompt.</span></div>
+                <div class="toolkit-transfer-skill"><span class="show-es">Puedo decidir qué información personal no debo compartir con la IA.</span><span class="lang-sep"> · </span><span class="show-en">I can decide what personal information should not be shared with AI.</span></div>
+                <div class="toolkit-transfer-desc"><span class="show-es">Debo evitar ingresar información sensible: direcciones, detalles migratorios, identificaciones, información médica, problemas legales o financieros, o cualquier cosa que no querría que se almacene o comparta.</span><span class="lang-sep"> · </span><span class="show-en">I should avoid entering sensitive information: addresses, immigration details, school IDs, medical information, legal or financial problems, or anything I would not want stored or shared.</span></div>
+            </div>
+            <div class="toolkit-transfer-card">
+                <div class="toolkit-transfer-principle"><span class="show-es">Usa la IA sin renunciar a tu criterio.</span><span class="lang-sep"> · </span><span class="show-en">Use AI without surrendering judgment.</span></div>
+                <div class="toolkit-transfer-skill"><span class="show-es">Puedo usar la IA como apoyo sin renunciar a mi propio pensamiento.</span><span class="lang-sep"> · </span><span class="show-en">I can use AI for support without giving up my own thinking.</span></div>
+                <div class="toolkit-transfer-desc"><span class="show-es">La IA puede ayudarme a generar ideas, hacer preguntas y revisar, pero no debe tomar mis decisiones, reemplazar mi voz ni hacer el pensamiento que necesito practicar.</span><span class="lang-sep"> · </span><span class="show-en">AI can help me brainstorm, ask questions, and revise, but I should not let it make my decisions, replace my voice, or do the thinking I need to practice.</span></div>
+            </div>
+            <div class="toolkit-transfer-card">
+                <div class="toolkit-transfer-principle"><span class="show-es">Pregunta si la IA pertenece a esta situación.</span><span class="lang-sep"> · </span><span class="show-en">Ask whether AI belongs in this situation.</span></div>
+                <div class="toolkit-transfer-skill"><span class="show-es">Puedo decidir si la IA es apropiada para una tarea o contexto específico.</span><span class="lang-sep"> · </span><span class="show-en">I can decide whether AI is appropriate for a specific task or context.</span></div>
+                <div class="toolkit-transfer-desc"><span class="show-es">Antes de usar la IA, debo preguntarme si está permitida, es útil, justa, segura y apropiada. Algunas tareas necesitan criterio humano, política del curso, privacidad o consejo profesional.</span><span class="lang-sep"> · </span><span class="show-en">Before using AI, I should ask whether it is allowed, useful, fair, safe, and appropriate. Some tasks need human judgment, course-policy awareness, privacy, or professional advice.</span></div>
+            </div>
         </div>
     </div>`;
 

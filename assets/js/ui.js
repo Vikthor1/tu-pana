@@ -2468,6 +2468,41 @@ function submitChat() {
     D.chatInput.value = '';
     D.chatInput.style.height = 'auto';
     D.sendBtn.disabled = true;
+
+    // Keyword-based app-orientation fallback — intercept before AI
+    const lower = t.toLowerCase();
+    const CONFUSED_KEYWORDS = [
+        'how do i', 'how does this', 'what is this', 'what do i do', 'what should i do',
+        'where do i', 'where is the', "i don't understand", "i don't know what",
+        'confused', 'not working', "doesn't work", "don't know how",
+        'ayuda con la app', 'cómo funciona', 'no entiendo cómo', 'qué hago aquí',
+        'qué tengo que hacer aquí', 'no sé cómo usar', 'no funciona la app'
+    ];
+    if (CONFUSED_KEYWORDS.some(kw => lower.includes(kw))) {
+        addMsg(t, 'user');
+        const isEs = state.lang !== 'en';
+        let stageNote = '';
+        if (state.stage === 6) {
+            stageNote = isEs
+                ? ' En la Etapa 6, completa los campos de reflexión en la tarjeta de tarea antes de continuar.'
+                : ' In Stage 6, complete the reflection fields in the task card before continuing.';
+        } else if (state.stage === 8) {
+            stageNote = isEs
+                ? ' En la Etapa 8, el coach te ayuda a fortalecer tu voz — no reescribirá tu texto por ti.'
+                : ' In Stage 8, the coach helps you strengthen your voice — it will not rewrite your text for you.';
+        } else if (state.stage === 10) {
+            stageNote = isEs
+                ? ' En la Etapa 10, completa los cuatro campos de la tarjeta final para terminar tu ensayo.'
+                : ' In Stage 10, complete the four fields in the final card to finish your essay.';
+        }
+        const fallback = isEs
+            ? `Parece que tienes una pregunta sobre cómo usar Tu Pana.${stageNote} Haz clic en el botón **?** (arriba a la derecha) para ver la guía de orientación. Si tienes una pregunta sobre tu ensayo, escríbela y el coach te ayudará.`
+            : `It looks like you have a question about how to use Tu Pana.${stageNote} Click the **?** button (top right) to open the orientation guide. If you have a question about your essay, type it and the coach will help.`;
+        addMsg(fallback, 'bot');
+        D.sendBtn.disabled = false;
+        return;
+    }
+
     sendCoachMessage({ message: t, stageId: getStageId(state.stage) });
 }
 
@@ -5423,6 +5458,104 @@ function openToolkitPanel() {
     overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
     overlay.querySelector('.toolkit-close').addEventListener('click', closeModal);
     document.addEventListener('keydown', onEsc);
+
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.querySelector('.toolkit-close')?.focus(), 120);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Help / Orientation panel
+   Non-AI, static. Opens via ? button in header.
+   Reuses toolkit-modal-bg / toolkit-modal-card patterns.
+───────────────────────────────────────────────────────────── */
+function openHelpPanel() {
+    document.getElementById('helpModal')?.remove();
+
+    const stageObj = STAGES[state.stage - 1] || STAGES[0];
+    const stageLineHtml = `<span class="show-es">Etapa ${state.stage} — <strong>${escapeHtml(stageObj.es)}</strong></span><span class="lang-sep"> · </span><span class="show-en">Stage ${state.stage} — <strong>${escapeHtml(stageObj.en)}</strong></span>`;
+
+    const STAGE_HELP = [
+        { es: 'Escribe un recuerdo personal o un momento de identidad en el idioma que más natural te salga.', en: 'Write a personal memory or identity moment in the language that feels most real.' },
+        { es: 'Conecta tu recuerdo con un contexto histórico, social o cultural más amplio.', en: 'Connect your memory to a larger historical, social, or cultural context.' },
+        { es: 'Escribe 4–6 oraciones que expliquen tu argumento y por qué importa.', en: 'Write 4–6 sentences explaining your argument and why it matters.' },
+        { es: 'Busca fuentes. El coach sugiere direcciones; tú buscas y evalúas.', en: 'Find sources. The coach suggests directions; you search and evaluate.' },
+        { es: 'Escribe tu borrador completo. Usa tu pitch como mapa.', en: 'Write your full draft. Use your pitch as a roadmap.' },
+        { es: 'Haz una pausa y reflexiona sobre tu borrador completo antes de revisar.', en: 'Step back and reflect on your full draft before revising.' },
+        { es: 'Revisa con un enfoque: argumento, evidencia o estructura.', en: 'Revise with a focus: argument, evidence, or structure.' },
+        { es: 'Fortalece tu voz y estilo. El coach no reescribirá tu texto.', en: 'Strengthen your voice and style. The coach will not rewrite for you.' },
+        { es: 'Reflexiona sobre tu proceso de escritura desde la Etapa 1 hasta ahora.', en: 'Reflect on your writing journey from Stage 1 to now.' },
+        { es: 'Finaliza, haz tu autoevaluación y responde a la perspectiva del coach sobre tu ensayo.', en: 'Finalize, self-assess, and respond to the coach\'s perspective on your essay.' },
+    ];
+
+    const stageListHtml = STAGES.map((s, i) => {
+        const h = STAGE_HELP[i] || { es: '', en: '' };
+        const isCurrent = (i + 1) === state.stage;
+        return `<li class="help-stage-item${isCurrent ? ' help-stage-current' : ''}">
+            <span class="help-stage-num">${i + 1}.</span>
+            <span><strong><span class="show-es">${escapeHtml(s.es)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(s.en)}</span></strong><br><span class="show-es" style="color:var(--text-muted)">${escapeHtml(h.es)}</span><span class="lang-sep" style="color:var(--text-muted)"> · </span><span class="show-en" style="color:var(--text-muted)">${escapeHtml(h.en)}</span></span>
+        </li>`;
+    }).join('');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'toolkit-modal-bg';
+    overlay.id = 'helpModal';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'helpModalTitle');
+
+    overlay.innerHTML = `<div class="toolkit-modal-card help-modal-card">
+        <div class="toolkit-modal-top">
+            <h2 id="helpModalTitle" class="toolkit-modal-title">
+                <span class="show-es">Cómo funciona Tu Pana</span><span class="lang-sep"> · </span><span class="show-en">How Tu Pana Works</span>
+            </h2>
+            <button class="toolkit-close" aria-label="Cerrar · Close">
+                <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg>
+            </button>
+        </div>
+        <div class="help-current-stage">${stageLineHtml}</div>
+        <div class="help-section">
+            <div class="help-section-title"><span class="show-es">¿Qué es Tu Pana?</span><span class="lang-sep"> · </span><span class="show-en">What is Tu Pana?</span></div>
+            <div class="help-section-body"><span class="show-es">Tu Pana de Escritura es tu coach de escritura. Te guía etapa por etapa a través de un ensayo personal usando IA como herramienta de apoyo — tú tomas las decisiones.</span><span class="lang-sep"> · </span><span class="show-en">Tu Pana de Escritura is your writing coach. It guides you stage by stage through a personal essay using AI as a support tool — you make the decisions.</span></div>
+        </div>
+        <div class="help-section">
+            <div class="help-section-title"><span class="show-es">¿Cómo envío un mensaje?</span><span class="lang-sep"> · </span><span class="show-en">How do I send a message?</span></div>
+            <div class="help-section-body"><span class="show-es">Escribe tu pregunta o texto en el cuadro de chat y presiona Enviar (o Enter). El coach responderá en unos segundos.</span><span class="lang-sep"> · </span><span class="show-en">Type your question or text in the chat box and press Send (or Enter). The coach will reply in a few seconds.</span></div>
+        </div>
+        <div class="help-section">
+            <div class="help-section-title"><span class="show-es">¿Puedo escribir en español?</span><span class="lang-sep"> · </span><span class="show-en">Can I write in Spanish?</span></div>
+            <div class="help-section-body"><span class="show-es">Sí. Puedes escribir en español, inglés o los dos. Tu idioma es válido aquí.</span><span class="lang-sep"> · </span><span class="show-en">Yes. You can write in Spanish, English, or both. Your language is valid here.</span></div>
+        </div>
+        <div class="help-section">
+            <div class="help-section-title"><span class="show-es">¿Cómo avanzo de etapa?</span><span class="lang-sep"> · </span><span class="show-en">How do I move to the next stage?</span></div>
+            <div class="help-section-body"><span class="show-es">Usa el botón <strong>Siguiente etapa</strong> en el área de tarea cuando estés listo/a. En móvil, usa el selector de etapas en la barra superior.</span><span class="lang-sep"> · </span><span class="show-en">Use the <strong>Next stage</strong> button in the task area when you're ready. On mobile, use the stage selector in the top bar.</span></div>
+        </div>
+        <div class="help-section">
+            <div class="help-section-title"><span class="show-es">¿Qué es Mi Toolkit?</span><span class="lang-sep"> · </span><span class="show-en">What is My Toolkit?</span></div>
+            <div class="help-section-body"><span class="show-es">Mi Toolkit guarda tus activos culturales, las habilidades que practicaste y tus reflexiones críticas de IA a lo largo del ensayo.</span><span class="lang-sep"> · </span><span class="show-en">My Toolkit saves your cultural assets, the skills you practiced, and your critical AI reflections throughout the essay.</span></div>
+        </div>
+        <div class="help-section">
+            <div class="help-section-title"><span class="show-es">Las 10 etapas</span><span class="lang-sep"> · </span><span class="show-en">The 10 stages</span></div>
+            <ul class="help-stage-list">${stageListHtml}</ul>
+        </div>
+        <div class="help-section">
+            <div class="help-section-title"><span class="show-es">El coach no responde</span><span class="lang-sep"> · </span><span class="show-en">Coach is not responding</span></div>
+            <div class="help-section-body"><span class="show-es">Verifica tu conexión a internet y recarga la página. Tus textos se guardan automáticamente en este navegador.</span><span class="lang-sep"> · </span><span class="show-en">Check your internet connection and reload the page. Your texts are saved automatically in this browser.</span></div>
+        </div>
+        <div class="help-section">
+            <div class="help-section-title"><span class="show-es">¿Puedo perder mi trabajo?</span><span class="lang-sep"> · </span><span class="show-en">Can I lose my work?</span></div>
+            <div class="help-section-body"><span class="show-es">Tu trabajo se guarda en este navegador automáticamente. Si borras el historial del navegador o usas un dispositivo diferente, no estará disponible.</span><span class="lang-sep"> · </span><span class="show-en">Your work is saved in this browser automatically. If you clear browser history or use a different device, it won't be available.</span></div>
+        </div>
+        <div class="help-section">
+            <div class="help-section-title"><span class="show-es">Preguntas para tu instructor/a</span><span class="lang-sep"> · </span><span class="show-en">Questions for your instructor</span></div>
+            <div class="help-section-body"><span class="show-es">Si tienes preguntas sobre la tarea, el tema o las expectativas del curso, habla con tu instructor/a — el coach no puede responder esas preguntas.</span><span class="lang-sep"> · </span><span class="show-en">If you have questions about the assignment, topic, or course expectations, talk to your instructor — the coach cannot answer those questions.</span></div>
+        </div>
+    </div>`;
+
+    const closeHelp = () => { overlay.remove(); document.removeEventListener('keydown', onEscHelp); };
+    const onEscHelp = e => { if (e.key === 'Escape') closeHelp(); };
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeHelp(); });
+    overlay.querySelector('.toolkit-close').addEventListener('click', closeHelp);
+    document.addEventListener('keydown', onEscHelp);
 
     document.body.appendChild(overlay);
     setTimeout(() => overlay.querySelector('.toolkit-close')?.focus(), 120);

@@ -21,7 +21,8 @@ const state = {
     spotlightTarget:        null,   // 'coach' | 'editor' | null
     spotlightStageId:       null,
     pendingSpotlightStageId: null,  // deferred when a phase toast is showing
-    draftFocus:             false
+    draftFocus:             false,
+    _reflectStage:          0       // set by milestone actions (selectRevisionFocus, selectPolishRoute)
 };
 
 // ════════════════════════════════════════════════════════
@@ -3254,6 +3255,15 @@ function renderReflectButton(msgId) {
     const msgWrap = D.chatMessages.querySelector(`[data-msg-id="${msgId}"]`);
     if (!msgWrap || msgWrap.querySelector('.reflect-btn-wrap')) return;
     const cp = REFLECTION_CHECKPOINTS.find(c => c.stageId === state.stage);
+    // No checkpoint defined for this stage (e.g., 5, 6, 9) — skip
+    if (!cp) return;
+    // Stage 10 checkpoint belongs in the capstone panel flow, not post-message
+    if (state.stage === 10) return;
+    // Stages 7 and 8 require a milestone action (revision focus or voice-polish route)
+    if (state.stage === 7 || state.stage === 8) {
+        if (state._reflectStage !== state.stage) return;
+        state._reflectStage = 0; // consume — show once per milestone trigger
+    }
     const wrap = document.createElement('div');
     wrap.className = 'reflect-btn-wrap';
     const btn = document.createElement('button');
@@ -3277,7 +3287,6 @@ function openReflectionCheckpoint(cp) {
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-label', `${cp.titleEs} · ${cp.titleEn}`);
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 
     const card = document.createElement('div');
     card.className = 'eval-modal-card';
@@ -3331,10 +3340,16 @@ function openReflectionCheckpoint(cp) {
     skipBtn.className = 'eval-modal-close';
     skipBtn.setAttribute('aria-label', 'Saltar por ahora · Skip for now');
     skipBtn.textContent = 'Saltar por ahora · Skip for now';
-    skipBtn.addEventListener('click', () => overlay.remove());
     card.appendChild(skipBtn);
 
     overlay.appendChild(card);
+
+    const closeReflect = () => { overlay.remove(); document.removeEventListener('keydown', onEscReflect); };
+    const onEscReflect = e => { if (e.key === 'Escape') closeReflect(); };
+    skipBtn.addEventListener('click', closeReflect);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeReflect(); });
+    document.addEventListener('keydown', onEscReflect);
+
     document.body.appendChild(overlay);
     setTimeout(() => card.querySelector('.reflect-option-btn')?.focus(), 40);
 }

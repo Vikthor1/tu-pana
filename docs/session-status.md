@@ -1,6 +1,6 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-13 (session 23, pending commit — milestone-based reflection checkpoints)
+Last updated: 2026-05-13 (session 23, committed — all 4 patches complete)
 
 ---
 
@@ -26,8 +26,17 @@ All Tier 1, Tier 2, and Tier 3 items are complete and pushed to `main`.
 - `computeBadges()`: counts distinct checkpoint stages via Set; Voice Guardian = 1+ checkpoint OR legacy ≥5; Editor = 3+ OR legacy ≥10; 4 other badges unchanged
 - `badge_test.mjs` added (15/15 ✅); toolkit 29/29 ✅
 
+**Session 23 patch 4 — Milestone gating for reflection checkpoints:**
+- `state._reflectStage: 0` added to `state` object in `ui.js`
+- `renderReflectButton()` gated: stages 5/6/9 suppressed (no checkpoint); stage 10 suppressed (capstone flow); stages 7/8 require `state._reflectStage === state.stage`, flag consumed after first button shown
+- `selectRevisionFocus()` in `prompts.js`: sets `state._reflectStage = 7` after sending revision focus message
+- `selectPolishRoute()` in `prompts.js`: sets `state._reflectStage = 8` at end (protect route returns early — never sets flag)
+- `openReflectionCheckpoint()`: added `closeReflect`/`onEscReflect` for Escape key dismiss; skip button, backdrop click, and Escape all share one close path
+- `milestone_gate_test.mjs`: 22/22 ✅ · toolkit 29/29 ✅ · skills gains 20/20 ✅ · badges 15/15 ✅
+
 **Next steps (session 24):**
-1. Stage 7 and 8 checkpoint milestone triggers — button currently shows after ALL bot messages in those stages; add a milestone gate so the checkpoint appears once, at a pedagogically meaningful moment
+1. Stage 10 capstone checkpoint — wire into `injectCapstonePanel()` or `requestCoachPerspective()` flow (deferred; no reliable post-message hook in current capstone path)
+2. Tier 4 pilot logistics — requires real students
 
 **All 18 Playwright selection-to-coach tests passing (last run 2026-05-11).**
 

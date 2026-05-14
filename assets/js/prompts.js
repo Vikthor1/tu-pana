@@ -368,6 +368,7 @@ function selectRevisionFocus(btn, size) {
             : t(`Quiero considerar un cambio grande: ${btn.textContent} / I want to consider a big change: ${btn.textContent}`,
                 `Big change focus: ${btn.textContent}`);
         sendMsg(focusText);
+        state._reflectStage = 7; // milestone: revision focus chosen — next bot response shows checkpoint
     }
 }
 
@@ -566,6 +567,7 @@ function selectPolishRoute(btn, route) {
         const len = D.chatInput.value.length;
         D.chatInput.setSelectionRange(len, len);
     }
+    state._reflectStage = 8; // milestone: voice-polish route active — next bot response shows checkpoint
 }
 
 

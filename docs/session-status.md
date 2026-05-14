@@ -1,6 +1,6 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-13 (session 24 patch 3, committed — Spanish copy pass; critical AI literacy layer complete)
+Last updated: 2026-05-13 (session 25, committed — lightweight Help/Ayuda orientation panel)
 
 ---
 
@@ -67,7 +67,22 @@ All Tier 1, Tier 2, and Tier 3 items are complete and pushed to `main`.
 6. Beyond This Essay transferable cards (fef44ef)
 7. Spanish copy final pass (this commit)
 
-**Next steps (session 25):**
+**Session 25 (2026-05-13) — Help / Ayuda orientation panel + app-confusion fallback (commit `d177119`, pushed to `origin/main`):**
+
+Files changed: `index.html` · `assets/js/ui.js` · `assets/css/styles.css`
+
+- **Help button** — `?` button added to `<header>` (38×38 pill); matches `.theme-toggle` / `.reset-btn` pattern; calls `openHelpPanel()` via `onclick`; mobile tap targets raised to 44×44 at ≤480px and ≤375px breakpoints
+- **`openHelpPanel()`** — bilingual modal (9 sections) rendered via the existing `toolkit-modal-bg` / `toolkit-modal-card` pattern; reuses `.toolkit-close` button, Escape key, and backdrop-click close paths
+  - Sections: What is Tu Pana · How to send a message · Spanish is valid · How to advance stages · Mi Toolkit · 10-stage list · Coach not responding · Work preservation · Questions for your instructor
+  - Stage-aware current stage line: reads `state.stage` and `STAGES[state.stage - 1].es/en`; shown in `.help-current-stage` block above the sections
+  - 10-stage list: each item shows bilingual name + one-line description; current stage highlighted with `.help-stage-current`
+- **`submitChat()` app-confusion fallback** — keyword intercept runs before `sendCoachMessage()`; ~13 EN/ES phrases (`'how do i'`, `'cómo funciona'`, `'no entiendo cómo'`, etc.); on match: adds user bubble via `addMsg(t, 'user')`, returns bilingual local response pointing to `?` button, re-enables send button, returns — AI never called; optional stage-specific note appended for Stages 6, 8, and 10; normal essay messages pass through unchanged
+- **CSS** — `.help-btn` (new; hover: jade border/color); `.help-modal-card` (max-width 520px); `.help-current-stage`, `.help-section`, `.help-section-title`, `.help-section-body`, `.help-stage-list`, `.help-stage-item`, `.help-stage-num`, `.help-stage-current`
+- **No changes to:** provider routing, Gemini Worker, guardrail prompt, Voice Vault, Mi Toolkit, Stage 10 capstone/report logic, the 10-stage workflow, or any localStorage keys
+- **No API keys or secrets exposed**
+- **Tests:** `help_panel_test.mjs` 34/34 ✅ · prior suites (toolkit 29 · beyond toolkit 21 · milestone gate 22 · skills gains 20 · badges 15 · stage 10 reflection 28) 135/135 ✅
+
+**Next steps (session 26):**
 - Tier 4 pilot logistics — requires real students
 
 **All 18 Playwright selection-to-coach tests passing (last run 2026-05-11).**

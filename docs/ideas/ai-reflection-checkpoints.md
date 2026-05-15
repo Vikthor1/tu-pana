@@ -1,5 +1,8 @@
 # Future Feature Revision — Redesign Coach Evaluation as Strategic AI Reflection Checkpoints
 
+> **Status: COMPLETE — Sessions 23–24 (2026-05-13)**
+> Milestone-based reflection checkpoints, Skills Gains display, badge alignment, Stage 7/8 milestone gating, Stage 10 capstone AI reflection, Beyond This Essay cards, and Spanish copy pass all shipped and tested. See `docs/session-status.md` for commit references.
+
 *Recorded 2026-05-13.*
 
 ---

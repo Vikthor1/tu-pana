@@ -1,7 +1,8 @@
 # Gemini Provider Integration Plan for Tu Pana de Escritura
 
-> **Status:** Planning only. No code changes. Gemini remains disabled (`FEATURES.geminiProvider = false`).
-> **Last updated:** 2026-05-11
+> **Status: MOSTLY DONE — 2026-05-15**
+> Gemini Flash-Lite live via Cloudflare Worker (`tupana-gemini-proxy.dr-torres-velez.workers.dev`). `FEATURES.geminiProvider = true`. Full guardrail prompt sent. Flash routing active for Stages 7+10 (`8e82733`). Valid modes: `offline | ollama | gemini`. Remaining: monetization / access codes (Tier 4+, blocked on pilot).
+> **Last updated:** 2026-05-15
 > **Companion doc:** `docs/ideas/tu-pana-gemini-proxy-pilot-and-monetization-plan.md` (proxy/cost/monetization strategy)
 
 ---

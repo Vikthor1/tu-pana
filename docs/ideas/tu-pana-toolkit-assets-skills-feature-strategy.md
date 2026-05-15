@@ -1,7 +1,7 @@
 ---
 type: idea
 project: tu-pana-de-escritura
-status: active
+status: phases-4-5-complete
 created: 2026-05-12
 tags:
   - tu-pana

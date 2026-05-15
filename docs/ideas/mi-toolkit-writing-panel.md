@@ -1,5 +1,8 @@
 # Mi Toolkit · My Writing Toolkit — Feature Proposal
 
+> **Status: SUPERSEDED — 2026-05-13**
+> This file has been absorbed into `mi-toolkit-strategy.md`, which expanded and supersedes it. Mi Toolkit Phase 1 (read-only assets + knowledge sentence) is live (`aa726ac`). Phases 4–5 (dynamic skill unlocking + micro-toast) are also complete (`a225a20`). Archive this file after reading the strategy doc.
+
 *Recommendation from Dr. Torres-Vélez. Recorded 2026-05-13.*
 
 ---

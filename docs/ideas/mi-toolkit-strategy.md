@@ -1,5 +1,8 @@
 # Tu Pana de Escritura: Future Strategy for Mi Toolkit · My Writing Toolkit
 
+> **Status: Phases 1, 4, 5 COMPLETE — 2026-05-15**
+> Phase 1 (read-only assets panel): live (`aa726ac`). Phases 4–5 (dynamic skill unlocking via `STAGE_SKILL_DEFS` + `goToStage()` hook + micro-toast): complete (`a225a20`). Phase 6 (Stage 10 toolkit integration via `REFLECTION_CHECKPOINTS`): complete (sessions 23–24). Beyond This Essay transfer cards: complete (`fef44ef`). Remaining: Phases 2–3 (writing-panel draft viewer) are deferred; Phase 7+ (full instructor integration) is post-pilot.
+
 *Merged strategy document. Recorded 2026-05-13. Supersedes `mi-toolkit-writing-panel.md`.*
 
 ---

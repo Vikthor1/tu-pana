@@ -1,10 +1,29 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-15 (session 26, committed — Gemini Flash routing for Stages 7 + 10)
+Last updated: 2026-05-15 (session 27, committed — Toolkit dynamic skill unlocking + micro-toast)
 
 ---
 
 ## Where we left off
+
+**Session 27 (2026-05-15) — Toolkit dynamic skill unlocking + micro-toast, Phases 4–5 (commit `a225a20`, pushed to `main`):**
+
+- `STAGE_SKILL_DEFS` (10 entries, one per stage) added to `data.js` — each entry has `skillId`, `stageNum`, `labelEs`, `labelEn`.
+- `getAcquiredSkills()`, `unlockStageSkill(stageNum)`, `showSkillToast(def)` added to `ui.js`.
+- `goToStage()` end hook: `if (id !== 6) unlockStageSkill(id);` — Stage 1–5, 7–10 unlock on stage entry.
+- `executeSave()` hook: `unlockStageSkill(6);` — Stage 6 "author-owned draft" skill gates on first save (IRB/authorship integrity constraint).
+- Micro-toast: `.skill-toast` / `.skill-toast--visible` CSS transition, 3.8s display, bilingual, reduced-motion safe, non-blocking.
+- `openToolkitPanel()` skills section replaced: now reads `tupana_skills_acquired` via `getAcquiredSkills()`. Renders chips in stage order; shows bilingual empty state when none earned. Legacy `tupana_decisions` checkpoint entries do not generate chips.
+- `tupana_skills_acquired` added to `storage.js` export/import/clear key arrays.
+- `styles.css`: skill-toast CSS appended (24 lines with reduced-motion block).
+- `skills_gains_test.mjs` rewritten: new seed logic, 22/22 ✅. `toolkit_test.mjs`: 29/29 ✅ (no regressions).
+- Files changed: `data.js` · `ui.js` · `storage.js` · `styles.css`
+
+**Next steps:**
+- Tier 4 pilot logistics (requires real students)
+- Or next from ideas folder ranking
+
+---
 
 **Session 26 (2026-05-15) — Gemini Flash routing for Stages 7 and 10 (commit `8e82733`, pushed to `main`):**
 

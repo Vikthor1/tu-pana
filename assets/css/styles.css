@@ -5757,3 +5757,45 @@ img, video, embed, object { max-width: 100%; height: auto; }
     .instr-evidence-row { flex-direction: column; gap: 2px; }
     .instr-evidence-key { min-width: unset; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   SKILL TOAST — Phase 5 micro-notification
+   Non-blocking, bilingual, fades in then out.
+   ═══════════════════════════════════════════════════════ */
+.skill-toast {
+    position: fixed;
+    bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--jade);
+    color: #fff;
+    border-radius: var(--radius-full);
+    padding: 10px 20px;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    max-width: min(380px, calc(100vw - 32px));
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    opacity: 0;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+    z-index: 1400;
+}
+.skill-toast--visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.skill-toast-label {
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    opacity: 0.82;
+}
+.skill-toast-text { opacity: 0.96; }
+@media (prefers-reduced-motion: reduce) {
+    .skill-toast { transition: opacity 0.1s ease; transform: translateX(-50%) translateY(0); }
+}

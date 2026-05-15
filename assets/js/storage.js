@@ -14,7 +14,8 @@ function exportData() {
                   'tupana_schema_version','tupana_template_id','tupana_process_log',
                   'tupana_writing_s1','tupana_writing_s2','tupana_writing_s3','tupana_writing_s4',
                   'tupana_writing_s5','tupana_writing_s6','tupana_writing_s7','tupana_writing_s8',
-                  'tupana_writing_s9','tupana_writing_s10'];
+                  'tupana_writing_s9','tupana_writing_s10',
+                  'tupana_skills_acquired'];
     keys.forEach(k => {
         try { payload[k] = localStorage.getItem(k); } catch(e) {}
     });
@@ -84,7 +85,8 @@ function clearAllData() {
                   'tupana_capstone',
                   'tupana_writing_s1','tupana_writing_s2','tupana_writing_s3','tupana_writing_s4',
                   'tupana_writing_s5','tupana_writing_s6','tupana_writing_s7','tupana_writing_s8',
-                  'tupana_writing_s9','tupana_writing_s10'];
+                  'tupana_writing_s9','tupana_writing_s10',
+                  'tupana_skills_acquired'];
     keys.forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
     alert('Todos tus datos han sido borrados. La página se recargará.\nAll your data has been deleted. Page will reload.');
     location.reload();

@@ -280,3 +280,18 @@ const STEP_WORD_THRESHOLDS = {
     1: [5, 40], 2: [5, 40], 3: [10, 50],
     4: [5, 20], 5: [5, 30], 6: [20, 200]
 };
+
+// Writing-process skills — one per stage. Displayed in Mi Toolkit as student progresses.
+// Stage 6 unlocks only after executeSave(); all others unlock on stage entry.
+const STAGE_SKILL_DEFS = [
+    { skillId: 'memory_to_scene',            stageNum: 1,  labelEs: 'Puedo convertir un recuerdo en una escena concreta.',                                                        labelEn: 'I can turn a memory into a focused scene.' },
+    { skillId: 'experience_to_force',         stageNum: 2,  labelEs: 'Puedo conectar mi experiencia con una fuerza social, cultural o histórica más amplia.',                     labelEn: 'I can connect my experience to a larger social, cultural, or historical force.' },
+    { skillId: 'naming_tension',              stageNum: 3,  labelEs: 'Puedo nombrar la tensión que hace que mi historia merezca ser pensada.',                                    labelEn: 'I can name the tension that makes my story worth thinking about.' },
+    { skillId: 'research_with_authorship',    stageNum: 4,  labelEs: 'Puedo usar la investigación para profundizar mi pensamiento sin dejar que las fuentes reemplacen mi voz.', labelEn: 'I can use research to deepen my thinking without letting sources replace my voice.' },
+    { skillId: 'organizing_argument',         stageNum: 5,  labelEs: 'Puedo organizar mis ideas antes de redactar.',                                                               labelEn: 'I can organize my ideas before drafting.' },
+    { skillId: 'author_owned_draft',          stageNum: 6,  labelEs: 'Puedo escribir un primer borrador que me pertenece.',                                                        labelEn: 'I can write a first draft that belongs to me.' },
+    { skillId: 'critical_feedback_use',       stageNum: 7,  labelEs: 'Puedo usar retroalimentación sin perder el control de mi escritura.',                                       labelEn: 'I can use feedback without giving up control of my writing.' },
+    { skillId: 'protecting_voice',            stageNum: 8,  labelEs: 'Puedo revisar para lograr claridad mientras protejo mi voz, mi ritmo y mi lengua.',                        labelEn: 'I can revise for clarity while protecting my voice, rhythm, and language.' },
+    { skillId: 'self_evaluation',             stageNum: 9,  labelEs: 'Puedo revisar mi trabajo usando mi propio criterio.',                                                        labelEn: 'I can check my work using my own judgment.' },
+    { skillId: 'process_reflection_evidence', stageNum: 10, labelEs: 'Puedo explicar mi proceso de escritura usando evidencia de lo que hice.',                                   labelEn: 'I can explain my writing process using evidence from what I did.' },
+];

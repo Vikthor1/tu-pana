@@ -1401,6 +1401,10 @@ function goToStage(id) {
     // Inject self-assessment capstone panel at stage 10
     if (id === 10) setTimeout(() => injectCapstonePanel(), 700);
 
+    // Unlock writing skill for this stage.
+    // Stage 6 is intentionally excluded — its skill unlocks only after executeSave().
+    if (id !== 6) unlockStageSkill(id);
+
 }
 
 function onStageClick(s) {
@@ -1699,6 +1703,7 @@ function executeSave() {
         localStorage.setItem('tupana_writing_s6',  D.draftArea.value);
     } catch(e) {}
     logProcessEvent('first_draft_saved', `Unassisted first draft saved. Word count: ${D.draftArea.value.trim().split(/\s+/).filter(Boolean).length}.`);
+    unlockStageSkill(6); // Author-owned draft — gated on actual save, not stage entry
 
     D.modalBg.classList.add('on');
     // Move focus to the Continue button for keyboard/screen-reader users
@@ -2608,6 +2613,42 @@ function loadStageWork(stageNum) {
         if (stageNum >= 6) return localStorage.getItem('tupana_draft') || '';
         return '';
     } catch(e) { return ''; }
+}
+
+// ════════════════════════════════════════════════════════
+//  STAGE SKILL UNLOCKING (Mi Toolkit — Phase 4)
+//  Stage 6 is gated on executeSave(); all others unlock on stage entry.
+//  STAGE_SKILL_DEFS is defined in data.js.
+// ════════════════════════════════════════════════════════
+function getAcquiredSkills() {
+    try { return JSON.parse(localStorage.getItem('tupana_skills_acquired') || '[]'); } catch(e) { return []; }
+}
+
+function unlockStageSkill(stageNum) {
+    if (!stageNum || typeof STAGE_SKILL_DEFS === 'undefined') return;
+    const def = STAGE_SKILL_DEFS.find(s => s.stageNum === stageNum);
+    if (!def) return;
+    const acquired = getAcquiredSkills();
+    if (acquired.includes(def.skillId)) return; // already unlocked — no toast
+    acquired.push(def.skillId);
+    try { localStorage.setItem('tupana_skills_acquired', JSON.stringify(acquired)); } catch(e) {}
+    showSkillToast(def);
+}
+
+function showSkillToast(def) {
+    document.querySelector('.skill-toast')?.remove();
+    const toast = document.createElement('div');
+    toast.className = 'skill-toast';
+    toast.setAttribute('aria-live', 'polite');
+    toast.innerHTML =
+        `<span class="skill-toast-label"><span class="show-es">Nueva habilidad</span><span class="lang-sep"> · </span><span class="show-en">New skill</span></span>` +
+        `<span class="skill-toast-text"><span class="show-es">${escapeHtml(def.labelEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(def.labelEn)}</span></span>`;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('skill-toast--visible')));
+    setTimeout(() => {
+        toast.classList.remove('skill-toast--visible');
+        setTimeout(() => toast.remove(), 500);
+    }, 3800);
 }
 
 // ════════════════════════════════════════════════════════
@@ -5376,25 +5417,18 @@ function openToolkitPanel() {
         ? `<blockquote class="toolkit-claim-text">${escapeHtml(sentence)}</blockquote>`
         : `<p class="toolkit-claim-empty"><span class="show-es">Tu punto de partida aparecerá aquí después de la introducción.</span><span class="lang-sep"> · </span><span class="show-en">Your knowledge claim will appear here after onboarding.</span></p>`;
 
-    // Build Skills Gains HTML from completed reflection checkpoints
+    // Build Skills HTML from tupana_skills_acquired — writing-process skills by stage entry.
+    // Stage 6 requires executeSave(); all others unlock on first entry.
     let skillsHtml = '';
     try {
-        const decisions = JSON.parse(localStorage.getItem('tupana_decisions') || '[]');
-        const seenStages = new Set();
-        const earned = [];
-        for (const d of decisions) {
-            if (d.checkpoint === true && !seenStages.has(d.stage)) {
-                seenStages.add(d.stage);
-                const cp = REFLECTION_CHECKPOINTS.find(c => c.stageId === d.stage);
-                if (cp) earned.push(cp);
-            }
-        }
-        if (earned.length === 0) {
-            skillsHtml = `<p class="toolkit-skills-empty"><span class="show-es">Tus habilidades de alfabetización crítica de IA aparecerán aquí después de completar momentos de Pausa y reflexiona.</span><span class="lang-sep"> · </span><span class="show-en">Your critical AI literacy skills will appear here after you complete Pause and Reflect moments.</span></p>`;
+        const acquired = new Set(getAcquiredSkills());
+        const earnedDefs = STAGE_SKILL_DEFS.filter(s => acquired.has(s.skillId));
+        if (earnedDefs.length === 0) {
+            skillsHtml = `<p class="toolkit-skills-empty"><span class="show-es">Las habilidades de escritura que practicas aparecerán aquí a medida que avanzas por las etapas.</span><span class="lang-sep"> · </span><span class="show-en">Writing skills you practice will appear here as you move through the stages.</span></p>`;
         } else {
-            skillsHtml = earned.map(cp => `<div class="toolkit-skill-gain" aria-label="${escapeHtml(cp.skill)}, practicado · practiced">
-                <div class="toolkit-skill-gain-name"><span class="toolkit-skill-check" aria-hidden="true">✓</span> <strong>${escapeHtml(cp.skill)}</strong></div>
-                <div class="toolkit-skill-gain-desc"><span class="show-es">${escapeHtml(cp.skillsGainsLabelEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(cp.skillsGainsLabel)}</span></div>
+            skillsHtml = earnedDefs.map(s => `<div class="toolkit-skill-gain" aria-label="${escapeHtml(s.labelEn)}, practicado · practiced">
+                <span class="toolkit-skill-check" aria-hidden="true">✓</span>
+                <span class="toolkit-skill-gain-name"><span class="show-es">${escapeHtml(s.labelEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(s.labelEn)}</span></span>
             </div>`).join('');
         }
     } catch(e) { skillsHtml = ''; }

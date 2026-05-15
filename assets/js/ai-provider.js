@@ -39,6 +39,14 @@ function buildCoachPrompt({
 //  GEMINI PROVIDER — scaffolded, disabled by feature flag
 //  Gemini must be called through a secure proxy. Never expose API keys in browser code.
 // ════════════════════════════════════════════════════════
+
+// Stages 7 (revision) and 10 (capstone) use Flash for stronger paragraph-level
+// reasoning and reliable JSON generation. All other stages use Flash-Lite.
+function selectGeminiModel(stageId) {
+    const FLASH_STAGE_IDS = new Set([7, 10, 'stage.revision', 'stage.reflection']);
+    return FLASH_STAGE_IDS.has(stageId) ? 'gemini-2.5-flash' : (CONFIG.geminiModel || 'gemini-2.5-flash-lite');
+}
+
 async function callGeminiProviderViaProxy(coachPayload) {
     if (!CONFIG.geminiProxyUrl) {
         throw new Error('[Tu Pana] Gemini not configured: CONFIG.geminiProxyUrl is empty.');
@@ -55,7 +63,7 @@ async function callGeminiProviderViaProxy(coachPayload) {
                 studentContext:   coachPayload.studentContext   || {},
                 assignmentConfig: coachPayload.assignmentConfig || {},
                 responseFormat:   'text',
-                model:            CONFIG.geminiModel            || 'gemini-2.5-flash-lite'
+                model:            selectGeminiModel(coachPayload.stageId)
             })
         });
     } catch (err) {

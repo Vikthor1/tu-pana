@@ -52,7 +52,9 @@ async function callGemini({ model, systemPrompt, userMessage, apiKey }) {
     const body = {
         systemInstruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined,
         contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-        generationConfig: { maxOutputTokens: 400 },
+        // Flash gets 600 tokens: Stage 7 revision needs detailed coaching;
+        // Stage 10 capstone JSON (8 dimensions × 3 fields) is tight at 400.
+        generationConfig: { maxOutputTokens: model === 'gemini-2.5-flash' ? 600 : 400 },
     };
 
     const resp = await fetch(endpoint, {

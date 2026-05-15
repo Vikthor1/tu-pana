@@ -2149,7 +2149,7 @@ async function sendMsg(text) {
                 '\n\nCurrent Tu Pana context:\n' + JSON.stringify(_gCtx, null, 2) +
                 '\n\nStudent message:\n' + text +
                 '\n\nRespond as Tu Pana de Escritura following the stage-specific rules and the language rule above.';
-            const reply = await generateCoachResponse({ prompt: geminiPrompt, stageId: state.stage });
+            const reply = await generateCoachResponse({ prompt: geminiPrompt, stageId: getStageId(state.stage) });
             if (reply) addMsg(reply, 'bot');
         } catch(err) {
             console.error('gemini:', err);

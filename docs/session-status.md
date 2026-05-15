@@ -1,10 +1,26 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-13 (session 25, committed — lightweight Help/Ayuda orientation panel)
+Last updated: 2026-05-15 (session 26, committed — Gemini Flash routing for Stages 7 + 10)
 
 ---
 
 ## Where we left off
+
+**Session 26 (2026-05-15) — Gemini Flash routing for Stages 7 and 10 (commit `8e82733`, pushed to `main`):**
+
+- `selectGeminiModel(stageId)` added to `assets/js/ai-provider.js` — returns `'gemini-2.5-flash'` for `stage.revision` (7) and `stage.reflection` (10); `'gemini-2.5-flash-lite'` for all other stages. Accepts both stage number and stable string ID.
+- `callGeminiProviderViaProxy()` now calls `selectGeminiModel()` instead of reading `CONFIG.geminiModel` directly.
+- `sendMsg()` Gemini path now passes `stageId: getStageId(state.stage)` (stable string) instead of the raw number — consistent with `requestCoachPerspective()`, which already did this correctly.
+- Worker `maxOutputTokens` raised 400 → 600 when Flash is used. Stage 10 capstone JSON (8 dimensions × 3 fields each) was tight at 400 tokens. Worker redeployed to Cloudflare.
+- Files changed: `assets/js/ai-provider.js` · `assets/js/ui.js` · `server/gemini-worker/src/index.js`
+- No guardrail changes · no stage logic changes · no localStorage changes · no UI changes.
+- Ranked #1 in ideas folder review (2026-05-15): smallest effort, highest quality payoff at the two most critical stages before pilot.
+
+**Next steps (session 27):**
+- Tier 4 pilot logistics — requires real students
+- OR: Toolkit Dynamic Skill Unlocking (ranked #2 in ideas folder)
+
+---
 
 All Tier 1, Tier 2, and Tier 3 items are complete and pushed to `main`.
 

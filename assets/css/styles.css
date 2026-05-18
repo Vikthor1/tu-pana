@@ -2765,7 +2765,7 @@
             border-radius: var(--radius-lg);
             padding: 24px 26px 22px;
             max-width: 560px; width: 100%;
-            max-height: 82svh; overflow-y: auto;
+            max-height: 82svh; overflow-y: auto; overflow-x: hidden;
             box-shadow: 0 8px 32px rgba(0,0,0,0.22);
             animation: pnModalIn 0.2s ease;
         }
@@ -5459,7 +5459,7 @@ img, video, embed, object { max-width: 100%; height: auto; }
         border: 1px solid var(--border-mid);
         border-radius: var(--radius-full);
         padding: 5px 12px;
-        cursor: pointer; min-height: 36px;
+        cursor: pointer; min-height: 44px;
         transition: border-color var(--transition-fast);
     }
     .mobile-toolkit-btn:hover { border-color: var(--jade); }
@@ -5646,12 +5646,27 @@ img, video, embed, object { max-width: 100%; height: auto; }
     .eval-modal-choice  { width: 100%; min-height: 44px; }
 
     /* ── Mi Toolkit — bottom sheet on mobile ── */
-    .toolkit-modal-bg { align-items: flex-end; padding: 0; }
+    @keyframes toolkitSlideUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .toolkit-modal-bg { align-items: flex-end; padding: 0; animation: none; }
     .toolkit-modal-card {
         border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        max-width: 100%; width: 100%;
         max-height: 82svh;
-        padding: 20px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+        padding: 28px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+        animation: toolkitSlideUp 0.25s cubic-bezier(0.32, 0.72, 0, 1);
     }
+    .toolkit-modal-card::before {
+        content: '';
+        display: block;
+        width: 36px; height: 4px;
+        background: var(--border-mid);
+        border-radius: 2px;
+        margin: -12px auto 16px;
+    }
+    .toolkit-close { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
 
     /* ── Process note modal ── */
     .pn-modal-header  { padding: 14px 16px 12px; }
@@ -5756,6 +5771,12 @@ img, video, embed, object { max-width: 100%; height: auto; }
     /* ── Instructor report: stack key / value pairs ── */
     .instr-evidence-row { flex-direction: column; gap: 2px; }
     .instr-evidence-key { min-width: unset; }
+
+    /* ── Mi Toolkit: tighten spacing on smallest screens ── */
+    .toolkit-modal-card { padding: 24px 14px calc(16px + env(safe-area-inset-bottom, 0px)); }
+    .toolkit-section { margin-bottom: 14px; }
+    .toolkit-claim-block { padding: 10px 12px; margin-bottom: 14px; }
+    .toolkit-asset-chip { padding: 8px 10px; }
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -5798,4 +5819,6 @@ img, video, embed, object { max-width: 100%; height: auto; }
 .skill-toast-text { opacity: 0.96; }
 @media (prefers-reduced-motion: reduce) {
     .skill-toast { transition: opacity 0.1s ease; transform: translateX(-50%) translateY(0); }
+    .toolkit-modal-bg,
+    .toolkit-modal-card { animation: none; }
 }

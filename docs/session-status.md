@@ -1,10 +1,41 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-15 (session 27, committed — Toolkit dynamic skill unlocking + micro-toast)
+Last updated: 2026-05-18 (session 29, local QA fix — beyond_toolkit_test.mjs stale fixture resolved)
 
 ---
 
 ## Where we left off
+
+**Session 29 (2026-05-18) — Local QA fix: `beyond_toolkit_test.mjs` stale fixture (no commit — test file untracked):**
+
+- **What failed**: `beyond_toolkit_test.mjs` "Checkpoint skill chip present" — pre-existing since Session 27.
+- **Why**: Session 27 refactored `openToolkitPanel()` to read `tupana_skills_acquired` (JSON array of skill IDs) instead of `tupana_decisions` checkpoint objects. The test still seeded the old key.
+- **Fix applied locally**: Updated the "Assignment skills and transferable cards are distinct" block to seed `tupana_skills_acquired: ["research_with_authorship"]`. Updated assertions from checkpoint-specific text ("Research verification") to current skill-chip pattern (`research` / `investigación` from `STAGE_SKILL_DEFS`).
+- **Results**: beyond_toolkit 21/21 ✅ · toolkit 29/29 ✅ · skills_gains 22/22 ✅ · help_panel 34/34 ✅
+- **Tracking note**: All `.mjs` test files are excluded by the repo's allowlist-style `.gitignore`. `git ls-files | grep mjs` returns nothing. The fix lives locally only. A future repo-structure decision may be needed if QA tests should become tracked project assets.
+
+**Next steps:**
+- Tier 4 pilot logistics (requires real students)
+- Or next from ideas folder
+
+---
+
+**Session 28 (2026-05-18) — Mi Toolkit Phase 2: bottom-sheet mobile polish (commit `8ae882f`, pushed to `main`):**
+
+- `.mobile-toolkit-btn` touch target raised 36px → 44px (≤480px block)
+- `.toolkit-close` touch target raised 30px → 44px (≤430px block)
+- `@keyframes toolkitSlideUp` replaces `pnModalIn` for bottom-sheet card — native slide-up instead of scale+fade
+- `.toolkit-modal-bg` animation set to `none` on mobile
+- Bottom-sheet card: `max-width: 100%` (overrides desktop 560px cap)
+- `.toolkit-modal-card::before` drag-handle pill: 36×4px, centered, `var(--border-mid)`
+- `overflow-x: hidden` on `.toolkit-modal-card` globally
+- 375px: tightened section/chip/claim-block padding
+- `prefers-reduced-motion`: toolkit modal + card animation suppressed
+- Files changed: `assets/css/styles.css` only
+- Tests: toolkit 29/29 ✅ · help panel 34/34 ✅ · skills gains 22/22 ✅
+- `beyond_toolkit_test.mjs` has a pre-existing failure ("Checkpoint skill chip present") — Session 27 switched chips from `tupana_decisions` to `tupana_skills_acquired`; test still seeds old key. Not a regression.
+
+---
 
 **Session 27 (2026-05-15) — Toolkit dynamic skill unlocking + micro-toast, Phases 4–5 (commit `a225a20`, pushed to `main`):**
 

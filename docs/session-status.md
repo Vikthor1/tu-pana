@@ -1,10 +1,21 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-18 (session 35, mobile onboarding tab fix — chat panel shown automatically after lab closes)
+Last updated: 2026-05-18 (session 36, capstone modal — Mi cierre de proceso now opens in a popup)
 
 ---
 
 ## Where we left off
+
+**Session 36 (2026-05-18) — Capstone modal popup (commit `0bbf37a`, pushed to `main`):**
+
+- **Problem:** "Mi cierre de proceso" (Stage 10 self-assessment + coach perspective + student response + instructor report) rendered inside the cramped chat panel, making it hard to read and fill in.
+- **Fix:** Added a dedicated fixed modal overlay (`.capstone-bg` / `#capstoneBg`) with a scrollable body (`#capstoneModalBody`). All four capstone panels (10A, 10B, 10C, instructor report) now append to the modal body and call `openCapstoneModal()` instead of `D.chatMessages.appendChild`.
+- **Reopen button:** A persistent `.capstone-chat-trigger` card with a "Mi cierre de proceso · Writing Snapshot →" button stays in the chat panel so students can dismiss the modal and return at any time.
+- **Mobile:** Modal gets full 96svh height with internal scrolling (same pattern as lab-bg/mani-bg).
+- **Close button:** `✕` in the modal header calls `closeCapstoneModal()` — modal hides, chat trigger remains.
+- Files changed: `index.html` (modal HTML), `assets/js/ui.js` (functions + 6 append sites redirected), `assets/css/styles.css` (modal + trigger CSS, mobile override).
+
+---
 
 **Session 35 (2026-05-18) — Auto-switch to chat tab after lab onboarding on mobile (commit `6e90d5a`, pushed to `main`):**
 

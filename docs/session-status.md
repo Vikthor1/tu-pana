@@ -1,10 +1,60 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-18 (session 29, local QA fix — beyond_toolkit_test.mjs stale fixture resolved)
+Last updated: 2026-05-18 (session 35, mobile onboarding tab fix — chat panel shown automatically after lab closes)
 
 ---
 
 ## Where we left off
+
+**Session 35 (2026-05-18) — Auto-switch to chat tab after lab onboarding on mobile (commit `6e90d5a`, pushed to `main`):**
+
+- **Problem:** On mobile (≤480px), when the Laboratorio onboarding closed, the app stayed on whatever panel the student was on. The coach's welcome message appeared in the chat panel but the student couldn't see it.
+- **Fix:** Added `if (window.innerWidth <= 480) switchMobileTab('chat');` in `closeLab()`, before `flashChatFocus()` and the welcome message. Student now lands on chat immediately after completing the lab.
+- File changed: `assets/js/ui.js` only (1 line added).
+
+---
+
+**Session 34 (2026-05-18) — Mobile lab onboarding Safari ghost-touch bug (commits `8da3f1b`, pushed to `main`):**
+
+- **Root cause:** `mani-bg` (z-index 500) sits above `lab-bg` (z-index 400) in the stacking order. After `mani-bg` loses its `.on` class it becomes `opacity: 0; pointer-events: none` — but iOS Safari's touch hit-testing routes taps to the higher z-index element anyway, re-firing `maniProceed()`. This re-triggered the "You claimed your assets..." celebration overlay mid-lab. Pressing "Continue to the Lab" on the re-triggered overlay called `openLab()` while the lab was already open, resetting `labCurrent = 0` (back to the Welcome step).
+- **Fix 1 — `maniProceed()` re-entry guard:** Checks `maniBg.classList.contains('on')` before proceeding. Also explicitly sets `proceedBtn.disabled = true; proceedBtn.style.pointerEvents = 'none'` to bypass CSS inheritance issues in Safari.
+- **Fix 2 — `showManiCelebration()` one-shot guard:** Returns immediately if `#maniCelebration` already exists in the DOM. `dismiss()` is now a strict one-shot function (`let dismissed = false` flag) — ghost-tap on "Continue to the Lab" is a no-op.
+- **Fix 3 — `openLab()` re-entry guard:** Returns immediately if `labBg` already has `.on`, preventing any future code path from resetting lab progress mid-session.
+- File changed: `assets/js/ui.js` only (10 lines added/changed).
+
+**Next steps:**
+- Share pilot packet with Tier 4 testers
+- Tier 4 pilot logistics (requires real students)
+
+---
+
+**Session 33 (2026-05-18) — Safari cross-browser fix for pilot packet (commit `f0dc053`, pushed to `main`):**
+
+- **Problem 1 — Collapsibles broken in Safari:** `display: flex` on `<summary>` silently breaks WebKit's toggle handler — Safari requires `display: block` (or `list-item`) to register clicks. All sections showed open with no toggle possible.
+- **Fix:** Changed `summary` to `display: block; position: relative; padding: 13px 50px 13px 20px`. The `::after` chevron changed from `display: block; flex-shrink: 0` (inline in flex row) to `position: absolute; right: 14px; top: 50%; transform: translateY(-50%)`. Rotation on open: `translateY(-50%) rotate(180deg)`. Added `summary::marker { content: none }` alongside the existing `-webkit-details-marker` rule.
+- **Problem 2 — Buttons less impactful in Safari:** Safari renders `box-shadow` softer than Chrome; font anti-aliasing on dark backgrounds makes bold text appear thinner.
+- **Fix:** Added `-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; position: relative` to `.feedback-button`. Primary button: layered double shadow (`rgba(45,122,95,0.55)` + `rgba(0,0,0,0.25)`) + `border: 2px solid rgba(255,255,255,0.18)` for dimensional pop. Secondary button: `border: 2px solid rgba(30,26,20,0.12)` + layered shadow.
+- File changed: `docs/pilot/tier-4-pilot-testing-packet.html` only.
+- Public URL: `https://vikthor1.github.io/tu-pana/docs/pilot/tier-4-pilot-testing-packet.html`
+
+**Next steps:**
+- Share pilot packet URL with Tier 4 testers
+- Tier 4 pilot logistics (requires real students)
+
+---
+
+**Session 32 (2026-05-18) — Pilot packet usability polish (commit `7b9e7f7`, pushed to `main`):**
+
+- **Form position fix (pending from session 31):** Moved `.feedback-embed` (iframe + fallback) from after the Privacy section into `<section id="feedback">`, directly after the `.form-summary` card. Clicking quick-nav "Submit Feedback" now lands the tester at the embedded form immediately.
+- **Sample Writing Prompt removed:** Entire section (bilingual prompt + tester callout) deleted — duplicate of ready-made test texts, unnecessary cognitive load.
+- **Quick-nav fix:** First item changed from `href="#open-app"` / "1. Open App" to `href="#hero"` / "1. Open Tu Pana" — the link now actually scrolls to the hero with the app button.
+- **Hero secondary button softened:** "Submit Feedback Later / Enviar comentarios" — communicates test-first sequence.
+- **Recommended short-test callout:** Gold callout added after time badges in `#testing-route`: "Recommended first test / Primera prueba recomendada" — reassures testers that 10 stages aren't required.
+- **"Short on time? Use these." callout:** Gold callout added before collapsed `<details>` in `#test-texts` — makes the value unmistakable without auto-opening the section.
+- **Mobile quick-nav:** Added `flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch` + `flex: 0 0 auto` on label and buttons at 480px breakpoint — prevents nav from wrapping into multiple lines on small screens.
+- File changed: `docs/pilot/tier-4-pilot-testing-packet.html` only.
+
+---
 
 **Session 29 (2026-05-18) — Local QA fix: `beyond_toolkit_test.mjs` stale fixture (no commit — test file untracked):**
 

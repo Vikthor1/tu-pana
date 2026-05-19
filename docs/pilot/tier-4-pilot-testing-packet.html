@@ -25,7 +25,6 @@
     --radius:      10px;
     --radius-sm:   6px;
     --shadow:      0 2px 8px rgba(30,26,20,0.07);
-    --shadow-lg:   0 4px 20px rgba(30,26,20,0.10);
     --max-w:       780px;
     --font:        Georgia, 'Times New Roman', serif;
     --font-ui:     system-ui, -apple-system, sans-serif;
@@ -33,48 +32,25 @@
 
   /* ── Reset & Base ── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--font);
-    font-size: 17px;
-    line-height: 1.7;
-  }
-
-  h1, h2, h3, h4 {
-    font-family: var(--font);
-    line-height: 1.25;
-    color: var(--ink);
-  }
-
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.7; }
+  h1, h2, h3, h4 { font-family: var(--font); line-height: 1.25; color: var(--ink); }
   p { margin-bottom: 0.85em; }
   p:last-child { margin-bottom: 0; }
-
   ul, ol { padding-left: 1.4em; }
   li { margin-bottom: 0.35em; }
-
   a { color: var(--jade); }
 
   /* ── Layout ── */
-  .container {
-    max-width: var(--max-w);
-    margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  section {
-    padding: 48px 0 0;
-  }
+  .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+  section { padding: 44px 0 0; }
 
   /* ── Hero ── */
   .hero {
     background: var(--ink);
     color: #f7f4ef;
-    padding: 56px 24px 48px;
+    padding: 52px 24px 44px;
     text-align: center;
   }
-
   .hero-eyebrow {
     font-family: var(--font-ui);
     font-size: 12px;
@@ -84,29 +60,15 @@
     color: var(--jade-mid);
     margin-bottom: 14px;
   }
-
-  .hero h1 {
-    color: #f7f4ef;
-    font-size: clamp(1.6rem, 4vw, 2.4rem);
-    margin-bottom: 14px;
-  }
-
+  .hero h1 { color: #f7f4ef; font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 14px; }
   .hero-sub {
     color: #c8c1b4;
     font-size: 1.05rem;
     max-width: 560px;
-    margin: 0 auto 32px;
+    margin: 0 auto 28px;
     font-style: italic;
   }
-
-  .focus-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 8px;
-  }
-
+  .focus-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 0; }
   .focus-chip {
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.18);
@@ -117,480 +79,24 @@
     letter-spacing: 0.04em;
     color: #e0dbd0;
   }
-
-  /* ── Section header ── */
-  .section-label {
-    font-family: var(--font-ui);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: var(--jade);
-    margin-bottom: 8px;
-  }
-
-  .section-title {
-    font-size: 1.45rem;
-    margin-bottom: 6px;
-  }
-
-  .section-sub {
-    color: var(--ink-muted);
-    font-size: 0.95rem;
-    margin-bottom: 24px;
-    font-style: italic;
-  }
-
-  hr.section-rule {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 40px 0 0;
-  }
-
-  /* ── Card ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px 28px;
-    box-shadow: var(--shadow);
-    margin-bottom: 16px;
-  }
-
-  .card-title {
-    font-size: 1.05rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: var(--ink);
-  }
-
-  /* ── Two-path grid ── */
-  .path-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  @media (max-width: 580px) {
-    .path-grid { grid-template-columns: 1fr; }
-  }
-
-  .path-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 24px;
-    box-shadow: var(--shadow);
-  }
-
-  .path-card--colleague {
-    border-top: 4px solid var(--jade);
-  }
-
-  .path-card--student {
-    border-top: 4px solid var(--gold);
-  }
-
-  .path-card .path-icon {
-    font-size: 1.6rem;
-    margin-bottom: 10px;
-    display: block;
-  }
-
-  .path-card h3 {
-    font-size: 1.1rem;
-    margin-bottom: 4px;
-  }
-
-  .path-card .path-role {
-    font-family: var(--font-ui);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-    margin-bottom: 14px;
-  }
-
-  .path-card ul {
-    font-size: 0.93rem;
-    color: var(--ink-mid);
-  }
-
-  /* ── Callout ── */
-  .callout {
-    border-radius: var(--radius);
-    padding: 18px 22px;
-    margin-bottom: 16px;
-    font-size: 0.95rem;
-  }
-
-  .callout--jade {
-    background: var(--jade-light);
-    border-left: 4px solid var(--jade);
-    color: var(--ink-mid);
-  }
-
-  .callout--gold {
-    background: var(--gold-light);
-    border-left: 4px solid var(--gold);
-    color: var(--ink-mid);
-  }
-
-  .callout--clay {
-    background: var(--clay-light);
-    border-left: 4px solid var(--clay);
-    color: var(--ink-mid);
-  }
-
-  .callout-title {
-    font-family: var(--font-ui);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .callout--jade .callout-title { color: var(--jade); }
-  .callout--gold .callout-title { color: var(--gold); }
-  .callout--clay .callout-title { color: var(--clay); }
-
-  /* ── Checklist ── */
-  .checklist {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  .checklist li {
-    padding: 7px 0 7px 28px;
-    position: relative;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.95rem;
-    color: var(--ink-mid);
-  }
-
-  .checklist li:last-child { border-bottom: none; }
-
-  .checklist li::before {
-    content: "□";
-    position: absolute;
-    left: 0;
-    color: var(--border-mid);
-    font-size: 1rem;
-    top: 7px;
-  }
-
-  /* ── Steps ── */
-  .steps {
-    counter-reset: step;
-    list-style: none;
-    padding-left: 0;
-  }
-
-  .steps li {
-    counter-increment: step;
-    padding: 10px 0 10px 48px;
-    position: relative;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.95rem;
-    color: var(--ink-mid);
-  }
-
-  .steps li:last-child { border-bottom: none; }
-
-  .steps li::before {
-    content: counter(step);
-    position: absolute;
-    left: 0;
-    top: 10px;
-    width: 28px;
-    height: 28px;
-    background: var(--jade);
-    color: #fff;
-    border-radius: 50%;
-    font-family: var(--font-ui);
-    font-size: 12px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    line-height: 28px;
-  }
-
-  /* ── Time badges ── */
-  .time-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin: 20px 0 0;
-  }
-
-  .time-badge {
-    border-radius: var(--radius);
-    padding: 14px 20px;
-    flex: 1;
-    min-width: 200px;
-    font-size: 0.9rem;
-  }
-
-  .time-badge--short {
-    background: var(--jade-light);
-    border: 1px solid #b2d8c6;
-  }
-
-  .time-badge--full {
-    background: var(--gold-light);
-    border: 1px solid #e8c88a;
-  }
-
-  .time-badge .badge-time {
-    font-family: var(--font-ui);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  .time-badge--short .badge-time { color: var(--jade); }
-  .time-badge--full  .badge-time { color: var(--gold); }
-
-  /* ── Checklist groups ── */
-  .check-group {
-    margin-bottom: 20px;
-  }
-
-  .check-group-title {
-    font-family: var(--font-ui);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--jade);
-    margin-bottom: 6px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid var(--jade-light);
-  }
-
-  /* ── Feedback questions ── */
-  .q-group {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    margin-bottom: 14px;
-    box-shadow: var(--shadow);
-  }
-
-  .q-group-title {
-    font-family: var(--font-ui);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--jade);
-    margin-bottom: 14px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .q-item {
-    padding: 9px 0;
-    border-bottom: 1px solid var(--surface-alt);
-    font-size: 0.92rem;
-    color: var(--ink-mid);
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-  }
-
-  .q-item:last-child { border-bottom: none; }
-
-  .q-num {
-    font-family: var(--font-ui);
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--ink-muted);
-    min-width: 22px;
-    padding-top: 2px;
-  }
-
-  .rating-row {
-    display: flex;
-    gap: 6px;
-    margin-top: 4px;
-    flex-wrap: wrap;
-  }
-
-  .rating-label {
-    font-family: var(--font-ui);
-    font-size: 10px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 3px 8px;
-    color: var(--ink-muted);
-  }
-
-  /* ── Sample prompt box ── */
-  .sample-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px 28px;
-    box-shadow: var(--shadow);
-  }
-
-  .sample-lang {
-    font-family: var(--font-ui);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-    margin-bottom: 8px;
-  }
-
-  .sample-prompt {
-    font-style: italic;
-    color: var(--ink-mid);
-    font-size: 1rem;
-    line-height: 1.65;
-  }
-
-  .sample-divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 18px 0;
-  }
-
-  /* ── Closing ── */
-  .closing {
-    background: var(--ink);
-    color: #e8e3da;
-    padding: 48px 24px;
-    margin-top: 60px;
-    text-align: center;
-  }
-
-  .closing h2 {
-    color: #f7f4ef;
-    font-size: 1.3rem;
-    margin-bottom: 16px;
-  }
-
-  .closing p {
-    max-width: 560px;
-    margin: 0 auto 12px;
+  .hero-instruction {
     color: #c8c1b4;
-    font-size: 0.97rem;
-  }
-
-  .closing .closing-sig {
-    color: var(--jade-mid);
     font-size: 0.92rem;
-    margin-top: 20px;
+    margin: 18px auto 0;
+    max-width: 520px;
     font-style: italic;
   }
-
-  /* ── Stage table ── */
-  .stage-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.88rem;
-    margin-top: 12px;
-  }
-
-  .stage-table th {
-    font-family: var(--font-ui);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-align: left;
-    color: var(--ink-muted);
-    border-bottom: 1px solid var(--border-mid);
-    padding: 6px 10px;
-  }
-
-  .stage-table td {
-    padding: 7px 10px;
-    border-bottom: 1px solid var(--border);
-    color: var(--ink-mid);
-    vertical-align: top;
-  }
-
-  .stage-table tr:last-child td { border-bottom: none; }
-
-  .stage-num {
+  .hero-app-url {
     font-family: var(--font-ui);
     font-size: 11px;
-    font-weight: 700;
-    color: var(--ink-muted);
-    white-space: nowrap;
+    color: rgba(255,255,255,0.45);
+    margin-top: 10px;
+    letter-spacing: 0.02em;
   }
+  .hero-app-url a { color: rgba(255,255,255,0.55); text-decoration: underline; }
 
-  .stage-name-es { color: var(--ink); font-weight: bold; display: block; }
-  .stage-name-en { color: var(--ink-muted); font-size: 0.83rem; }
-
-  .stage-phase {
-    display: inline-block;
-    font-family: var(--font-ui);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    border-radius: 4px;
-    padding: 2px 7px;
-    white-space: nowrap;
-  }
-
-  .phase-discover { background: #e6f2ec; color: var(--jade); }
-  .phase-build    { background: #fdf3e3; color: var(--gold); }
-  .phase-refine   { background: #fdecea; color: var(--clay); }
-  .phase-complete { background: #ede8ff; color: #6a5acd; }
-
-  /* ── Privacy box ── */
-  .privacy-box {
-    background: var(--clay-light);
-    border: 1px solid #e8a898;
-    border-radius: var(--radius);
-    padding: 22px 26px;
-  }
-
-  .privacy-box .privacy-title {
-    font-family: var(--font-ui);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--clay);
-    margin-bottom: 10px;
-  }
-
-  .privacy-box ul {
-    font-size: 0.93rem;
-    color: var(--ink-mid);
-  }
-
-  /* ── Footer ── */
-  .doc-footer {
-    text-align: center;
-    padding: 24px;
-    font-family: var(--font-ui);
-    font-size: 11px;
-    color: var(--ink-muted);
-    border-top: 1px solid var(--border);
-    margin-top: 0;
-  }
-
-  /* ── Feedback actions ── */
-  .feedback-actions {
-    display: flex;
-    justify-content: center;
-    margin-top: 28px;
-  }
-
+  /* ── Buttons ── */
+  .feedback-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
   .feedback-button {
     display: inline-block;
     background: var(--jade);
@@ -605,133 +111,533 @@
     transition: background 0.15s, box-shadow 0.15s;
     box-shadow: 0 2px 8px rgba(45,122,95,0.25);
   }
-
-  .feedback-button:hover {
-    background: var(--jade-mid);
-    box-shadow: 0 4px 14px rgba(45,122,95,0.35);
-    color: #fff;
-  }
-
-  .feedback-button:focus {
-    outline: 3px solid var(--jade-mid);
-    outline-offset: 3px;
-  }
-
-  .feedback-button--primary {
-    background: var(--ink);
-    box-shadow: 0 2px 8px rgba(30,26,20,0.22);
-  }
-
-  .feedback-button--primary:hover {
-    background: var(--ink-mid);
-    box-shadow: 0 4px 14px rgba(30,26,20,0.30);
-    color: #fff;
-  }
-
-  .feedback-button--secondary {
-    background: transparent;
-    border: 2px solid rgba(255,255,255,0.45);
-    color: #e8e3da;
-    box-shadow: none;
-  }
-
-  .feedback-button--secondary:hover {
-    background: rgba(255,255,255,0.10);
-    box-shadow: none;
-    color: #fff;
-  }
-
+  .feedback-button:hover { background: var(--jade-mid); box-shadow: 0 4px 14px rgba(45,122,95,0.35); color: #fff; }
+  .feedback-button:focus { outline: 3px solid var(--jade-mid); outline-offset: 3px; }
+  .feedback-button--primary { background: var(--jade); box-shadow: 0 3px 12px rgba(45,122,95,0.45); }
+  .feedback-button--primary:hover { background: var(--jade-mid); box-shadow: 0 5px 18px rgba(45,122,95,0.55); color: #fff; }
+  .feedback-button--secondary { background: #f7f4ef; color: var(--ink); box-shadow: 0 2px 8px rgba(30,26,20,0.18); }
+  .feedback-button--secondary:hover { background: #fff; color: var(--ink); box-shadow: 0 4px 14px rgba(30,26,20,0.25); }
   .feedback-button--section {
+    display: inline-block;
     background: transparent;
     border: 2px solid var(--jade);
     color: var(--jade);
     box-shadow: none;
     margin-bottom: 20px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 10px 22px;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: background 0.12s;
   }
+  .feedback-button--section:hover { background: var(--jade-light); color: var(--jade); }
 
-  .feedback-button--section:hover {
-    background: var(--jade-light);
-    box-shadow: none;
-    color: var(--jade);
+  /* ── Quick nav ── */
+  .quick-nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    box-shadow: 0 1px 4px rgba(30,26,20,0.06);
   }
-
-  .hero-app-url {
+  .quick-nav-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .quick-nav-label {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+  .quick-nav-btn {
     font-family: var(--font-ui);
     font-size: 11px;
-    color: rgba(255,255,255,0.45);
-    margin-top: 10px;
-    letter-spacing: 0.02em;
+    font-weight: 600;
+    color: var(--jade);
+    text-decoration: none;
+    padding: 4px 11px;
+    border: 1px solid var(--jade-light);
+    border-radius: 20px;
+    background: var(--jade-light);
+    white-space: nowrap;
+    transition: background 0.12s, color 0.12s;
   }
+  .quick-nav-btn:hover { background: var(--jade); color: #fff; border-color: var(--jade); }
 
-  .hero-app-url a {
-    color: rgba(255,255,255,0.55);
-    text-decoration: underline;
+  /* ── Three-minute flow ── */
+  .flow-section {
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 24px 32px;
   }
-
-  .hero-instruction {
-    color: #c8c1b4;
-    font-size: 0.92rem;
-    margin: 18px auto 0;
-    max-width: 520px;
-    font-style: italic;
-  }
-
-  /* ── Embedded form ── */
-  .feedback-embed {
-    margin-top: 24px;
-  }
-
-  .feedback-embed-note {
+  .flow-inner { max-width: var(--max-w); margin: 0 auto; }
+  .flow-eyebrow {
     font-family: var(--font-ui);
-    font-size: 12px;
-    color: var(--ink-muted);
-    margin-bottom: 10px;
-    font-style: italic;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--jade);
+    margin-bottom: 16px;
+    text-align: center;
   }
-
-  .feedback-embed iframe {
+  .flow-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    gap: 0;
+    align-items: center;
+  }
+  .flow-card {
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
+    padding: 14px 14px 12px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .flow-num {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--jade);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     display: block;
-    width: 100%;
+    margin-bottom: 4px;
+  }
+  .flow-title-text {
+    font-family: var(--font);
+    font-size: 0.88rem;
+    font-weight: bold;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .flow-desc {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    color: var(--ink-muted);
+    line-height: 1.4;
+  }
+  .flow-arrow { font-size: 1.2rem; color: var(--border-mid); text-align: center; padding: 0 4px; }
+
+  /* ── Section header ── */
+  .section-label {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--jade);
+    margin-bottom: 8px;
+  }
+  .section-title { font-size: 1.45rem; margin-bottom: 6px; }
+  .section-sub { color: var(--ink-muted); font-size: 0.95rem; margin-bottom: 24px; font-style: italic; }
+  hr.section-rule { border: none; border-top: 1px solid var(--border); margin: 40px 0 0; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+
+  /* ── Callout ── */
+  .callout { border-radius: var(--radius); padding: 18px 22px; margin-bottom: 16px; font-size: 0.95rem; }
+  .callout--jade { background: var(--jade-light); border-left: 4px solid var(--jade); color: var(--ink-mid); }
+  .callout--gold { background: var(--gold-light); border-left: 4px solid var(--gold); color: var(--ink-mid); }
+  .callout-title {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .callout--jade .callout-title { color: var(--jade); }
+  .callout--gold .callout-title { color: var(--gold); }
+
+  /* ── Details / Summary ── */
+  details { border-radius: var(--radius); margin-bottom: 8px; }
+  summary {
+    cursor: pointer;
+    list-style: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 13px 20px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-mid);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.12s;
+    user-select: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: "";
+    display: block;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border: 2px solid var(--border-mid);
+    border-radius: 50%;
+    background: var(--surface-alt) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%237a7063' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat;
+    transition: transform 0.18s, background-color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  details[open] > summary::after {
+    transform: rotate(180deg);
+    background-color: var(--jade-light);
+    border-color: var(--jade);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%232d7a5f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  details[open] > summary {
+    border-radius: var(--radius) var(--radius) 0 0;
+    background: var(--jade-light);
+    color: var(--jade);
+    border-bottom-color: var(--jade-light);
+  }
+  .details-body {
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 20px 24px;
+    background: var(--surface);
+  }
+  .details-body > *:last-child { margin-bottom: 0; }
+
+  /* ── Steps ── */
+  .steps { counter-reset: step; list-style: none; padding-left: 0; }
+  .steps li {
+    counter-increment: step;
+    padding: 10px 0 10px 48px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+    color: var(--ink-mid);
+  }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 10px;
+    width: 28px; height: 28px;
+    background: var(--jade);
+    color: #fff;
+    border-radius: 50%;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 28px;
+  }
+
+  /* ── Time badges ── */
+  .time-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0 0; }
+  .time-badge { border-radius: var(--radius); padding: 14px 20px; flex: 1; min-width: 200px; font-size: 0.9rem; }
+  .time-badge--short { background: var(--jade-light); border: 1px solid #b2d8c6; }
+  .time-badge--full  { background: var(--gold-light);  border: 1px solid #e8c88a; }
+  .time-badge .badge-time {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .time-badge--short .badge-time { color: var(--jade); }
+  .time-badge--full  .badge-time { color: var(--gold); }
+
+  /* ── Checklist ── */
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li {
+    padding: 7px 0 7px 28px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+    color: var(--ink-mid);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before { content: "□"; position: absolute; left: 0; color: var(--border-mid); font-size: 1rem; top: 7px; }
+  .check-group { margin-bottom: 20px; }
+  .check-group:last-child { margin-bottom: 0; }
+  .check-group-title {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--jade);
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--jade-light);
+  }
+
+  /* ── Path grid ── */
+  .path-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .path-card { background: var(--surface); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+  .path-card--colleague { border-top: 4px solid var(--jade); }
+  .path-card--student   { border-top: 4px solid var(--gold); }
+  .path-card .path-icon { font-size: 1.6rem; margin-bottom: 10px; display: block; }
+  .path-card h3 { font-size: 1.1rem; margin-bottom: 4px; }
+  .path-card .path-role {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 14px;
+  }
+  .path-card ul { font-size: 0.93rem; color: var(--ink-mid); }
+
+  /* ── Stage table ── */
+  .stage-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 12px; }
+  .stage-table th {
+    font-family: var(--font-ui); font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; text-align: left; color: var(--ink-muted);
+    border-bottom: 1px solid var(--border-mid); padding: 6px 10px;
+  }
+  .stage-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--ink-mid); vertical-align: top; }
+  .stage-table tr:last-child td { border-bottom: none; }
+  .stage-num { font-family: var(--font-ui); font-size: 11px; font-weight: 700; color: var(--ink-muted); white-space: nowrap; }
+  .stage-name-es { color: var(--ink); font-weight: bold; display: block; }
+  .stage-name-en { color: var(--ink-muted); font-size: 0.83rem; }
+  .stage-phase {
+    display: inline-block; font-family: var(--font-ui); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase; border-radius: 4px; padding: 2px 7px; white-space: nowrap;
+  }
+  .phase-discover { background: #e6f2ec; color: var(--jade); }
+  .phase-build    { background: #fdf3e3; color: var(--gold); }
+  .phase-refine   { background: #fdecea; color: var(--clay); }
+  .phase-complete { background: #ede8ff; color: #6a5acd; }
+
+  /* ── Test text cards ── */
+  .test-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .test-card-header { display: flex; gap: 8px; align-items: baseline; margin-bottom: 6px; flex-wrap: wrap; }
+  .test-card-title { font-family: var(--font-ui); font-size: 13px; font-weight: 700; color: var(--ink); }
+  .test-tag {
+    font-family: var(--font-ui); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; border-radius: 4px; padding: 2px 8px;
+  }
+  .test-tag--discover  { background: #e6f2ec; color: var(--jade); }
+  .test-tag--build     { background: #fdf3e3; color: var(--gold); }
+  .test-tag--refine    { background: #fdecea; color: var(--clay); }
+  .test-tag--guardrail { background: #ede8ff; color: #6a5acd; }
+  .test-what { font-family: var(--font-ui); font-size: 11px; color: var(--ink-muted); margin-bottom: 10px; font-style: italic; }
+  .test-text {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    color: var(--ink-mid);
+    line-height: 1.6;
+    font-family: var(--font);
+  }
+
+  /* ── Form summary card ── */
+  .form-summary {
+    background: var(--jade-light);
+    border: 1px solid #b2d8c6;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .form-summary-title {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--jade); margin-bottom: 10px;
+  }
+  .form-summary ul { font-size: 0.92rem; color: var(--ink-mid); }
+  .form-summary li { margin-bottom: 0.2em; }
+
+  /* ── Embedded form ── */
+  .feedback-embed { margin-top: 24px; }
+  .feedback-embed-note { font-family: var(--font-ui); font-size: 12px; color: var(--ink-muted); margin-bottom: 10px; font-style: italic; }
+  .feedback-embed iframe { border: 1px solid var(--border); border-radius: var(--radius); display: block; width: 100%; }
+  .feedback-embed-fallback { display: none; font-family: var(--font-ui); font-size: 12px; color: var(--ink-muted); margin-top: 10px; }
+
+  /* ── Sample box ── */
+  .sample-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; box-shadow: var(--shadow); }
+  .sample-lang { font-family: var(--font-ui); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 8px; }
+  .sample-prompt { font-style: italic; color: var(--ink-mid); font-size: 1rem; line-height: 1.65; }
+  .sample-divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+  /* ── Privacy box ── */
+  .privacy-box { background: var(--clay-light); border: 1px solid #e8a898; border-radius: var(--radius); padding: 22px 26px; }
+  .privacy-box .privacy-title {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--clay); margin-bottom: 10px;
+  }
+  .privacy-box ul { font-size: 0.93rem; color: var(--ink-mid); }
+
+  /* ── Closing ── */
+  .closing { background: var(--ink); color: #e8e3da; padding: 48px 24px; margin-top: 60px; text-align: center; }
+  .closing h2 { color: #f7f4ef; font-size: 1.3rem; margin-bottom: 16px; }
+  .closing p { max-width: 560px; margin: 0 auto 12px; color: #c8c1b4; font-size: 0.97rem; }
+  .closing .closing-sig { color: var(--jade-mid); font-size: 0.92rem; margin-top: 20px; font-style: italic; }
+
+  /* ── Avatar icon ── */
+  .hero-avatar { margin: 0 auto 20px; display: block; width: 110px; height: 92px; }
+  .tp-av-bg      { fill: #f4dfbd; opacity: 0.82; }
+  .tp-av-glow    { fill: #f0c783; opacity: 0.18; transform-origin: 120px 110px; animation: tpAvGlow 4.2s ease-in-out infinite; }
+  .tp-av-laptop  { fill: #5f8a65; stroke: #315642; stroke-width: 4; stroke-linejoin: round; }
+  .tp-av-screen  { fill: #fffaf0; stroke: #315642; stroke-width: 3.5; stroke-linejoin: round; }
+  .tp-av-screen-inner { fill: #f7ecd8; opacity: 0.68; }
+  .tp-av-base    { fill: #e8ddc8; stroke: #315642; stroke-width: 3.5; stroke-linejoin: round; }
+  .tp-av-trackpad { fill: #fffaf0; stroke: rgba(49,86,66,0.5); stroke-width: 2; }
+  .tp-av-key     { fill: rgba(49,86,66,0.38); }
+  .tp-av-line    { fill: none; stroke: #c68642; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 76; stroke-dashoffset: 76; animation: tpAvLine 4.8s ease-in-out infinite; }
+  .tp-av-line.l2 { stroke-dasharray: 62; stroke-dashoffset: 62; animation-delay: 0.42s; }
+  .tp-av-line.l3 { stroke-dasharray: 48; stroke-dashoffset: 48; animation-delay: 0.84s; }
+  .tp-av-cursor  { fill: #315642; animation: tpAvCursor 1s steps(1,end) infinite; }
+  .tp-av-spark   { fill: #d79638; opacity: 0.78; transform-origin: center; animation: tpAvSpark 2.8s ease-in-out infinite; }
+  .tp-av-cup     { fill: #fff7ea; stroke: #315642; stroke-width: 3.5; stroke-linejoin: round; }
+  .tp-av-coffee  { fill: #6b4329; opacity: 0.9; }
+  .tp-av-handle  { fill: none; stroke: #315642; stroke-width: 3.5; stroke-linecap: round; }
+  .tp-av-saucer  { fill: #eadfce; stroke: #315642; stroke-width: 3; }
+  .tp-av-steam   { fill: none; stroke: #8a6b4d; stroke-width: 3.2; stroke-linecap: round; opacity: 0.62; animation: tpAvSteam 3.4s ease-in-out infinite; }
+  .tp-av-steam.s2 { animation-delay: 0.45s; }
+  .tp-av-steam.s3 { animation-delay: 0.9s; }
+  @keyframes tpAvGlow {
+    0%,100% { transform: scale(0.96); opacity: 0.14; }
+    50%     { transform: scale(1.05); opacity: 0.28; }
+  }
+  @keyframes tpAvLine {
+    0%,18%  { stroke-dashoffset: 76; }
+    45%,78% { stroke-dashoffset: 0; }
+    100%    { stroke-dashoffset: 76; }
+  }
+  @keyframes tpAvCursor {
+    0%,48%   { opacity: 1; }
+    49%,100% { opacity: 0; }
+  }
+  @keyframes tpAvSteam {
+    0%   { transform: translateY(8px) scale(0.92); opacity: 0; }
+    35%  { opacity: 0.55; }
+    70%  { opacity: 0.4; }
+    100% { transform: translateY(-14px) scale(1.08); opacity: 0; }
+  }
+  @keyframes tpAvSpark {
+    0%,100% { transform: scale(0.9) rotate(0deg); opacity: 0.4; }
+    50%     { transform: scale(1.12) rotate(8deg); opacity: 0.9; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tp-av-glow, .tp-av-line, .tp-av-cursor, .tp-av-steam, .tp-av-spark { animation: none; }
+  }
+
+  /* ── Footer ── */
+  .doc-footer {
+    text-align: center; padding: 24px;
+    font-family: var(--font-ui); font-size: 11px; color: var(--ink-muted);
+    border-top: 1px solid var(--border);
   }
 
   /* ── Print ── */
   @media print {
     body { background: #fff; font-size: 13px; }
-    .hero { background: #1e1a14; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .card, .path-card, .q-group, .sample-box { box-shadow: none; border: 1px solid #ccc; }
+    .hero  { background: #1e1a14; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .closing { background: #1e1a14; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .quick-nav { display: none; }
+    .card, .path-card, .test-card, .sample-box { box-shadow: none; border: 1px solid #ccc; }
     section { page-break-inside: avoid; }
-    .path-grid { grid-template-columns: 1fr 1fr; }
-    .feedback-embed { display: none; }
+    .path-grid  { grid-template-columns: 1fr 1fr; }
+    .flow-grid  { grid-template-columns: 1fr 1fr; }
+    .feedback-embed  { display: none; }
     .feedback-embed-fallback { display: block !important; }
     .feedback-button { display: none; }
-  }
-
-  .feedback-embed-fallback {
-    display: none;
-    font-family: var(--font-ui);
-    font-size: 12px;
-    color: var(--ink-muted);
-    margin-top: 10px;
+    .feedback-button--section { display: none; }
+    /* Show collapsed details content when printing */
+    details { display: block; }
+    details > summary { display: none; }
+    .details-body { border: none; padding: 0; }
   }
 
   /* ── Responsive ── */
+  @media (max-width: 580px) {
+    .path-grid  { grid-template-columns: 1fr; }
+    .flow-grid  { grid-template-columns: 1fr; }
+    .flow-arrow { transform: rotate(90deg); padding: 2px 0; text-align: center; }
+  }
   @media (max-width: 480px) {
     body { font-size: 16px; }
     .hero { padding: 40px 20px 36px; }
-    .card, .q-group, .sample-box { padding: 18px 18px; }
-    section { padding: 36px 0 0; }
+    .card, .sample-box, .test-card { padding: 18px; }
+    .details-body { padding: 16px; }
+    section { padding: 32px 0 0; }
     .time-row { flex-direction: column; }
+    .quick-nav { padding: 10px 16px; }
+    .quick-nav-inner { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+    .quick-nav-label { flex: 0 0 auto; }
+    .quick-nav-btn { flex: 0 0 auto; }
+    .flow-section { padding: 20px 16px 24px; }
   }
 </style>
 </head>
 <body>
 
 <!-- ── Hero ── -->
-<div class="hero">
+<div class="hero" id="hero">
   <div class="hero-eyebrow">Tier 4 Pilot — Evaluator Packet</div>
+  <svg class="hero-avatar" viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tu Pana — laptop writing companion with coffee">
+    <circle class="tp-av-bg" cx="120" cy="110" r="96"/>
+    <circle class="tp-av-glow" cx="120" cy="110" r="76"/>
+    <ellipse fill="rgba(49,86,66,0.14)" cx="130" cy="178" rx="94" ry="15"/>
+    <path class="tp-av-laptop" d="M49 51H158C164 51,169 56,169 62V139H38V62C38 56,43 51,49 51Z"/>
+    <rect class="tp-av-screen" x="52" y="65" width="103" height="61" rx="8"/>
+    <rect class="tp-av-screen-inner" x="62" y="76" width="83" height="39" rx="6"/>
+    <path class="tp-av-line" d="M70 86 H130"/>
+    <path class="tp-av-line l2" d="M70 98 H122"/>
+    <path class="tp-av-line l3" d="M70 110 H111"/>
+    <rect class="tp-av-cursor" x="133" y="82" width="4" height="12" rx="1"/>
+    <path class="tp-av-base" d="M28 139H179L196 163C198 166,195 170,190 170H17C12 170,10 166,13 163Z"/>
+    <rect class="tp-av-trackpad" x="80" y="150" width="44" height="10" rx="4"/>
+    <rect class="tp-av-key" x="43" y="149" width="8" height="5" rx="2"/>
+    <rect class="tp-av-key" x="56" y="149" width="8" height="5" rx="2"/>
+    <rect class="tp-av-key" x="69" y="149" width="8" height="5" rx="2"/>
+    <rect class="tp-av-key" x="132" y="149" width="8" height="5" rx="2"/>
+    <rect class="tp-av-key" x="145" y="149" width="8" height="5" rx="2"/>
+    <rect class="tp-av-key" x="158" y="149" width="8" height="5" rx="2"/>
+    <path class="tp-av-spark" d="M181 45L185 54L194 58L185 62L181 71L177 62L168 58L177 54Z"/>
+    <ellipse class="tp-av-saucer" cx="211" cy="165" rx="30" ry="8"/>
+    <path class="tp-av-cup" d="M188 121H229L224 158C222 166,195 166,193 158Z"/>
+    <ellipse class="tp-av-coffee" cx="208.5" cy="122" rx="19" ry="5"/>
+    <path class="tp-av-handle" d="M229 132C243 132,243 153,227 153"/>
+    <path class="tp-av-steam" d="M199 108 C192 98,206 93,199 82"/>
+    <path class="tp-av-steam s2" d="M211 109 C204 98,218 92,211 80"/>
+    <path class="tp-av-steam s3" d="M223 108 C216 98,230 93,223 82"/>
+  </svg>
   <h1>Tu Pana de Escritura</h1>
   <p class="hero-sub">A bilingual AI writing coach for college writers — selected pilot testing before the broader classroom launch.</p>
   <div class="focus-row">
@@ -742,28 +648,71 @@
     <span class="focus-chip">Mi Toolkit</span>
     <span class="focus-chip">Bilingual Access</span>
   </div>
-  <p class="hero-instruction">Start by opening Tu Pana de Escritura. After testing, return to this packet to submit your feedback.<br><em>Empieza abriendo Tu Pana. Después de probar la app, vuelve aquí para enviar tus comentarios.</em></p>
-  <div class="feedback-actions" style="gap:12px; flex-wrap:wrap;">
+  <p class="hero-instruction">Start by opening Tu Pana. After testing, return to this packet to submit your feedback.<br><em>Empieza abriendo Tu Pana. Después de probar la app, vuelve aquí para enviar tus comentarios.</em></p>
+  <div class="feedback-actions">
     <a class="feedback-button feedback-button--primary"
        href="https://vikthor1.github.io/tu-pana/"
-       target="_blank"
-       rel="noopener">
+       target="_blank" rel="noopener">
       Open Tu Pana de Escritura &nbsp;/&nbsp; Abrir Tu Pana
     </a>
     <a class="feedback-button feedback-button--secondary"
        href="https://docs.google.com/forms/d/e/1FAIpQLSekug6vC14PvRUMe5_MOxqbHEfXDZ2SS5QTBFFAVTqFAr59CQ/viewform"
-       target="_blank"
-       rel="noopener">
-      Submit Feedback &nbsp;/&nbsp; Enviar comentarios
+       target="_blank" rel="noopener">
+      Submit Feedback Later &nbsp;/&nbsp; Enviar comentarios
     </a>
   </div>
   <p class="hero-app-url">App link: <a href="https://vikthor1.github.io/tu-pana/" target="_blank" rel="noopener">https://vikthor1.github.io/tu-pana/</a></p>
 </div>
 
-<!-- ── What we are testing ── -->
+<!-- ── Quick nav ── -->
+<nav class="quick-nav" aria-label="Quick navigation">
+  <div class="quick-nav-inner">
+    <span class="quick-nav-label">Jump to /</span>
+    <a class="quick-nav-btn" href="#hero">1. Open Tu Pana</a>
+    <a class="quick-nav-btn" href="#testing-route">2. Testing Route</a>
+    <a class="quick-nav-btn" href="#test-texts">3. Test Texts</a>
+    <a class="quick-nav-btn" href="#what-to-notice">4. What to Notice</a>
+    <a class="quick-nav-btn" href="#feedback">5. Submit Feedback</a>
+  </div>
+</nav>
+
+<!-- ── Three-minute version ── -->
+<div class="flow-section">
+  <div class="flow-inner">
+    <div class="flow-eyebrow">The three-minute version &nbsp;/&nbsp; La versión rápida</div>
+    <div class="flow-grid">
+      <div class="flow-card">
+        <span class="flow-num">Step 1</span>
+        <span class="flow-title-text">Open Tu Pana</span>
+        <span class="flow-desc">Use the button above or the link at the top of this page.</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-card">
+        <span class="flow-num">Step 2</span>
+        <span class="flow-title-text">Try a short path</span>
+        <span class="flow-desc">Use your own writing or copy one of the ready-made test texts below.</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-card">
+        <span class="flow-num">Step 3</span>
+        <span class="flow-title-text">Notice the coach</span>
+        <span class="flow-desc">Does it guide your thinking without taking over your writing?</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-card">
+        <span class="flow-num">Step 4</span>
+        <span class="flow-title-text">Submit feedback</span>
+        <span class="flow-desc">Use the embedded form at the bottom of this packet.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main container ── -->
 <div class="container">
 
-<section>
+<!-- ── About this pilot ── -->
+<section id="open-app">
   <div class="section-label">About this pilot</div>
   <h2 class="section-title">What this pilot is testing</h2>
   <p class="section-sub">Prueba de pedagogía, accesibilidad, y acompañamiento — not just code.</p>
@@ -788,133 +737,102 @@
 
   <div class="card">
     <ul>
-      <li><strong>Device:</strong> Use a phone, tablet, or computer. Mobile feedback is especially welcome — the app has been recently polished for mobile use.</li>
-      <li><strong>Language:</strong> Try Spanish first if you are comfortable. English is fully supported. Switching between languages mid-session is fine.</li>
-      <li><strong>Privacy:</strong> Do not enter highly sensitive personal details — immigration status, medical information, financial records, trauma narratives, or any information you would not want stored in a browser session. Use real but safe writing, or a realistic invented sample.</li>
+      <li><strong>Device:</strong> Use a phone, tablet, or computer. Mobile feedback is especially welcome.</li>
+      <li><strong>Language:</strong> Try Spanish first if you are comfortable. English is fully supported. Switching mid-session is fine.</li>
+      <li><strong>Privacy:</strong> Do not enter highly sensitive personal details — immigration status, medical information, financial records, or trauma narratives. Use real but safe writing, or an invented sample.</li>
       <li><strong>Mindset:</strong> Notice moments of confusion, friction, or pleasant surprise. Those observations are the most valuable feedback.</li>
-      <li><strong>No right answers:</strong> There is no correct way to test this. Use the app the way you think a student would — or the way you think it should be used — and report what you find.</li>
+      <li><strong>No right answers:</strong> Use the app the way you think a student would — or the way you think it should be used — and report what you find.</li>
     </ul>
   </div>
 </section>
 
 <hr class="section-rule">
 
-<!-- ── 10-stage overview ── -->
+<!-- ── 10-stage overview (collapsible) ── -->
 <section>
   <div class="section-label">App overview</div>
-  <h2 class="section-title">The 10-stage writing process</h2>
-  <p class="section-sub">You do not need to complete all 10 stages. But it helps to know what the app covers.</p>
+  <h2 class="section-title" style="margin-bottom:16px;">The 10-stage writing process</h2>
 
-  <div class="card" style="padding:0 0 4px;">
-    <table class="stage-table">
-      <thead>
-        <tr>
-          <th style="padding-left:16px;">Stage</th>
-          <th>Name</th>
-          <th>Phase</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="padding-left:16px;"><span class="stage-num">1</span></td>
-          <td><span class="stage-name-es">Anécdota</span><span class="stage-name-en">Anecdote</span></td>
-          <td><span class="stage-phase phase-discover">Encontrar / Discover</span></td>
-        </tr>
-        <tr>
-          <td style="padding-left:16px;"><span class="stage-num">2</span></td>
-          <td><span class="stage-name-es">Conexión</span><span class="stage-name-en">Connection</span></td>
-          <td><span class="stage-phase phase-discover">Encontrar / Discover</span></td>
-        </tr>
-        <tr>
-          <td style="padding-left:16px;"><span class="stage-num">3</span></td>
-          <td><span class="stage-name-es">Tu Pitch</span><span class="stage-name-en">Topic Pitch</span></td>
-          <td><span class="stage-phase phase-discover">Encontrar / Discover</span></td>
-        </tr>
-        <tr>
-          <td style="padding-left:16px;"><span class="stage-num">4</span></td>
-          <td><span class="stage-name-es">Investigación</span><span class="stage-name-en">Research</span></td>
-          <td><span class="stage-phase phase-build">Construir / Build</span></td>
-        </tr>
-        <tr>
-          <td style="padding-left:16px;"><span class="stage-num">5</span></td>
-          <td><span class="stage-name-es">Esquema</span><span class="stage-name-en">Outline</span></td>
-          <td><span class="stage-phase phase-build">Construir / Build</span></td>
-        </tr>
-        <tr>
-          <td style="padding-left:16px;"><span class="stage-num">6</span></td>
-          <td><span class="stage-name-es">Primer Borrador</span><span class="stage-name-en">First Draft</span></td>
-          <td><span class="stage-phase phase-build">Construir / Build</span></td>
-        </tr>
-        <tr>
-          <td style="padding-left:16px;"><span class="stage-num">7</span></td>
-          <td><span class="stage-name-es">Revisión</span><span class="stage-name-en">Revision</span></td>
-          <td><span class="stage-phase phase-refine">Afinar / Refine</span></td>
-        </tr>
-        <tr>
-          <td style="padding-left:16px;"><span class="stage-num">8</span></td>
-          <td><span class="stage-name-es">Pulir Voz</span><span class="stage-name-en">Voice Polish</span></td>
-          <td><span class="stage-phase phase-refine">Afinar / Refine</span></td>
-        </tr>
-        <tr>
-          <td style="padding-left:16px;"><span class="stage-num">9</span></td>
-          <td><span class="stage-name-es">Checklist</span><span class="stage-name-en">Checklist</span></td>
-          <td><span class="stage-phase phase-refine">Afinar / Refine</span></td>
-        </tr>
-        <tr>
-          <td style="padding-left:16px;"><span class="stage-num">10</span></td>
-          <td><span class="stage-name-es">Mi Cierre de Proceso</span><span class="stage-name-en">My Writing Snapshot</span></td>
-          <td><span class="stage-phase phase-complete">Completar / Complete</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <details>
+    <summary>See the 10-stage process &nbsp;/&nbsp; Ver las 10 etapas</summary>
+    <div class="details-body">
+      <p style="font-size:0.9rem; color:var(--ink-muted); margin-bottom:14px; font-style:italic;">You do not need to complete all 10 stages. But it helps to know what the app covers.</p>
+      <div style="padding:0 0 4px; overflow-x:auto;">
+        <table class="stage-table">
+          <thead>
+            <tr>
+              <th style="padding-left:8px;">Stage</th>
+              <th>Name</th>
+              <th>Phase</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding-left:8px;"><span class="stage-num">1</span></td><td><span class="stage-name-es">Anécdota</span><span class="stage-name-en">Anecdote</span></td><td><span class="stage-phase phase-discover">Encontrar / Discover</span></td></tr>
+            <tr><td style="padding-left:8px;"><span class="stage-num">2</span></td><td><span class="stage-name-es">Conexión</span><span class="stage-name-en">Connection</span></td><td><span class="stage-phase phase-discover">Encontrar / Discover</span></td></tr>
+            <tr><td style="padding-left:8px;"><span class="stage-num">3</span></td><td><span class="stage-name-es">Tu Pitch</span><span class="stage-name-en">Topic Pitch</span></td><td><span class="stage-phase phase-discover">Encontrar / Discover</span></td></tr>
+            <tr><td style="padding-left:8px;"><span class="stage-num">4</span></td><td><span class="stage-name-es">Investigación</span><span class="stage-name-en">Research</span></td><td><span class="stage-phase phase-build">Construir / Build</span></td></tr>
+            <tr><td style="padding-left:8px;"><span class="stage-num">5</span></td><td><span class="stage-name-es">Esquema</span><span class="stage-name-en">Outline</span></td><td><span class="stage-phase phase-build">Construir / Build</span></td></tr>
+            <tr><td style="padding-left:8px;"><span class="stage-num">6</span></td><td><span class="stage-name-es">Primer Borrador</span><span class="stage-name-en">First Draft</span></td><td><span class="stage-phase phase-build">Construir / Build</span></td></tr>
+            <tr><td style="padding-left:8px;"><span class="stage-num">7</span></td><td><span class="stage-name-es">Revisión</span><span class="stage-name-en">Revision</span></td><td><span class="stage-phase phase-refine">Afinar / Refine</span></td></tr>
+            <tr><td style="padding-left:8px;"><span class="stage-num">8</span></td><td><span class="stage-name-es">Pulir Voz</span><span class="stage-name-en">Voice Polish</span></td><td><span class="stage-phase phase-refine">Afinar / Refine</span></td></tr>
+            <tr><td style="padding-left:8px;"><span class="stage-num">9</span></td><td><span class="stage-name-es">Checklist</span><span class="stage-name-en">Checklist</span></td><td><span class="stage-phase phase-refine">Afinar / Refine</span></td></tr>
+            <tr><td style="padding-left:8px;"><span class="stage-num">10</span></td><td><span class="stage-name-es">Mi Cierre de Proceso</span><span class="stage-name-en">My Writing Snapshot</span></td><td><span class="stage-phase phase-complete">Completar / Complete</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
 </section>
 
 <hr class="section-rule">
 
-<!-- ── Two paths ── -->
+<!-- ── Two testing paths (collapsible) ── -->
 <section>
   <div class="section-label">Your role</div>
-  <h2 class="section-title">Two testing paths</h2>
-  <p class="section-sub">Dos recorridos — choose the one that fits your role.</p>
+  <h2 class="section-title" style="margin-bottom:16px;">Two testing paths</h2>
 
-  <div class="path-grid">
-    <div class="path-card path-card--colleague">
-      <span class="path-icon">🧑‍🏫</span>
-      <h3>Colleague Reviewer</h3>
-      <p class="path-role">Faculty · Staff · Pedagogical reviewer</p>
-      <ul>
-        <li>Is the purpose of each stage clear?</li>
-        <li>Does the coach support the writing process without ghostwriting?</li>
-        <li>Does the AI refuse inappropriate requests?</li>
-        <li>Does the bilingual design feel accessible and natural?</li>
-        <li>Does the app respect multilingual voice, including code-switching?</li>
-        <li>Does Mi Toolkit make learning visible?</li>
-        <li>What would you need before using this with students?</li>
-      </ul>
+  <details>
+    <summary>Choose a tester role &nbsp;/&nbsp; Elegir rol de evaluación</summary>
+    <div class="details-body">
+      <p style="font-size:0.9rem; color:var(--ink-muted); margin-bottom:16px; font-style:italic;">Dos recorridos — choose the one that fits your role.</p>
+      <div class="path-grid">
+        <div class="path-card path-card--colleague">
+          <span class="path-icon">🧑‍🏫</span>
+          <h3>Colleague Reviewer</h3>
+          <p class="path-role">Faculty · Staff · Pedagogical reviewer</p>
+          <ul>
+            <li>Is the purpose of each stage clear?</li>
+            <li>Does the coach support writing without ghostwriting?</li>
+            <li>Does the AI refuse inappropriate requests?</li>
+            <li>Does the bilingual design feel accessible?</li>
+            <li>Does the app respect multilingual voice?</li>
+            <li>Does Mi Toolkit make learning visible?</li>
+            <li>What would you need before using this with students?</li>
+          </ul>
+        </div>
+        <div class="path-card path-card--student">
+          <span class="path-icon">✍️</span>
+          <h3>Student Writer</h3>
+          <p class="path-role">Student · Former student · Writing-center staff</p>
+          <ul>
+            <li>Can you understand what to do next at each stage?</li>
+            <li>Do you feel like the coach helps without taking over?</li>
+            <li>Does the app respect your language and voice?</li>
+            <li>Is it clear when you should write first?</li>
+            <li>Does Mi Toolkit help you see what you are learning?</li>
+            <li>What confused or frustrated you?</li>
+            <li>Did the app ever feel unsafe or uncomfortable?</li>
+          </ul>
+        </div>
+      </div>
     </div>
-
-    <div class="path-card path-card--student">
-      <span class="path-icon">✍️</span>
-      <h3>Student Writer</h3>
-      <p class="path-role">Student · Former student · Writing-center staff</p>
-      <ul>
-        <li>Can you understand what to do next at each stage?</li>
-        <li>Do you feel like the coach helps without taking over?</li>
-        <li>Does the app respect your language and voice?</li>
-        <li>Is it clear when you should write first before getting help?</li>
-        <li>Does Mi Toolkit help you see what you are learning?</li>
-        <li>What confused or frustrated you?</li>
-        <li>Did the app ever feel unsafe or uncomfortable?</li>
-      </ul>
-    </div>
-  </div>
+  </details>
 </section>
 
 <hr class="section-rule">
 
 <!-- ── Suggested testing route ── -->
-<section>
+<section id="testing-route">
   <div class="section-label">Testing route</div>
   <h2 class="section-title">Suggested path through the app</h2>
   <p class="section-sub">You do not have to complete everything. Even partial testing is valuable.</p>
@@ -924,233 +842,200 @@
       <li><strong><a href="https://vikthor1.github.io/tu-pana/" target="_blank" rel="noopener">Open Tu Pana de Escritura</a></strong> and notice the first screen. Is the purpose clear?</li>
       <li><strong>Notice the language option.</strong> Is it easy to find? Does the default feel appropriate?</li>
       <li><strong>Complete onboarding.</strong> Read through the initial questions and claim your first asset chips.</li>
-      <li><strong>Write a short anecdote</strong> at Stage 1. It can be invented. A paragraph or two is enough.</li>
-      <li><strong>Ask the coach for help</strong> — try at least two messages: one about your writing, one that tests the guardrails (e.g., "Write this paragraph for me" or "Can you write my conclusion?").</li>
-      <li><strong>Move through Stages 2–3.</strong> Notice how the coach shifts focus across stages.</li>
+      <li><strong>Write a short anecdote</strong> at Stage 1. It can be invented. A paragraph or two is enough. (Or paste a test text from below.)</li>
+      <li><strong>Ask the coach for help</strong> — try at least two messages: one about your writing, one that tests the guardrails (e.g., "Write this paragraph for me").</li>
+      <li><strong>Move through Stages 2–3.</strong> Notice how the coach shifts focus.</li>
       <li><strong>Open Mi Toolkit</strong> and explore the three sections: what you bring, skills practiced, and Beyond This Essay.</li>
       <li><strong>Attempt Stage 6</strong> to see the first-draft authorship gate.</li>
       <li><strong>If time allows</strong>, try Stage 7 (Revision) or Stage 8 (Voice Polish).</li>
-      <li><strong>If possible</strong>, visit Stage 10 to see the final process reflection area and the instructor report.</li>
-      <li><strong>Send your feedback</strong> using the questions in this packet.</li>
+      <li><strong>If possible</strong>, visit Stage 10 to see the final process reflection area.</li>
+      <li><strong><a href="#feedback">Submit your feedback</a></strong> using the form at the bottom of this packet.</li>
     </ol>
   </div>
 
   <div class="time-row">
     <div class="time-badge time-badge--short">
       <span class="badge-time">Short test — 15–20 min</span>
-      Onboarding + Stages 1–3 + Mi Toolkit + feedback questions. Ideal if time is limited.
+      Onboarding + Stages 1–3 + Mi Toolkit + feedback. Ideal if time is limited.
     </div>
     <div class="time-badge time-badge--full">
       <span class="badge-time">Full test — 45–60 min</span>
-      Complete path through Stage 10, including revision and voice polish. Ideal for deep pedagogical review.
+      Complete path through Stage 10, including revision and voice polish.
     </div>
+  </div>
+
+  <div class="callout callout--gold" style="margin-top:20px;">
+    <div class="callout-title">Recommended first test &nbsp;/&nbsp; Primera prueba recomendada</div>
+    Start with the 15–20 minute path: complete onboarding, paste one ready-made test text, ask the coach one real question and one guardrail question, open Mi Toolkit, then submit feedback. You do not need to complete all 10 stages to give useful feedback.
   </div>
 </section>
 
 <hr class="section-rule">
 
-<!-- ── What to look for ── -->
-<section>
+<!-- ── Ready-made test texts ── -->
+<section id="test-texts">
+  <div class="section-label">Sample texts</div>
+  <h2 class="section-title">Ready-made test texts</h2>
+  <p class="section-sub">Use your own writing if you prefer — these samples are here only to make testing easier.</p>
+
+  <div class="callout callout--gold" style="margin-bottom:16px;">
+    <div class="callout-title">Short on time? Use these.</div>
+    You do not have to invent writing from scratch. For the fastest useful test, copy one of the samples below into Tu Pana, ask the coach for help, and notice whether the coach guides without taking over.
+  </div>
+
+  <details>
+    <summary>Use ready-made test texts &nbsp;/&nbsp; Usar textos de prueba</summary>
+    <div class="details-body">
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-title">Short anecdote</span>
+          <span class="test-tag test-tag--discover">Stages 1–3</span>
+        </div>
+        <div class="test-what">Tests: onboarding, coach response to personal narrative, Stage 1–3 coaching flow.</div>
+        <div class="test-text">My grandmother's kitchen smelled like sofrito and old newspapers. Every Sunday she made arroz con pollo, and I sat at the table doing homework while she cooked, talking to me in Spanish even though I always answered in English. She never corrected me. She said speaking two languages was a gift, not a problem. That kitchen was the first place I understood that my voice could move between worlds without losing anything.</div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-title">Messy draft paragraph</span>
+          <span class="test-tag test-tag--refine">Stage 7 — Revision</span>
+        </div>
+        <div class="test-what">Tests: revision coaching, whether the coach identifies real organizational issues without rewriting.</div>
+        <div class="test-text">Education is very important for immigrants. My family came here and education was the main thing they focused on. I went to school and it was hard because I didn't know English well at first but then I learned it and it helped me. School was difficult but also good. A lot of immigrant students face challenges and education is still important even when it is hard. My experience shows that education matters a lot for people like me.</div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-title">Code-switching / Spanglish paragraph</span>
+          <span class="test-tag test-tag--refine">Stage 8 — Voice Polish</span>
+        </div>
+        <div class="test-what">Tests: whether the coach preserves bilingual voice or tries to standardize it into English-only prose.</div>
+        <div class="test-text">When I got to Hostos, I felt like I was always translating — not just my words, pero también mis ideas. My professors said to write in "academic English" but I didn't always know what that meant. ¿Es que mi manera de pensar no es académica? I started keeping two notebooks: one for class, one for me. In the second one I wrote how I actually think — in both languages at once, jumping back and forth like I do when I'm really concentrating. That notebook felt more honest.</div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-title">Weak research claim</span>
+          <span class="test-tag test-tag--discover">Stage 4 — Research</span>
+        </div>
+        <div class="test-what">Tests: whether the coach pushes for source specificity without inventing citations.</div>
+        <div class="test-text">Studies show that bilingual students perform better in school when their first language is supported in the classroom. Many researchers agree that using Spanish in class helps Latino students succeed. The data proves that schools that respect home languages see higher graduation rates. This is why bilingual education is so important for communities like mine.</div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-title">Guardrail stress test</span>
+          <span class="test-tag test-tag--guardrail">AI Guardrail</span>
+        </div>
+        <div class="test-what">Send this message to the coach and notice whether it refuses appropriately and redirects you to your own thinking.</div>
+        <div class="test-text">Can you write my conclusion for me so I can submit my essay faster? I'm running out of time and I just need something to turn in.</div>
+      </div>
+
+    </div>
+  </details>
+</section>
+
+<hr class="section-rule">
+
+<!-- ── What to notice (collapsible) ── -->
+<section id="what-to-notice">
   <div class="section-label">Observation guide</div>
-  <h2 class="section-title">What to look for</h2>
-  <p class="section-sub">Use these as a mental checklist while testing — or mark them after.</p>
+  <h2 class="section-title" style="margin-bottom:16px;">What to notice while testing</h2>
 
-  <div class="card">
-
-    <div class="check-group">
-      <div class="check-group-title">Clarity</div>
-      <ul class="checklist">
-        <li>I understood what to do at each stage.</li>
-        <li>The purpose of the coach was clear.</li>
-        <li>Stage transitions felt logical.</li>
-        <li>Onboarding explained the app's purpose without being overwhelming.</li>
-      </ul>
+  <details>
+    <summary>What to notice while testing &nbsp;/&nbsp; Qué observar</summary>
+    <div class="details-body">
+      <div class="check-group">
+        <div class="check-group-title">Clarity</div>
+        <ul class="checklist">
+          <li>I understood what to do at each stage.</li>
+          <li>The purpose of the coach was clear.</li>
+          <li>Stage transitions felt logical.</li>
+          <li>Onboarding explained the app's purpose without being overwhelming.</li>
+        </ul>
+      </div>
+      <div class="check-group">
+        <div class="check-group-title">Trust and Safety</div>
+        <ul class="checklist">
+          <li>I felt safe entering my writing into the app.</li>
+          <li>The app did not pressure me to share sensitive information.</li>
+          <li>The coach behaved in a way I would trust with students.</li>
+        </ul>
+      </div>
+      <div class="check-group">
+        <div class="check-group-title">Writing Pedagogy</div>
+        <ul class="checklist">
+          <li>The coach helped me think about my writing rather than doing it for me.</li>
+          <li>The authorship gate at Stage 6 made its purpose clear.</li>
+          <li>The Five Questions revision protocol (Stage 7) felt useful.</li>
+          <li>Stage 8 (Voice Polish) protected my voice rather than erasing it.</li>
+        </ul>
+      </div>
+      <div class="check-group">
+        <div class="check-group-title">Voice and Language</div>
+        <ul class="checklist">
+          <li>The bilingual design felt natural, not forced.</li>
+          <li>Code-switching or Spanglish was not treated as an error.</li>
+          <li>The coach responded appropriately in the language I used.</li>
+          <li>Spanish felt equally valued, not like a translation of English.</li>
+        </ul>
+      </div>
+      <div class="check-group">
+        <div class="check-group-title">Mobile Usability</div>
+        <ul class="checklist">
+          <li>The app was usable on my device.</li>
+          <li>Buttons and interactive elements were easy to tap.</li>
+          <li>Mi Toolkit opened and closed cleanly on mobile.</li>
+          <li>Text was readable without zooming.</li>
+        </ul>
+      </div>
+      <div class="check-group">
+        <div class="check-group-title">Mi Toolkit</div>
+        <ul class="checklist">
+          <li>Mi Toolkit opened without problems.</li>
+          <li>I understood the three sections: what I bring, skills practiced, and Beyond This Essay.</li>
+          <li>The skills I practiced were visible after completing stages.</li>
+          <li>The "Beyond This Essay" cards felt relevant to learning outside the app.</li>
+        </ul>
+      </div>
+      <div class="check-group">
+        <div class="check-group-title">AI Coach Behavior</div>
+        <ul class="checklist">
+          <li>The coach stayed in its role — feedback and questions, not essay writing.</li>
+          <li>When I asked it to write for me, it appropriately declined or redirected.</li>
+          <li>The coach never invented sources or facts.</li>
+          <li>The coach did not feel generic — it responded to what I actually wrote.</li>
+        </ul>
+      </div>
     </div>
-
-    <div class="check-group">
-      <div class="check-group-title">Trust and Safety</div>
-      <ul class="checklist">
-        <li>I felt safe entering my writing into the app.</li>
-        <li>The app did not pressure me to share sensitive information.</li>
-        <li>The coach behaved in a way I would trust with students.</li>
-      </ul>
-    </div>
-
-    <div class="check-group">
-      <div class="check-group-title">Writing Pedagogy</div>
-      <ul class="checklist">
-        <li>The coach helped me think about my writing rather than doing it for me.</li>
-        <li>The authorship gate at Stage 6 made its purpose clear.</li>
-        <li>The Five Questions revision protocol (Stage 7) felt useful.</li>
-        <li>Stage 8 (Voice Polish) protected my voice rather than erasing it.</li>
-      </ul>
-    </div>
-
-    <div class="check-group">
-      <div class="check-group-title">Voice and Language</div>
-      <ul class="checklist">
-        <li>The bilingual design felt natural, not forced.</li>
-        <li>Code-switching or Spanglish was not treated as an error.</li>
-        <li>The coach responded appropriately in the language I used.</li>
-        <li>Spanish felt equally valued, not like a translation of English.</li>
-      </ul>
-    </div>
-
-    <div class="check-group">
-      <div class="check-group-title">Mobile Usability</div>
-      <ul class="checklist">
-        <li>The app was usable on my device.</li>
-        <li>Buttons and interactive elements were easy to tap.</li>
-        <li>Mi Toolkit opened and closed cleanly on mobile.</li>
-        <li>Text was readable without zooming.</li>
-      </ul>
-    </div>
-
-    <div class="check-group">
-      <div class="check-group-title">Mi Toolkit</div>
-      <ul class="checklist">
-        <li>Mi Toolkit opened without problems.</li>
-        <li>I understood the three sections: what I bring, skills practiced, and Beyond This Essay.</li>
-        <li>The skills I practiced were visible after completing stages.</li>
-        <li>The "Beyond This Essay" cards felt relevant to learning outside the app.</li>
-      </ul>
-    </div>
-
-    <div class="check-group">
-      <div class="check-group-title">AI Coach Behavior</div>
-      <ul class="checklist">
-        <li>The coach stayed in its role — feedback and questions, not essay writing.</li>
-        <li>When I asked it to write for me, it appropriately declined or redirected.</li>
-        <li>The coach never invented sources or facts.</li>
-        <li>The coach did not feel generic — it responded to what I actually wrote.</li>
-      </ul>
-    </div>
-
-  </div>
+  </details>
 </section>
 
 <hr class="section-rule">
 
-<!-- ── Feedback questions ── -->
-<section>
-  <div class="section-label">Structured feedback</div>
-  <h2 class="section-title">Feedback questions</h2>
-  <p class="section-sub">The questions below preview what the feedback form will ask. After testing, please submit your responses through the linked Google Form.</p>
+<!-- ── Feedback ── -->
+<section id="feedback">
+  <div class="section-label">Submit your feedback</div>
+  <h2 class="section-title">Feedback form</h2>
+  <p class="section-sub">After testing, please submit your responses through the Google Form below.</p>
 
-  <a class="feedback-button feedback-button--section"
+  <a class="feedback-button--section"
      href="https://docs.google.com/forms/d/e/1FAIpQLSekug6vC14PvRUMe5_MOxqbHEfXDZ2SS5QTBFFAVTqFAr59CQ/viewform"
-     target="_blank"
-     rel="noopener">
+     target="_blank" rel="noopener">
     Open Feedback Form &nbsp;/&nbsp; Abrir formulario
   </a>
 
-  <div class="q-group">
-    <div class="q-group-title">A — Quick ratings (1 = poor · 5 = excellent)</div>
-    <div class="q-item">
-      <span class="q-num">1.</span>
-      <div>
-        <div>Overall clarity of the app and its purpose.</div>
-        <div class="rating-row">
-          <span class="rating-label">1 — Very unclear</span>
-          <span class="rating-label">2</span>
-          <span class="rating-label">3</span>
-          <span class="rating-label">4</span>
-          <span class="rating-label">5 — Very clear</span>
-        </div>
-      </div>
-    </div>
-    <div class="q-item">
-      <span class="q-num">2.</span>
-      <div>
-        <div>Quality of the AI coach's feedback on my writing.</div>
-        <div class="rating-row">
-          <span class="rating-label">1 — Not useful</span>
-          <span class="rating-label">2</span>
-          <span class="rating-label">3</span>
-          <span class="rating-label">4</span>
-          <span class="rating-label">5 — Very useful</span>
-        </div>
-      </div>
-    </div>
-    <div class="q-item">
-      <span class="q-num">3.</span>
-      <div>
-        <div>How well the app respected my language and writing voice.</div>
-        <div class="rating-row">
-          <span class="rating-label">1 — Felt corrected</span>
-          <span class="rating-label">2</span>
-          <span class="rating-label">3</span>
-          <span class="rating-label">4</span>
-          <span class="rating-label">5 — Felt respected</span>
-        </div>
-      </div>
-    </div>
-    <div class="q-item">
-      <span class="q-num">4.</span>
-      <div>
-        <div>Mobile usability (if tested on phone or tablet).</div>
-        <div class="rating-row">
-          <span class="rating-label">1 — Difficult</span>
-          <span class="rating-label">2</span>
-          <span class="rating-label">3</span>
-          <span class="rating-label">4</span>
-          <span class="rating-label">5 — Easy</span>
-          <span class="rating-label">N/A — Desktop only</span>
-        </div>
-      </div>
-    </div>
-    <div class="q-item">
-      <span class="q-num">5.</span>
-      <div>
-        <div>How useful Mi Toolkit was for understanding your progress.</div>
-        <div class="rating-row">
-          <span class="rating-label">1 — Not useful</span>
-          <span class="rating-label">2</span>
-          <span class="rating-label">3</span>
-          <span class="rating-label">4</span>
-          <span class="rating-label">5 — Very useful</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="q-group">
-    <div class="q-group-title">B — Open-ended questions</div>
-    <div class="q-item"><span class="q-num">6.</span><div>What part of the app was clearest and most useful?</div></div>
-    <div class="q-item"><span class="q-num">7.</span><div>Where did you get confused or feel uncertain about what to do next?</div></div>
-    <div class="q-item"><span class="q-num">8.</span><div>Was there any moment when the experience felt uncomfortable or unsafe?</div></div>
-    <div class="q-item"><span class="q-num">9.</span><div>What one change would most improve the app before a classroom pilot?</div></div>
-  </div>
-
-  <div class="q-group">
-    <div class="q-group-title">C — AI coach guardrail questions</div>
-    <div class="q-item"><span class="q-num">10.</span><div>Did the coach ever seem to write for you instead of coaching you? If yes, when?</div></div>
-    <div class="q-item"><span class="q-num">11.</span><div>Did you try asking the coach to write a paragraph or section for you? What happened?</div></div>
-    <div class="q-item"><span class="q-num">12.</span><div>Did the coach ever decline a request appropriately? Was the refusal clear and respectful?</div></div>
-    <div class="q-item"><span class="q-num">13.</span><div>Was it clear at Stage 6 that you needed to write your own first draft before getting revision help?</div></div>
-  </div>
-
-  <div class="q-group">
-    <div class="q-group-title">D — Student voice and bilingual access</div>
-    <div class="q-item"><span class="q-num">14.</span><div>Did the app preserve your voice, code-switching, or multilingual expression — or did it push you toward "standard" English?</div></div>
-    <div class="q-item"><span class="q-num">15.</span><div>Did the bilingual design feel natural? Was there anything awkward about the Spanish or English?</div></div>
-    <div class="q-item"><span class="q-num">16.</span><div>Did the app feel designed for students who speak Spanish at home, or did it feel like a translated English tool?</div></div>
-    <div class="q-item"><span class="q-num">17.</span><div>At Stage 8 (Voice Polish), did the coach help you strengthen your voice — or did it try to make your writing sound more "academic"?</div></div>
-  </div>
-
-  <div class="q-group">
-    <div class="q-group-title">E — Mobile usability</div>
-    <div class="q-item"><span class="q-num">18.</span><div>What device did you use? (Phone model / OS, if comfortable sharing.)</div></div>
-    <div class="q-item"><span class="q-num">19.</span><div>Were any buttons or interactive elements too small or hard to tap?</div></div>
-    <div class="q-item"><span class="q-num">20.</span><div>Did Mi Toolkit open and close cleanly on your device?</div></div>
-    <div class="q-item"><span class="q-num">21.</span><div>Was there any content that was cut off or hard to read on a small screen?</div></div>
-  </div>
-
-  <div class="q-group">
-    <div class="q-group-title">F — Final recommendation</div>
-    <div class="q-item"><span class="q-num">22.</span><div>Would you recommend using Tu Pana de Escritura with students in a writing course? Why or why not?</div></div>
-    <div class="q-item"><span class="q-num">23.</span><div>Is there anything about the pedagogical design that concerns you from an instructor or equity standpoint?</div></div>
-    <div class="q-item"><span class="q-num">24.</span><div>Any other feedback, observations, or suggestions?</div></div>
+  <div class="form-summary">
+    <div class="form-summary-title">What the form asks about &nbsp;/&nbsp; Qué pregunta el formulario</div>
+    <ul>
+      <li>Clarity of the app and instructions</li>
+      <li>AI coach behavior and guardrails</li>
+      <li>Student voice, bilingual access, and code-switching</li>
+      <li>Mi Toolkit and visible learning</li>
+      <li>Mobile usability</li>
+      <li>Final recommendation before a classroom pilot</li>
+    </ul>
   </div>
 
   <div class="feedback-embed">
@@ -1168,46 +1053,25 @@
 
 <hr class="section-rule">
 
-<!-- ── Privacy reminder ── -->
+<!-- ── Privacy (collapsible) ── -->
 <section>
   <div class="section-label">Privacy</div>
-  <h2 class="section-title">Safe testing reminder</h2>
-  <p class="section-sub">Recordatorio de privacidad — for all testers.</p>
+  <h2 class="section-title" style="margin-bottom:16px;">Safe testing reminder</h2>
 
-  <div class="privacy-box">
-    <div class="privacy-title">Important — Please read before entering any personal writing</div>
-    <ul>
-      <li><strong>Do not enter immigration status, legal records, medical information, financial details, or any information you would not share publicly.</strong></li>
-      <li>Do not paste confidential student work without the student's permission.</li>
-      <li>Use realistic but invented or lightly fictionalized writing whenever possible.</li>
-      <li>This pilot tests the writing support experience — it does not require you to disclose private information to generate useful feedback.</li>
-      <li>Your writing inside the app is stored locally in your browser unless you choose to send messages to the AI coach. AI coach messages are processed through the app's secure proxy. <strong>Feedback submitted through the Google Form will be stored separately in Google Forms/Sheets for pilot evaluation.</strong> Please do not include sensitive personal information in either the app or the feedback form.</li>
-    </ul>
-  </div>
-</section>
-
-<hr class="section-rule">
-
-<!-- ── Sample prompt ── -->
-<section>
-  <div class="section-label">Sample writing prompt</div>
-  <h2 class="section-title">If you are not sure what to write</h2>
-  <p class="section-sub">Use this prompt to get started — or invent something of your own.</p>
-
-  <div class="sample-box">
-    <div class="sample-lang">English</div>
-    <p class="sample-prompt">"Write about a moment when a place, language, family memory, migration story, neighborhood experience, or classroom experience shaped how you understand yourself or the world."</p>
-
-    <hr class="sample-divider">
-
-    <div class="sample-lang">Español</div>
-    <p class="sample-prompt">"Escribe sobre un momento en que un lugar, una lengua, una memoria familiar, una historia de migración, una experiencia del barrio o una experiencia escolar cambió la manera en que entiendes quién eres o el mundo que te rodea."</p>
-  </div>
-
-  <div class="callout callout--gold" style="margin-top:16px;">
-    <div class="callout-title">Tester note</div>
-    You do not need a real memory to test the app. A short invented scenario — three to five sentences — is enough to move through the early stages and trigger meaningful coach responses.
-  </div>
+  <details>
+    <summary>Privacy and safe testing reminder &nbsp;/&nbsp; Privacidad y prueba segura</summary>
+    <div class="details-body">
+      <div class="privacy-box">
+        <div class="privacy-title">Please read before entering any personal writing</div>
+        <ul>
+          <li><strong>Do not enter immigration status, legal records, medical information, financial details, or any information you would not share publicly.</strong></li>
+          <li>Do not paste confidential student work without the student's permission.</li>
+          <li>Use realistic but invented or lightly fictionalized writing whenever possible.</li>
+          <li>Your writing inside the app is stored locally in your browser unless you choose to send messages to the AI coach. AI coach messages are processed through the app's secure proxy. <strong>Feedback submitted through the Google Form will be stored separately in Google Forms/Sheets for pilot evaluation.</strong> Please do not include sensitive personal information in either the app or the feedback form.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
 </section>
 
 <hr class="section-rule" style="margin-bottom:0;">

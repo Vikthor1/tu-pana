@@ -1425,6 +1425,9 @@ function goToStage(id) {
     // Stage 6 is intentionally excluded — its skill unlocks only after executeSave().
     if (id !== 6) unlockStageSkill(id);
 
+    // Auto-open AI literacy reflection checkpoint at key stage entries (once per stage ever)
+    maybeOpenStageEntryReflectionCheckpoint(id);
+
 }
 
 function onStageClick(s) {
@@ -3511,6 +3514,21 @@ function openReflectionCheckpoint(cp) {
 
     document.body.appendChild(overlay);
     setTimeout(() => card.querySelector('.reflect-option-btn')?.focus(), 40);
+}
+
+const AUTO_REFLECTION_STAGES = new Set([4, 7, 8]);
+
+function maybeOpenStageEntryReflectionCheckpoint(stageId) {
+    try {
+        if (!AUTO_REFLECTION_STAGES.has(stageId)) return;
+        const key = `tupana_reflect_shown_${stageId}`;
+        if (localStorage.getItem(key) === 'true') return;
+        const cp = REFLECTION_CHECKPOINTS.find(c => c.stageId === stageId);
+        if (!cp) return;
+        localStorage.setItem(key, 'true');
+        // 1200ms: after stage-specific cards (700–800ms) have rendered
+        setTimeout(() => openReflectionCheckpoint(cp), 1200);
+    } catch(e) {}
 }
 
 function injectEvalCard() {

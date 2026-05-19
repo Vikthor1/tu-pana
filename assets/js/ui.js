@@ -3233,6 +3233,7 @@ function flashChatFocus() {
 function closeLab() {
     el('labBg').classList.remove('on');
     try { localStorage.setItem('tupana_lab_done', 'true'); } catch(e) {}
+    if (window.innerWidth <= 480) switchMobileTab('chat');
     flashChatFocus();
 
     // Post-onboarding welcome from the coach

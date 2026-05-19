@@ -13,7 +13,7 @@
 %    \setbeameroption{show only notes}
 %
 %  SCREENSHOTS
-%  Loaded from: /Users/Victor1/Desktop/Manual Library/Screenshots/
+%  Loaded via symlink: docs/screenshots -> /Users/Victor1/Desktop/Manual Library/Screenshots/
 %
 %  COMPILATION — use pdflatex, compiled TWICE (or latexmk -pdf):
 %    latexmk -pdf ctl-presentation.tex
@@ -35,8 +35,7 @@
 \usepackage{xcolor}
 \usepackage{tikz}
 \usepackage{graphicx}
-\usepackage{grffile}  % handles spaces in \graphicspath and filenames
-\graphicspath{{/Users/Victor1/Desktop/Manual Library/Screenshots/}}
+\graphicspath{{screenshots/}}
 \usepackage{booktabs}
 \usepackage{colortbl}
 \usepackage{array}
@@ -640,7 +639,8 @@
   \begin{columns}[T, totalwidth=0.90\textwidth]
     \column{0.58\textwidth}
       \vspace{1.4em}
-      {\color{tpgold}\small\bfseries\MakeUppercase{Contributions}}\\[0.7em]
+      {\color{tpgold}\small\bfseries\MakeUppercase{Contributions}}
+      \vspace{0.7em}
       {\color{tpwarm}\footnotesize
         \begin{enumerate}\setlength{\itemsep}{0.5em}
           \item A model of \textbf{guardrailed AI} that prevents essay
@@ -655,7 +655,8 @@
           \item A practical \textbf{classroom response to AI} that
                 moves beyond panic, prohibition, and detection
         \end{enumerate}
-      }\\[1.0em]
+      }
+      \vspace{1.0em}
       {\color{tpgold}\footnotesize
         \href{https://vikthor1.github.io/tu-pana/}{vikthor1.github.io/tu-pana}}
     \column{0.38\textwidth}
@@ -665,7 +666,7 @@
       \end{center}
   \end{columns}
   \begin{tikzpicture}[remember picture, overlay]
-    \fill[tpbrown, opacity=0.60]
+    \fill[tpdark, opacity=0.82]
       (current page.south west)
       rectangle ([yshift=2.1cm] current page.south east);
     \node[anchor=center, text width=0.88\paperwidth, align=center,

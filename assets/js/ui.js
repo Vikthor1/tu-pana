@@ -3004,6 +3004,7 @@ function openMani() {
 }
 
 function showManiCelebration(onDone) {
+    if (document.getElementById('maniCelebration')) return;  // already showing
     const overlay = document.createElement('div');
     overlay.id = 'maniCelebration';
     const isDark    = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -3045,7 +3046,10 @@ function showManiCelebration(onDone) {
     document.body.appendChild(overlay);
     requestAnimationFrame(() => { overlay.style.opacity = '1'; });
 
+    let dismissed = false;
     function dismiss() {
+        if (dismissed) return;  // one-shot guard: prevents double openLab() from ghost tap
+        dismissed = true;
         overlay.style.opacity = '0';
         setTimeout(() => { overlay.remove(); onDone(); }, 500);
     }
@@ -3060,7 +3064,11 @@ function showManiCelebration(onDone) {
 function maniProceed() {
     if (maniClaimed < MANI_TOTAL) return;
     if (!maniPromptInput || maniPromptInput.value.trim().length === 0) return;
-    document.getElementById('maniBg').classList.remove('on');
+    const maniBgEl = document.getElementById('maniBg');
+    if (!maniBgEl.classList.contains('on')) return;  // already dismissed — Safari ghost-touch guard
+    const proceedBtn = document.getElementById('maniProceedBtn');
+    if (proceedBtn) { proceedBtn.disabled = true; proceedBtn.style.pointerEvents = 'none'; }
+    maniBgEl.classList.remove('on');
     showManiCelebration(() => {
         if (localStorage.getItem('tupana_lab_done') !== 'true') openLab();
     });
@@ -3203,6 +3211,7 @@ function labChoose(qNum, val) {
 }
 
 function openLab() {
+    if (el('labBg').classList.contains('on')) return;  // already open — don't reset progress
     el('labBg').classList.add('on');
     labShowStep(0);
 }

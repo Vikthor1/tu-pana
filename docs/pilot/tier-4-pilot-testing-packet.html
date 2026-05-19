@@ -584,6 +584,118 @@
     margin-top: 0;
   }
 
+  /* ── Feedback actions ── */
+  .feedback-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+  }
+
+  .feedback-button {
+    display: inline-block;
+    background: var(--jade);
+    color: #fff;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 13px 28px;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 8px rgba(45,122,95,0.25);
+  }
+
+  .feedback-button:hover {
+    background: var(--jade-mid);
+    box-shadow: 0 4px 14px rgba(45,122,95,0.35);
+    color: #fff;
+  }
+
+  .feedback-button:focus {
+    outline: 3px solid var(--jade-mid);
+    outline-offset: 3px;
+  }
+
+  .feedback-button--primary {
+    background: var(--ink);
+    box-shadow: 0 2px 8px rgba(30,26,20,0.22);
+  }
+
+  .feedback-button--primary:hover {
+    background: var(--ink-mid);
+    box-shadow: 0 4px 14px rgba(30,26,20,0.30);
+    color: #fff;
+  }
+
+  .feedback-button--secondary {
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.45);
+    color: #e8e3da;
+    box-shadow: none;
+  }
+
+  .feedback-button--secondary:hover {
+    background: rgba(255,255,255,0.10);
+    box-shadow: none;
+    color: #fff;
+  }
+
+  .feedback-button--section {
+    background: transparent;
+    border: 2px solid var(--jade);
+    color: var(--jade);
+    box-shadow: none;
+    margin-bottom: 20px;
+  }
+
+  .feedback-button--section:hover {
+    background: var(--jade-light);
+    box-shadow: none;
+    color: var(--jade);
+  }
+
+  .hero-app-url {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .hero-app-url a {
+    color: rgba(255,255,255,0.55);
+    text-decoration: underline;
+  }
+
+  .hero-instruction {
+    color: #c8c1b4;
+    font-size: 0.92rem;
+    margin: 18px auto 0;
+    max-width: 520px;
+    font-style: italic;
+  }
+
+  /* ── Embedded form ── */
+  .feedback-embed {
+    margin-top: 24px;
+  }
+
+  .feedback-embed-note {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-bottom: 10px;
+    font-style: italic;
+  }
+
+  .feedback-embed iframe {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: block;
+    width: 100%;
+  }
+
   /* ── Print ── */
   @media print {
     body { background: #fff; font-size: 13px; }
@@ -592,6 +704,17 @@
     .closing { background: #1e1a14; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     section { page-break-inside: avoid; }
     .path-grid { grid-template-columns: 1fr 1fr; }
+    .feedback-embed { display: none; }
+    .feedback-embed-fallback { display: block !important; }
+    .feedback-button { display: none; }
+  }
+
+  .feedback-embed-fallback {
+    display: none;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-top: 10px;
   }
 
   /* ── Responsive ── */
@@ -619,6 +742,22 @@
     <span class="focus-chip">Mi Toolkit</span>
     <span class="focus-chip">Bilingual Access</span>
   </div>
+  <p class="hero-instruction">Start by opening Tu Pana de Escritura. After testing, return to this packet to submit your feedback.<br><em>Empieza abriendo Tu Pana. Después de probar la app, vuelve aquí para enviar tus comentarios.</em></p>
+  <div class="feedback-actions" style="gap:12px; flex-wrap:wrap;">
+    <a class="feedback-button feedback-button--primary"
+       href="https://vikthor1.github.io/tu-pana/"
+       target="_blank"
+       rel="noopener">
+      Open Tu Pana de Escritura &nbsp;/&nbsp; Abrir Tu Pana
+    </a>
+    <a class="feedback-button feedback-button--secondary"
+       href="https://docs.google.com/forms/d/e/1FAIpQLSekug6vC14PvRUMe5_MOxqbHEfXDZ2SS5QTBFFAVTqFAr59CQ/viewform"
+       target="_blank"
+       rel="noopener">
+      Submit Feedback &nbsp;/&nbsp; Enviar comentarios
+    </a>
+  </div>
+  <p class="hero-app-url">App link: <a href="https://vikthor1.github.io/tu-pana/" target="_blank" rel="noopener">https://vikthor1.github.io/tu-pana/</a></p>
 </div>
 
 <!-- ── What we are testing ── -->
@@ -782,7 +921,7 @@
 
   <div class="card">
     <ol class="steps">
-      <li><strong>Open the app</strong> and notice the first screen. Is the purpose clear?</li>
+      <li><strong><a href="https://vikthor1.github.io/tu-pana/" target="_blank" rel="noopener">Open Tu Pana de Escritura</a></strong> and notice the first screen. Is the purpose clear?</li>
       <li><strong>Notice the language option.</strong> Is it easy to find? Does the default feel appropriate?</li>
       <li><strong>Complete onboarding.</strong> Read through the initial questions and claim your first asset chips.</li>
       <li><strong>Write a short anecdote</strong> at Stage 1. It can be invented. A paragraph or two is enough.</li>
@@ -896,7 +1035,14 @@
 <section>
   <div class="section-label">Structured feedback</div>
   <h2 class="section-title">Feedback questions</h2>
-  <p class="section-sub">These questions can be copied into a Google Form, Qualtrics survey, or shared as a document.</p>
+  <p class="section-sub">The questions below preview what the feedback form will ask. After testing, please submit your responses through the linked Google Form.</p>
+
+  <a class="feedback-button feedback-button--section"
+     href="https://docs.google.com/forms/d/e/1FAIpQLSekug6vC14PvRUMe5_MOxqbHEfXDZ2SS5QTBFFAVTqFAr59CQ/viewform"
+     target="_blank"
+     rel="noopener">
+    Open Feedback Form &nbsp;/&nbsp; Abrir formulario
+  </a>
 
   <div class="q-group">
     <div class="q-group-title">A — Quick ratings (1 = poor · 5 = excellent)</div>
@@ -1007,6 +1153,17 @@
     <div class="q-item"><span class="q-num">24.</span><div>Any other feedback, observations, or suggestions?</div></div>
   </div>
 
+  <div class="feedback-embed">
+    <p class="feedback-embed-note">If the embedded form does not load, <a href="https://docs.google.com/forms/d/e/1FAIpQLSekug6vC14PvRUMe5_MOxqbHEfXDZ2SS5QTBFFAVTqFAr59CQ/viewform" target="_blank" rel="noopener">open the feedback form in a new tab</a>.</p>
+    <iframe
+      src="https://docs.google.com/forms/d/e/1FAIpQLSekug6vC14PvRUMe5_MOxqbHEfXDZ2SS5QTBFFAVTqFAr59CQ/viewform?embedded=true"
+      width="100%" height="1800" frameborder="0" marginheight="0" marginwidth="0"
+      title="Tu Pana de Escritura — Pilot Feedback Form">
+      Loading…
+    </iframe>
+    <p class="feedback-embed-fallback">Submit feedback at: https://docs.google.com/forms/d/e/1FAIpQLSekug6vC14PvRUMe5_MOxqbHEfXDZ2SS5QTBFFAVTqFAr59CQ/viewform</p>
+  </div>
+
 </section>
 
 <hr class="section-rule">
@@ -1024,7 +1181,7 @@
       <li>Do not paste confidential student work without the student's permission.</li>
       <li>Use realistic but invented or lightly fictionalized writing whenever possible.</li>
       <li>This pilot tests the writing support experience — it does not require you to disclose private information to generate useful feedback.</li>
-      <li>Your browser session data (localStorage) is stored locally on your device and is cleared when you reset the app. Nothing is sent to a central server except the AI coach messages processed through the app's secure proxy.</li>
+      <li>Your writing inside the app is stored locally in your browser unless you choose to send messages to the AI coach. AI coach messages are processed through the app's secure proxy. <strong>Feedback submitted through the Google Form will be stored separately in Google Forms/Sheets for pilot evaluation.</strong> Please do not include sensitive personal information in either the app or the feedback form.</li>
     </ul>
   </div>
 </section>

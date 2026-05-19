@@ -146,7 +146,7 @@
     {\color{tpgold}\large Designing AI That Protects Student Authorship}\\[1.8em]
     {\color{tpborder}\rule{12em}{0.4pt}}\\[1em]
     {\color{tpwarm}\normalsize V\'{i}ctor Torres-V\'{e}lez, Ph.D.}\\[0.25em]
-    {\color{tpmuted}\small Department of Languages \& Linguistics}\\
+    {\color{tpmuted}\small Latin American \& Caribbean Studies Unit, Humanities  Department}\\
     {\color{tpmuted}\small Hostos Community College, CUNY}\\[0.9em]
     {\color{tpmuted}\footnotesize CTL Professional Development Conference}
   \end{center}
@@ -573,116 +573,70 @@
   }
 \end{frame}
 
-% ── SLIDE 16  Demo ───────────────────────────────────────────────────────
+% ── SLIDE 16  The Refusal ────────────────────────────────────────────────
 {%
 \setbeamertemplate{footline}{}
 \begin{frame}[plain]
-  \begin{tikzpicture}[remember picture, overlay]
-    \clip (current page.south west) rectangle (current page.north east);
-    \fill[tpdark]
-      (current page.south west) rectangle (current page.north east);
-    % Top-left: student writing
-    \node[anchor=north west, xshift=1.5pt, yshift=-1.5pt]
-      at (current page.north west){%
-      \includegraphics[width=0.499\paperwidth, height=0.455\paperheight,
-        keepaspectratio]{SCR-20260519-lemu.png}};
-    % Top-right: coach responds in Spanish
-    \node[anchor=north east, xshift=-1.5pt, yshift=-1.5pt]
-      at (current page.north east){%
-      \includegraphics[width=0.499\paperwidth, height=0.455\paperheight,
-        keepaspectratio]{SCR-20260519-lfbj.png}};
-    % Bottom-left: guardrail refusal
-    \node[anchor=south west, xshift=1.5pt, yshift=18pt]
-      at (current page.south west){%
-      \includegraphics[width=0.499\paperwidth, height=0.455\paperheight,
-        keepaspectratio]{SCR-20260519-lepw.png}};
-    % Bottom-right: stage progression
-    \node[anchor=south east, xshift=-1.5pt, yshift=18pt]
-      at (current page.south east){%
-      \includegraphics[width=0.499\paperwidth, height=0.455\paperheight,
-        keepaspectratio]{SCR-20260519-lmox.png}};
-    % Caption strip
-    \fill[tpdark, opacity=0.88]
-      (current page.south west)
-      rectangle ([yshift=18pt] current page.south east);
-    \node[anchor=center, text=tpwarm, font=\small\itshape,
-          yshift=8pt] at (current page.south)
-      {In educational AI, refusal is not failure.
-        \textperiodcentered{} Sometimes refusal is pedagogy.};
-  \end{tikzpicture}
+  \screenshotcaption{SCR-20260519-lepw.png}%
+    {The refusal is the pedagogy.}
   \note{%
-    \textbf{SLIDE 16 — Demo Moment} \hfill \textit{[75–90 sec]}\\[0.5em]
-    \textit{[For 18-minute version: pause on this slide. Ask the room: "What do you notice?" Give 20–30 seconds of actual silence before speaking.]}\\[0.5em]
-    Four screenshots from inside Tu Pana. Walk through them one at a time:\\[0.4em]
-    Top-left — A student working in a draft stage. The writing area is dominant. The interface is waiting for the student's text.\\[0.3em]
-    Top-right — The coach responding in Spanish. Questions, not prose. The AI is asking, not writing.\\[0.3em]
-    Bottom-left — A student asking for help "without rewriting it" — a direct request for ghostwriting. The coach declines and asks a question instead. That refusal is a feature, not a failure.\\[0.3em]
-    Bottom-right — Stage progression. The student is moving forward through the process. The arc of the tool is visible.\\[0.5em]
-    \textit{[Say slowly:]} The most important feature of Tu Pana may be what it refuses to do.\\[0.4em]
-    In educational AI, refusal is not failure. Sometimes refusal is pedagogy.\\[0.5em]
-    \textit{[10-minute version: 45 seconds on this slide. Point to the bottom-left refusal screenshot and say the refusal line. Advance.]}
+    \textbf{SLIDE 16 — The Refusal} \hfill \textit{[60 sec]}\\[0.5em]
+    \textit{[Let the audience read the screen for 3–4 seconds before speaking.]}\\[0.5em]
+    What you are seeing is a student who has asked the coach to help write a section "without rewriting it." That is a direct request for ghostwriting. The coach declines. It asks a question instead.\\[0.5em]
+    That refusal is not a bug. It is not a limitation. It is the most deliberate design decision in the entire app.\\[0.5em]
+    When we talk about AI in education, we usually talk about what AI can do. What it can generate, summarize, suggest, produce. Tu Pana asks a different question: What should AI be permitted to do in a writing classroom? And what should it be required to refuse?\\[0.5em]
+    \textit{[Say this slowly:]} The refusal is the pedagogy.\\[0.5em]
+    \textit{[Pause. Let the room sit with that. Then advance to the closing slide.]}\\[0.5em]
+    \textit{[10-minute version: Same delivery. 45 seconds. Advance.]}
   }
 \end{frame}
 }
 
-% ── SLIDE 17  Closing ────────────────────────────────────────────────────
+% ── SLIDE 17  Contributions ──────────────────────────────────────────────
 {%
 \setbeamertemplate{footline}{}
-\begin{frame}[plain]
+\begin{frame}[plain,c]
   \begin{tikzpicture}[remember picture, overlay]
+    \clip (current page.south west) rectangle (current page.north east);
     \fill[tpdark]
       (current page.south west) rectangle (current page.north east);
     \fill[tpgreen]
       (current page.south west)
       rectangle ([xshift=\paperwidth, yshift=3pt] current page.south west);
   \end{tikzpicture}
-  \begin{columns}[T, totalwidth=0.90\textwidth]
-    \column{0.58\textwidth}
-      \vspace{1.4em}
-      {\color{tpgold}\small\bfseries\MakeUppercase{Contributions}}
-      \vspace{0.7em}
-      {\color{tpwarm}\footnotesize
-        \begin{enumerate}\setlength{\itemsep}{0.5em}
-          \item A model of \textbf{guardrailed AI} that prevents essay
-                generation while supporting students
-          \item A model of \textbf{decolonial AI pedagogy} designed
-                around student dignity and linguistic justice
-          \item A model of \textbf{multilingual writing support} that
-                treats Spanish, Spanglish, and community language
-                as rhetorical resources
-          \item A model of \textbf{process documentation} that gives
-                faculty a richer view of student writing development
-          \item A practical \textbf{classroom response to AI} that
-                moves beyond panic, prohibition, and detection
-        \end{enumerate}
-      }
-      \vspace{1.0em}
-      {\color{tpgold}\footnotesize
-        \href{https://vikthor1.github.io/tu-pana/}{vikthor1.github.io/tu-pana}}
-    \column{0.38\textwidth}
-      \vspace{1.6em}
-      \begin{center}
-        {\color{tpborder}\rule{0.7pt}{5.5cm}}
-      \end{center}
-  \end{columns}
-  \begin{tikzpicture}[remember picture, overlay]
-    \fill[tpdark, opacity=0.82]
-      (current page.south west)
-      rectangle ([yshift=2.1cm] current page.south east);
-    \node[anchor=center, text width=0.88\paperwidth, align=center,
-          text=tpwarm, font=\normalsize\itshape,
-          yshift=0.88cm] at (current page.south)
-      {In a moment when AI can generate text instantly, Tu Pana insists
-       that the student's struggle to write, remember, connect, revise,
-       and reflect is not an obstacle to learning. It is the learning.};
-  \end{tikzpicture}
+  \begin{center}
+    {\color{tpgold}\small\bfseries\MakeUppercase{What Tu Pana Offers}}\\[1.3em]
+    {\color{tpwarm}\small
+      \renewcommand{\arraystretch}{1.7}
+      \begin{tabular}{cl}
+        {\color{tpgold}\bfseries 1.} &
+          A model of \textbf{guardrailed AI} that prevents essay
+          generation while supporting students\\
+        {\color{tpgold}\bfseries 2.} &
+          A model of \textbf{decolonial AI pedagogy} around student
+          dignity and linguistic justice\\
+        {\color{tpgold}\bfseries 3.} &
+          A model of \textbf{multilingual writing support} that treats
+          community language as a rhetorical resource\\
+        {\color{tpgold}\bfseries 4.} &
+          A model of \textbf{process documentation} that gives faculty
+          a richer view of student writing development\\
+        {\color{tpgold}\bfseries 5.} &
+          A practical \textbf{classroom response to AI} that moves
+          beyond panic, prohibition, and detection\\
+      \end{tabular}
+    }\\[1.5em]
+    {\color{tpborder}\rule{10em}{0.4pt}}\\[0.8em]
+    {\color{tpgold}\small
+      \href{https://vikthor1.github.io/tu-pana/}{vikthor1.github.io/tu-pana}}
+  \end{center}
   \note{%
-    \textbf{SLIDE 17 — Closing} \hfill \textit{[60–75 sec]}\\[0.5em]
-    Read the five contributions aloud. Pause on each one. Don't rush through this list — these are five distinct claims, and faculty should have time to absorb each.\\[0.5em]
-    Then close with the sentence at the bottom of the screen. Read it slowly:\\[0.4em]
+    \textbf{SLIDE 17 — Contributions} \hfill \textit{[60–75 sec]}\\[0.5em]
+    Read the five contributions aloud. Pause briefly on each one — these are five distinct claims and faculty deserve a moment to absorb each before you move to the next.\\[0.5em]
+    After the fifth item, look up from the screen. Then deliver the closing sentence from memory, not from the slide:\\[0.4em]
     \textbf{"In a moment when AI can generate text instantly, Tu Pana insists that the student's struggle to write, remember, connect, revise, and reflect is not an obstacle to learning. It is the learning."}\\[0.5em]
-    \textit{[After the final sentence: do not say Thank You. Do not say Questions. Set down your clicker. Wait. Let the room decide what to do with the silence. That silence is the argument completing itself.]}\\[0.5em]
-    If questions arise, the richest ones to invite: How would this work in your discipline? What would it take to adapt the five questions to your course context? What does process documentation change for how you think about grading?
+    \textit{[After the final sentence: set down your clicker. Do not say Thank You. Do not say Questions. Let the room decide what to do with the silence. That silence is the argument completing itself.]}\\[0.5em]
+    When questions arise, the richest ones to invite: How would this work in your discipline? What would it take to adapt the Five Questions to your course context? What does process documentation change for how you think about grading?
   }
 \end{frame}
 }

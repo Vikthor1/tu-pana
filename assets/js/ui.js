@@ -2642,13 +2642,21 @@ function showSkillToast(def) {
     toast.setAttribute('aria-live', 'polite');
     toast.innerHTML =
         `<span class="skill-toast-label"><span class="show-es">Nueva habilidad</span><span class="lang-sep"> · </span><span class="show-en">New skill</span></span>` +
-        `<span class="skill-toast-text"><span class="show-es">${escapeHtml(def.labelEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(def.labelEn)}</span></span>`;
+        `<span class="skill-toast-text"><span class="show-es">${escapeHtml(def.labelEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(def.labelEn)}</span></span>` +
+        `<button class="skill-toast-dismiss" aria-label="Cerrar · Dismiss">×</button>`;
     document.body.appendChild(toast);
     requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('skill-toast--visible')));
-    setTimeout(() => {
+    let timer;
+    let gone = false;
+    function dismissToast() {
+        if (gone) return;
+        gone = true;
+        clearTimeout(timer);
         toast.classList.remove('skill-toast--visible');
         setTimeout(() => toast.remove(), 500);
-    }, 3800);
+    }
+    timer = setTimeout(dismissToast, 3800);
+    toast.querySelector('.skill-toast-dismiss').addEventListener('click', dismissToast);
 }
 
 // ════════════════════════════════════════════════════════

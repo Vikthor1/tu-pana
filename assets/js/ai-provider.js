@@ -47,11 +47,52 @@ function selectGeminiModel(stageId) {
     return FLASH_STAGE_IDS.has(stageId) ? 'gemini-2.5-flash' : (CONFIG.geminiModel || 'gemini-2.5-flash-lite');
 }
 
-async function callGeminiProviderViaProxy(coachPayload) {
-    if (!CONFIG.geminiProxyUrl) {
-        throw new Error('[Tu Pana] Gemini not configured: CONFIG.geminiProxyUrl is empty.');
-    }
+// ── Gemini error helpers ──────────────────────────────────
 
+function _statusToGeminiCategory(status) {
+    if (status === 429) return 'rate_limited';
+    if (status === 400) return 'bad_request';
+    if (status === 401 || status === 403) return 'auth_error';
+    if (status === 503 || status === 504) return 'service_unavailable';
+    if (status >= 500) return 'upstream_error';
+    return 'unknown_error';
+}
+
+function _mkGeminiErr(msg, category) {
+    const e = new Error(msg);
+    e.category = category;
+    return e;
+}
+
+// Retryable categories (transient failures worth retrying automatically)
+const _GEMINI_RETRYABLE = new Set(['rate_limited', 'service_unavailable', 'upstream_error', 'network_error']);
+const _GEMINI_MAX_RETRIES = 2;
+
+function _geminiBackoffMs(attempt) {
+    // attempt 0 → ~1500ms, attempt 1 → ~4000ms; jitter prevents client synchronization
+    return (attempt === 0 ? 1500 : 4000) + Math.floor(Math.random() * 600);
+}
+
+// Bilingual student-facing error messages keyed by category
+function getGeminiErrorMessage(err) {
+    const cat = err?.category;
+    if (cat === 'rate_limited') {
+        return 'El coach está recibiendo demasiadas solicitudes en este momento. Espera un momento e intenta de nuevo.\nThe coach is receiving too many requests right now. Wait a moment and try again.';
+    }
+    if (cat === 'auth_error') {
+        return 'Hay un problema de configuración con el coach. Por favor, avisa a tu instructor/a.\nThere is a configuration issue with the coach. Please notify your instructor.';
+    }
+    if (cat === 'bad_request') {
+        return 'El coach no pudo procesar ese mensaje. Intenta de nuevo o acorta tu mensaje.\nThe coach could not process that message. Try again or shorten your message.';
+    }
+    if (cat === 'invalid_response') {
+        return 'El coach devolvió una respuesta inesperada. Intenta de nuevo.\nThe coach returned an unexpected response. Try again.';
+    }
+    return 'El coach Gemini no está disponible temporalmente. Puedes intentar de nuevo o continuar con el Coach sin conexión.\nGemini coach is temporarily unavailable. You can try again or continue with the Offline Coach.';
+}
+
+// Single-attempt Gemini fetch — called by callGeminiProviderViaProxy retry loop
+async function _callGeminiOnce(coachPayload) {
     let response;
     try {
         response = await fetch(CONFIG.geminiProxyUrl, {
@@ -66,26 +107,49 @@ async function callGeminiProviderViaProxy(coachPayload) {
                 model:            selectGeminiModel(coachPayload.stageId)
             })
         });
-    } catch (err) {
-        throw new Error('[Tu Pana] Gemini proxy unreachable');
+    } catch (_) {
+        throw _mkGeminiErr('[Tu Pana] Gemini proxy unreachable', 'network_error');
     }
 
     let data;
     try {
         data = await response.json();
-    } catch {
-        throw new Error('[Tu Pana] Gemini proxy returned an invalid response');
+    } catch (_) {
+        throw _mkGeminiErr('[Tu Pana] Gemini proxy returned an invalid response', 'invalid_response');
     }
 
     if (!response.ok) {
-        throw new Error('[Tu Pana] Gemini proxy error: ' + (data?.error || response.status));
+        const cat = data?.category || _statusToGeminiCategory(response.status);
+        const e   = _mkGeminiErr('[Tu Pana] Gemini error: ' + (data?.message || response.status), cat);
+        e.status  = response.status;
+        throw e;
     }
 
     if (!data?.text || typeof data.text !== 'string') {
-        throw new Error('[Tu Pana] Gemini proxy returned no text');
+        throw _mkGeminiErr('[Tu Pana] Gemini proxy returned no text', 'invalid_response');
     }
 
     return data.text;
+}
+
+async function callGeminiProviderViaProxy(coachPayload) {
+    if (!CONFIG.geminiProxyUrl) {
+        throw _mkGeminiErr('[Tu Pana] Gemini not configured: CONFIG.geminiProxyUrl is empty.', 'auth_error');
+    }
+
+    let lastErr;
+    for (let attempt = 0; attempt <= _GEMINI_MAX_RETRIES; attempt++) {
+        if (attempt > 0) {
+            await new Promise(r => setTimeout(r, _geminiBackoffMs(attempt - 1)));
+        }
+        try {
+            return await _callGeminiOnce(coachPayload);
+        } catch (err) {
+            lastErr = err;
+            if (!_GEMINI_RETRYABLE.has(err.category)) break; // non-retryable: stop immediately
+        }
+    }
+    throw lastErr;
 }
 
 // ════════════════════════════════════════════════════════

@@ -67,8 +67,18 @@ async function callGemini({ model, systemPrompt, userMessage, apiKey }) {
     });
 
     if (!resp.ok) {
-        // Do not forward raw Gemini error bodies — they may contain key details.
-        throw new Error(`Gemini API error: ${resp.status}`);
+        // Extract only the Gemini status enum (e.g. RESOURCE_EXHAUSTED) — never forward the
+        // message field, which may echo prompt content. Validate format before using.
+        let upstreamStatus = null;
+        try {
+            const errBody = await resp.json();
+            const s = errBody?.error?.status;
+            if (typeof s === 'string' && /^[A-Z_]+$/.test(s)) upstreamStatus = s;
+        } catch(_) {}
+        const err = new Error(`Gemini upstream ${resp.status}`);
+        err.status    = resp.status;
+        err.upstreamStatus = upstreamStatus;
+        throw err;
     }
 
     const data = await resp.json();
@@ -140,11 +150,36 @@ export default {
             });
             return Response.json({ text }, { headers: corsHeaders(origin) });
         } catch (err) {
-            // Log only error type — never log prompt, key, or response content
-            console.error('Gemini proxy error:', err.name || 'Unknown error');
+            // Log only error type and upstream status — never log prompt, key, or student content
+            console.error('Gemini proxy error:', err.name, err.status || '', err.upstreamStatus || '');
+            const upStatus = err.status;
+            let category, outStatus, message;
+            if (upStatus === 429) {
+                category = 'rate_limited';        outStatus = 429;
+                message  = 'Too many requests. Wait briefly and try again.';
+            } else if (upStatus === 400) {
+                category = 'bad_request';         outStatus = 400;
+                message  = 'Request could not be processed.';
+            } else if (upStatus === 401 || upStatus === 403) {
+                category = 'auth_error';          outStatus = 503;
+                message  = 'Coach configuration error.';
+            } else if (upStatus === 503 || upStatus === 504) {
+                category = 'service_unavailable'; outStatus = 503;
+                message  = 'Gemini is temporarily unavailable.';
+            } else if (upStatus >= 500) {
+                category = 'upstream_error';      outStatus = 502;
+                message  = 'Upstream error from Gemini.';
+            } else if (upStatus) {
+                category = 'upstream_error';      outStatus = 502;
+                message  = `Upstream error: ${upStatus}`;
+            } else {
+                category = 'network_error';       outStatus = 502;
+                message  = 'Network error reaching Gemini.';
+            }
             return Response.json(
-                { error: 'Gemini request failed' },
-                { status: 502, headers: corsHeaders(origin) }
+                { error: true, category, status: outStatus, message,
+                  upstreamStatus: err.upstreamStatus || null },
+                { status: outStatus, headers: corsHeaders(origin) }
             );
         }
     },

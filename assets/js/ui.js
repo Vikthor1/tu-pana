@@ -2181,7 +2181,7 @@ async function sendMsg(text) {
             if (reply) addMsg(reply, 'bot');
         } catch(err) {
             console.error('gemini:', err);
-            addMsg('El coach Gemini no está disponible en este momento. / Gemini coach is unavailable right now.', 'bot');
+            addMsg(getGeminiErrorMessage(err), 'bot');
         } finally {
             showTyping(false);
             state.waiting = false;

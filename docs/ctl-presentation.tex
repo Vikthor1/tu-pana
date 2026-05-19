@@ -14,6 +14,11 @@
 %
 %  SCREENSHOTS
 %  Loaded from: /Users/Victor1/Desktop/Manual Library/Screenshots/
+%
+%  COMPILATION — use pdflatex, compiled TWICE (or latexmk -pdf):
+%    latexmk -pdf ctl-presentation.tex
+%  TikZ "remember picture" overlays require two passes to position correctly.
+%  On the first pass screenshots will be misplaced; always check the second.
 % ════════════════════════════════════════════════════════════════════════
 
 \usepackage{pgfpages}
@@ -30,6 +35,7 @@
 \usepackage{xcolor}
 \usepackage{tikz}
 \usepackage{graphicx}
+\usepackage{grffile}  % handles spaces in \graphicspath and filenames
 \graphicspath{{/Users/Victor1/Desktop/Manual Library/Screenshots/}}
 \usepackage{booktabs}
 \usepackage{colortbl}
@@ -91,6 +97,7 @@
 % Full-bleed screenshot on dark background
 \newcommand{\fullscreenshot}[1]{%
   \begin{tikzpicture}[remember picture, overlay]
+    \clip (current page.south west) rectangle (current page.north east);
     \fill[tpdark]
       (current page.south west) rectangle (current page.north east);
     \node[anchor=center] at (current page.center){%
@@ -102,6 +109,7 @@
 % Full-bleed screenshot with bottom caption bar
 \newcommand{\screenshotcaption}[2]{%
   \begin{tikzpicture}[remember picture, overlay]
+    \clip (current page.south west) rectangle (current page.north east);
     \fill[tpdark]
       (current page.south west) rectangle (current page.north east);
     \node[anchor=center] at (current page.center){%
@@ -571,6 +579,7 @@
 \setbeamertemplate{footline}{}
 \begin{frame}[plain]
   \begin{tikzpicture}[remember picture, overlay]
+    \clip (current page.south west) rectangle (current page.north east);
     \fill[tpdark]
       (current page.south west) rectangle (current page.north east);
     % Top-left: student writing

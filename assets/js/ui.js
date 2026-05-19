@@ -82,6 +82,7 @@ const D = {
     pnModalBg:   el('pnModalBg'),
     pnModalBody: el('pnModalBody'),
     completionBg: el('completionBg'),
+    capstoneBg:   el('capstoneBg'),
     mobileStageSelect: el('mobileStageSelect')
 };
 
@@ -494,6 +495,13 @@ function exportCapstone() {
     });
 }
 
+function openCapstoneModal() {
+    D.capstoneBg.classList.add('on');
+}
+function closeCapstoneModal() {
+    D.capstoneBg.classList.remove('on');
+}
+
 function injectCapstonePanel() {
     if (document.querySelector('.capstone-panel')) return;
 
@@ -606,8 +614,19 @@ function injectCapstonePanel() {
         </div>
     `;
 
-    D.chatMessages.appendChild(panel);
-    D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
+    el('capstoneModalBody').appendChild(panel);
+    openCapstoneModal();
+
+    if (!document.getElementById('capstoneChatTrigger')) {
+        const trigger = document.createElement('div');
+        trigger.id = 'capstoneChatTrigger';
+        trigger.className = 'capstone-chat-trigger';
+        trigger.innerHTML =
+            `<span class="capstone-chat-trigger-label"><span lang="es">Tu reflexión de cierre está lista</span><span class="lang-sep"> · </span><span lang="en">Your writing snapshot is ready</span></span>` +
+            `<button class="capstone-reopen-btn" onclick="openCapstoneModal()" aria-label="Abrir mi cierre de proceso · Open my writing snapshot"><span lang="es">Mi cierre de proceso</span><span class="lang-sep"> · </span><span lang="en">Writing Snapshot</span> →</button>`;
+        D.chatMessages.appendChild(trigger);
+        D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
+    }
 }
 
 // ════════════════════════════════════════════════════════
@@ -882,8 +901,8 @@ function renderCoachPerspectiveData(parsed, isRestore) {
     const compareBtn = document.getElementById('capstoneCompareBtn');
     if (compareBtn) compareBtn.style.display = 'none';
 
-    D.chatMessages.appendChild(panel);
-    D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
+    el('capstoneModalBody').appendChild(panel);
+    openCapstoneModal();
 
     // If restoring and 10C was already started, re-inject 10C
     if (isRestore && (resp10cDone || savedResp.agree || savedResp.disagree || savedResp.missing)) {
@@ -914,8 +933,8 @@ function renderCoachPerspectiveOffline() {
             </button>
         </div>
     `;
-    D.chatMessages.appendChild(panel);
-    D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
+    el('capstoneModalBody').appendChild(panel);
+    openCapstoneModal();
 }
 
 function renderCoachPerspectiveFallback(rawText) {
@@ -943,8 +962,8 @@ function renderCoachPerspectiveFallback(rawText) {
     `;
     const compareBtn = document.getElementById('capstoneCompareBtn');
     if (compareBtn) compareBtn.style.display = 'none';
-    D.chatMessages.appendChild(panel);
-    D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
+    el('capstoneModalBody').appendChild(panel);
+    openCapstoneModal();
 }
 
 // ── 10C: My Response to the Coach ───────────────────────
@@ -1043,8 +1062,10 @@ function showCapstoneCard10C() {
         </div>
     `;
 
-    D.chatMessages.appendChild(panel);
-    D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
+    el('capstoneModalBody').appendChild(panel);
+    openCapstoneModal();
+    const mb = el('capstoneModalBody');
+    setTimeout(() => { mb.scrollTop = mb.scrollHeight; }, 50);
 }
 
 function saveCapstoneStudentResponse(key, value) {
@@ -5179,7 +5200,9 @@ function generateInstructorReport() {
 function injectInstructorReportPanel(scrollTo) {
     if (document.getElementById('instrReportPanel')) {
         if (scrollTo) {
-            document.getElementById('instrReportPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            openCapstoneModal();
+            const mb = el('capstoneModalBody');
+            setTimeout(() => { mb.scrollTop = mb.scrollHeight; }, 150);
         }
         return;
     }
@@ -5348,13 +5371,15 @@ function injectInstructorReportPanel(scrollTo) {
             <span class="show-en">Copy or download this report and submit it in Brightspace with your assignment as instructed by your professor. This app does <em>not</em> submit directly to Brightspace.</span>
         </div>`;
 
-    D.chatMessages.appendChild(panel);
+    el('capstoneModalBody').appendChild(panel);
+    openCapstoneModal();
 
     // Generate initial preview
     refreshInstrPreview();
 
     if (scrollTo) {
-        setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+        const mb = el('capstoneModalBody');
+        setTimeout(() => { mb.scrollTop = mb.scrollHeight; }, 150);
     }
 
     // Mark as generated in capstone data so it restores on reload

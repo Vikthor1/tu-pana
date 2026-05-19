@@ -82,7 +82,6 @@ const D = {
     pnModalBg:   el('pnModalBg'),
     pnModalBody: el('pnModalBody'),
     completionBg: el('completionBg'),
-    capstoneBg:   el('capstoneBg'),
     mobileStageSelect: el('mobileStageSelect')
 };
 
@@ -496,10 +495,10 @@ function exportCapstone() {
 }
 
 function openCapstoneModal() {
-    D.capstoneBg.classList.add('on');
+    el('capstoneBg').classList.add('on');
 }
 function closeCapstoneModal() {
-    D.capstoneBg.classList.remove('on');
+    el('capstoneBg').classList.remove('on');
 }
 
 function injectCapstonePanel() {

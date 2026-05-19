@@ -1,0 +1,610 @@
+\documentclass[12pt, letterpaper]{article}
+
+% ════════════════════════════════════════════════════════════════════════
+%  Tu Pana de Escritura — Speaker Script
+%  CTL Professional Development Conference
+%
+%  HOW TO PRINT
+%  pdflatex ctl-presentation-script.tex   (one pass is sufficient)
+%  Print single-sided; consider a binder or clipboard for presenting.
+% ════════════════════════════════════════════════════════════════════════
+
+% ── Encoding & typography ────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[defaultsans]{lato}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{microtype}
+\usepackage{setspace}
+\setstretch{1.35}
+
+% ── Layout ───────────────────────────────────────────────────────────────
+\usepackage[
+  top=1.1in,
+  bottom=1.1in,
+  left=1.4in,
+  right=1.1in
+]{geometry}
+\usepackage{parskip}
+\setlength{\parskip}{0.6em}
+
+% ── Colors ───────────────────────────────────────────────────────────────
+\usepackage{xcolor}
+\definecolor{tpdark}{HTML}{1a1510}
+\definecolor{tpgreen}{HTML}{2d7a5f}
+\definecolor{tpgold}{HTML}{c5a84f}
+\definecolor{tpwarm}{HTML}{f4ede4}
+\definecolor{tpmuted}{HTML}{9a8e7e}
+\definecolor{tpbg}{HTML}{faf8f5}
+\definecolor{tpborder}{HTML}{e0d8ce}
+\definecolor{tplightgreen}{HTML}{eaf4ef}
+
+% ── Graphics & rules ─────────────────────────────────────────────────────
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{mdframed}
+
+% ── Headers & footers ────────────────────────────────────────────────────
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[L]{%
+  \footnotesize\color{tpmuted}%
+  \textit{Tu Pana de Escritura} \textperiodcentered{} Speaker Script}
+\fancyhead[R]{%
+  \footnotesize\color{tpmuted}\thepage}
+\fancyfoot[C]{%
+  \footnotesize\color{tpmuted}CTL Professional Development Conference}
+
+% ── Hyperlinks ───────────────────────────────────────────────────────────
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  urlcolor=tpgreen,
+  linkcolor=tpdark,
+  pdfauthor={Víctor Torres-Vélez, Ph.D.},
+  pdftitle={Tu Pana de Escritura — Speaker Script}
+}
+
+% ════════════════════════════════════════════════════════════════════════
+%  CUSTOM COMMANDS
+% ════════════════════════════════════════════════════════════════════════
+
+% Slide section header: #1 = number, #2 = title, #3 = timing
+\newcommand{\slidesection}[3]{%
+  \vspace{1.8em}
+  \begin{tikzpicture}[baseline=0]
+    \fill[tpgreen] (0,0) rectangle (\linewidth, 1.55em);
+    \fill[tpgold]  (0,0) rectangle (\linewidth, 2.5pt);
+    \node[anchor=west, text=white, font=\bfseries\normalsize,
+          inner xsep=8pt, inner ysep=0pt]
+      at (0, 0.78em) {\textsc{slide #1} \enspace\textperiodcentered\enspace #2};
+    \node[anchor=east, text=white!65!tpgreen, font=\small,
+          inner xsep=8pt, inner ysep=0pt]
+      at (\linewidth, 0.78em) {#3};
+  \end{tikzpicture}%
+  \vspace{0.5em}
+}
+
+% Delivery note callout
+\newenvironment{cue}{%
+  \begin{mdframed}[
+    linecolor=tpgold,
+    linewidth=2.5pt,
+    topline=false,
+    bottomline=false,
+    rightline=false,
+    innerleftmargin=10pt,
+    innerrightmargin=8pt,
+    innertopmargin=5pt,
+    innerbottommargin=5pt,
+    backgroundcolor=tpwarm,
+    skipabove=0.5em,
+    skipbelow=0.5em
+  ]%
+  \small\itshape\color{tpdark}%
+}{%
+  \end{mdframed}%
+}
+
+% Emphasis for key spoken phrases
+\newcommand{\keyline}[1]{%
+  {\color{tpgreen}\bfseries #1}}
+
+% Timing badge used in timing table
+\newcommand{\timebadge}[1]{%
+  {\footnotesize\color{tpmuted}#1}}
+
+% ════════════════════════════════════════════════════════════════════════
+\begin{document}
+\color{tpdark}
+% ════════════════════════════════════════════════════════════════════════
+
+% ── COVER ────────────────────────────────────────────────────────────────
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture, overlay]
+  \fill[tpdark]
+    (current page.north west)
+    rectangle ([yshift=-6.8cm] current page.north east);
+  \fill[tpgreen]
+    ([yshift=-6.8cm] current page.north west)
+    rectangle ([yshift=-6.84cm] current page.north east);
+  \fill[tpgold]
+    ([yshift=-6.84cm] current page.north west)
+    rectangle ([yshift=-6.88cm] current page.north east);
+\end{tikzpicture}
+
+\vspace*{1.6cm}
+\begin{center}
+  {\color{tpwarm}\Large\bfseries Tu Pana de Escritura}\\[0.5em]
+  {\color{tpgold}\large Designing AI That Protects Student Authorship}\\[0.6em]
+  {\color{tpborder}\rule{10em}{0.4pt}}\\[0.5em]
+  {\color{tpmuted}\normalsize Speaker Script with Delivery Notes}
+\end{center}
+
+\vspace{3.0cm}
+
+\begin{center}
+  {\normalsize V\'{i}ctor Torres-V\'{e}lez, Ph.D.}\\[0.3em]
+  {\color{tpmuted}\small Latin American \& Caribbean Studies Unit,
+    Humanities Department}\\
+  {\color{tpmuted}\small Hostos Community College, CUNY}\\[0.6em]
+  {\color{tpmuted}\small CTL Professional Development Conference}
+\end{center}
+
+\vspace{2.2em}
+\noindent{\color{tpborder}\rule{\linewidth}{0.5pt}}
+\vspace{1.0em}
+
+\noindent{\small\color{tpmuted}%
+\textbf{How to use this script.} Each slide section opens with a green
+header showing the slide number, title, and target time. The body text
+is what to say --- spoken prose, not bullet points. Gold-bordered
+callout boxes carry delivery directions: when to pause, what to
+emphasize, how long to hold silence, and where to look. Italic phrases
+within the script indicate words that should be delivered with
+particular weight or slowness. You do not need to read the script
+verbatim --- treat it as a guide, not a transcript. The goal is a
+conversation with the room, not a reading.}
+
+\vspace{1.5em}
+\noindent{\color{tpborder}\rule{\linewidth}{0.5pt}}
+
+% ── TIMING OVERVIEW ──────────────────────────────────────────────────────
+\vspace{1.2em}
+\noindent{\small\bfseries\color{tpgreen}\MakeUppercase{Timing Overview}}
+\vspace{0.5em}
+
+{\small\color{tpdark}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{clll}
+  \color{tpmuted}\textbf{\#} &
+  \color{tpmuted}\textbf{Slide} &
+  \color{tpmuted}\textbf{10-min} &
+  \color{tpmuted}\textbf{18-min} \\
+  \hline
+  1  & Opening                          & 60s          & 60s \\
+  2  & The Problem                      & 60s          & 60s \\
+  3  & The Students                     & brief        & 45s \\
+  4  & What Tu Pana Is                  & 60s          & 60s \\
+  5  & Student Writes First             & 60s          & 60s \\
+  6  & The App                          & \textit{skip}& 30s \\
+  7  & Ten Stages                       & \textit{skip}& 75s \\
+  8  & Decolonial AI                    & \textit{skip}& 60s \\
+  9  & Bilingualism                     & \textit{skip}& 45s \\
+  10 & Voice Vault                      & 75s          & 90s \\
+  11 & Citation Ethics                  & \textit{skip}& 45s \\
+  12 & The Five Questions               & 60s          & 60s \\
+  13 & Process Documentation            & 60s          & 60s \\
+  14 & Why This Matters for Faculty     & \textit{skip}& 60s \\
+  15 & Generic AI vs.\ Tu Pana          & \textit{skip}& 60s \\
+  16 & The Refusal                      & 45s          & 60s \\
+  17 & Contributions                    & 60s          & 75s \\
+  18 & QR Code                          & on screen    & on screen \\
+\end{tabular}
+}
+
+\newpage
+
+% ════════════════════════════════════════════════════════════════════════
+%  SCRIPT
+% ════════════════════════════════════════════════════════════════════════
+
+% ── SLIDE 1 ──────────────────────────────────────────────────────────────
+\slidesection{1}{Opening}{60 seconds}
+
+Good morning. I want to start with an invitation rather than an argument.
+
+By the end of this session, I hope you will see one possibility for using generative AI in writing instruction --- a possibility that does not begin with efficiency, automation, or output.
+
+I want to ask a different question. What would it mean to design AI around \textit{student authorship}? Not around faster essays. Not around smoother prose. Not around replacing the difficult, human work of writing. But around \textit{protecting} that work.
+
+That is the question behind Tu Pana de Escritura --- a bilingual Spanish-English AI writing coach I have been developing for multilingual, Latinx, Caribbean, immigrant, and working-class college students in the Bronx.
+
+I want to offer you one sentence. It is the spine of everything I am about to show you:
+
+\keyline{Tu Pana is not designed to help students avoid writing. It is designed to help students stay with writing.}
+
+\begin{cue}
+Deliver the final sentence slowly, as two distinct clauses. Pause for a full two seconds after "stay with writing." Let it sit in the room. Do not advance until you feel the silence settle. Then move.
+\end{cue}
+
+
+% ── SLIDE 2 ──────────────────────────────────────────────────────────────
+\slidesection{2}{The Problem}{60 seconds}
+
+The conversation about AI and writing almost always starts with cheating. That concern is real, and I take it seriously. But I want to push past it --- to the deeper problem.
+
+Think about what writing is actually supposed to develop. The ability to remember and select what matters. To question assumptions. To connect ideas across contexts. To structure an argument. To revise toward clarity. To reflect on what you actually think.
+
+That is the intellectual labor of writing.
+
+When AI does that labor for the student --- even helpfully, even with the best intentions --- something is taken from them. Not just from the grade book. From the intellectual process that writing is supposed to develop.
+
+They may end up with a polished product. But they did not remember, question, connect, structure, revise, or reflect.
+
+\keyline{They did not write.}
+
+The question Tu Pana is asking is not: how do we catch students who use AI? The question is: can we design an AI writing environment where the student \textit{remains the author} --- throughout the entire process?
+
+\begin{cue}
+Pause after "they did not write." Longer than feels comfortable. Then deliver the final question and advance.
+\end{cue}
+
+
+% ── SLIDE 3 ──────────────────────────────────────────────────────────────
+\slidesection{3}{The Students}{45 seconds \enspace\textperiodcentered\enspace 10-min: one sentence only}
+
+\begin{cue}
+Silence for 4 seconds after advancing. Let the audience read the screen before you speak.
+\end{cue}
+
+"Tú ya produces conocimiento." You already produce knowledge.
+
+That is the opening screen of Tu Pana. Seven words. The entire pedagogical premise.
+
+This app is built from teaching practice with students in the Bronx who bring multiple languages, migration histories, family knowledge, community memory, and complex relationships with academic institutions. They do not arrive empty-handed. They arrive full --- with resources that most academic writing tools do not recognize, let alone build on.
+
+Generic AI can intensify the disadvantage. It makes writing smoother --- but also more generic. More institutionally legible --- but less grounded in who students actually are.
+
+Tu Pana starts from a different premise: the student's voice, experience, and language are assets. The app's job is to protect those assets, not erase them.
+
+\begin{cue}
+10-minute version: Read the screen caption aloud. Say "you already produce knowledge" in English. One sentence on the premise. Advance.
+\end{cue}
+
+
+% ── SLIDE 4 ──────────────────────────────────────────────────────────────
+\slidesection{4}{What Tu Pana Is}{60 seconds}
+
+The name matters. Tu Pana is Caribbean Spanish for your friend, your companion. It signals whose students this is for before a single feature is described.
+
+The clearest way to explain Tu Pana is by what it is \textit{not}.
+
+It is not an essay generator. It is not an open chatbot you can ask to write your introduction. It is not a productivity tool designed to make writing faster or easier.
+
+Here is what the AI does \textit{not} do: it does not write the essay. It does not generate the thesis or outline. It does not produce the introduction or conclusion. It does not invent citations. It does not write the student's process reflection.
+
+The AI asks questions. It prompts thinking. It gives structured support.
+
+\keyline{The writing --- every word of it --- remains the student's.}
+
+I call this scaffolded authorship: supporting the student's development as an author through structured, constrained AI interaction. The constraint is the pedagogy.
+
+\begin{cue}
+Advance as you say "the writing remains the student's." Let that sentence be the last thing the audience hears before the slide changes.
+\end{cue}
+
+
+% ── SLIDE 5 ──────────────────────────────────────────────────────────────
+\slidesection{5}{Student Writes First}{60 seconds}
+
+At every meaningful stage of Tu Pana, the student must write before the AI can respond. There is no pathway around this. The interface is structured so the AI cannot speak first.
+
+This matters because writing is not just the production of text.
+
+\keyline{Writing is a way of thinking.}
+
+When students write, they are forced to make choices: What do I remember? What matters to me? What evidence do I trust? How do I want to sound? What do I want the reader to understand?
+
+Those choices are the intellectual work. If the AI makes those choices first, the student receives text --- but loses the practice of thinking through writing.
+
+\begin{cue}
+Read the three lines on the slide aloud, one at a time, with a genuine pause between each:
+
+\smallskip
+"The student writes." \hspace{1em} [pause] \hspace{1em}
+"The AI asks." \hspace{1em} [pause] \hspace{1em}
+"The student decides." \hspace{1em} [longer pause]
+
+\smallskip
+Then say the final sentence quietly: "That is the ethical architecture of the tool." Do not rush it. Do not decorate it. Then advance.
+\end{cue}
+
+
+% ── SLIDE 6 ──────────────────────────────────────────────────────────────
+\slidesection{6}{The App}{30 seconds \enspace\textperiodcentered\enspace 10-min: skip}
+
+\begin{cue}
+Silence for 3--4 seconds. Let the audience orient to the interface before you speak.
+\end{cue}
+
+What you are seeing is Tu Pana. The stage navigation runs across the top --- ten stages, in sequence. Students cannot skip ahead. The writing area is the dominant element on every screen. The Enviar button --- Send --- waits below it. The AI does not appear until the student has written.
+
+The layout is itself a pedagogical statement.
+
+\begin{cue}
+10-minute version: Skip this slide entirely. The screenshot on Slide 5 covers the interface.
+\end{cue}
+
+
+% ── SLIDE 7 ──────────────────────────────────────────────────────────────
+\slidesection{7}{Ten Stages}{75 seconds \enspace\textperiodcentered\enspace 10-min: skip}
+
+The movement from left to right is deliberate. The app begins with memory and ends with reflection. It is not helping students finish an assignment. It is teaching them a process.
+
+Worth pausing on Stage 1. It is unusual to begin academic writing with personal anecdote --- to ask students to write from what they already know \textit{before} asking them to research. That inversion is intentional. It establishes the student as a narrator and a witness before asking them to be a scholar. The essay grows from the student outward, not from a generic academic template inward.
+
+Stage 8 --- Pulir Voz, Voice Polish --- is where the Voice Vault lives. I will show you that in a moment.
+
+Stage 10 --- Mi Cierre de Proceso --- is the closing. Students write a process reflection, the AI offers a limited coach perspective based on what it observed, and an Instructor Process Report is generated.
+
+\begin{cue}
+18-minute version: Walk all ten stages with one sentence each. Pause on Stage 1 and Stage 10 --- those two bookends carry the conceptual arc of the process. \par
+10-minute version: Skip this slide. In Slide 4, add one spoken sentence: "The app has ten stages, from personal memory to process reflection, and students move through them in sequence."
+\end{cue}
+
+
+% ── SLIDE 8 ──────────────────────────────────────────────────────────────
+\slidesection{8}{Decolonial AI Pedagogy}{60 seconds \enspace\textperiodcentered\enspace 10-min: skip}
+
+A common misreading: decolonial AI means including Spanish content, or naming Latinx students in the interface copy, or sounding inclusive. Those things are surface.
+
+\keyline{Decolonial AI means asking a harder structural question.}
+
+Whose thinking is the AI designed to scaffold? Whose intellectual labor might it displace? Whose language does it treat as standard, and whose does it treat as error? Whose knowledge does it validate, and whose does it ignore? Whose voice does it flatten toward a generic academic version of itself?
+
+Tu Pana tries to answer those questions through its design constraints. The AI cannot generate essay prose --- so it cannot replace the student's intellectual labor. The coach engages with bilingual language rather than correcting it --- so it does not flatten multilingual voice. Embedded AI literacy checkpoints ask students to evaluate AI itself --- so the tool becomes an object of critical inquiry, not a trusted authority.
+
+Not the absence of AI. \textit{The deliberate placement of AI in service of student intellectual sovereignty.}
+
+\begin{cue}
+10-minute version: Skip this slide. Name the concept once in Slide 4 and move on. The design constraints make the argument without the theory slide.
+\end{cue}
+
+
+% ── SLIDE 9 ──────────────────────────────────────────────────────────────
+\slidesection{9}{Bilingualism \& Voice}{45 seconds \enspace\textperiodcentered\enspace 10-min: skip}
+
+\begin{cue}
+Silence for 3 seconds after advancing. Let the audience orient to the Spanish on screen before you speak.
+\end{cue}
+
+Tu Pana treats Spanish, English, Spanglish, code-switching, dialect, family phrases, and community idioms as rhetorical resources --- not as errors to be corrected.
+
+What you are seeing is the coach responding fully in Spanish. Not translating. Choosing. That is a signal about whose language is primary in this interaction.
+
+When a student writes "mi abuela me decía" in an English-language essay, the coach does not flag it. It asks: Why does this phrase matter here? What would be lost if you translated it? Is this something you want to protect in revision?
+
+This is what I call multilingual rhetorical agency: not telling students that audience does not matter, but helping them develop judgment about their own language choices --- when to translate, when to leave a phrase in the language it lives in.
+
+\begin{cue}
+10-minute version: Skip this slide. The Voice Vault slide carries the bilingualism argument.
+\end{cue}
+
+
+% ── SLIDE 10 ─────────────────────────────────────────────────────────────
+\slidesection{10}{The Voice Vault}{75 seconds \enspace\textperiodcentered\enspace 18-min: 90 seconds}
+
+\begin{cue}
+Silence for at least 4 seconds after advancing. This screenshot is doing argument before you speak. Let the audience look.
+\end{cue}
+
+Stage 8 is called Pulir Voz --- Voice Polish. It includes what I think of as the most distinctive feature of Tu Pana: the Voice Vault.
+
+In the Voice Vault, students identify phrases in their draft that must be \textit{protected} during revision. A word from a parent or grandparent. A code-switched phrase that carries specific cultural weight. A sentence that sounds exactly like them. A moment where translation would weaken the meaning, not strengthen it.
+
+The student makes a declaration: this language is deliberate. This is not an error. Do not flatten this.
+
+That declaration exists because AI revision tools --- like most revision tools --- push writing toward a generic version of academic clarity. But a smoother sentence can be less precise. A more polished sentence can be less honest. A more standard sentence can carry less cultural knowledge than the one it replaced.
+
+\keyline{Smoother is not always better.}
+
+\begin{cue}
+Deliver "Smoother is not always better" slowly, as a complete thought that requires no explanation. Then hold a pause of two to three seconds. Let faculty sit with that sentence. Then advance. \par\smallskip
+10-minute version: This is the most important slide in the 10-minute version. Show the screenshot, say "smoother is not always better," hold the pause. Then move to Five Questions.
+\end{cue}
+
+
+% ── SLIDE 11 ─────────────────────────────────────────────────────────────
+\slidesection{11}{Citation Ethics}{45 seconds \enspace\textperiodcentered\enspace 10-min: skip}
+
+One of the well-documented risks of generative AI is fabricated citations --- plausible-sounding sources that simply do not exist. In a research-based writing course, fabricated sources are not a minor technical glitch. They undermine the integrity of research as an intellectual practice.
+
+When students in Tu Pana ask the AI to find or generate sources, the coach redirects them toward the research process: What question are you trying to answer? What keywords might help? How will you evaluate whether a source is credible? How does it connect to what you are arguing?
+
+Students must locate, read, evaluate, and cite real sources themselves.
+
+\keyline{That is not a limitation of the tool. It is a pedagogical commitment.}
+
+\begin{cue}
+10-minute version: Skip. In Slide 4, cover this in one spoken sentence: "The AI will not invent citations --- students must locate and evaluate their own sources."
+\end{cue}
+
+
+% ── SLIDE 12 ─────────────────────────────────────────────────────────────
+\slidesection{12}{The Five Questions}{60 seconds}
+
+Students use these five questions to evaluate their own writing --- but also to evaluate the feedback the AI gives them. That second application is what makes this AI literacy, not just a writing rubric.
+
+\begin{cue}
+Read the five questions aloud, one at a time. Pause briefly between each.
+\end{cue}
+
+One: Is it accurate? \hspace{1.5em} Does this sentence say what you actually mean?
+
+Two: Does it preserve voice? \hspace{1.5em} Does this still sound like you?
+
+Three: Is it specific? \hspace{1.5em} Are you using real details, or abstractions?
+
+Four: Does it show thinking? \hspace{1.5em} Is there reasoning here, or just claims?
+
+Five: Does it honor cultural knowledge?
+
+\begin{cue}
+Pause meaningfully on Question 5. At least two seconds. Then explain:
+
+\smallskip
+"That last question does not appear in any standard rubric. It is asking whether the writing is faithful to the knowledge that comes from community, family, experience, and place --- not only from academic sources. It reframes what we mean by strong, rigorous writing."
+
+\smallskip
+Then add: "And it applies to the AI's feedback as well. If the AI tells a student to cut a phrase because it sounds informal --- does that feedback honor cultural knowledge? Students learn to question the AI. That is AI literacy."
+\end{cue}
+
+
+% ── SLIDE 13 ─────────────────────────────────────────────────────────────
+\slidesection{13}{Process Documentation}{60 seconds}
+
+\begin{cue}
+Silence for 4 seconds after advancing. Let the audience read the completion screen.
+\end{cue}
+
+This is Stage 10 --- Mi Cierre de Proceso, My Writing Snapshot. The completion message says:
+
+\textit{"Llegaste al final con dignidad. You reached the end with dignity."}
+
+Faculty: notice the self-assessment categories. Opening. Connection. Evidence. Voice. Revision. AI Judgment. Cultural Knowledge. Next Step.
+
+Two of those categories do not exist in any standard rubric: \textit{AI Judgment} and \textit{Cultural Knowledge}. Students are asked to evaluate their own use of AI, and to assess whether their writing honors the knowledge they brought to the essay.
+
+In the age of AI, the final essay alone no longer tells us enough. Tu Pana responds not by surveilling students, but by making the student's process visible from the beginning --- through structured documentation that the student authors.
+
+\keyline{This is not a grade. It is not an evaluation. It is evidence of process.}
+
+After Mi Cierre is complete, the Instructor Process Report is generated: a record of the student's journey, not just the final product. It is meant to supplement instructor judgment, not replace it.
+
+\begin{cue}
+10-minute version: Read the caption aloud. Say "In the age of AI, process becomes evidence." Advance.
+\end{cue}
+
+
+% ── SLIDE 14 ─────────────────────────────────────────────────────────────
+\slidesection{14}{Why This Matters for Faculty}{60 seconds \enspace\textperiodcentered\enspace 10-min: skip}
+
+For faculty, Tu Pana responds to several pressures at once.
+
+\textbf{Post-pandemic writing gaps:} students who entered college during COVID often need more scaffolding and process support than any previous generation.
+
+\textbf{Multilingual writing anxiety:} students who speak Spanish, Haitian Creole, or other languages at home often arrive fearing their language is a problem before they write a single word. Tu Pana reframes that.
+
+\textbf{AI ghostwriting:} the challenge is not only detection, it is process evidence. Tu Pana gives faculty a view of the student's journey, not just the final product.
+
+\textbf{AI literacy:} students need to learn to question AI, evaluate its feedback, and decide when to accept and when to reject it. That skill does not develop from open-ended AI use.
+
+\textbf{Equity:} most AI writing tools are built for students who already have academic fluency. Tu Pana is built for students who are developing it.
+
+\keyline{Instead of panic, prohibition, or detection --- a pedagogical response.}
+
+
+% ── SLIDE 15 ─────────────────────────────────────────────────────────────
+\slidesection{15}{Generic AI vs.\ Tu Pana}{60 seconds \enspace\textperiodcentered\enspace 10-min: skip}
+
+Tu Pana is not ChatGPT with a friendly Spanish name. The difference is not branding.
+
+\keyline{The difference is architecture.}
+
+\begin{cue}
+Walk through the table. Do not rush. For faculty primarily concerned about academic integrity, point to: Authorship (the AI cannot write the essay), Citations (will not fabricate sources), Process Evidence (the Instructor Report shows the journey). \par\smallskip
+For faculty concerned about multilingual students and equity, point to: Language (bilingualism as resource), Revision (Voice Vault), Designed For (this tool is built for students who are usually afterthoughts in EdTech design). \par\smallskip
+End by returning to the spine of the talk:
+\end{cue}
+
+Generic AI is product-centered. Tu Pana is process-centered.
+
+Tu Pana is not designed to help students avoid writing. It is designed to help students stay with writing.
+
+
+% ── SLIDE 16 ─────────────────────────────────────────────────────────────
+\slidesection{16}{The Refusal}{60 seconds}
+
+\begin{cue}
+Silence for 3--4 seconds after advancing. Let the audience read the exchange on screen before you explain it.
+\end{cue}
+
+What you are seeing is a student who has asked the coach to help write a section "without rewriting it." That is a direct request for ghostwriting. The coach declines. It asks a question instead.
+
+That refusal is not a bug. It is not a limitation. It is the most deliberate design decision in the entire app.
+
+When we talk about AI in education, we usually talk about what AI \textit{can} do. What it can generate, summarize, suggest, produce. Tu Pana asks a different question: What should AI be \textit{permitted} to do in a writing classroom? And what should it be required to \textit{refuse}?
+
+\keyline{The refusal is the pedagogy.}
+
+\begin{cue}
+Deliver the final sentence with complete stillness. No gesture. No forward lean. Just the sentence, and then silence. Hold for two full seconds. Then advance to the Contributions slide.
+\end{cue}
+
+
+% ── SLIDE 17 ─────────────────────────────────────────────────────────────
+\slidesection{17}{Contributions}{60--75 seconds}
+
+\begin{cue}
+Read the five contributions from the slide. Pause between each one --- these are five distinct claims, and faculty deserve time to absorb each before you move to the next.
+\end{cue}
+
+Tu Pana de Escritura offers:
+
+A model of \textbf{guardrailed AI} that prevents essay generation while supporting students.
+
+A model of \textbf{decolonial AI pedagogy} around student dignity and linguistic justice.
+
+A model of \textbf{multilingual writing support} that treats community language as a rhetorical resource.
+
+A model of \textbf{process documentation} giving faculty a richer view of student writing development.
+
+A practical \textbf{classroom response to AI} --- beyond panic, prohibition, and detection.
+
+\begin{cue}
+After the fifth contribution, look up from the script. Deliver the closing from memory, not from the page:
+\end{cue}
+
+\keyline{In a moment when AI can generate text instantly, Tu Pana insists that the student's struggle to write, remember, connect, revise, and reflect is not an obstacle to learning.}
+
+\keyline{It is the learning.}
+
+\begin{cue}
+Set down the script. Do not say Thank You. Do not say Questions. Let the room decide what to do with the silence. That silence is the argument completing itself. \par\smallskip
+Advance to the QR slide and leave it on screen for the duration of Q\&A.
+\end{cue}
+
+
+% ── SLIDE 18 ─────────────────────────────────────────────────────────────
+\slidesection{18}{QR Code — Evaluator Packet}{on screen during Q\&A}
+
+\begin{cue}
+This slide stays on screen throughout Q\&A. No narration needed unless someone asks. If they do: "That's the QR code for the Pilot Evaluator Packet --- scan it or find the link below the code. It includes materials to participate as an evaluator in the Tu Pana pilot."
+\end{cue}
+
+If you want to introduce it briefly before the first question arrives:
+
+"For anyone who would like to access the Pilot Evaluator Packet, there is a QR code on the screen now. You can scan it or note the URL below."
+
+Then open the floor.
+
+\begin{cue}
+Useful questions to invite if the conversation stalls: How would this approach work in your discipline? What would it take to adapt the Five Questions to your course context? What does process documentation change for how you think about grading?
+\end{cue}
+
+% ── END MATTER ───────────────────────────────────────────────────────────
+\vspace{2em}
+\noindent{\color{tpborder}\rule{\linewidth}{0.5pt}}
+\vspace{0.6em}
+
+\begin{center}
+  {\color{tpmuted}\small
+    \textit{Tu Pana de Escritura} \textperiodcentered{}
+    \href{https://vikthor1.github.io/tu-pana/}{vikthor1.github.io/tu-pana}
+    \textperiodcentered{}
+    V\'{i}ctor Torres-V\'{e}lez, Ph.D.}
+\end{center}
+
+\end{document}

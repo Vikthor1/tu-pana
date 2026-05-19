@@ -1,10 +1,22 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-18 (session 36, capstone modal — Mi cierre de proceso now opens in a popup)
+Last updated: 2026-05-19 (session 37, AI literacy checkpoint auto-popup at Stages 4, 7, 8)
 
 ---
 
 ## Where we left off
+
+**Session 37 (2026-05-19) — AI literacy checkpoint auto-popup (commit `432a776`, pushed to `main`):**
+
+- **Change:** `assets/js/ui.js` only (~+18 lines).
+- **New constant:** `AUTO_REFLECTION_STAGES = new Set([4, 7, 8])`.
+- **New helper:** `maybeOpenStageEntryReflectionCheckpoint(stageId)` — looks up the checkpoint object from `REFLECTION_CHECKPOINTS`, checks/sets `localStorage.tupana_reflect_shown_N`, then calls `openReflectionCheckpoint(cp)` after 1200ms.
+- **Hook:** `goToStage()` calls the helper at the end, so the popup fires when students press Continuar to enter Stage 4, 7, or 8.
+- **Once-only:** `tupana_reflect_shown_N` key prevents repeat. Page-reload init path bypasses `goToStage()`, so reloads do not re-fire.
+- **Unchanged:** Manual "Reflect · Pausa crítica" pill button, Stage 10 exclusion, all other stage behavior.
+- **Tests:** 8 Playwright assertions passed, no JS errors.
+
+---
 
 **Session 36 (2026-05-18) — Capstone modal popup (commit `0bbf37a`, pushed to `main`):**
 

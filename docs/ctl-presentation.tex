@@ -1,135 +1,125 @@
 \documentclass[aspectratio=169]{beamer}
 
-% ════════════════════════════════════════════════════════════════════════════
+% ════════════════════════════════════════════════════════════════════════
 %  Tu Pana de Escritura — CTL Professional Development Conference
 %  "Designing AI That Protects Student Authorship"
 %
-%  TIMING GUIDE
-%  10-minute version : Slides 1–5, 9, 11, 13, 16, 17  (comment out 6–8, 10, 12, 14–15)
-%  18-minute version : All 17 slides; expand demo pauses on slides 9 and 15
+%  TIMING
+%  10-min : Slides 1–5, 10, 12, 13, 16, 17
+%  18-min : All 17 slides
 %
-%  SPEAKER NOTES
-%  Uncomment ONE option below, then recompile:
-%    \setbeameroption{show notes on second screen=right}   <- presenter display
-%    \setbeameroption{show only notes}                     <- notes-only PDF
+%  PRESENTER NOTES — uncomment one and recompile:
+%    \setbeameroption{show notes on second screen=right}
+%    \setbeameroption{show only notes}
 %
 %  SCREENSHOTS
-%  Live screenshots loaded from:
-%    /Users/Victor1/Desktop/Manual Library/Screenshots/
-%  \graphicspath is set below; filenames only needed in \includegraphics calls.
-% ════════════════════════════════════════════════════════════════════════════
+%  Loaded from: /Users/Victor1/Desktop/Manual Library/Screenshots/
+% ════════════════════════════════════════════════════════════════════════
 
 \usepackage{pgfpages}
 % \setbeameroption{show notes on second screen=right}
 % \setbeameroption{show only notes}
 
-% ── Encoding & typography ────────────────────────────────────────────────────
+% ── Encoding & typography ────────────────────────────────────────────────
 \usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{lmodern}
+\usepackage[defaultsans]{lato}
+\renewcommand{\familydefault}{\sfdefault}
 \usepackage{microtype}
 
-% ── Layout & graphics ────────────────────────────────────────────────────────
+% ── Layout & graphics ────────────────────────────────────────────────────
+\usepackage{xcolor}
+\usepackage{tikz}
 \usepackage{graphicx}
 \graphicspath{{/Users/Victor1/Desktop/Manual Library/Screenshots/}}
 \usepackage{booktabs}
 \usepackage{colortbl}
 \usepackage{array}
-\usepackage{xcolor}
-\usepackage{tikz}
-\usepackage{setspace}
 \usepackage{ragged2e}
 \usepackage{hyperref}
 \hypersetup{colorlinks=true, urlcolor=tpgreen, linkcolor=tpgreen}
 
-% ── Tu Pana brand palette ────────────────────────────────────────────────────
+% ── Tu Pana color palette ────────────────────────────────────────────────
 \definecolor{tpdark}{HTML}{1a1510}
-\definecolor{tpbrown}{HTML}{2b2318}
 \definecolor{tpgreen}{HTML}{2d7a5f}
 \definecolor{tpgold}{HTML}{c5a84f}
 \definecolor{tpwarm}{HTML}{f4ede4}
-\definecolor{tpred}{HTML}{c84b3b}
 \definecolor{tpmuted}{HTML}{9a8e7e}
 \definecolor{tpbg}{HTML}{faf8f5}
 \definecolor{tpborder}{HTML}{e0d8ce}
 \definecolor{tplightgreen}{HTML}{eaf4ef}
 
-% ── Beamer theme ─────────────────────────────────────────────────────────────
+% ── Beamer theme ─────────────────────────────────────────────────────────
 \usetheme{default}
 \usecolortheme{default}
-\usefonttheme[onlymath]{serif}
+\usefonttheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamersize{text margin left=0.7cm, text margin right=0.7cm}
 
 \setbeamercolor{background canvas}{bg=tpbg}
 \setbeamercolor{normal text}{fg=tpdark}
-\setbeamercolor{frametitle}{fg=tpdark, bg=tpbg}
-\setbeamerfont{frametitle}{size=\large, series=\bfseries}
-\setbeamerfont{framesubtitle}{size=\small, series=\mdseries}
-\setbeamercolor{framesubtitle}{fg=tpmuted}
 
+% Minimal frametitle: small green rule + muted small label
+\setbeamerfont{frametitle}{size=\small, series=\mdseries}
+\setbeamercolor{frametitle}{fg=tpmuted, bg=tpbg}
 \setbeamertemplate{frametitle}{%
   \vspace*{0.55em}%
-  \hspace*{0.15em}%
-  \begin{beamercolorbox}[wd=\textwidth, left]{frametitle}%
-    {\color{tpgreen}\rule{2.6em}{2pt}}\\[0.22em]%
-    \usebeamerfont{frametitle}\insertframetitle%
-    \ifx\insertframesubtitle\@empty\else\\[-0.05em]%
-      {\usebeamerfont{framesubtitle}\color{tpmuted}\insertframesubtitle}%
-    \fi%
-  \end{beamercolorbox}%
+  {\color{tpgreen}\rule{1.4em}{1.5pt}}%
+  \hspace{0.45em}%
+  {\small\color{tpmuted}\insertframetitle}%
 }
 
 \setbeamercolor{itemize item}{fg=tpgreen}
-\setbeamercolor{itemize subitem}{fg=tpgold}
 \setbeamertemplate{itemize item}{\small\textbullet}
-\setbeamertemplate{itemize subitem}{\scriptsize\textendash}
 \setbeamercolor{enumerate item}{fg=tpgreen}
-\setbeamerfont{enumerate item}{series=\bfseries}
 
-\setbeamercolor{block title}{fg=tpwarm, bg=tpgreen}
-\setbeamercolor{block body}{fg=tpdark, bg=tplightgreen}
-\setbeamerfont{block title}{size=\small, series=\bfseries}
-\setbeamerfont{block body}{size=\small}
-
-\setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}{%
-  \vspace{0.15em}%
-  \hspace{1.2em}%
-  {\tiny\color{tpmuted}%
-    \textit{Tu Pana de Escritura} \textperiodcentered{} CTL Professional Development%
-  }%
+  \vspace{0.1em}%
+  \hspace{1em}%
+  {\tiny\color{tpmuted}\textit{Tu Pana de Escritura}%
+    \textperiodcentered{} CTL Professional Development}%
   \hfill%
-  {\tiny\color{tpmuted}\insertframenumber\,/\,\inserttotalframenumber\hspace{1.2em}}%
-  \vspace{0.35em}%
+  {\tiny\color{tpmuted}%
+    \insertframenumber\,/\,\inserttotalframenumber\hspace{1em}}%
+  \vspace{0.3em}%
 }
 
 \setbeamercolor{note page}{bg=tpwarm, fg=tpdark}
-\setbeamerfont{note page}{size=\footnotesize}
+\setbeamerfont{note page}{size=\small}
 
-% ── Macros ───────────────────────────────────────────────────────────────────
+% ── Macros ───────────────────────────────────────────────────────────────
 
-% Thin gold rule spanning text width
-\newcommand{\tprule}{{\color{tpgold}\rule{\linewidth}{0.5pt}}}
-
-% Quote callout
-\newcommand{\tpspine}[1]{%
-  \vspace{0.4em}
-  \noindent{\color{tpgreen}\rule{1.8em}{2pt}}\\[0.25em]%
-  {\itshape\color{tpdark}#1}%
-  \vspace{0.4em}%
+% Full-bleed screenshot on dark background
+\newcommand{\fullscreenshot}[1]{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[tpdark]
+      (current page.south west) rectangle (current page.north east);
+    \node[anchor=center] at (current page.center){%
+      \includegraphics[width=\paperwidth, height=\paperheight,
+        keepaspectratio]{#1}};
+  \end{tikzpicture}%
 }
 
-% ── Document metadata ────────────────────────────────────────────────────────
-\title{Tu Pana de Escritura}
-\subtitle{Designing AI That Protects Student Authorship}
-\author{V\'{i}ctor Torres-V\'{e}lez, Ph.D.}
-\institute{Department of Languages \& Linguistics \textperiodcentered{} Hostos Community College, CUNY}
-\date{CTL Professional Development Conference}
+% Full-bleed screenshot with bottom caption bar
+\newcommand{\screenshotcaption}[2]{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[tpdark]
+      (current page.south west) rectangle (current page.north east);
+    \node[anchor=center] at (current page.center){%
+      \includegraphics[width=\paperwidth, height=\paperheight,
+        keepaspectratio]{#1}};
+    \fill[tpdark, opacity=0.88]
+      (current page.south west)
+      rectangle ([yshift=1.55cm] current page.south east);
+    \node[anchor=center, text=tpwarm, font=\normalsize\itshape,
+          yshift=0.68cm] at (current page.south) {#2};
+  \end{tikzpicture}%
+}
 
-% ════════════════════════════════════════════════════════════════════════════
+% ════════════════════════════════════════════════════════════════════════
 \begin{document}
-% ════════════════════════════════════════════════════════════════════════════
+% ════════════════════════════════════════════════════════════════════════
 
-% ── SLIDE 1  Title ───────────────────────────────────────────────────────────
+% ── SLIDE 1  Title ───────────────────────────────────────────────────────
 {%
 \setbeamertemplate{footline}{}
 \begin{frame}[plain]
@@ -145,718 +135,562 @@
   \end{tikzpicture}
   \vspace{2.2em}
   \begin{center}
-    {\color{tpwarm}\LARGE\bfseries Tu Pana de Escritura}\\[0.45em]
-    {\color{tpgold}\large Designing AI That Protects Student Authorship}\\[1.6em]
-    {\color{tpborder}\rule{14em}{0.4pt}}\\[1em]
+    {\color{tpwarm}\LARGE\bfseries Tu Pana de Escritura}\\[0.5em]
+    {\color{tpgold}\large Designing AI That Protects Student Authorship}\\[1.8em]
+    {\color{tpborder}\rule{12em}{0.4pt}}\\[1em]
     {\color{tpwarm}\normalsize V\'{i}ctor Torres-V\'{e}lez, Ph.D.}\\[0.25em]
     {\color{tpmuted}\small Department of Languages \& Linguistics}\\
     {\color{tpmuted}\small Hostos Community College, CUNY}\\[0.9em]
     {\color{tpmuted}\footnotesize CTL Professional Development Conference}
   \end{center}
   \note{%
-    \textbf{SLIDE 1 — Opening}\\[0.4em]
-    Good morning. By the end of this talk I hope you will see one possibility for using generative AI in writing instruction that does not begin with efficiency, automation, or output.\\[0.4em]
-    I want to ask a different question: What would it mean to design AI around student authorship? Not around faster essays. Not around smoother prose. Not around replacing the messy, difficult, human work of writing. But around protecting that work.\\[0.4em]
-    That is the question behind Tu Pana de Escritura --- a bilingual Spanish-English AI writing coach I have been developing for multilingual, Latinx, Caribbean, immigrant, and working-class college students in the Bronx.\\[0.4em]
-    The central claim I want to make today is simple:\\[0.3em]
-    \textbf{Tu Pana is not designed to help students avoid writing. It is designed to help students stay with writing.}\\[0.4em]
-    \textit{[Pause. Let that sentence land. Then advance.]}
+    \textbf{SLIDE 1 — Opening} \hfill \textit{[60 sec]}\\[0.5em]
+    Good morning. By the end of this talk I want you to see one possibility for using generative AI in writing instruction that does not begin with efficiency, automation, or output. I want to ask a different question.\\[0.5em]
+    What would it mean to design AI around student authorship? Not around faster essays. Not around smoother prose. Not around replacing the difficult, human work of writing. But around protecting that work.\\[0.5em]
+    That is the question behind Tu Pana de Escritura — a bilingual Spanish-English AI writing coach I have been developing for multilingual, Latinx, Caribbean, immigrant, and working-class college students in the Bronx.\\[0.5em]
+    I want to offer you one sentence that is the spine of everything I am about to show you:\\[0.4em]
+    \textbf{Tu Pana is not designed to help students avoid writing. It is designed to help students stay with writing.}\\[0.5em]
+    \textit{[Pause. Let that sentence land before you advance.]}
   }
 \end{frame}
 }
 
-% ── SLIDE 2  The Problem ─────────────────────────────────────────────────────
-\begin{frame}
-  \frametitle{The AI Writing Problem Is Not Only Cheating}
-  \framesubtitle{It is displacement}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.54\textwidth}
-      \setstretch{1.4}
-      When students use a generic AI tool to produce a thesis, an outline, a paragraph, or an entire essay, the obvious concern is \textbf{academic integrity}.\\[0.7em]
-      But the deeper problem is \textbf{displacement}.\\[0.7em]
-      AI can displace the student from the very process that writing is supposed to develop:
-      \begin{itemize}
-        \item remembering \quad\textperiodcentered\quad questioning
-        \item connecting \quad\textperiodcentered\quad structuring
-        \item revising \quad\textperiodcentered\quad reflecting
-      \end{itemize}
-      \vspace{0.6em}
-      A student may end up with a polished product\\
-      but without doing the intellectual work it represents.
-
-    \column{0.43\textwidth}
-      \includegraphics[width=\linewidth, height=5.4cm, keepaspectratio]{SCR-20260519-lepw.png}
-  \end{columns}
-
-  \note{%
-    \textbf{SLIDE 2 — The Problem}\\[0.4em]
-    The conversation about AI and writing too often starts with cheating. That concern is real. But I want to suggest the deeper problem is displacement.\\[0.4em]
-    The real question is: Can we design an AI writing environment where the student remains the author?\\[0.4em]
-    \textit{[Screenshot: A student asked for help "without rewriting it" — the coach responds with a question rather than prose. The refusal is the feature. Point this out explicitly.]}%
-  }
-\end{frame}
-
-% ── SLIDE 3  The Students ────────────────────────────────────────────────────
-% [10-MIN: BRIEF — read the framing sentence; skip bullet list]
-\begin{frame}
-  \frametitle{Multilingual Students Do Not Arrive Empty-Handed}
-  \framesubtitle{Tu Pana begins from a specific teaching context}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.54\textwidth}
-      \setstretch{1.4}
-      This app emerges from teaching practice with students in the Bronx who bring:
-      \begin{itemize}
-        \item Multiple languages and full linguistic repertoires
-        \item Migration histories and family knowledge
-        \item Community memory and place-based experience
-        \item Complex, generative relationships with academic institutions
-      \end{itemize}
-      \vspace{0.6em}
-      {\color{tpred}\textbf{Generic AI can intensify the problem.}}\\[0.3em]
-      It makes writing smoother --- but also more generic.\\
-      More institutionally legible --- but less grounded.
-
-    \column{0.43\textwidth}
-      \includegraphics[width=\linewidth, height=5.4cm, keepaspectratio]{SCR-20260519-lcmw.png}
-  \end{columns}
-
-  \note{%
-    \textbf{SLIDE 3 — The Students}\\[0.4em]
-    Too often, these students receive the message that their language is a problem to be corrected, their experience merely anecdotal, their knowledge only legitimate once translated into a standardized academic voice.\\[0.4em]
-    Tu Pana starts from a different premise: students already bring intellectual assets. The app's job is to help them recognize, develop, and protect those assets.\\[0.4em]
-    \textit{[Screenshot: The onboarding screen displaying "Tú ya produces conocimiento" — you already produce knowledge. That sentence is the entire pedagogical claim in seven words. Let faculty read it before speaking.]}%
-  }
-\end{frame}
-
-% ── SLIDE 4  What Tu Pana Is ─────────────────────────────────────────────────
-\begin{frame}
-  \frametitle{A Bilingual AI Writing Coach}
-  \framesubtitle{Not an essay generator \textperiodcentered{} not a chatbot \textperiodcentered{} not a productivity tool}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.50\textwidth}
-      \textit{Tu Pana de Escritura} means \textbf{``Your Writing Companion.''}\\[0.7em]
-      The most important thing to understand is not what the AI does.\\[0.4em]
-      \textbf{It is what the AI is not allowed to do.}
-
-      \vspace{0.7em}
-      {\color{tpred}The AI does not:}
-      \begin{itemize}
-        \item write the essay
-        \item generate the thesis or outline
-        \item produce the introduction or conclusion
-        \item invent citations
-        \item write the student's self-assessment
-      \end{itemize}
-
-      \vspace{0.5em}
-      The AI asks. It prompts. It supports.\\
-      \textbf{The writing remains the student's.}
-
-    \column{0.47\textwidth}
-      \includegraphics[width=\linewidth, height=5.6cm, keepaspectratio]{SCR-20260519-ledl.png}
-
-      \vspace{0.5em}
-      \begin{block}{Scaffolded Authorship}
-        \centering\small
-        Supporting the student's development as an author\\
-        through structured, constrained AI interaction.
-      \end{block}
-  \end{columns}
-
-  \note{%
-    \textbf{SLIDE 4 — What Tu Pana Is}\\[0.4em]
-    Tu Pana de Escritura is a bilingual Spanish-English web app that guides students through a ten-stage writing process.\\[0.4em]
-    The most important thing to understand is not what the AI does. It is what the AI is not allowed to do.\\[0.4em]
-    This is what I call scaffolded authorship.\\[0.4em]
-    \textit{[Screenshot: Main interface with all ten stage names visible across the navigation bar. The stages themselves make the argument — this is a sequence, not a chatbot. Let the audience read the stage names.]}%
-  }
-\end{frame}
-
-% ── SLIDE 5  Student-Writes-First ────────────────────────────────────────────
-\begin{frame}
-  \frametitle{The Student Writes First}
-  \framesubtitle{The AI responds second --- always}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.54\textwidth}
-      \setstretch{1.4}
-      At every meaningful stage, the student must write \textbf{before} the AI can respond.\\[0.7em]
-      This matters because writing is not just the production of text.\\[0.4em]
-      \textbf{Writing is a way of thinking.}\\[0.7em]
-      When students write, they make choices:
-      \begin{itemize}\footnotesize
-        \item What do I remember? \; What matters?
-        \item What evidence do I trust?
-        \item How do I want to sound?
-        \item What do I want the reader to understand?
-      \end{itemize}
-      \vspace{0.5em}
-      If the AI answers those questions first, the student receives text --- but loses the practice of \textit{thinking through writing}.
-
-    \column{0.43\textwidth}
-      \includegraphics[width=\linewidth, height=5.6cm, keepaspectratio]{SCR-20260519-lemu.png}
-
-      \vspace{0.5em}
-      \tprule
-      \vspace{0.35em}
-      \begin{center}
-        {\small\itshape The student writes. The AI asks.\\The student decides.}\\[0.2em]
-        {\footnotesize\color{tpmuted}That is the ethical architecture of the tool.}
-      \end{center}
-  \end{columns}
-
-  \note{%
-    \textbf{SLIDE 5 — Student-Writes-First Principle}\\[0.4em]
-    Tu Pana places AI in a secondary role. The student writes. The AI asks. The student decides. That is the ethical architecture of the tool.\\[0.4em]
-    Return to the spine of the talk here: Tu Pana is not designed to help students avoid writing. It is designed to help students stay with writing.\\[0.4em]
-    \textit{[Screenshot: Student draft in the text area with the "Enviar" send button visible. The input box is the dominant UI element — the student's text is what the app is waiting for. That layout is the student-writes-first principle made visible.]}%
-  }
-\end{frame}
-
-% ── SLIDE 6  Ten Stages ──────────────────────────────────────────────────────
-% [10-MIN: SKIP — add one sentence to Slide 4: "The app has ten stages,
-%  from personal memory to process reflection, and moves through them in sequence."]
-\begin{frame}
-  \frametitle{Ten Stages: From Memory to Reflection}
-  \framesubtitle{A structured sequence, not an open-ended prompt}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.47\textwidth}
-      \footnotesize\setstretch{1.35}
-      \begin{enumerate}
-        \item \textbf{An\'{e}cdota / Anecdote}\\{\color{tpmuted}personal or family memory}
-        \item \textbf{Conexi\'{o}n / Connection}\\{\color{tpmuted}social \& historical context}
-        \item \textbf{Tu Pitch / Topic Pitch}\\{\color{tpmuted}working claim}
-        \item \textbf{Investigaci\'{o}n / Research}\\{\color{tpmuted}sources, evidence, credibility}
-        \item \textbf{Esquema / Outline}\\{\color{tpmuted}student-generated structure}
-      \end{enumerate}
-
-    \column{0.47\textwidth}
-      \footnotesize\setstretch{1.35}
-      \begin{enumerate}\setcounter{enumi}{5}
-        \item \textbf{Primer Borrador / First Draft}\\{\color{tpmuted}full student draft}
-        \item \textbf{Revisi\'{o}n / Revision}\\{\color{tpmuted}Five Questions framework}
-        \item \textbf{Pulir Voz / Voice Polish}\\{\color{tpmuted}Voice Vault}
-        \item \textbf{Checklist}\\{\color{tpmuted}metacognitive self-evaluation}
-        \item \textbf{Mi Cierre de Proceso}\\{\color{tpmuted}writing snapshot \& report}
-      \end{enumerate}
-  \end{columns}
-
-  \vspace{0.9em}
+% ── SLIDE 2  The Problem ─────────────────────────────────────────────────
+{%
+\setbeamertemplate{footline}{}
+\begin{frame}[plain,c]
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[tpdark]
+      (current page.south west) rectangle (current page.north east);
+    \fill[tpgreen]
+      (current page.south west)
+      rectangle ([xshift=\paperwidth, yshift=3pt] current page.south west);
+  \end{tikzpicture}
   \begin{center}
-    {\small\color{tpgreen}\itshape
-      memory $\;\to\;$ connection $\;\to\;$ research $\;\to\;$ draft
-      $\;\to\;$ revision $\;\to\;$ voice $\;\to\;$ reflection}
+    {\color{tpwarm}\Large The concern is not cheating.}\\[0.6em]
+    {\color{tpwarm}\Large\bfseries The concern is displacement.}\\[1.3em]
+    {\color{tpgold}\rule{8em}{0.8pt}}\\[1.1em]
+    {\color{tpmuted}\normalsize
+      When AI writes the essay,\\[0.35em]
+      the student has been displaced\\[0.35em]
+      from their own education.}
   \end{center}
-
   \note{%
-    \textbf{SLIDE 6 — Ten-Stage Process}\\[0.4em]
-    The movement is intentional: memory to reflection. The app is not helping students finish an assignment. It is teaching them a process.\\[0.4em]
-    Worth pausing on the opening: it is unusual to begin academic writing with anecdote --- to ask students to write from what they know before asking them to research. That inversion is deliberate. It establishes the student as a narrator and a witness before asking them to be a scholar.\\[0.4em]
-    \textit{[18-minute version: Walk through all ten stages with one sentence each. Pause on Stage 1 (memory as starting point) and Stage 10 (reflection as closing). Those two stages anchor the arc.]}\\[0.3em]
+    \textbf{SLIDE 2 — The Problem} \hfill \textit{[60 sec]}\\[0.5em]
+    The conversation about AI and writing almost always starts with cheating. That concern is real and I take it seriously. But I want to push past it to the deeper problem.\\[0.5em]
+    Think about what writing is actually supposed to develop: the ability to remember and select what matters, to question assumptions, to connect ideas across contexts, to structure an argument, to revise toward clarity, to reflect on what you actually think. That is the intellectual labor of writing.\\[0.5em]
+    When AI does that labor for the student — even helpfully, even with the best intentions — the student ends up with a polished product but without having done the intellectual work it represents. They have been displaced from their own education.\\[0.5em]
+    The real question Tu Pana is asking is not: how do we catch students who use AI? The question is: can we design an AI writing environment where the student remains the author throughout the entire process?\\[0.5em]
+    \textit{[Pause after "their own education." Don't rush. Then advance.]}
+  }
+\end{frame}
+}
+
+% ── SLIDE 3  The Students ────────────────────────────────────────────────
+% [10-MIN: BRIEF — read the caption, one sentence, advance]
+{%
+\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+  \screenshotcaption{SCR-20260519-lcmw.png}%
+    {These students do not arrive empty-handed.}
+  \note{%
+    \textbf{SLIDE 3 — The Students} \hfill \textit{[45 sec / 10-min: brief]}\\[0.5em]
+    \textit{[Silence for 4 seconds. Let the audience read the screen.]}\\[0.5em]
+    "Tú ya produces conocimiento." You already produce knowledge. That is the opening screen of Tu Pana. That sentence is the entire pedagogical premise in seven words.\\[0.5em]
+    This app is built from teaching practice with students in the Bronx who bring multiple languages, migration histories, family knowledge, community memory, and complex relationships with academic institutions. They do not arrive empty-handed. They arrive full — with resources that most academic writing tools do not recognize, let alone build on.\\[0.5em]
+    Generic AI can intensify the disadvantage. It pushes writing toward smoother, more institutionally legible prose — which often means writing that sounds less like them. Tu Pana starts from a different premise: the student's voice, experience, and language are assets. The app's job is to protect those assets, not erase them.\\[0.5em]
+    \textit{[10-minute version: Read the caption aloud. Say "you already produce knowledge" in English. Advance.]}
+  }
+\end{frame}
+}
+
+% ── SLIDE 4  What Tu Pana Is ─────────────────────────────────────────────
+{%
+\setbeamertemplate{footline}{}
+\begin{frame}[plain,c]
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[tpbg]
+      (current page.south west) rectangle (current page.north east);
+  \end{tikzpicture}
+  \begin{center}
+    {\color{tpmuted}\small\itshape Tu Pana de Escritura means:}\\[0.55em]
+    {\color{tpdark}\LARGE\bfseries ``Your Writing Companion''}\\[1.4em]
+    {\color{tpgold}\rule{10em}{0.8pt}}\\[1.1em]
+    {\color{tpdark}\normalsize Not an essay generator.}\\[0.35em]
+    {\color{tpdark}\normalsize Not a chatbot.}\\[0.35em]
+    {\color{tpdark}\normalsize Not a productivity tool.}\\[1.2em]
+    {\color{tpgold}\rule{10em}{0.8pt}}\\[0.9em]
+    {\color{tpgreen}\large\bfseries
+      The most important thing is not what the AI does.}\\[0.3em]
+    {\color{tpgreen}\large\bfseries
+      It is what the AI is \textit{not allowed} to do.}
+  \end{center}
+  \note{%
+    \textbf{SLIDE 4 — What Tu Pana Is} \hfill \textit{[60 sec]}\\[0.5em]
+    The name matters. Tu Pana is Caribbean slang for your friend, your companion. It signals whose students this is for before a single feature is described.\\[0.5em]
+    The clearest way to explain Tu Pana is by what it is not. It is not an essay generator. It is not an open chatbot you can ask to write your introduction. It is not a productivity tool designed to make writing faster or easier.\\[0.5em]
+    Here is what the AI does not do: it does not write the essay. It does not generate the thesis or outline. It does not produce the introduction or conclusion. It does not invent citations. It does not write the student's process reflection.\\[0.5em]
+    The AI asks questions. It prompts thinking. It gives structured support. But the writing — every word of it — remains the student's.\\[0.5em]
+    I call this scaffolded authorship: supporting the student's development as an author through structured, constrained AI interaction. The constraint is the pedagogy.\\[0.5em]
+    \textit{[Advance as you say "the writing remains the student's."]}
+  }
+\end{frame}
+}
+
+% ── SLIDE 5  Student-Writes-First ────────────────────────────────────────
+{%
+\setbeamertemplate{footline}{}
+\begin{frame}[plain,c]
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[tpdark]
+      (current page.south west) rectangle (current page.north east);
+  \end{tikzpicture}
+  \begin{center}
+    {\color{tpwarm}\Large The student writes.}\\[0.8em]
+    {\color{tpgold}\rule{5em}{0.7pt}}\\[0.8em]
+    {\color{tpwarm}\Large The AI asks.}\\[0.8em]
+    {\color{tpgold}\rule{5em}{0.7pt}}\\[0.8em]
+    {\color{tpwarm}\Large The student decides.}\\[1.5em]
+    {\color{tpmuted}\small That is the ethical architecture of the tool.}
+  \end{center}
+  \note{%
+    \textbf{SLIDE 5 — Student-Writes-First} \hfill \textit{[60 sec]}\\[0.5em]
+    At every meaningful stage of Tu Pana, the student must write before the AI can respond. There is no pathway around this. The interface is structured so the AI cannot speak first.\\[0.5em]
+    This matters because writing is not just the production of text. Writing is a way of thinking. When students write, they are forced to make choices: What do I remember? What matters to me? What evidence do I trust? How do I want to sound? What do I want the reader to understand? Those choices are the intellectual work. If the AI makes those choices first, the student receives text — but loses the practice of thinking through writing.\\[0.5em]
+    \textit{[Read the slide aloud, one line at a time, with a genuine pause between each.]}\\[0.4em]
+    The student writes. \textit{[pause]} The AI asks. \textit{[pause]} The student decides. \textit{[longer pause]}\\[0.4em]
+    That is the ethical architecture of the tool. Not a feature. A design commitment.\\[0.5em]
+    \textit{[10-minute version: This is the most important conceptual slide. Spend the full 60 seconds here. Then jump to Voice Vault.]}
+  }
+\end{frame}
+}
+
+% ── SLIDE 6  The App ─────────────────────────────────────────────────────
+% [10-MIN: SKIP]
+{%
+\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+  \screenshotcaption{SCR-20260519-ledl.png}%
+    {Ten stages. The student's text is always the starting point.}
+  \note{%
+    \textbf{SLIDE 6 — App Interface} \hfill \textit{[30 sec / 10-min: SKIP]}\\[0.5em]
+    \textit{[Silence for 3–4 seconds. Let them orient.]}\\[0.5em]
+    What you're seeing is Tu Pana. The stage navigation runs across the top — ten stages, in sequence, and students cannot skip ahead. The writing area is the dominant element on screen. The Enviar button — Send — waits below it. The AI does not appear until the student has written.\\[0.5em]
+    The layout is itself a pedagogical statement: the student's text is what the entire interface is organized around.\\[0.5em]
     \textit{[10-minute version: Skip this slide entirely.]}
   }
 \end{frame}
+}
 
-% ── SLIDE 7  Decolonial AI Pedagogy ─────────────────────────────────────────
-% [10-MIN: SKIP — name the concept once in Slide 3 and move on]
-\begin{frame}
-  \frametitle{Decolonial AI Pedagogy}
-  \framesubtitle{Redesigning the role of AI --- not just the content of AI}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.54\textwidth}
-      \setstretch{1.4}
-      Decolonial AI does \textbf{not} mean adding diverse content to a chatbot.\\[0.5em]
-      It means \textbf{redesigning the role of AI} in the educational encounter.\\[0.7em]
-      The deeper questions:
-      \begin{itemize}
-        \item Whose thinking does the AI scaffold?
-        \item Whose labor does it displace?
-        \item Whose language does it normalize?
-        \item Whose knowledge does it treat as valid?
-        \item Whose voice does it flatten?
-      \end{itemize}
-      \vspace{0.5em}
-      Tu Pana constrains AI so it cannot become another mechanism for
-      \textbf{extraction, standardization, or ghostwriting}.
-
-    \column{0.43\textwidth}
-      \includegraphics[width=\linewidth, height=5.6cm, keepaspectratio]{SCR-20260519-libi.png}
-
-      \vspace{0.5em}
-      \begin{block}{}
-        \centering\small
-        Not the absence of AI.\\
-        The \textbf{placement} of AI in the service\\
-        of student intellectual sovereignty.
-      \end{block}
-  \end{columns}
-
-  \note{%
-    \textbf{SLIDE 7 — Decolonial AI Pedagogy}\\[0.4em]
-    A decolonial question is not only: Does the tool include Spanish? Does it mention Latinx students? Does it sound inclusive?\\[0.4em]
-    The deeper questions are about power, labor, language, and voice --- and Tu Pana tries to answer those questions through design.\\[0.4em]
-    \textit{[Screenshot: Stage 4 AI literacy checkpoint — the app asking students to evaluate how AI handles information and uncertainty. The tool turns itself into an object of critical inquiry. That is what decolonial AI pedagogy looks like in practice.]}%
-  }
-\end{frame}
-
-% ── SLIDE 8  Bilingualism \& Voice ───────────────────────────────────────────
-% [10-MIN: SKIP — covered by slide 9's Voice Vault framing]
-\begin{frame}
-  \frametitle{Bilingualism, Translanguaging, and Voice}
-  \framesubtitle{Spanglish is not a glitch. It can be a rhetorical choice.}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.54\textwidth}
-      \setstretch{1.4}
-      Tu Pana treats Spanish, English, Spanglish, code-switching, dialect, accent, family phrases, and community idioms as \textbf{rhetorical resources} --- not as errors.\\[0.7em]
-      When a student writes \textit{``mi abuela me dec\'{i}a''} in an English-language essay, the app does not correct it.\\[0.5em]
-      Instead it asks:\\[0.3em]
-      {\footnotesize\itshape Why does this phrase matter here?\\
-       What would be lost if you translated it?\\
-       Is this a phrase you want to protect?}\\[0.7em]
-       This is \textbf{multilingual rhetorical agency}: not the suppression of the student's full linguistic repertoire, but the development of their capacity to make \textit{intentional choices} about how to deploy it.
-
-    \column{0.43\textwidth}
-      \includegraphics[width=\linewidth, height=5.8cm, keepaspectratio]{SCR-20260519-lfbj.png}
-  \end{columns}
-
-  \note{%
-    \textbf{SLIDE 8 — Bilingualism and Voice}\\[0.4em]
-    The goal is not to tell students: write however you want and audience does not matter. The goal is to help students develop judgment about their own language choices.\\[0.4em]
-    This is what multilingual rhetorical agency looks like in practice.\\[0.4em]
-    \textit{[Screenshot: Coach response in Spanish — fully bilingual, not translated. The AI's language choice signals whose students this is for. The behavior of the AI is the argument.]}%
-  }
-\end{frame}
-
-% ── SLIDE 9  Voice Vault ─────────────────────────────────────────────────────
-\begin{frame}
-  \frametitle{The Voice Vault}
-  \framesubtitle{Revision without erasure \textperiodcentered{} Stage~8: Pulir Voz / Voice Polish}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.49\textwidth}
-      \setstretch{1.4}
-      Students identify phrases in their draft that must be \textbf{protected during revision}:
-      \begin{itemize}
-        \item A word from a parent or grandparent
-        \item A code-switched phrase
-        \item A community-specific term
-        \item A sentence that sounds \textit{exactly like them}
-        \item A moment where translation would weaken the meaning
-      \end{itemize}
-      \vspace{0.6em}
-      The student declares:\\[0.3em]
-      {\itshape\small ``This language is deliberate.\\
-       This is not an error.\\
-       Do not flatten this.''}
-
-      \vspace{0.7em}
-      \tprule
-      \vspace{0.3em}
-      {\small\color{tpgreen}\bfseries Smoother is not always better.}
-
-    \column{0.48\textwidth}
-      \includegraphics[width=\linewidth, height=6.8cm, keepaspectratio]{SCR-20260519-lmic.png}
-
-      \vspace{0.4em}
-      {\footnotesize\color{tpmuted}\itshape
-       A smoother sentence can be less precise.\\
-       A more polished sentence can be less honest.\\
-       A more standard sentence can carry less cultural knowledge.}
-  \end{columns}
-
-  \note{%
-    \textbf{SLIDE 9 — Voice Vault}\\[0.4em]
-    Stage 8 includes one of the features I care about most. The Voice Vault exists because AI revision tools often push writing toward a generic version of academic clarity. Tu Pana teaches students that revision should strengthen their writing without erasing them from it.\\[0.4em]
-    Pause on the phrase: smoother is not always better. Let it sit. Faculty will recognize its implications for how they think about academic writing standards.\\[0.4em]
-    \textit{[Screenshot: Stage 8 Voice Vault — the interface showing the transition into voice-protection mode. Let faculty look at it before you speak. The design communicates that revision is not standardization.]}\\[0.3em]
-    \textit{[10-minute version: This slide carries the entire bilingualism argument. Say "smoother is not always better" and move on.]}%
-  }
-\end{frame}
-
-% ── SLIDE 10  Research \& Citation Ethics ────────────────────────────────────
+% ── SLIDE 7  Ten Stages ──────────────────────────────────────────────────
 % [10-MIN: SKIP]
-\begin{frame}
-  \frametitle{Research and Citation Ethics}
-  \framesubtitle{The AI does not invent sources --- research is part of the learning}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.54\textwidth}
-      \setstretch{1.4}
-      One of the known risks of generative AI: it can produce \textbf{fabricated citations} that sound plausible but do not exist.\\[0.7em]
-      In Tu Pana, when students need sources, the AI \textit{redirects} them toward the research process:
-      \begin{itemize}
-        \item What question are you trying to answer?
-        \item What keywords might help?
-        \item What kinds of sources count as evidence?
-        \item How does this source connect to your argument?
-        \item How will you know if a source is credible?
-      \end{itemize}
-
-    \column{0.43\textwidth}
-      \includegraphics[width=\linewidth, height=5.6cm, keepaspectratio]{SCR-20260519-lilq.png}
-
-      \vspace{0.5em}
-      \begin{block}{}
-        \centering\small
-        Students must locate, read, evaluate,\\
-        and cite \textbf{real sources} themselves.\\[0.2em]
-        {\footnotesize This is not a limitation.\\It is a pedagogical commitment.}
-      \end{block}
-  \end{columns}
-
+\begin{frame}{Ten Stages}
+  \vspace{0.7em}
+  \begin{center}
+    {\footnotesize\color{tpmuted}
+      \textbf{1.}~An\'{e}cdota \;{\color{tpgold}$\to$}\;
+      \textbf{2.}~Conexi\'{o}n \;{\color{tpgold}$\to$}\;
+      \textbf{3.}~Tu Pitch \;{\color{tpgold}$\to$}\;
+      \textbf{4.}~Investigaci\'{o}n \;{\color{tpgold}$\to$}\;
+      \textbf{5.}~Esquema}\\[0.9em]
+    {\footnotesize\color{tpmuted}
+      \textbf{6.}~Primer Borrador \;{\color{tpgold}$\to$}\;
+      \textbf{7.}~Revisi\'{o}n \;{\color{tpgold}$\to$}\;
+      \textbf{8.}~Pulir Voz \;{\color{tpgold}$\to$}\;
+      \textbf{9.}~Checklist \;{\color{tpgold}$\to$}\;
+      \textbf{10.}~Mi Cierre}\\[1.4em]
+    {\color{tpborder}\rule{0.72\textwidth}{0.5pt}}\\[1.0em]
+    {\color{tpgreen}
+      memory \;{\color{tpgold}$\longrightarrow$}\;
+      connection \;{\color{tpgold}$\longrightarrow$}\;
+      research \;{\color{tpgold}$\longrightarrow$}\;
+      draft \;{\color{tpgold}$\longrightarrow$}\;
+      revision \;{\color{tpgold}$\longrightarrow$}\;
+      voice \;{\color{tpgold}$\longrightarrow$}\;
+      reflection}\\[1.1em]
+    {\color{tpmuted}\small\itshape A process, not a product.}
+  \end{center}
   \note{%
-    \textbf{SLIDE 10 — Research and Citation Ethics}\\[0.4em]
-    Tu Pana does not generate citations. In a writing class, fabricated sources are not a minor technical issue --- they undermine the integrity of research as an intellectual practice.\\[0.4em]
-    The AI can support research thinking. But students must locate, read, evaluate, and cite real sources. Again: the app protects the process.\\[0.4em]
-    \textit{[Screenshot: Research stage guardrail notice — the app explicitly declining to generate citations and redirecting the student toward the research process. Read the guardrail text aloud if time permits.]}%
+    \textbf{SLIDE 7 — Ten Stages} \hfill \textit{[75 sec / 10-min: SKIP]}\\[0.5em]
+    The movement from left to right is deliberate. The app begins with memory and ends with reflection. It is not helping students finish an assignment. It is teaching them a process.\\[0.5em]
+    Worth pausing on Stage 1. It is unusual to begin academic writing with personal anecdote — to ask students to write from what they already know before asking them to research. That inversion is intentional. It establishes the student as a narrator and a witness before asking them to be a scholar. The essay grows from the student outward, not from a generic academic template inward.\\[0.5em]
+    Stage 8 — Pulir Voz, Voice Polish — is where the Voice Vault lives. I'll show you that in a moment.\\[0.5em]
+    Stage 10 — Mi Cierre de Proceso — is the closing. Students write a process reflection, the AI offers a limited coach perspective based on what it observed, and an Instructor Process Report is generated.\\[0.5em]
+    \textit{[Walk all ten stages with one sentence each if time allows. Pause on Stage 1 and Stage 10 — those two bookends carry the conceptual arc.]}
   }
 \end{frame}
 
-% ── SLIDE 11  Five Questions Framework ───────────────────────────────────────
-\begin{frame}
-  \frametitle{The Five Questions Framework}
-  \framesubtitle{A practical framework for student self-reading}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.49\textwidth}
-      \setstretch{1.45}
-      Students evaluate their writing --- and \textbf{the AI's feedback} --- using five questions:
-
-      \vspace{0.5em}
-      \begin{enumerate}
-        \item Is it \textbf{accurate}?
-        \item Does it \textbf{preserve voice}?
-        \item Is it \textbf{specific}?
-        \item Does it \textbf{show thinking}?
-        \item Does it \textbf{honor cultural knowledge}?
-      \end{enumerate}
-
-      \vspace{0.7em}
-      {\small\color{tpmuted}These questions also apply to the AI's feedback.}\\[0.2em]
-      \textbf{The AI is not the authority.}\\[0.2em]
-      {\small Its feedback is something to question, accept, revise, or reject.\\
-       That is part of AI literacy.}
-
-    \column{0.48\textwidth}
-      \includegraphics[width=\linewidth, height=5.8cm, keepaspectratio]{SCR-20260519-ldzz.png}
-
-      \vspace{0.4em}
-      {\footnotesize\color{tpgreen}\itshape
-       Not grammar. Not correctness.\\
-       Groundedness, voice, specificity,\\
-       thought, and cultural accountability.}
-  \end{columns}
-
+% ── SLIDE 8  Decolonial AI ───────────────────────────────────────────────
+% [10-MIN: SKIP]
+{%
+\setbeamertemplate{footline}{}
+\begin{frame}[plain,c]
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[tpdark]
+      (current page.south west) rectangle (current page.north east);
+    \fill[tpgreen]
+      (current page.south west)
+      rectangle ([xshift=\paperwidth, yshift=3pt] current page.south west);
+  \end{tikzpicture}
+  \begin{center}
+    {\color{tpmuted}\small\itshape
+      Decolonial AI is not about adding a Spanish button to a chatbot.}\\[0.9em]
+    {\color{tpwarm}\Large\bfseries
+      It means redesigning the role of AI}\\[0.35em]
+    {\color{tpwarm}\Large\bfseries
+      in the educational encounter.}\\[1.4em]
+    {\color{tpgold}\rule{8em}{0.7pt}}\\[1.1em]
+    {\color{tpmuted}\normalsize
+      Whose thinking does the AI scaffold?\\[0.35em]
+      Whose labor does it displace?\\[0.35em]
+      Whose voice does it flatten?}
+  \end{center}
   \note{%
-    \textbf{SLIDE 11 — Five Questions Framework}\\[0.4em]
-    These are not rubric categories. They are habits of critical self-reading. They teach students that good writing is not just writing that sounds polished.\\[0.4em]
-    Pause on question 5: Does it honor cultural knowledge? That one lands hardest with faculty who teach multilingual students. It reframes what we mean by strong writing.\\[0.4em]
-    \textit{[Screenshot: All Five Questions displayed together as a summary panel. Read Question 5 — "Does it honor cultural knowledge?" — aloud and let it sit. Faculty already value this kind of critical thinking; it just hasn't been applied to writing and AI before.]}\\[0.3em]
-    \textit{[10-minute version: Read all five questions aloud. Pause on \#5. Move on.]}%
+    \textbf{SLIDE 8 — Decolonial AI} \hfill \textit{[60 sec / 10-min: SKIP]}\\[0.5em]
+    A common misreading: decolonial AI means including Spanish content, or naming Latinx students in the interface copy, or performing inclusion. Those things are surface.\\[0.5em]
+    Decolonial AI means asking a harder structural question. Whose thinking is the AI designed to scaffold? Whose intellectual labor might it displace? Whose language does it treat as standard, and whose does it treat as error? Whose knowledge does it validate, and whose does it ignore?\\[0.5em]
+    Tu Pana tries to answer those questions through its design constraints. The AI cannot generate essay prose — so it cannot replace the student's intellectual labor. The coach engages with bilingual language rather than correcting it — so it does not flatten multilingual voice. Embedded AI literacy checkpoints ask students to evaluate AI itself — so the tool becomes an object of critical inquiry rather than a trusted authority.\\[0.5em]
+    Not the absence of AI. The deliberate placement of AI in service of student intellectual sovereignty.\\[0.5em]
+    \textit{[10-minute version: Skip. Name the concept once in Slide 4 and move on.]}
+  }
+\end{frame}
+}
+
+% ── SLIDE 9  Bilingualism ────────────────────────────────────────────────
+% [10-MIN: SKIP]
+{%
+\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+  \screenshotcaption{SCR-20260519-lfbj.png}%
+    {The AI speaks the student's language.}
+  \note{%
+    \textbf{SLIDE 9 — Bilingualism} \hfill \textit{[45 sec / 10-min: SKIP]}\\[0.5em]
+    \textit{[Silence for 3 seconds. Let the audience orient to what they're seeing.]}\\[0.5em]
+    Tu Pana treats Spanish, English, Spanglish, code-switching, dialect, family phrases, and community idioms as rhetorical resources — not as errors to be corrected.\\[0.5em]
+    What you're seeing is the coach responding fully in Spanish. Not translating — choosing. That is a signal about whose language matters in this interaction.\\[0.5em]
+    When a student writes "mi abuela me decía" in an English-language essay, the coach does not flag it. It asks: Why does this phrase matter here? What would be lost if you translated it? Is this something you want to protect in revision?\\[0.5em]
+    This is what I call multilingual rhetorical agency: not telling students that audience doesn't matter, but helping them develop judgment about their own language choices — when to translate, when to leave a phrase in the language it lives in.\\[0.5em]
+    \textit{[10-minute version: Skip this slide. The Voice Vault slide carries the bilingualism argument.]}
+  }
+\end{frame}
+}
+
+% ── SLIDE 10  Voice Vault ────────────────────────────────────────────────
+{%
+\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+  \screenshotcaption{SCR-20260519-lmic.png}%
+    {Smoother is not always better.}
+  \note{%
+    \textbf{SLIDE 10 — Voice Vault} \hfill \textit{[75 sec]}\\[0.5em]
+    \textit{[Silence for at least 4 seconds. Let them look before you speak.]}\\[0.5em]
+    Stage 8 is called Pulir Voz — Voice Polish. It includes what I think of as the most distinctive feature of Tu Pana: the Voice Vault.\\[0.5em]
+    In the Voice Vault, students identify phrases in their draft that must be protected during revision. A word from a parent or grandparent. A code-switched phrase that carries specific weight. A sentence that sounds exactly like them. A moment where translation would weaken the meaning, not strengthen it.\\[0.5em]
+    The student makes a declaration: this language is deliberate. This is not an error. Do not flatten this.\\[0.5em]
+    That declaration exists because AI revision tools — like most revision tools — push writing toward a generic version of academic clarity. But a smoother sentence can be less precise. A more polished sentence can be less honest. A more standard sentence can carry less cultural knowledge than the one it replaced.\\[0.5em]
+    \textit{[Say this slowly, with a pause after:]} Smoother is not always better.\\[0.5em]
+    \textit{[Hold the pause. Let faculty sit with that sentence. Then advance.]}\\[0.5em]
+    \textit{[10-minute version: This is the core slide. Show the screenshot, say the caption slowly, hold the pause. Then move to Five Questions.]}
+  }
+\end{frame}
+}
+
+% ── SLIDE 11  Citation Ethics ────────────────────────────────────────────
+% [10-MIN: SKIP]
+{%
+\setbeamertemplate{footline}{}
+\begin{frame}[plain,c]
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[tpdark]
+      (current page.south west) rectangle (current page.north east);
+  \end{tikzpicture}
+  \begin{center}
+    {\color{tpwarm}\Large\bfseries The AI will not}\\[0.35em]
+    {\color{tpwarm}\Large\bfseries invent your sources.}\\[1.3em]
+    {\color{tpgold}\rule{7em}{0.7pt}}\\[1.0em]
+    {\color{tpmuted}\normalsize Research is part of the learning.}
+  \end{center}
+  \note{%
+    \textbf{SLIDE 11 — Citation Ethics} \hfill \textit{[45 sec / 10-min: SKIP]}\\[0.5em]
+    One of the well-documented risks of generative AI is fabricated citations — plausible-sounding sources that simply do not exist. In a research-based writing course, fabricated sources are not a minor technical glitch. They undermine the integrity of research as an intellectual practice.\\[0.5em]
+    When students in Tu Pana reach the research stage and ask the AI to find or generate sources, the coach redirects them toward the research process itself: What question are you trying to answer? What keywords might help? How will you evaluate whether a source is credible? How does it connect to what you are arguing?\\[0.5em]
+    Students must locate, read, evaluate, and cite real sources themselves. That is not a limitation of the tool. It is a pedagogical commitment. The constraint protects the intellectual work that research is supposed to develop.\\[0.5em]
+    \textit{[10-minute version: Skip. Mention in one spoken sentence during Slide 4.]}
+  }
+\end{frame}
+}
+
+% ── SLIDE 12  The Five Questions ─────────────────────────────────────────
+\begin{frame}{The Five Questions}
+  \vspace{0.8em}
+  \begin{center}
+    {\color{tpmuted}\small
+      Students evaluate their writing — and the AI's feedback — with these questions:}\\[1.3em]
+    \setlength{\tabcolsep}{0pt}
+    \begin{tabular}{cl}
+      {\color{tpgreen}\bfseries\large 1} \quad &
+        Is it \textbf{accurate}?\\[0.65em]
+      {\color{tpgreen}\bfseries\large 2} \quad &
+        Does it \textbf{preserve voice}?\\[0.65em]
+      {\color{tpgreen}\bfseries\large 3} \quad &
+        Is it \textbf{specific}?\\[0.65em]
+      {\color{tpgreen}\bfseries\large 4} \quad &
+        Does it \textbf{show thinking}?\\[0.65em]
+      {\color{tpgreen}\bfseries\large 5} \quad &
+        Does it \textbf{honor cultural knowledge}?\\[0.65em]
+    \end{tabular}\\[1.3em]
+    {\color{tpmuted}\small\itshape
+      These questions also apply to what the AI says.\\
+      The AI is not the authority.}
+  \end{center}
+  \note{%
+    \textbf{SLIDE 12 — Five Questions} \hfill \textit{[60 sec]}\\[0.5em]
+    Students use these five questions to evaluate their own writing — but also to evaluate the feedback the AI gives them. That second application is what makes this AI literacy, not just a writing rubric.\\[0.5em]
+    Read them aloud one at a time. Pause between each one and give the room a moment to land on it before moving to the next.\\[0.5em]
+    1. Is it accurate? — Does this sentence say what you actually mean?\\
+    2. Does it preserve voice? — Does this still sound like you?\\
+    3. Is it specific? — Are you using real details, or abstractions?\\
+    4. Does it show thinking? — Is there reasoning here, or just claims?\\
+    5. Does it honor cultural knowledge?\\[0.5em]
+    \textit{[Pause meaningfully on 5. Let the room sit with it before you explain.]}\\[0.5em]
+    That last question does not appear in any standard rubric. "Does it honor cultural knowledge?" is asking whether the writing is faithful to the knowledge that comes from community, family, experience, and place — not only from academic sources. It reframes what we mean by strong, rigorous writing.\\[0.5em]
+    And it applies to the AI's feedback as well. If the AI tells a student to cut a phrase because it sounds informal — does that feedback honor cultural knowledge? Students learn to question the AI. That is AI literacy.\\[0.5em]
+    \textit{[10-minute version: Read all five. Pause significantly on \#5. Then advance.]}
   }
 \end{frame}
 
-% ── SLIDE 12  Process Documentation ─────────────────────────────────────────
-% [10-MIN: One sentence only: "The app ends with an Instructor Process Report ---
-%  not a grade, just a record of the student's process."]
-\begin{frame}
-  \frametitle{In the Age of AI, Process Becomes Evidence}
-  \framesubtitle{Mi Cierre de Proceso \textperiodcentered{} My Writing Snapshot \textperiodcentered{} Instructor Process Report}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.52\textwidth}
-      \setstretch{1.4}
-      The final essay no longer tells us enough.\\[0.7em]
-      At Stage~10, students complete \textbf{Mi Cierre de Proceso}:
-      \begin{itemize}
-        \item What did I learn?
-        \item What was most difficult?
-        \item How did my thinking change?
-        \item What would I do differently?
-      \end{itemize}
-      \vspace{0.5em}
-      \textit{Only after the student writes} can the AI offer a limited coach perspective --- based on what it observed in the app.\\[0.5em]
-      The \textbf{Instructor Process Report} is then generated.
-
-      \vspace{0.4em}
-      \tprule
-      \vspace{0.3em}
-      {\small Not a grade. Not an evaluation.\\
-       \textbf{Process documentation.}}
-
-    \column{0.45\textwidth}
-      \includegraphics[width=\linewidth, height=6.5cm, keepaspectratio]{SCR-20260519-lnae.png}
-  \end{columns}
-
+% ── SLIDE 13  Process Documentation ─────────────────────────────────────
+{%
+\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+  \screenshotcaption{SCR-20260519-lnae.png}%
+    {Llegaste al final con dignidad. \textperiodcentered{} You reached the end with dignity.}
   \note{%
-    \textbf{SLIDE 12 — Process Documentation}\\[0.4em]
-    Tu Pana responds to the academic integrity challenge not by trying to detect AI use after the fact, but by making the process visible from the beginning.\\[0.4em]
-    The Instructor Process Report helps instructors see the student's journey, not just the final product. It is meant to supplement instructor judgment, not replace it.\\[0.4em]
-    \textit{[Screenshot: Stage 10 Mi Cierre de Proceso completion modal — "Llegaste al final con dignidad · You reached the end with dignity." Below it: the self-assessment form with categories including Voice/Voz, AI Judgment/Criterio sobre la IA, Cultural Knowledge. That last category does not exist in any standard rubric. Note it explicitly.]}%
+    \textbf{SLIDE 13 — Process Documentation} \hfill \textit{[60 sec]}\\[0.5em]
+    \textit{[Silence for 4 seconds. Let them read the screen.]}\\[0.5em]
+    This is Stage 10 — Mi Cierre de Proceso, My Writing Snapshot. The completion message says: "Llegaste al final con dignidad. You reached the end with dignity."\\[0.5em]
+    Faculty: notice the self-assessment categories below that message. Opening. Connection. Evidence. Voice. Revision. AI Judgment. Cultural Knowledge. Next Step. Two of those categories — AI Judgment and Cultural Knowledge — do not exist in a standard rubric. Students are asked to evaluate their own use of AI, and to assess whether their writing honors the knowledge they brought to it.\\[0.5em]
+    In the age of AI, the final essay alone no longer tells us enough. Tu Pana responds not by surveilling students but by making the process visible from the beginning — through structured documentation that the student authors. After Mi Cierre is complete, the Instructor Process Report is generated: a record of the student's journey, not just the final product.\\[0.5em]
+    This is not a grade. It is not an evaluation. It is a window into process — and it is a much richer answer to the question of academic integrity than any detection tool.\\[0.5em]
+    \textit{[10-minute version: Read the caption aloud. Say: "In the age of AI, process becomes evidence." Advance.]}
+  }
+\end{frame}
+}
+
+% ── SLIDE 14  Why This Matters for Faculty ───────────────────────────────
+% [10-MIN: SKIP]
+\begin{frame}{Why This Matters for Faculty}
+  \vspace{0.6em}
+  \begin{center}
+    {\color{tpmuted}\small Five pressures faculty already feel.}
+  \end{center}
+  \vspace{0.7em}
+  \begin{columns}[T, totalwidth=0.78\linewidth]
+    \column{0.5\textwidth}
+    \begin{itemize}\setlength{\itemsep}{0.65em}
+      \item Post-pandemic writing gaps
+      \item Multilingual writing anxiety
+      \item AI ghostwriting
+    \end{itemize}
+    \column{0.5\textwidth}
+    \begin{itemize}\setlength{\itemsep}{0.65em}
+      \item AI literacy as a learning goal
+      \item Equity in tool design
+    \end{itemize}
+  \end{columns}
+  \vspace{1.1em}
+  \begin{center}
+    {\color{tpborder}\rule{0.55\textwidth}{0.5pt}}\\[0.75em]
+    {\color{tpgreen}\small\itshape
+      Tu Pana does not pretend AI doesn't exist.\\
+      It does not rely on surveillance.\\
+      It does not outsource faculty judgment.}
+  \end{center}
+  \note{%
+    \textbf{SLIDE 14 — Why Faculty Care} \hfill \textit{[60 sec / 10-min: SKIP]}\\[0.5em]
+    For faculty, Tu Pana responds to several pressures at once. Read through the five, pausing on each:\\[0.5em]
+    Post-pandemic writing gaps: students who entered college during COVID often need more scaffolding and process support than any generation before them.\\[0.5em]
+    Multilingual writing anxiety: students who speak Spanish, Haitian Creole, or other languages at home often arrive fearing their language is the problem before they write a single word. Tu Pana reframes that.\\[0.5em]
+    AI ghostwriting: the challenge is not only detection, it is process evidence. Tu Pana gives faculty a view of the student's journey, not just the final product.\\[0.5em]
+    AI literacy: students need to learn to question AI, evaluate its feedback, and make decisions about when to accept and when to reject it. That skill does not develop from open-ended AI use.\\[0.5em]
+    Equity: most AI writing tools are built for students who already have academic fluency. Tu Pana is built for students who are developing it.\\[0.5em]
+    Instead of panic, prohibition, or detection, Tu Pana asks: Can AI be placed inside a pedagogical structure that protects student authorship? That is the experiment.
   }
 \end{frame}
 
-% ── SLIDE 13  Why This Matters for Faculty ───────────────────────────────────
-\begin{frame}
-  \frametitle{Why This Matters for Faculty}
-  \framesubtitle{A response to pressures faculty already feel}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.52\textwidth}
-      \setstretch{1.4}
-      \begin{itemize}
-        \item \textbf{Post-pandemic writing challenges}\\
-          {\small\color{tpmuted}Students need more scaffolding and process support}
-        \item \textbf{Multilingual writing anxiety}\\
-          {\small\color{tpmuted}Students arrive fearing their language is wrong before they begin}
-        \item \textbf{AI ghostwriting}\\
-          {\small\color{tpmuted}Faculty need process evidence, not just detection tools}
-        \item \textbf{AI literacy}\\
-          {\small\color{tpmuted}Students need to learn to question AI, not just use it}
-        \item \textbf{Equity}\\
-          {\small\color{tpmuted}AI tools need to be built for students who need the most support}
-      \end{itemize}
-
-    \column{0.45\textwidth}
-      \includegraphics[width=\linewidth, height=5.0cm, keepaspectratio]{SCR-20260519-lkxv.png}
-
-      \vspace{0.5em}
-      \begin{block}{}
-        \centering\small
-        Tu Pana does not pretend AI doesn't exist.\\
-        It does not rely on surveillance.\\
-        It does not outsource faculty judgment.
-      \end{block}
-  \end{columns}
-
-  \note{%
-    \textbf{SLIDE 13 — Why This Matters for Faculty}\\[0.4em]
-    For faculty, Tu Pana responds to several pressures at once. Read through the five bullets, pausing briefly on each.\\[0.4em]
-    Instead of panic, prohibition, or detection, Tu Pana asks: Can AI be placed inside a pedagogical structure that protects student authorship? That is the experiment.\\[0.4em]
-    \textit{[Screenshot: Stage 7 view showing the complete stage navigation bar across the top of the app — all stages visible, student's current progress visible. The full arc of the process is readable at a glance. This answers the question: "Is this just ChatGPT?" visually and immediately.]}%
-  }
-\end{frame}
-
-% ── SLIDE 14  Comparison Table ───────────────────────────────────────────────
-% [10-MIN: SKIP — cover in one sentence during Slide 4]
-\begin{frame}
-  \frametitle{Generic AI Produces Outputs}
-  \framesubtitle{Tu Pana develops authorship}
-
-  \medskip
-
+% ── SLIDE 15  Comparison ─────────────────────────────────────────────────
+% [10-MIN: SKIP]
+\begin{frame}{Generic AI vs.\ Tu Pana}
+  \vspace{0.3em}
   {\footnotesize
-    \setlength{\tabcolsep}{0.55em}
+    \setlength{\tabcolsep}{0.5em}
     \renewcommand{\arraystretch}{1.28}
-    \begin{tabular}{>{\bfseries}p{3.0cm} p{4.2cm} p{4.6cm}}
+    \begin{tabular}{>{\bfseries}p{2.6cm} p{4.1cm} p{4.5cm}}
       \toprule
-      \rowcolor{tplightgreen}
-      & {\normalfont\bfseries\color{tpmuted}Generic AI (no guardrails)}
-      & {\normalfont\bfseries\color{tpgreen}Tu Pana de Escritura} \\
+      \rowcolor{tplightgreen!55}
+      & {\normalfont\color{tpmuted} Generic AI (no guardrails)}
+      & {\normalfont\color{tpgreen}\bfseries Tu Pana de Escritura}\\
       \midrule
-      Process structure
-        & None --- output on demand
-        & 10 sequential scaffolded stages \\
       Authorship
-        & Can generate full essays \& theses
-        & Constrained from generating essay prose \\
-      Language policy
+        & Can generate full essays and theses
+        & Constrained from generating essay prose\\
+      Language
         & Defaults to standardized English
-        & Treats bilingualism as a resource \\
-      Citation integrity
+        & Treats bilingualism as a resource\\
+      Citations
         & Can fabricate sources
-        & Will not generate citations \\
-      Revision approach
-        & May flatten voice
-        & Revision without erasure; Voice Vault \\
+        & Will not generate citations\\
+      Revision
+        & May flatten voice toward generic clarity
+        & Revision without erasure; Voice Vault\\
       Process evidence
         & None
-        & Instructor Process Report \\
+        & Instructor Process Report\\
       AI literacy
         & Not addressed
-        & Embedded checkpoints at 3 stages \\
+        & Embedded checkpoints at three stages\\
       Designed for
         & General market
-        & Multilingual, Latinx, immigrant students \\
+        & Multilingual, Latinx, immigrant students\\
       \bottomrule
     \end{tabular}
   }
-
   \note{%
-    \textbf{SLIDE 14 — Generic AI vs.\ Tu Pana}\\[0.4em]
-    Tu Pana is not ChatGPT with a friendly Spanish name. The difference is not branding. The difference is architecture.\\[0.4em]
-    Walk through the table. Do not rush. Faculty skeptics will find the rows on authorship, language policy, citation integrity, and AI literacy most persuasive.\\[0.4em]
-    End by returning to the spine: Generic AI is product-centered. Tu Pana is process-centered.\\[0.4em]
+    \textbf{SLIDE 15 — Comparison} \hfill \textit{[60 sec / 10-min: SKIP]}\\[0.5em]
+    Tu Pana is not ChatGPT with a friendly Spanish name. The difference is not branding. The difference is architecture.\\[0.5em]
+    Walk through the table. Do not rush. For faculty primarily concerned about academic integrity, point to: Authorship (the AI cannot write the essay), Citations (will not fabricate sources), Process Evidence (Instructor Process Report shows the journey, not just the product).\\[0.5em]
+    For faculty concerned about multilingual students and equity, point to: Language (bilingualism as resource), Revision (Voice Vault), Designed For (this tool is built for students who are usually afterthoughts in EdTech).\\[0.5em]
+    End by returning to the spine of the talk:\\[0.3em]
+    Generic AI is product-centered. Tu Pana is process-centered.\\[0.3em]
     \textbf{Tu Pana is not designed to help students avoid writing. It is designed to help students stay with writing.}
   }
 \end{frame}
 
-% ── SLIDE 15  Demo Moment ────────────────────────────────────────────────────
-\begin{frame}
-  \frametitle{What the AI Says --- and What It Refuses to Say --- Matters}
-  \framesubtitle{A brief demonstration}
-
-  \medskip
-
-  \begin{columns}[T, totalwidth=\textwidth]
-    \column{0.49\textwidth}
-      \includegraphics[width=\linewidth, height=3.7cm, keepaspectratio]{SCR-20260519-lemu.png}
-      \vspace{0.35em}
-      \includegraphics[width=\linewidth, height=3.7cm, keepaspectratio]{SCR-20260519-lfbj.png}
-
-    \column{0.49\textwidth}
-      \includegraphics[width=\linewidth, height=3.7cm, keepaspectratio]{SCR-20260519-lepw.png}
-      \vspace{0.35em}
-      \includegraphics[width=\linewidth, height=3.7cm, keepaspectratio]{SCR-20260519-lmox.png}
-  \end{columns}
-
-  \vspace{0.5em}
-  \begin{center}
-    {\small\color{tpgreen}\itshape
-      In educational AI, refusal is not always failure.\\
-      Sometimes refusal is pedagogy.}
-  \end{center}
-
-  \note{%
-    \textbf{SLIDE 15 — Demo Moment}\\[0.4em]
-    What I want the audience to notice is not only the interface. I want them to notice the behavior.\\[0.4em]
-    When a student asks for help, the coach does not take over. It asks questions. It gives structure without filling it in. It redirects requests for ghostwriting. It protects research integrity. It treats bilingual language as meaningful.\\[0.4em]
-    The most important feature of Tu Pana may be what it refuses to do.\\[0.4em]
-    \textit{[2x2 grid: Top-left — student draft in input area (student writes first). Top-right — coach response in Spanish, asking questions not generating prose. Bottom-left — student asking for help "without rewriting it"; coach refuses and asks instead. Bottom-right — stage progression view, student advancing through the process.]}\\[0.3em]
-    \textit{[18-minute version: Pause on each screenshot. Ask: "What do you notice?" Give 30 seconds before explaining.]}%
-  }
-\end{frame}
-
-% ── SLIDE 16  The Larger Claim ───────────────────────────────────────────────
-\begin{frame}
-  \frametitle{We Are Not Just Choosing Tools}
-  \framesubtitle{We are choosing pedagogical values}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.54\textwidth}
-      \setstretch{1.4}
-      The field of AI-assisted writing instruction is still being built.\\[0.7em]
-      \textbf{The choices we make now matter.}\\[0.7em]
-      Will AI become a shortcut around writing --- a machine for producing acceptable academic prose?\\[0.7em]
-      \textbf{Or can AI be designed differently?}
-      \begin{itemize}
-        \item Can it slow students down productively?
-        \item Can it protect multilingual voice?
-        \item Can it help faculty see \textit{process} rather than only \textit{product}?
-        \item Can it be built around equity, not automation?
-      \end{itemize}
-
-    \column{0.43\textwidth}
-      \includegraphics[width=\linewidth, height=5.6cm, keepaspectratio]{SCR-20260519-lnae.png}
-
-      \vspace{0.5em}
-      \begin{block}{}
-        \centering\small
-        Tu Pana is one attempt to answer \textbf{yes}.\\[0.2em]
-        {\footnotesize\color{tpdark!70}Not perfectly. Not finally. But deliberately.}
-      \end{block}
-  \end{columns}
-
-  \note{%
-    \textbf{SLIDE 16 — The Larger Claim}\\[0.4em]
-    We are deciding what AI is allowed to do in the writing classroom. Those decisions have consequences --- for whose thinking gets scaffolded, whose voice gets protected, and whose labor gets protected or displaced.\\[0.4em]
-    Tu Pana is one answer to those questions. It is offered not as the only answer, but as proof that the questions can be asked with care, and that the answers can be built with integrity.\\[0.4em]
-    \textit{[Screenshot: Stage 10 completion modal — "Llegaste al final con dignidad." End with dignity. That phrase is the answer to every question on this slide. This is what deliberate design looks like.]}%
-  }
-\end{frame}
-
-% ── SLIDE 17  Contributions ──────────────────────────────────────────────────
+% ── SLIDE 16  Demo ───────────────────────────────────────────────────────
 {%
 \setbeamertemplate{footline}{}
-\begin{frame}
-  \frametitle{Contributions}
-  \framesubtitle{What Tu Pana de Escritura offers}
-
-  \medskip
-
-  \begin{columns}[T]
-    \column{0.57\textwidth}
-      \setstretch{1.5}
-      \begin{enumerate}
-        \item A model of \textbf{guardrailed AI} for writing instruction that prevents essay generation while supporting students
-        \item A model of \textbf{decolonial AI pedagogy} designed around student dignity, authorship, and linguistic justice
-        \item A model of \textbf{multilingual writing support} that treats Spanish, English, Spanglish, and community language as rhetorical resources
-        \item A model of \textbf{process-based authorship documentation} that gives faculty a richer view of student writing development
-        \item A practical \textbf{classroom response to AI} that moves beyond panic, prohibition, or detection
-      \end{enumerate}
-
-    \column{0.40\textwidth}
-      \includegraphics[width=\linewidth, height=7.0cm, keepaspectratio]{SCR-20260519-lcmw.png}
-
-      \vspace{0.5em}
-      \begin{center}
-        {\footnotesize\color{tpgreen}
-          \href{https://vikthor1.github.io/tu-pana/}{vikthor1.github.io/tu-pana}}
-      \end{center}
-  \end{columns}
-
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[tpdark]
+      (current page.south west) rectangle (current page.north east);
+    % Top-left: student writing
+    \node[anchor=north west, xshift=1.5pt, yshift=-1.5pt]
+      at (current page.north west){%
+      \includegraphics[width=0.499\paperwidth, height=0.455\paperheight,
+        keepaspectratio]{SCR-20260519-lemu.png}};
+    % Top-right: coach responds in Spanish
+    \node[anchor=north east, xshift=-1.5pt, yshift=-1.5pt]
+      at (current page.north east){%
+      \includegraphics[width=0.499\paperwidth, height=0.455\paperheight,
+        keepaspectratio]{SCR-20260519-lfbj.png}};
+    % Bottom-left: guardrail refusal
+    \node[anchor=south west, xshift=1.5pt, yshift=18pt]
+      at (current page.south west){%
+      \includegraphics[width=0.499\paperwidth, height=0.455\paperheight,
+        keepaspectratio]{SCR-20260519-lepw.png}};
+    % Bottom-right: stage progression
+    \node[anchor=south east, xshift=-1.5pt, yshift=18pt]
+      at (current page.south east){%
+      \includegraphics[width=0.499\paperwidth, height=0.455\paperheight,
+        keepaspectratio]{SCR-20260519-lmox.png}};
+    % Caption strip
+    \fill[tpdark, opacity=0.88]
+      (current page.south west)
+      rectangle ([yshift=18pt] current page.south east);
+    \node[anchor=center, text=tpwarm, font=\small\itshape,
+          yshift=8pt] at (current page.south)
+      {In educational AI, refusal is not failure.
+        \textperiodcentered{} Sometimes refusal is pedagogy.};
+  \end{tikzpicture}
   \note{%
-    \textbf{SLIDE 17 — Contributions (Closing)}\\[0.4em]
-    Read through the five contributions. Pause on each one.\\[0.4em]
-    Then close with this sentence --- speak slowly, do not rush it:\\[0.4em]
-    \textbf{``In a moment when AI can generate text instantly, Tu Pana insists that the student's struggle to write, remember, connect, revise, and reflect is not an obstacle to learning. It is the learning.''}\\[0.4em]
-    \textit{[Screenshot behind the five contributions: the onboarding screen — "Tú ya produces conocimiento." The closing image mirrors the opening premise: the student already produces knowledge. The talk ends where Tu Pana begins.]}\\[0.4em]
-    \textit{[Pause. Do not say Thank You. Do not say Questions. Let the closing sentence stand. Then wait for the room.]}%
+    \textbf{SLIDE 16 — Demo Moment} \hfill \textit{[75–90 sec]}\\[0.5em]
+    \textit{[For 18-minute version: pause on this slide. Ask the room: "What do you notice?" Give 20–30 seconds of actual silence before speaking.]}\\[0.5em]
+    Four screenshots from inside Tu Pana. Walk through them one at a time:\\[0.4em]
+    Top-left — A student working in a draft stage. The writing area is dominant. The interface is waiting for the student's text.\\[0.3em]
+    Top-right — The coach responding in Spanish. Questions, not prose. The AI is asking, not writing.\\[0.3em]
+    Bottom-left — A student asking for help "without rewriting it" — a direct request for ghostwriting. The coach declines and asks a question instead. That refusal is a feature, not a failure.\\[0.3em]
+    Bottom-right — Stage progression. The student is moving forward through the process. The arc of the tool is visible.\\[0.5em]
+    \textit{[Say slowly:]} The most important feature of Tu Pana may be what it refuses to do.\\[0.4em]
+    In educational AI, refusal is not failure. Sometimes refusal is pedagogy.\\[0.5em]
+    \textit{[10-minute version: 45 seconds on this slide. Point to the bottom-left refusal screenshot and say the refusal line. Advance.]}
   }
 \end{frame}
 }
 
-% ════════════════════════════════════════════════════════════════════════════
-%  TIMING REFERENCE  (not a slide)
+% ── SLIDE 17  Closing ────────────────────────────────────────────────────
+{%
+\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[tpdark]
+      (current page.south west) rectangle (current page.north east);
+    \fill[tpgreen]
+      (current page.south west)
+      rectangle ([xshift=\paperwidth, yshift=3pt] current page.south west);
+  \end{tikzpicture}
+  \begin{columns}[T, totalwidth=0.90\textwidth]
+    \column{0.58\textwidth}
+      \vspace{1.4em}
+      {\color{tpgold}\small\bfseries\MakeUppercase{Contributions}}\\[0.7em]
+      {\color{tpwarm}\footnotesize
+        \begin{enumerate}\setlength{\itemsep}{0.5em}
+          \item A model of \textbf{guardrailed AI} that prevents essay
+                generation while supporting students
+          \item A model of \textbf{decolonial AI pedagogy} designed
+                around student dignity and linguistic justice
+          \item A model of \textbf{multilingual writing support} that
+                treats Spanish, Spanglish, and community language
+                as rhetorical resources
+          \item A model of \textbf{process documentation} that gives
+                faculty a richer view of student writing development
+          \item A practical \textbf{classroom response to AI} that
+                moves beyond panic, prohibition, and detection
+        \end{enumerate}
+      }\\[1.0em]
+      {\color{tpgold}\footnotesize
+        \href{https://vikthor1.github.io/tu-pana/}{vikthor1.github.io/tu-pana}}
+    \column{0.38\textwidth}
+      \vspace{1.6em}
+      \begin{center}
+        {\color{tpborder}\rule{0.7pt}{5.5cm}}
+      \end{center}
+  \end{columns}
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[tpbrown, opacity=0.60]
+      (current page.south west)
+      rectangle ([yshift=2.1cm] current page.south east);
+    \node[anchor=center, text width=0.88\paperwidth, align=center,
+          text=tpwarm, font=\normalsize\itshape,
+          yshift=0.88cm] at (current page.south)
+      {In a moment when AI can generate text instantly, Tu Pana insists
+       that the student's struggle to write, remember, connect, revise,
+       and reflect is not an obstacle to learning. It is the learning.};
+  \end{tikzpicture}
+  \note{%
+    \textbf{SLIDE 17 — Closing} \hfill \textit{[60–75 sec]}\\[0.5em]
+    Read the five contributions aloud. Pause on each one. Don't rush through this list — these are five distinct claims, and faculty should have time to absorb each.\\[0.5em]
+    Then close with the sentence at the bottom of the screen. Read it slowly:\\[0.4em]
+    \textbf{"In a moment when AI can generate text instantly, Tu Pana insists that the student's struggle to write, remember, connect, revise, and reflect is not an obstacle to learning. It is the learning."}\\[0.5em]
+    \textit{[After the final sentence: do not say Thank You. Do not say Questions. Set down your clicker. Wait. Let the room decide what to do with the silence. That silence is the argument completing itself.]}\\[0.5em]
+    If questions arise, the richest ones to invite: How would this work in your discipline? What would it take to adapt the five questions to your course context? What does process documentation change for how you think about grading?
+  }
+\end{frame}
+}
+
+% ════════════════════════════════════════════════════════════════════════
+%  TIMING REFERENCE
 %
-%  10-MINUTE VERSION  — ~10 slides
-%  ─────────────────────────────────────────────────────────────────────────
-%  Keep  : 1, 2, 3 (brief), 4, 5, 9, 11, 13, 16, 17
-%  Skip  : 6, 7, 8, 10, 12, 14, 15
-%  Note  : On slide 4 add: "The app has ten stages — from personal memory
-%           to process reflection — and moves through them in sequence."
-%           On slide 12, replace with one sentence spoken aloud.
-%  Pace  : ~60 seconds per slide on average.
+%  10-MINUTE VERSION  (~10 slides)
+%  Keep  : 1, 2, 3 (brief), 4, 5, 10, 12, 13, 16, 17
+%  Skip  : 6, 7, 8, 9, 11, 14, 15
+%  Pace  : ~60 sec per slide. Do not rush Slide 5 or Slide 10.
 %
-%  18-MINUTE VERSION  — all 17 slides
-%  ─────────────────────────────────────────────────────────────────────────
-%  Expand : Slide 9 (Voice Vault) — 90 sec; pause before explaining.
-%           Slide 15 (demo) — 90–120 sec; ask audience "what do you notice?"
-%           Slide 6 (ten stages) — walk through all 10 with one sentence each.
-%           Slide 14 (table) — let faculty read; invite one question.
-%  Reserve: Final 2 minutes for slide 17 and the closing spoken line.
-% ════════════════════════════════════════════════════════════════════════════
+%  18-MINUTE VERSION  (all 17 slides)
+%  Expand: Slide 10 (Voice Vault) — 90 sec, pause before speaking
+%          Slide 16 (demo) — ask "what do you notice?" and wait
+%          Slide 7 (ten stages) — walk all 10 with one sentence each
+%          Slide 15 (table) — let faculty read; invite one question
+%  Reserve 2 min for Slide 17 and the closing sentence.
+% ════════════════════════════════════════════════════════════════════════
 
 \end{document}

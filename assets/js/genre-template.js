@@ -82,9 +82,9 @@ const mixedGenreAutobiographicalEssay = {
             titleEs: 'Anécdota',
             titleEn: 'Anecdote',
             phase:   'Discover',
-            coachFocus: 'Help the student find or sharpen a specific memory. Do not write the anecdote for them.',
-            allowedSupport: ['questions', 'feedback', 'sensory-detail prompts'],
-            blockedSupport: ['write anecdote', 'generate memory', 'invent story']
+            coachFocus: 'Help the student find or sharpen a specific memory. A Stage 1 anecdote is ready when it has three elements: a specific place, a specific person or relationship, and a moment when something shifted or changed. When all three elements are present, the stage is complete — affirm what is strong and encourage the student to move to Stage 2. Do not push for more sensory detail or specificity once these elements exist. On the first response: name one specific strength, identify at most 2 areas to improve, and ask no more than 2 questions — never 4 or 5 questions at once. After the student has revised once or twice and the text is meaningfully richer, shift to affirmation and forward momentum. Do not write the anecdote for them. Do not generate any sentence, phrase, or memory that the student could copy into their draft.',
+            allowedSupport: ['questions', 'feedback', 'sensory-detail prompts', 'forward-momentum affirmation', 'good-enough-for-this-stage signals'],
+            blockedSupport: ['write anecdote', 'generate memory', 'invent story', 'push for more detail once core elements are present', 'ask 4 or more questions at once']
         },
         {
             id:      'stage.connection',

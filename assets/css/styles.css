@@ -2047,6 +2047,25 @@
             border-radius: 99px; font-size: 0.58rem; font-weight: 700;
             vertical-align: top; margin-left: 1px; line-height: 1;
         }
+        /* Inline protect button inside Voice Vault panel */
+        .vault-protect-inline {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            width: 100%; padding: 8px 12px; margin: 4px 0 10px;
+            border: 1.5px solid var(--jade); border-radius: var(--radius-sm);
+            background: transparent; color: var(--jade);
+            font-size: 0.78rem; font-weight: 600; cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .vault-protect-inline:not(:disabled):hover,
+        .vault-protect-inline:not(:disabled):focus-visible {
+            background: var(--jade); color: #fff; outline: none;
+        }
+        .vault-protect-inline:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
+        .vault-protect-inline:disabled {
+            opacity: 0.38; cursor: not-allowed;
+            border-color: var(--border-mid); color: var(--text-muted);
+        }
+        @media (prefers-reduced-motion: reduce) { .vault-protect-inline { transition: none; } }
 
         /* ── Instructor Report Panel ── */
         .instr-panel {

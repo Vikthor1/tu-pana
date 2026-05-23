@@ -204,10 +204,17 @@ function injectVoiceVaultPanel() {
         </summary>
         <div class="voice-vault-body">
             <p class="voice-vault-hint">
-                <span class="show-es">Selecciona un fragmento en tu borrador, luego haz clic en <strong>Proteger</strong> en la barra de herramientas. El punto verde confirma que la frase sigue en tu borrador.</span>
+                <span class="show-es">Selecciona un fragmento de tu borrador y haz clic en el botón de abajo para protegerlo. El punto verde confirma que la frase sigue en tu texto.</span>
                 <span class="lang-sep"> · </span>
-                <span class="show-en">Select a phrase in your draft, then click <strong>Protect</strong> in the toolbar. A green dot confirms the phrase is still in your draft.</span>
+                <span class="show-en">Select a phrase from your draft above, then click the button below to protect it. A green dot confirms the phrase is still in your text.</span>
             </p>
+            <button class="vault-protect-inline" id="vaultInlineProtectBtn"
+                onclick="protectSelectedPhrase()" disabled
+                aria-label="Proteger frase seleccionada · Protect selected phrase"
+                title="Proteger frase seleccionada · Protect selected phrase">
+                <svg viewBox="0 0 16 16" style="width:13px;height:13px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5L2.5 4v4.5C2.5 11.7 5 14.2 8 15c3-0.8 5.5-3.3 5.5-6.5V4L8 1.5z"/><path d="M5.5 8.5l2 2 3-3"/></svg>
+                <span class="show-es">Proteger frase seleccionada</span><span class="lang-sep"> · </span><span class="show-en">Protect selected phrase</span>
+            </button>
             <div class="vault-phrase-list" id="vaultPhraseList" role="list" aria-label="Frases protegidas · Protected phrases">
                 <div class="vault-empty"><span class="show-es">Aún no has protegido ninguna frase.</span><span class="lang-sep"> · </span><span class="show-en">No phrases protected yet.</span></div>
             </div>
@@ -315,9 +322,10 @@ function removeProtectedPhrase(id) {
 }
 
 function updateProtectBtn() {
-    const btn = el('etbProtectBtn');
-    const sep = el('etbProtectSep');
-    const isS8 = state.stage === 8;
+    const btn       = el('etbProtectBtn');
+    const sep       = el('etbProtectSep');
+    const inlineBtn = el('vaultInlineProtectBtn');
+    const isS8      = state.stage === 8;
     if (!btn) return;
     const show = isS8;
     btn.style.display = show ? '' : 'none';
@@ -325,6 +333,9 @@ function updateProtectBtn() {
     if (show) {
         const hasSel = D.draftArea.selectionStart !== D.draftArea.selectionEnd;
         btn.disabled = !hasSel;
+        if (inlineBtn) inlineBtn.disabled = !hasSel;
+    } else {
+        if (inlineBtn) inlineBtn.disabled = true;
     }
 }
 

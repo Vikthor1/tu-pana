@@ -1,10 +1,58 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-19 (session 37, AI literacy checkpoint auto-popup at Stages 4, 7, 8)
+Last updated: 2026-05-25 (Phase 1 AI memory architecture complete; talks dissemination layer added)
+
+---
+
+## Phase 1 AI-Assisted Memory Architecture — COMPLETE (2026-05-25)
+
+**Latest pushed commit: `3fbca71` — `docs: add talks dissemination layer to Phase 1 architecture`**
+
+### Phase 1 commits on origin/main
+
+| Commit | Content |
+|--------|---------|
+| `f6a9094` | export packets + context-packet template |
+| `ce2b266` | NotebookLM workflow section in obsidian-workflow |
+| `0f4aae0` | session digest |
+| `74f1fbe` | Phase 1 architecture plan |
+| `3fbca71` | talks dissemination layer |
+
+### NotebookLM notebooks — created and tested
+
+| Notebook | Grounding test result |
+|----------|-----------------------|
+| `Tu Pana: Pedagogical Core` | ✓ Correctly synthesized authorship, anti-ghostwriting, Stage 6 gate, Voice Vault, bilingual parity |
+| `Tu Pana: Architecture & Design Decisions` | ✓ Correctly synthesized offline-first architecture, authorship gate, guardrails, Five Questions, provider routing |
+| `Intellectual Projects: Cross-Domain Synthesis` | ✓ Correctly understood itself as a controlled cross-domain synthesis scaffold |
+
+### Key architecture rules (enforce every session)
+- **NotebookLM is synthesis/orientation only** — one query per session max; NLM-derived content ≤ 800 tokens in context packet
+- **`docs/talks/`** — public-facing rhetorical artifacts; do NOT upload back into operational NLM notebooks by default
+- **No MCP yet** — do not begin MCP integration until repeated manual retrieval patterns justify it
+- **Canonical truth:** GitHub `docs/`, Obsidian vault, `SYSTEM_MEMORY.md`
+
+### Next recommended action
+- Use the Phase 1 workflow in real sessions (see `docs/workflow/context-packet-template.md` and `docs/phase1-memory-architecture.md §7`)
+- Keep NotebookLM as synthesis/orientation only
+- Proceed to Tier 4: pilot logistics (requires real students — see Tier 4 section below)
 
 ---
 
 ## Where we left off
+
+**Session 38 (2026-05-19) — Gemini error-handling and recovery (commit `f6832a9`, deployed to Cloudflare):**
+
+- **Problem:** All Gemini failures — rate limits, outages, auth errors — collapsed into one generic 502 with no category. Students saw the same hardcoded bilingual unavailable message regardless of cause. No retry logic existed.
+- **Worker fix (`server/gemini-worker/src/index.js`):** `callGemini()` now preserves the upstream Gemini HTTP status and extracts the Gemini status enum (e.g. `RESOURCE_EXHAUSTED`) from error bodies. The catch block maps status → `category` and returns `{ error, category, status, message, upstreamStatus }` with the correct HTTP status code instead of always returning 502.
+- **Frontend fix (`assets/js/ai-provider.js`):** `callGeminiProviderViaProxy()` refactored into `_callGeminiOnce()` + retry loop. Added `_GEMINI_RETRYABLE`, `getGeminiErrorMessage()`, `_statusToGeminiCategory()`, and `_mkGeminiErr()`. Retries transient failures (429, 5xx, network_error) up to 2× with ~1.5s / ~4s backoff + jitter. Non-retryable categories (bad_request, auth_error, invalid_response) fail immediately.
+- **Frontend fix (`assets/js/ui.js`):** One line — `addMsg(getGeminiErrorMessage(err), 'bot')` replaces the old hardcoded generic string.
+- **Deployment:** `wrangler deploy` succeeded. Live Worker: `https://tupana-gemini-proxy.dr-torres-velez.workers.dev` (Cloudflare Version ID `fa632aa1-3081-4757-979a-09f421a913c7`).
+- **Smoke tests passed:** Normal request → 200 + text; empty prompt → 400; bad origin → CORS blocked; model allowlist/upstream error → structured `{ category: "service_unavailable", ... }` confirmed live.
+- **Unchanged:** Offline/Ollama paths, duplicate-send guard (`state.waiting`), all pedagogy and stage behavior.
+- **Operational notes:** Rotate `GEMINI_API_KEY` with `wrangler secret put GEMINI_API_KEY`; future deploys require `npx wrangler@latest deploy` from `server/gemini-worker/`.
+
+---
 
 **Session 37 (2026-05-19) — AI literacy checkpoint auto-popup (commit `432a776`, pushed to `main`):**
 

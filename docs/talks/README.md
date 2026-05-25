@@ -19,6 +19,7 @@ These files are generated downstream from the Phase 1 synthesis pipeline. They a
 - Conference presentation notes
 - Outreach summaries for non-technical audiences
 - Podcast-derived dissemination materials
+- Student-facing onboarding guides and orientation materials
 - Any public-facing rhetorical artifact about Tu Pana's pedagogy, design, or impact
 
 ---
@@ -75,6 +76,8 @@ A talk segment generated from NotebookLM synthesis and Claude rhetorical draftin
 The two operational notebooks (`Tu Pana: Pedagogical Core` and `Tu Pana: Architecture & Design Decisions`) are grounded in primary sources. Uploading derivative rhetorical artifacts into them would create a feedback loop: synthesis generated from the primary sources would be re-ingested as if it were primary, inflating and distorting the notebooks over time.
 
 **Exception — future dissemination notebook only:** If a dedicated `Tu Pana: Public Communication & Dissemination` notebook is intentionally created in Phase 2, selected talk files may be appropriate sources for that notebook. That decision requires deliberate review, not automatic upload.
+
+**No recursive upload.** This applies to all artifact types in this folder — faculty talks, student guides, workshop scripts, and onboarding materials alike. No dissemination artifact should be uploaded back into an operational notebook regardless of how accurately it describes the project.
 
 ---
 

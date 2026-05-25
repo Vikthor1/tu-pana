@@ -35,6 +35,7 @@ docs/
   ideas/                        ← CANONICAL (as-is)
   pilot/                        ← CANONICAL, FERPA-adjacent (never upload)
   audits/                       ← CANONICAL, internal (never upload)
+  talks/                        ← DISSEMINATION (public-facing derivative artifacts — see §1.1)
 ```
 
 `SYSTEM_MEMORY.md` stays at project root, local-only, never committed. It is a **fast re-entry aid**, not a NLM source.
@@ -486,3 +487,21 @@ Execute over 3–4 days. Total time: approximately 3–4 hours.
 **The biggest risk in your specific setup is archive injection.** `docs/archive/` is already labeled correctly, but the project root also contains several older `.html.pre-alignment`, `.backup`, and `.original` files that could find their way into context by accident. Those are worth gitignoring explicitly or moving into `archive/`.
 
 **The session-digest.md is the highest-leverage item in the checklist.** One 700-word quarterly digest uploaded to NLM Notebook 2 eliminates the need to re-orient a new AI session architecturally after a long gap — query NLM once, get grounded, and the context packet writes itself.
+
+---
+
+## §1.1 — Dissemination Layer (added 2026-05-25)
+
+`docs/talks/` is a fourth layer downstream from the three-layer pipeline described in §4. It holds **public-facing derivative artifacts** — faculty talks, keynote segments, workshop scripts, outreach materials — generated through Claude rhetorical drafting sessions grounded in NotebookLM synthesis.
+
+```
+Canonical docs → NotebookLM synthesis → Claude rhetorical generation → docs/talks/
+```
+
+**Three rules govern this layer:**
+
+1. **Not canonical.** Files in `docs/talks/` are version-controlled and Obsidian-visible, but they are rhetorical outputs, not architectural memory. If a canonical doc and a talk file disagree, the canonical doc is correct.
+2. **Not NLM upload sources by default.** Do not upload talk files into the operational notebooks (`Tu Pana: Pedagogical Core`, `Tu Pana: Architecture & Design Decisions`). This would create a synthesis feedback loop — derivative framing re-ingested as primary source material. A future dedicated dissemination notebook (Phase 2) may change this for selected files.
+3. **The arrow does not reverse.** If a talk segment articulates something worth preserving as policy, write it into `docs/project-brief.md` or `docs/decisions/architecture-principles.md` directly. Do not treat the talk as the source.
+
+See `docs/talks/README.md` for the full policy, file naming convention, and pipeline diagram.

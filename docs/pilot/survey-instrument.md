@@ -13,7 +13,7 @@
 - **Bilingual:** Every item appears in English and Spanish side by side, matching the app's design.
 - **Paired items:** Parts B and C appear identically on both forms. The pre/post delta is the core measurement.
 - **Participant code:** Auto-assigned via Google Apps Script. Distributed as unique pre-filled URLs. Students see their code pre-filled and are instructed not to change it. No name, email, or student ID collected.
-- **IRB scope:** Voluntary, anonymous, no grade impact, data for academic research and tool improvement.
+- **IRB scope:** Voluntary, de-identified/coded, no grade impact, data for academic research and tool improvement.
 
 ---
 
@@ -22,9 +22,9 @@
 
 **Consent to Participate in Research · Consentimiento para participar en investigación**
 
-This survey is part of a study on Tu Pana de Escritura, an AI writing coach for multilingual college students. Your participation is voluntary and will not affect your course grade. Your responses are anonymous — no name, student ID, or email is collected. A randomly assigned code links your before-and-after responses without identifying you individually. Data may be used in academic research and presentations without identifying you. By completing and submitting this form, you consent to participate.
+This survey is part of a study on Tu Pana de Escritura, an AI writing coach for multilingual college students. Your participation is voluntary and will not affect your course grade. This survey does not collect your name, student ID, or email address. A participant code links your before-and-after responses for analysis; your name is not recorded in the survey data. Data may be used in academic research and presentations without identifying you. By completing and submitting this form, you consent to participate.
 
-*Esta encuesta forma parte de un estudio sobre Tu Pana de Escritura, una herramienta de escritura con IA para estudiantes universitarios multilingües. Tu participación es voluntaria y no afectará tu calificación. Tus respuestas son anónimas — no se recogen nombre, número de estudiante ni correo electrónico. Un código asignado automáticamente vincula tus respuestas antes y después sin identificarte individualmente. Los datos pueden usarse en investigaciones y presentaciones académicas sin identificarte. Al completar y enviar este formulario, consientes participar.*
+*Esta encuesta forma parte de un estudio sobre Tu Pana de Escritura, una herramienta de escritura con IA para estudiantes universitarios multilingües. Tu participación es voluntaria y no afectará tu calificación. Esta encuesta no recoge tu nombre, número de estudiante ni correo electrónico. Un código de participante vincula tus respuestas antes y después con fines de análisis; tu nombre no queda registrado en los datos de la encuesta. Los datos pueden usarse en investigaciones y presentaciones académicas sin identificarte. Al completar y enviar este formulario, consientes participar.*
 
 ---
 
@@ -33,7 +33,7 @@ This survey is part of a study on Tu Pana de Escritura, an AI writing coach for 
 **How it works:**
 1. Apps Script generates N unique codes (default: 30; configurable at top of script).
 2. Both forms are created with a required short-answer field labeled "Participant Code."
-3. Script constructs pre-filled URLs for each code: `?entry.{FIELD_ID}=TPN-001`
+3. Script generates pre-filled URLs for each code using the Google Forms API (`FormResponse.toPrefilledUrl()`).
 4. Output: a Google Sheet with three columns — `Code | Pre-Survey URL | Post-Survey URL`
 5. Instructor distributes one row per student (e.g., via Brightspace message or email).
 6. Student clicks their pre-survey link → code arrives pre-filled → they do not type anything.
@@ -41,7 +41,7 @@ This survey is part of a study on Tu Pana de Escritura, an AI writing coach for 
 
 **Code format:** `TPN-001` through `TPN-NNN`  
 **Field behavior:** Required field, pre-filled, labeled with instruction not to change it.  
-**Anonymity:** Codes are not tied to any student record. The instructor-distributed roster (which maps code to student) is kept separately and does not enter any research record.
+**Privacy:** Survey data does not include names, student IDs, or emails. The instructor-distributed roster that maps codes to students is kept separately and is not included in research data. The survey data is de-identified at the point of analysis.
 
 ---
 
@@ -260,8 +260,8 @@ Part D — Your Experience with Tu Pana · Tu experiencia con Tu Pana
 
 **[SCALE 1–5 | required | same labels]**  
 `D1`  
-Tu Pana helped me write my own essay rather than writing it for me.  
-Tu Pana me ayudó a escribir mi propio ensayo, no lo escribió por mí.
+Tu Pana helped me do my own writing rather than doing it for me.  
+Tu Pana me ayudó a realizar mi propio trabajo escrito, no lo escribió por mí.
 
 **[SCALE 1–5 | required | same labels]**  
 `D2`  
@@ -304,8 +304,8 @@ What would you change or improve about Tu Pana?
 
 **[PARAGRAPH | not required]**  
 `E3`  
-At the end of this process, do you feel the essay you wrote is truly your own work? Why or why not?  
-Al final de este proceso, ¿sientes que el ensayo que escribiste es realmente tu propio trabajo? ¿Por qué sí o por qué no?
+At the end of this process, do you feel the writing you completed is truly your own work? Why or why not?  
+Al final de este proceso, ¿sientes que el trabajo escrito que completaste es realmente tuyo? ¿Por qué sí o por qué no?
 
 ---
 
@@ -317,7 +317,7 @@ Al final de este proceso, ¿sientes que el ensayo que escribiste es realmente tu
 |-------|-------|---------------------|
 | Writing Self-Efficacy | B1–B5 (sum or mean) | Increase = students feel more confident as writers after Tu Pana |
 | AI Critical Confidence | C1, C3, C4 (sum) | Increase = students feel more agency with AI |
-| AI Concern | C2 (single item, reverse-scored) | Decrease = reduced fear that AI threatens their authorship |
+| AI Concern | C2 (single item, reverse-scored) | A decrease may indicate reduced fear about AI and authorship. A stable high score or increase may also reflect growing critical awareness — document both patterns rather than treating one direction as the only positive outcome. |
 
 **Minimum for reporting:** 5 paired responses. With N=5–10, use Wilcoxon signed-rank test (nonparametric). With N>15, a paired t-test is appropriate.
 
@@ -344,7 +344,7 @@ Al final de este proceso, ¿sientes que el ensayo que escribiste es realmente tu
 |------|--------|
 | Week 1, Day 1 | Distribute pre-survey links before students open Tu Pana |
 | Weeks 1–3 | Students work through Tu Pana's 10 stages |
-| Week 4 | Final draft submitted; distribute post-survey links same day or within 24 hours |
+| Week 4 | Final writing assignment submitted; distribute post-survey links same day or within 24 hours |
 
 *This timing is for LAC 118. For longer courses, the pre/post window can expand — the instrument does not change.*
 

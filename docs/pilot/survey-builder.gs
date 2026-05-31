@@ -77,17 +77,17 @@ var CONSENT =
   'Consent to Participate in Research · Consentimiento para participar en investigación\n\n' +
   'This survey is part of a study on Tu Pana de Escritura, an AI writing coach for multilingual ' +
   'college students. Your participation is voluntary and will not affect your course grade. ' +
-  'Your responses are anonymous — no name, student ID, or email is collected. A randomly ' +
-  'assigned code links your before-and-after responses without identifying you individually. ' +
+  'This survey does not collect your name, student ID, or email address. A participant code ' +
+  'links your before-and-after responses for analysis; your name is not recorded in the survey data. ' +
   'Data may be used in academic research and presentations without identifying you. ' +
   'By completing and submitting this form, you consent to participate.\n\n' +
   'Esta encuesta forma parte de un estudio sobre Tu Pana de Escritura, una herramienta de ' +
   'escritura con IA para estudiantes universitarios multilingües. Tu participación es voluntaria ' +
-  'y no afectará tu calificación. Tus respuestas son anónimas — no se recogen nombre, número de ' +
-  'estudiante ni correo electrónico. Un código asignado automáticamente vincula tus respuestas ' +
-  'antes y después sin identificarte individualmente. Los datos pueden usarse en investigaciones ' +
-  'y presentaciones académicas sin identificarte. Al completar y enviar este formulario, ' +
-  'consientes participar.';
+  'y no afectará tu calificación. Esta encuesta no recoge tu nombre, número de estudiante ni ' +
+  'correo electrónico. Un código de participante vincula tus respuestas antes y después con ' +
+  'fines de análisis; tu nombre no queda registrado en los datos de la encuesta. ' +
+  'Los datos pueden usarse en investigaciones y presentaciones académicas sin identificarte. ' +
+  'Al completar y enviar este formulario, consientes participar.';
 
 var SCALE_LOW  = 'Strongly Disagree · Muy en desacuerdo';
 var SCALE_HIGH = 'Strongly Agree · Muy de acuerdo';
@@ -103,6 +103,8 @@ function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Tu Pana Surveys')
     .addItem('Build Pre + Post Surveys', 'buildSurveys')
+    .addSeparator()
+    .addItem('Verify Setup', 'verifySurveySetup')
     .addToUi();
 }
 
@@ -237,7 +239,7 @@ function buildPreSurvey_(ss) {
       'Me siento en control de mi propia escritura incluso cuando uso IA.'
   ]);
 
-  return { form: form, codeItemId: codeItem.getId() };
+  return { form: form, codeItem: codeItem };
 }
 
 
@@ -300,8 +302,8 @@ function buildPostSurvey_(ss) {
     .setHelpText(SCALE_HELP);
 
   addScaleItems_(form, [
-    'D1. Tu Pana helped me write my own essay rather than writing it for me.\n' +
-      'Tu Pana me ayudó a escribir mi propio ensayo, no lo escribió por mí.',
+    'D1. Tu Pana helped me do my own writing rather than doing it for me.\n' +
+      'Tu Pana me ayudó a realizar mi propio trabajo escrito, no lo escribió por mí.',
     'D2. The step-by-step structure helped me develop my ideas.\n' +
       'La estructura paso a paso me ayudó a desarrollar mis ideas.',
     'D3. I could communicate with Tu Pana in my preferred language.\n' +
@@ -336,14 +338,14 @@ function buildPostSurvey_(ss) {
 
   form.addParagraphTextItem()
     .setTitle(
-      'E3. At the end of this process, do you feel the essay you wrote is ' +
+      'E3. At the end of this process, do you feel the writing you completed is ' +
       'truly your own work? Why or why not?\n' +
-      'Al final de este proceso, ¿sientes que el ensayo que escribiste es ' +
-      'realmente tu propio trabajo? ¿Por qué sí o por qué no?'
+      'Al final de este proceso, ¿sientes que el trabajo escrito que completaste es ' +
+      'realmente tuyo? ¿Por qué sí o por qué no?'
     )
     .setRequired(false);
 
-  return { form: form, codeItemId: codeItem.getId() };
+  return { form: form, codeItem: codeItem };
 }
 
 
@@ -365,17 +367,14 @@ function buildDistributionSheet_(ss, pre, post) {
      .setFontColor('#ffffff');
   sheet.setFrozenRows(1);
 
-  // Data rows
-  var preFormId     = pre.form.getId();
-  var postFormId    = post.form.getId();
-  var preEntryId    = pre.codeItemId;
-  var postEntryId   = post.codeItemId;
+  // Data rows — URLs generated via FormResponse.toPrefilledUrl() (official API, avoids
+  // manual entry-ID construction which can silently produce unresolvable URLs).
   var rows = [];
 
   for (var i = 1; i <= CONFIG.NUM_PARTICIPANTS; i++) {
     var code    = CONFIG.CODE_PREFIX + '-' + padLeft_(i, 3);
-    var preUrl  = prefilledUrl_(preFormId,  preEntryId,  code);
-    var postUrl = prefilledUrl_(postFormId, postEntryId, code);
+    var preUrl  = makePrefilledUrl_(pre.form,  pre.codeItem,  code);
+    var postUrl = makePrefilledUrl_(post.form, post.codeItem, code);
     rows.push([code, preUrl, postUrl, '', '']);
   }
 
@@ -402,12 +401,13 @@ function buildDistributionSheet_(ss, pre, post) {
   notesCell.merge()
     .setValue(
       'HOW TO DISTRIBUTE: Send each student their unique Pre-Survey URL (Week 1, before they open Tu Pana) ' +
-      'and Post-Survey URL (Week 4, after final draft submission) via Brightspace or email. ' +
+      'and Post-Survey URL (Week 4, after their final writing assignment is submitted) via Brightspace or email. ' +
       'The participant code arrives pre-filled — students do not need to type anything. ' +
       'Columns D and E are for your manual tracking only.\n\n' +
       'ANALYSIS NOTE: C2 ("I worry that using AI will make my writing less my own") is REVERSE-SCORED. ' +
-      'A decrease from pre to post is a positive outcome — it means students worried less about AI ' +
-      'threatening their authorship after using Tu Pana.\n\n' +
+      'A decrease may indicate reduced fear about AI threatening authorship. A stable high score or increase ' +
+      'may also reflect growing critical awareness — document both patterns rather than treating one direction ' +
+      'as the only positive outcome.\n\n' +
       'PRIVACY: Student codes are not linked to any institutional record. ' +
       'The mapping between a code and a specific student exists only in how you chose to distribute. ' +
       'Do not share this sheet with students or include it in research data exports.'
@@ -494,12 +494,62 @@ function addScaleItems_(form, titles) {
 }
 
 /**
- * Constructs a Google Forms pre-filled URL for a given code.
- * entryId is the item ID returned by item.getId(), which maps to entry.XXXX in the URL.
+ * Generates a pre-filled Google Forms URL using the official FormResponse API.
+ * Using createResponse().toPrefilledUrl() is the API-supported approach —
+ * it avoids manual entry-ID construction, which can produce silently broken URLs
+ * if the internal field ID does not match the URL entry parameter.
+ * codeItem must be the TextItem object returned directly by form.addTextItem().
  */
-function prefilledUrl_(formId, entryId, code) {
-  return 'https://docs.google.com/forms/d/' +
-    formId + '/viewform?entry.' + entryId + '=' + encodeURIComponent(code);
+function makePrefilledUrl_(form, codeItem, code) {
+  var response = form.createResponse();
+  response.withItemResponse(codeItem.createResponse(code));
+  return response.toPrefilledUrl();
+}
+
+/**
+ * Checks that the Distribution sheet and Form Links sheet are in place, counts
+ * participant rows, and prints a pre-distribution checklist. Run from the menu.
+ */
+function verifySurveySetup() {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var dist  = ss.getSheetByName(CONFIG.DIST_SHEET);
+  var links = ss.getSheetByName(CONFIG.LINKS_SHEET);
+  var lines = ['── Tu Pana Survey Setup Check ──\n'];
+
+  if (!dist) {
+    lines.push('✗  Distribution sheet not found.\n   Run "Build Pre + Post Surveys" first.');
+  } else {
+    var dataRows = dist.getLastRow() - 1;
+    lines.push('✓  Distribution sheet: ' + dataRows + ' participant row(s)');
+    var vals = dist.getRange(2, 1, dataRows, 3).getValues();
+    var missing = vals.filter(function(r) { return !r[1] || !r[2]; }).length;
+    if (missing === 0) {
+      lines.push('✓  All rows have Pre-Survey and Post-Survey URLs');
+    } else {
+      lines.push('✗  ' + missing + ' row(s) missing URLs — re-run Build Pre + Post Surveys');
+    }
+  }
+
+  if (links) {
+    lines.push('\nForm edit links:');
+    lines.push('  Pre-Survey:  ' + links.getRange(2, 2).getValue());
+    lines.push('  Post-Survey: ' + links.getRange(3, 2).getValue());
+  } else {
+    lines.push('\n✗  Form Links sheet not found — run Build Pre + Post Surveys first.');
+  }
+
+  lines.push(
+    '\n── Before distributing ──\n' +
+    '1. Open the Distribution sheet.\n' +
+    '2. Copy the TPN-001 Pre-Survey URL.\n' +
+    '3. Open it in an INCOGNITO / PRIVATE browser window.\n' +
+    '4. Confirm the Participant Code field shows "TPN-001" pre-filled.\n' +
+    '5. Repeat with TPN-002 to confirm codes differ.\n' +
+    '6. Submit a test response and confirm it appears in the response sheet.\n' +
+    '7. Delete test responses before distributing to students.'
+  );
+
+  SpreadsheetApp.getUi().alert(lines.join('\n'));
 }
 
 /**

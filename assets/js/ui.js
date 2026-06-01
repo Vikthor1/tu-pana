@@ -3004,6 +3004,9 @@ function showLandingMoment() {
                                : 'linear-gradient(135deg, #F7F3EF 0%, #EDE8E2 100%)';
     const quoteColor = isDark ? '#F0EBE3' : '#2A211C';
     const subColor   = isDark ? '#B0A898' : '#6B5F55';
+    const langEsPressed   = state.lang === 'es'   ? 'true' : 'false';
+    const langEnPressed   = state.lang === 'en'   ? 'true' : 'false';
+    const langBothPressed = state.lang === 'both' ? 'true' : 'false';
     overlay.style.cssText = `
         position:fixed; inset:0; z-index:999;
         background: rgba(0,0,0,0.55);
@@ -3016,15 +3019,23 @@ function showLandingMoment() {
             max-width:680px; width:100%;
             background: ${cardBg};
             border-radius: 22px;
-            padding: 56px 52px 48px;
+            padding: 48px 52px 44px;
             text-align: center;
             box-shadow: 0 24px 64px rgba(0,0,0,0.35);
         ">
+            <div style="margin-bottom:24px; display:flex; gap:10px; justify-content:center;">
+                <button class="lang-btn" data-lang="es" onclick="setLang('es')" aria-pressed="${langEsPressed}">Español</button>
+                <button class="lang-btn" data-lang="en" onclick="setLang('en')" aria-pressed="${langEnPressed}">English</button>
+                <button class="lang-btn" data-lang="both" onclick="setLang('both')" aria-pressed="${langBothPressed}">ES–EN</button>
+            </div>
             <div style="font-family:'Literata',Georgia,serif; font-size:2.0rem; font-style:italic; color:${quoteColor}; line-height:1.4; margin-bottom:20px;">
                 "Tu historia es donde comienza el argumento."
             </div>
-            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.05rem; color:${subColor}; letter-spacing:0.04em; margin-bottom:32px;">
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.05rem; color:${subColor}; letter-spacing:0.04em; margin-bottom:16px;">
                 "Your story is where the argument begins."
+            </div>
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.78rem; color:${subColor}; margin-bottom:28px; line-height:1.5;">
+                <span class="show-es">Tu trabajo se guarda en este navegador. Si usas el coach Gemini, tu mensaje se envía al servicio de IA para responderte. Tu profesor solo ve lo que tú decidas exportar, copiar o compartir.</span><span class="lang-sep"> · </span><span class="show-en">Your work is saved in this browser. If you use the Gemini coach, your message is sent to the AI service so it can respond. Your instructor only sees what you choose to export, copy, or share.</span>
             </div>
             <button id="landingContinueBtn" style="
                 font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.95rem; font-weight:600;

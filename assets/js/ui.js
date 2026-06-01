@@ -1503,13 +1503,28 @@ function updateDraftControls() {
     // Stage-specific continue button label
     const nextStage = state.stage + 1;
     const tr = STAGE_TRANSITIONS[nextStage];
+
+    // Stage-readiness cue (Patch 2): subtle signal when enough stage work is present.
+    // stageCoachResponses >= 3 mirrors the coach's own "move forward" threshold.
+    // Excluded at Stage 6 (authorship gate owns that button) and Stage 10 (no button).
+    const _stageCoachCount = (() => {
+        try {
+            const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
+            return log.filter(e => e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'system' && e.stage === state.stage).length;
+        } catch(e) { return 0; }
+    })();
+    const _isReady = !isS6 && !isS10 && _stageCoachCount >= 3 && !!(D.draftArea && D.draftArea.value.trim().length > 0);
+    D.continueBtn.classList.toggle('continue-btn--ready', _isReady);
+
     if (tr && !isS10) {
         const ctaArrow = '<span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 32h36"/><path d="M36 20l14 12-14 12"/></svg></span>';
+        const pfx = _isReady ? '✓ ' : '';
         D.continueBtn.innerHTML =
-            `${ctaArrow}<span class="show-es">${escapeHtml(tr.ctaEs)}</span>` +
+            `${ctaArrow}<span class="show-es">${pfx}${escapeHtml(tr.ctaEs)}</span>` +
             `<span class="lang-sep"> · </span>` +
-            `<span class="show-en">${escapeHtml(tr.ctaEn)}</span>`;
-        D.continueBtn.setAttribute('aria-label', `${tr.ctaEs} · ${tr.ctaEn}`);
+            `<span class="show-en">${pfx}${escapeHtml(tr.ctaEn)}</span>`;
+        const ariaPrefix = _isReady ? 'Listo/a · Ready — ' : '';
+        D.continueBtn.setAttribute('aria-label', `${ariaPrefix}${tr.ctaEs} · ${tr.ctaEn}`);
     } else if (!isS10) {
         D.continueBtn.innerHTML =
             '<span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 32h36"/><path d="M36 20l14 12-14 12"/></svg></span>' +
@@ -1876,6 +1891,9 @@ function addMsg(text, who, skipLog, msgType) {
 
     // Coach is speaking — let student see the message without editor competing
     if (who === 'bot') { exitDraftFocus(); notifyMobileChat(); }
+
+    // Refresh continue-button readiness cue after each coach message (Patch 2)
+    if (who === 'bot') { setTimeout(updateDraftControls, 0); }
 
     // Activate coach spotlight on the first bot message after a stage transition
     // Guard: don't override if the Pana Hint spotlight is already active

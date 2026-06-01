@@ -1268,6 +1268,9 @@
             transform: none;
             border-color: var(--border);
         }
+        .continue-btn--ready {
+            border-color: var(--jade);
+        }
 
         .saved-notice {
             display: none; align-items: center; gap: 10px;

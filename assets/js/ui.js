@@ -561,6 +561,11 @@ function injectCapstonePanel() {
                     <p style="color:var(--text-muted)">This is not a grade. It is a short reflection on your writing process. Name what improved, what you protected, and what still needs attention before you submit. Your judgment matters.</p>
                 </div>
             </details>
+            <p style="margin:10px 0 0;font-size:0.77rem;color:var(--text-muted);line-height:1.4;">
+                <span class="show-es">Este es el cierre de tu proceso. Completa la reflexión final y luego genera tu reporte para compartir tu trabajo.</span>
+                <span class="lang-sep"> · </span>
+                <span class="show-en">This is the final step in your process. Complete the reflection, then generate your report to share your work.</span>
+            </p>
         </div>
 
         <div class="capstone-section-label">Auto-evaluación · Self-Check</div>

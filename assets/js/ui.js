@@ -1360,6 +1360,16 @@ function dismissStagePreview() {
     pendingStageId = null;
 }
 
+function injectStageEntryWelcome(id) {
+    const msg = STAGE_ENTRY_MESSAGES[id];
+    if (!msg) return;
+    try {
+        const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
+        if (log.some(e => e.msgType === 'stage-intro' && e.stage === id)) return;
+    } catch(e) {}
+    addMsg(msg, 'bot', false, 'stage-intro');
+}
+
 function goToStage(id) {
     exitDraftFocus();   // stage transition — coach takes visual priority
     const prev = state.stage;
@@ -1406,6 +1416,9 @@ function goToStage(id) {
     D.draftArea.value = _newContent;
     editHistoryInit(_newContent);
     D.draftArea.dispatchEvent(new Event('input'));
+
+    // Stage-entry welcome (Patch 3): canned one-time orientation in the chat stream
+    setTimeout(() => injectStageEntryWelcome(id), 400);
 
     // Inject Pana Hint for the new stage
     setTimeout(() => injectPanaHint(id), 500);
@@ -1510,7 +1523,7 @@ function updateDraftControls() {
     const _stageCoachCount = (() => {
         try {
             const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
-            return log.filter(e => e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'system' && e.stage === state.stage).length;
+            return log.filter(e => e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'stage-intro' && e.msgType !== 'system' && e.stage === state.stage).length;
         } catch(e) { return 0; }
     })();
     const _isReady = !isS6 && !isS10 && _stageCoachCount >= 3 && !!(D.draftArea && D.draftArea.value.trim().length > 0);
@@ -1821,8 +1834,8 @@ function addMsg(text, who, skipLog, msgType) {
         return msgId;
     }
 
-    // Welcome/greeting messages render as compact strips — not full bot bubbles
-    if (msgType === 'welcome') {
+    // Welcome/greeting messages and stage-intro orientation notes render as compact strips — not full bot bubbles
+    if (msgType === 'welcome' || msgType === 'stage-intro') {
         const strip = document.createElement('div');
         strip.className = 'welcome-strip';
         strip.setAttribute('role', 'status');
@@ -2106,13 +2119,13 @@ function buildChannelData() {
         priorCoachResponses: (() => {
             try {
                 const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
-                return log.filter(e => e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'system').length;
+                return log.filter(e => e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'stage-intro' && e.msgType !== 'system').length;
             } catch(e) { return 0; }
         })(),
         stageCoachResponses: (() => {
             try {
                 const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
-                return log.filter(e => e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'system' && e.stage === state.stage).length;
+                return log.filter(e => e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'stage-intro' && e.msgType !== 'system' && e.stage === state.stage).length;
             } catch(e) { return 0; }
         })()
     };
@@ -2251,7 +2264,7 @@ function getLastBotMessage() {
         const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
         for (let i = log.length - 1; i >= 0; i--) {
             const e = log[i];
-            if (e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'system') {
+            if (e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'stage-intro' && e.msgType !== 'system') {
                 return e.text || '';
             }
         }
@@ -4106,7 +4119,7 @@ function restoreChatLog() {
             /^El coach en vivo aún no está conectado/
         ];
         function isCollapsibleEntry(entry) {
-            if (entry.msgType === 'welcome' || entry.msgType === 'system') return true;
+            if (entry.msgType === 'welcome' || entry.msgType === 'stage-intro' || entry.msgType === 'system') return true;
             if (entry.who !== 'bot') return false;
             return WELCOME_PATTERNS.some(re => re.test(entry.text));
         }

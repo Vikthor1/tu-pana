@@ -570,4 +570,20 @@ function selectPolishRoute(btn, route) {
     state._reflectStage = 8; // milestone: voice-polish route active — next bot response shows checkpoint
 }
 
-
+// ════════════════════════════════════════════════════════
+//  STAGE ENTRY MESSAGES — one-time canned welcome per stage
+//  Format: "Spanish sentence.\nEnglish sentence." (wrapBilingualHtml splits on \n)
+//  Injected by injectStageEntryWelcome() in ui.js with msgType 'stage-intro'.
+// ════════════════════════════════════════════════════════
+const STAGE_ENTRY_MESSAGES = {
+    1: 'Empieza con una escena específica — un lugar, una persona, un momento que recuerdas bien.\nStart with a specific scene: a place, a person, a moment you remember clearly.',
+    2: 'Conecta tu anécdota con algo más grande — escribe una oración que nombre la fuerza o el patrón detrás de tu historia.\nConnect your anecdote to something larger — write one sentence naming the force or pattern behind your story.',
+    3: 'Define la tensión de tu argumento: ¿qué tira en dos direcciones en tu historia?\nDefine the tension in your argument: what pulls in two directions in your story?',
+    4: 'Busca una fuente que contextualice tu experiencia — no para reemplazarla, sino para profundizarla.\nFind one source that contextualizes your experience — not to replace it, but to deepen it.',
+    5: 'Traza el mapa de cómo tu ensayo pasa de la anécdota al argumento — puedes cambiarlo mientras escribes.\nOutline how your essay moves from anecdote to argument — you can change it as you write.',
+    6: 'Escribe sin detenerte — el borrador no necesita ser perfecto, solo necesita ser tuyo.\nWrite without stopping — the draft does not need to be perfect, it just needs to be yours.',
+    7: 'Revisa para hacer tu argumento más claro, sin borrarte de la página — elige una oración y empieza ahí.\nRevise to make your argument clearer without erasing yourself — choose one sentence and start there.',
+    8: 'Elige una oración de tu borrador y decide qué tipo de ayuda necesita: claridad, especificidad o protección de voz.\nChoose one sentence from your draft and decide what kind of help it needs: clarity, specificity, or voice protection.',
+    9: 'Antes de avanzar, confirma que tu borrador está guardado y que tu ensayo incluye un momento personal y una conexión más amplia.\nBefore you move on, confirm your draft is saved and your essay includes a personal moment and a larger connection.',
+   10: 'Nombra lo que cambió en tu proceso: qué mejoró, qué protegiste, qué todavía necesita atención.\nName what changed in your process: what improved, what you protected, and what still needs attention.'
+};

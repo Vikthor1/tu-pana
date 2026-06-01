@@ -4910,6 +4910,12 @@
         body.spotlight-editor .draft-action-bar {
             pointer-events: all;
         }
+        /* Patch 7: spotlight takes precedence over draft focus mode dimming.
+           draft-focus-active fades .chat-panel to 0.45 — that stacking context
+           buries the spotlight glow and makes it only visible on hover. Override. */
+        body.draft-focus-active.spotlight-coach .chat-panel {
+            opacity: 1;
+        }
         /* The spotlighted element gets a warm glow */
         .spotlight-target {
             border-radius: var(--radius-md);
@@ -5000,6 +5006,28 @@
             body.post-onboarding-focus .app-header,
             body.post-onboarding-focus .current-task-bar,
             #chatMessages.post-onboarding-chat {
+                transition: none;
+            }
+        }
+
+        /* ── Post-onboarding chat focus — Patch 6: smooth exit ── */
+        body.post-onboarding-exiting .draft-panel,
+        body.post-onboarding-exiting .journey-wrap,
+        body.post-onboarding-exiting .app-header,
+        body.post-onboarding-exiting .current-task-bar {
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+        #chatMessages.post-onboarding-chat-exiting {
+            box-shadow: none;
+            transition: box-shadow 0.5s ease;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            body.post-onboarding-exiting .draft-panel,
+            body.post-onboarding-exiting .journey-wrap,
+            body.post-onboarding-exiting .app-header,
+            body.post-onboarding-exiting .current-task-bar,
+            #chatMessages.post-onboarding-chat-exiting {
                 transition: none;
             }
         }

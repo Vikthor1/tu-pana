@@ -3335,11 +3335,21 @@ function flashChatFocus() {
     document.body.classList.add('post-onboarding-focus');
     D.chatMessages.classList.add('post-onboarding-chat');
     let _focusTimer = setTimeout(clearFocus, 3200);
+    let _cleared = false;
     function clearFocus() {
+        if (_cleared) return;
+        _cleared = true;
         clearTimeout(_focusTimer);
+        document.removeEventListener('click', clearFocus);
+        // Patch 6: swap to exiting classes so transition stays active during fade-out
+        document.body.classList.add('post-onboarding-exiting');
+        D.chatMessages.classList.add('post-onboarding-chat-exiting');
         document.body.classList.remove('post-onboarding-focus');
         D.chatMessages.classList.remove('post-onboarding-chat');
-        document.removeEventListener('click', clearFocus);
+        setTimeout(() => {
+            document.body.classList.remove('post-onboarding-exiting');
+            D.chatMessages.classList.remove('post-onboarding-chat-exiting');
+        }, 520);
     }
     setTimeout(() => document.addEventListener('click', clearFocus), 300);
 }
@@ -5100,8 +5110,8 @@ function downloadReport() {
     a.download = `tupana-process-report-${new Date().toISOString().slice(0,10)}.txt`;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Patch 7: delay cleanup — Safari needs time to process the download before the URL is revoked
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 300);
 }
 
 function emailReport() {
@@ -5517,11 +5527,12 @@ function _downloadInstrAs(ext, mimeType) {
     a.download = `tupana-instructor-report-${date}.${ext}`;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Patch 7: delay cleanup — Safari needs time to process the download before the URL is revoked
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 300);
 }
 function downloadInstructorReport()   { _downloadInstrAs('txt', 'text/plain'); }
-function downloadInstructorReportMd() { _downloadInstrAs('md',  'text/markdown'); }
+// Patch 7: use text/plain for .md — Safari does not recognize text/markdown as a downloadable type
+function downloadInstructorReportMd() { _downloadInstrAs('md',  'text/plain'); }
 
 /* ─────────────────────────────────────────────────────────────
    Mi Toolkit · My Writing Toolkit

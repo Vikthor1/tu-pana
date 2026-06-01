@@ -133,6 +133,7 @@ function _setTtsBtnPlaying(btn) {
 }
 
 function _makeTtsBtn(textEs, textEn) {
+    if (!FEATURES.audioInstructions) return null;
     if (!_ttsSupported) return null;
     const btn = document.createElement('button');
     btn.className = 'tts-listen-btn';

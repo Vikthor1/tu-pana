@@ -143,10 +143,8 @@ function _makeTtsBtn(textEs, textEn) {
         if (_ttsActiveBtn === btn) {
             stopStaticInstructionSpeech();
         } else {
-            let text, lang;
-            if (state.lang === 'en')        { text = textEn; lang = 'en'; }
-            else if (state.lang === 'both') { text = textEs + ' ' + textEn; lang = 'es'; }
-            else                            { text = textEs; lang = 'es'; }
+            const text = (state.lang === 'en') ? textEn : textEs;
+            const lang = (state.lang === 'en') ? 'en' : 'es';
             speakStaticInstruction(text, lang, btn);
         }
     });

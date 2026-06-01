@@ -2090,6 +2090,12 @@ function buildChannelData() {
                 const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
                 return log.filter(e => e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'system').length;
             } catch(e) { return 0; }
+        })(),
+        stageCoachResponses: (() => {
+            try {
+                const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
+                return log.filter(e => e.who === 'bot' && e.msgType !== 'welcome' && e.msgType !== 'system' && e.stage === state.stage).length;
+            } catch(e) { return 0; }
         })()
     };
 }
@@ -2381,16 +2387,16 @@ FEEDBACK SCOPE AND MOMENTUM RULE — this is mandatory for all stages, especiall
 Tu Pana is not an optimizer. More revision is not always better. The goal is authorship, confidence, and process completion — not a perfect anecdote.
 
 RESPONSE SCOPE:
-- Offer no more than 2–3 improvement areas per response. Pick the 1–2 most impactful. Do not list every possible improvement.
-- Ask no more than 2 guiding questions per response. One is often enough.
-- If the student asks what to focus on first, name one specific priority area.
+- Offer no more than 2 improvement areas per response. Pick the single most impactful one. Do not list every possible improvement.
+- Ask no more than 1–2 questions per response. Prefer one strong guiding question. Do not stack multiple questions in a single response. If the student appears uncertain or is early in the stage, ask exactly one question. Zero questions is sometimes the right response when the student has done enough and needs to move forward, not reflect further.
+- If the student asks what to focus on first, name one specific priority area and stop.
 
 REVISION-CYCLE AWARENESS:
-The student context includes a field called priorCoachResponses — the count of coach responses so far this session.
-Use it to modulate your feedback:
-- priorCoachResponses 0 or 1 (first or second coach response): Give a structured response. Name one specific strength. Identify at most 2 improvement areas. Ask 1–2 focused questions. No more.
-- priorCoachResponses 2 or 3: The student has likely made at least one revision. Acknowledge concrete improvement explicitly before anything else. Offer at most 1–2 narrowly targeted refinements. Emphasize forward momentum — keep them moving.
-- priorCoachResponses 4 or more: If the writing is meaningfully stronger, affirm progress clearly and specifically. Tell the student the piece is strong enough for this stage. Encourage them to advance to the next stage. Offer further polish only as optional, not as a requirement.
+The student context includes a field called stageCoachResponses — the count of coach responses given in the current stage only. This count resets to 0 each time the student advances to a new stage.
+Use it to modulate your feedback within this stage:
+- stageCoachResponses 0 (first response in this stage): Give a structured response. Name one specific strength in the student's actual words. Identify at most 2 improvement areas. Ask 1 focused question — at most 2. Stop there.
+- stageCoachResponses 1–2: The student has had time to revise or reflect. Acknowledge what is concretely stronger before anything else. Offer at most 1 narrowly targeted refinement. Ask one question or name the single next step. Begin shifting toward forward momentum.
+- stageCoachResponses 3 or more: If the core stage task is present in the student's writing, affirm that clearly and specifically. Do not introduce new critique. Tell the student they have enough to move forward. Invite them to continue to the next stage when they are ready. Use language like: "You have enough to move forward with this idea. Keep your own wording and continue to the next stage when you are ready." / "Ya tienes suficiente para avanzar con esta idea. Conserva tus propias palabras y continúa a la próxima etapa cuando estés listo/a." Vary the phrasing naturally across turns — do not repeat the same exact sentence — but preserve the function: affirm sufficiency and invite forward movement without pressure. Offer further polish only if the student explicitly asks for it.
 
 GOOD-ENOUGH-FOR-THIS-STAGE:
 At Stages 1–5, the goal is "ready to move forward," not perfection.
@@ -4042,7 +4048,7 @@ function makeMsgId() {
 function saveChatEntry(text, who, id, evals, msgType) {
     try {
         const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
-        const entry = { text, who, t: new Date().toISOString(), id: id || makeMsgId(), evals: evals || {} };
+        const entry = { text, who, t: new Date().toISOString(), id: id || makeMsgId(), evals: evals || {}, stage: state.stage };
         if (msgType) entry.msgType = msgType;
         log.push(entry);
         if (log.length > CHAT_LOG_MAX) log.splice(0, log.length - CHAT_LOG_MAX);

@@ -6008,3 +6008,41 @@ img, video, embed, object { max-width: 100%; height: auto; }
     .toolkit-modal-bg,
     .toolkit-modal-card { animation: none; }
 }
+
+/* ── Patch 11: Read-Aloud / Escuchar ── */
+.welcome-strip-text { flex: 1; min-width: 0; }
+.tts-listen-btn {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1;
+    padding: 3px 9px;
+    white-space: nowrap;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+.tts-listen-btn:hover {
+    background: var(--bg-raised);
+    color: var(--text-primary);
+    border-color: var(--border-hi);
+}
+.tts-listen-btn:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 1px;
+}
+.tts-listen-btn[data-tts-playing="true"] {
+    background: var(--amber);
+    color: #fff;
+    border-color: var(--amber);
+}
+@media (prefers-reduced-motion: reduce) {
+    .tts-listen-btn { transition: none; }
+}

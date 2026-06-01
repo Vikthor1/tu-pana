@@ -86,6 +86,74 @@ const D = {
 };
 
 // ════════════════════════════════════════════════════════
+//  READ-ALOUD / ESCUCHAR — Patch 11
+// ════════════════════════════════════════════════════════
+const _ttsSupported = (typeof window !== 'undefined')
+    && ('speechSynthesis' in window)
+    && ('SpeechSynthesisUtterance' in window);
+let _ttsActiveBtn = null;
+
+function _getEsLang() {
+    const voices = window.speechSynthesis.getVoices();
+    const esUS = voices.find(v => v.lang === 'es-US');
+    return esUS ? 'es-US' : 'es-ES';
+}
+
+function speakStaticInstruction(text, lang, btn) {
+    if (!_ttsSupported) return;
+    window.speechSynthesis.cancel();
+    if (_ttsActiveBtn && _ttsActiveBtn !== btn) _setTtsBtnIdle(_ttsActiveBtn);
+    _ttsActiveBtn = btn;
+    _setTtsBtnPlaying(btn);
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = (lang === 'en') ? 'en-US' : _getEsLang();
+    utt.onend  = () => { if (_ttsActiveBtn === btn) { _setTtsBtnIdle(btn); _ttsActiveBtn = null; } };
+    utt.onerror = () => { if (_ttsActiveBtn === btn) { _setTtsBtnIdle(btn); _ttsActiveBtn = null; } };
+    window.speechSynthesis.speak(utt);
+}
+
+function stopStaticInstructionSpeech() {
+    if (!_ttsSupported) return;
+    window.speechSynthesis.cancel();
+    if (_ttsActiveBtn) { _setTtsBtnIdle(_ttsActiveBtn); _ttsActiveBtn = null; }
+}
+
+function _setTtsBtnIdle(btn) {
+    const isEs = state.lang !== 'en';
+    btn.textContent = isEs ? '🔊 Escuchar' : '🔊 Listen';
+    btn.setAttribute('aria-label', isEs ? 'Escuchar instrucciones' : 'Listen to instructions');
+    btn.dataset.ttsPlaying = 'false';
+}
+
+function _setTtsBtnPlaying(btn) {
+    const isEs = state.lang !== 'en';
+    btn.textContent = isEs ? '⏹ Detener' : '⏹ Stop';
+    btn.setAttribute('aria-label', isEs ? 'Detener lectura' : 'Stop reading');
+    btn.dataset.ttsPlaying = 'true';
+}
+
+function _makeTtsBtn(textEs, textEn) {
+    if (!_ttsSupported) return null;
+    const btn = document.createElement('button');
+    btn.className = 'tts-listen-btn';
+    btn.type = 'button';
+    btn.dataset.ttsPlaying = 'false';
+    _setTtsBtnIdle(btn);
+    btn.addEventListener('click', () => {
+        if (_ttsActiveBtn === btn) {
+            stopStaticInstructionSpeech();
+        } else {
+            let text, lang;
+            if (state.lang === 'en')        { text = textEn; lang = 'en'; }
+            else if (state.lang === 'both') { text = textEs + ' ' + textEn; lang = 'es'; }
+            else                            { text = textEs; lang = 'es'; }
+            speakStaticInstruction(text, lang, btn);
+        }
+    });
+    return btn;
+}
+
+// ════════════════════════════════════════════════════════
 //  MOBILE PANEL TABS
 // ════════════════════════════════════════════════════════
 function switchMobileTab(panel) {
@@ -1857,6 +1925,11 @@ function addMsg(text, who, skipLog, msgType) {
         textSpan.className = 'welcome-strip-text';
         textSpan.innerHTML = wrapBilingualHtml(text);
         strip.append(iconSpan, textSpan);
+        if (msgType === 'stage-intro') {
+            const _parts = text.split('\n');
+            const _ttsBtn = _makeTtsBtn(_parts[0] || text, _parts[1] || _parts[0] || text);
+            if (_ttsBtn) strip.appendChild(_ttsBtn);
+        }
         D.chatMessages.appendChild(strip);
         D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
         return msgId;
@@ -3052,6 +3125,7 @@ function showLandingMoment() {
             <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.78rem; color:${subColor}; margin-bottom:28px; line-height:1.5;">
                 <span class="show-es">Tu trabajo se guarda en este navegador. Si usas el coach Gemini, tu mensaje se envía al servicio de IA para responderte. Tu profesor solo ve lo que tú decidas exportar, copiar o compartir.</span><span class="lang-sep"> · </span><span class="show-en">Your work is saved in this browser. If you use the Gemini coach, your message is sent to the AI service so it can respond. Your instructor only sees what you choose to export, copy, or share.</span>
             </div>
+            <div id="landingTtsWrap" style="margin-bottom:12px;"></div>
             <button id="landingContinueBtn" style="
                 font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.95rem; font-weight:600;
                 background: rgba(184,92,26,0.85); color:#fff; border:none; border-radius:40px;
@@ -3062,6 +3136,14 @@ function showLandingMoment() {
             </button>
         </div>`;
     document.body.appendChild(overlay);
+    const _landingTtsWrap = overlay.querySelector('#landingTtsWrap');
+    if (_landingTtsWrap) {
+        const _landingTtsBtn = _makeTtsBtn(
+            'Tu historia es donde comienza el argumento.',
+            'Your story is where the argument begins.'
+        );
+        if (_landingTtsBtn) _landingTtsWrap.appendChild(_landingTtsBtn);
+    }
     requestAnimationFrame(() => { overlay.style.opacity = '1'; });
 
     function dismissLanding() {

@@ -1261,6 +1261,8 @@ function toggleChatProgress() {
     if (D.chatProgressToggleText) {
         D.chatProgressToggleText.textContent = isCollapsed ? 'Mi progreso · My progress' : 'Ocultar progreso · Hide progress';
     }
+    const _cpToggleBtn = document.getElementById('chatProgressToggle');
+    if (_cpToggleBtn) _cpToggleBtn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
     try {
         localStorage.setItem('tupana_progress_collapsed', isCollapsed ? 'true' : 'false');
     } catch(e) {}
@@ -1272,6 +1274,8 @@ function initChatProgress() {
         if (collapsed && D.chatProgress) {
             D.chatProgress.classList.add('collapsed');
             if (D.chatProgressToggleText) D.chatProgressToggleText.textContent = 'Mi progreso · My progress';
+            const _cpBtn = document.getElementById('chatProgressToggle');
+            if (_cpBtn) _cpBtn.setAttribute('aria-expanded', 'false');
         }
     } catch(e) {}
 }
@@ -4552,7 +4556,7 @@ function toggleFocusMode() {
     const focusToggle = document.getElementById('focusToggle');
     if (focusToggle) {
         const inFocus = workspace.classList.contains('focus-mode');
-        focusToggle.innerHTML = `<span class="tp-icon" style="width:14px;height:14px"><svg viewBox="0 0 64 64" aria-hidden="true"><path class="tp-fill-sky" d="M24 12 9 5M40 12l15-7M24 17 7 18M40 17l17 1"/><path class="tp-fill-mango" d="M25 10h14v11H25z"/><path d="M28 10V7h8v3"/><path d="M25 21h14"/><path class="tp-fill-paper" d="M22 21h20l5 37H17z"/><path d="M26 21l-3 37M38 21l3 37"/><path d="M20 33h24M19 45h26M16 58h32"/><path class="tp-fill-teal" d="M29 33h6v9h-6z"/><path d="M32 21v37"/></svg></span> ${inFocus ? 'Salir' : 'Enfoque'}`;
+        focusToggle.innerHTML = `<span class="tp-icon" style="width:14px;height:14px"><svg viewBox="0 0 64 64" aria-hidden="true"><path class="tp-fill-sky" d="M24 12 9 5M40 12l15-7M24 17 7 18M40 17l17 1"/><path class="tp-fill-mango" d="M25 10h14v11H25z"/><path d="M28 10V7h8v3"/><path d="M25 21h14"/><path class="tp-fill-paper" d="M22 21h20l5 37H17z"/><path d="M26 21l-3 37M38 21l3 37"/><path d="M20 33h24M19 45h26M16 58h32"/><path class="tp-fill-teal" d="M29 33h6v9h-6z"/><path d="M32 21v37"/></svg></span> ${inFocus ? '<span class="show-es">Salir</span><span class="lang-sep"> · </span><span class="show-en">Exit</span>' : '<span class="focus-toggle-label"><span class="show-es">Enfoque</span><span class="lang-sep"> · </span><span class="show-en">Focus</span></span>'}`;
         focusToggle.setAttribute('aria-label', inFocus ? 'Salir del enfoque · Exit focus' : 'Modo enfoque · Focus mode');
         focusToggle.setAttribute('title', inFocus ? 'Salir del enfoque · Exit focus' : 'Modo enfoque · Focus mode');
     }
@@ -4595,7 +4599,7 @@ function _syncFocusToggleBtn() {
     } else {
         btn.setAttribute('aria-label', 'Enfocarse en el borrador · Focus on draft');
         btn.setAttribute('title', 'Enfocarse en el borrador · Focus on draft');
-        if (lbl) lbl.textContent = 'Enfoque';
+        if (lbl) lbl.innerHTML = '<span class="show-es">Enfoque</span><span class="lang-sep"> · </span><span class="show-en">Focus</span>';
     }
 }
 

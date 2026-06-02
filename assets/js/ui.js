@@ -3083,6 +3083,10 @@ function claimAsset(el) {
 function maniNextAsset() {
     maniAwaitingNext  = false;
     maniJustClaimedKey = null;
+    // hide intro audio after first asset — narration is the same for all assets (sequence index 0 only)
+    _stopOnboardingAudio();
+    const _introWrap = document.getElementById('maniIntroAudioWrap');
+    if (_introWrap) _introWrap.style.display = 'none';
     const grid = document.getElementById('maniGrid');
     if (grid) grid.querySelectorAll('.mani-asset-celebration').forEach(p => p.remove());
     updateManiAssetVisibility(getClaimedAssets(), true);
@@ -3439,6 +3443,12 @@ function labNext() {
 }
 
 function labChoose(qNum, val) {
+    // hide step-2 audio after first question — narration is the same for all questions (sequence index 0 only)
+    if (qNum === 1) {
+        _stopOnboardingAudio();
+        const _audioWrap = document.getElementById('labAudioWrap2');
+        if (_audioWrap) _audioWrap.style.display = 'none';
+    }
     // mark answer
     labAnswers[qNum] = val;
 

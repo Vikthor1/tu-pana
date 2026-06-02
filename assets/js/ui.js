@@ -3121,17 +3121,13 @@ function handleManiKey(e) {
 function showLandingMoment() {
     const overlay = document.createElement('div');
     overlay.id = 'landingMoment';
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const cardBg     = isDark ? 'linear-gradient(135deg, #2A211C 0%, #1C1410 100%)'
-                               : 'linear-gradient(135deg, #F7F3EF 0%, #EDE8E2 100%)';
-    const quoteColor = isDark ? '#F0EBE3' : '#2A211C';
-    const subColor   = isDark ? '#B0A898' : '#6B5F55';
     const langEsPressed   = state.lang === 'es'   ? 'true' : 'false';
     const langEnPressed   = state.lang === 'en'   ? 'true' : 'false';
     const langBothPressed = state.lang === 'both' ? 'true' : 'false';
     overlay.style.cssText = `
         position:fixed; inset:0; z-index:999;
-        background: rgba(0,0,0,0.55);
+        background: rgba(42,33,28,0.78);
+        backdrop-filter: blur(14px) saturate(1.2);
         display:flex; align-items:center; justify-content:center;
         opacity:0; transition: opacity 0.6s ease;
         padding: 40px 24px;
@@ -3139,24 +3135,25 @@ function showLandingMoment() {
     overlay.innerHTML = `
         <div style="
             max-width:680px; width:100%;
-            background: ${cardBg};
-            border-radius: 22px;
+            background: var(--bg-raised);
+            border: 1px solid var(--border-hi);
+            border-radius: var(--radius-lg);
             padding: 48px 52px 44px;
             text-align: center;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+            box-shadow: var(--shadow-lg);
         ">
             <div style="margin-bottom:24px; display:flex; gap:10px; justify-content:center;">
                 <button class="lang-btn" data-lang="es" onclick="setLang('es')" aria-pressed="${langEsPressed}">Español</button>
                 <button class="lang-btn" data-lang="en" onclick="setLang('en')" aria-pressed="${langEnPressed}">English</button>
                 <button class="lang-btn" data-lang="both" onclick="setLang('both')" aria-pressed="${langBothPressed}">ES–EN</button>
             </div>
-            <div style="font-family:'Literata',Georgia,serif; font-size:2.0rem; font-style:italic; color:${quoteColor}; line-height:1.4; margin-bottom:20px;">
+            <div style="font-family:'Literata',Georgia,serif; font-size:2.0rem; font-style:italic; color:var(--text-primary); line-height:1.4; margin-bottom:20px;">
                 "Tu historia es donde comienza el argumento."
             </div>
-            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.05rem; color:${subColor}; letter-spacing:0.04em; margin-bottom:16px;">
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.05rem; color:var(--text-sub); letter-spacing:0.04em; margin-bottom:16px;">
                 "Your story is where the argument begins."
             </div>
-            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.78rem; color:${subColor}; margin-bottom:28px; line-height:1.5;">
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.78rem; color:var(--text-sub); margin-bottom:28px; line-height:1.5;">
                 <span class="show-es">Tu trabajo se guarda en este navegador. Si usas el coach Gemini, tu mensaje se envía al servicio de IA para responderte. Tu profesor solo ve lo que tú decidas exportar, copiar o compartir.</span><span class="lang-sep"> · </span><span class="show-en">Your work is saved in this browser. If you use the Gemini coach, your message is sent to the AI service so it can respond. Your instructor only sees what you choose to export, copy, or share.</span>
             </div>
             <div id="landingTtsWrap" style="margin-bottom:12px;"></div>

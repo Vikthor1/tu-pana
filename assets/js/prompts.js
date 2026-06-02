@@ -576,7 +576,7 @@ function selectPolishRoute(btn, route) {
 //  Injected by injectStageEntryWelcome() in ui.js with msgType 'stage-intro'.
 // ════════════════════════════════════════════════════════
 const STAGE_ENTRY_MESSAGES = {
-    1: 'Empieza con una escena específica — un lugar, una persona, un momento que recuerdas bien.\nStart with a specific scene: a place, a person, a moment you remember clearly.',
+    1: 'Tu Pana hace preguntas para ayudarte a escribir desde tus propias ideas — no escribe el ensayo por ti. Eso es lo que lo hace diferente.\n\nEmpieza con una escena específica — un lugar, una persona, un momento que recuerdas bien.\n\nTu Pana asks questions to help you write from your own ideas — it does not write the essay for you. That is what makes it different.\n\nStart with a specific scene: a place, a person, a moment you remember clearly.',
     2: 'Conecta tu anécdota con algo más grande — escribe una oración que nombre la fuerza o el patrón detrás de tu historia.\nConnect your anecdote to something larger — write one sentence naming the force or pattern behind your story.',
     3: 'Define la tensión de tu argumento: ¿qué tira en dos direcciones en tu historia?\nDefine the tension in your argument: what pulls in two directions in your story?',
     4: 'Busca una fuente que contextualice tu experiencia — no para reemplazarla, sino para profundizarla.\nFind one source that contextualizes your experience — not to replace it, but to deepen it.',

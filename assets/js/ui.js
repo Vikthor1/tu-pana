@@ -4682,7 +4682,7 @@ function updateThemeIcon(theme) {
     btn.innerHTML = theme === 'dark' ? moonSvg : sunSvg;
 }
 function resetApp() {
-    if (!confirm('Reset the app to the beginning?\n\nAll progress, draft text, and coach history will be cleared.\n\n¿Reiniciar la app desde el inicio? Se borrará todo el progreso.')) return;
+    if (!confirm('¿Borrar todo el trabajo y empezar de nuevo? No hay forma de deshacer.\n\nErase all work and start over? This cannot be undone.')) return;
     localStorage.clear();
     location.reload();
 }

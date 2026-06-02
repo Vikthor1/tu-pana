@@ -2279,17 +2279,35 @@ function setCoachMode(mode) {
         if (chatMessages)  chatMessages.style.display  = '';
         if (typingRow)     typingRow.style.display     = '';
         if (chatInputWrap) chatInputWrap.style.display = '';
+        D.chatStatus.innerHTML = '<span class="status-dot" aria-hidden="true">●</span> <span class="show-es">Offline</span><span class="lang-sep"> · </span><span class="show-en">Offline</span>';
+        D.chatStatus.classList.remove('idle');
     }
 }
 
+function _injectStartupMsg() {
+    try {
+        const maniDone = localStorage.getItem('tupana_mani_done') === 'true';
+        const labDone  = localStorage.getItem('tupana_lab_done')  === 'true';
+        if (!maniDone || !labDone) return;
+        const log = JSON.parse(localStorage.getItem('tupana_chatlog') || '[]');
+        if (log.length > 0) return;
+        addMsg(
+            'Tu Pana está iniciando. Puedes comenzar a escribir en el borrador mientras tu guía se conecta.\n' +
+            'Tu Pana is starting. You can begin writing in the draft area while your coach connects.',
+            'bot', true, 'welcome'
+        );
+    } catch(e) {}
+}
 
 async function initDL() {
     if (state.coachMode === 'gemini' && FEATURES.geminiProvider) {
         setCoachMode('gemini');
+        _injectStartupMsg();
         return;
     }
     if (state.coachMode === 'ollama') {
         setCoachMode('ollama');
+        _injectStartupMsg();
         return;
     }
     setCoachMode('offline');

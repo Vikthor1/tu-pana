@@ -2525,6 +2525,14 @@
             margin-right: 4px;
             user-select: none;
         }
+        /* Patch 21 — one-time explanatory micro-text above Evaluar bar */
+        .msg-eval-hint-once {
+            margin: 4px 0 2px 44px;
+            font-size: 0.72rem;
+            color: var(--text-sub);
+            font-style: italic;
+            line-height: 1.4;
+        }
         .msg-eval-q {
             display: inline-flex;
             align-items: center;

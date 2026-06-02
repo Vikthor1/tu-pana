@@ -3906,6 +3906,18 @@ function renderMsgEvalBar(msgId, evals) {
     // Don't duplicate
     if (msgWrap.querySelector('.msg-eval-bar')) return;
 
+    // One-time explanatory micro-text (Patch 21)
+    const EVAL_HINT_KEY = 'tupana_eval_hint_seen';
+    if (!localStorage.getItem(EVAL_HINT_KEY)) {
+        const hint = document.createElement('p');
+        hint.className = 'msg-eval-hint-once';
+        hint.textContent =
+            'Antes de usar la respuesta, revísala con estas preguntas. · ' +
+            'Before using the response, review it with these questions.';
+        msgWrap.appendChild(hint);
+        try { localStorage.setItem(EVAL_HINT_KEY, '1'); } catch(e) {}
+    }
+
     const bar = document.createElement('div');
     bar.className = 'msg-eval-bar';
 

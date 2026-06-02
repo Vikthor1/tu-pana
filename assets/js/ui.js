@@ -2024,6 +2024,10 @@ function addMsg(text, who, skipLog, msgType) {
     if (who === 'bot') {
         setTimeout(injectFollowupPanel, 600);
     }
+    // render Evaluar · Evaluate bar on every new bot message
+    if (who === 'bot') {
+        renderMsgEvalBar(msgId, {});
+    }
 
     return msgId;
 }

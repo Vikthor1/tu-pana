@@ -2211,8 +2211,8 @@
         ══════════════════════════════════════ */
         .lab-bg {
             position: fixed; inset: 0;
-            background: rgba(42,33,28,0.75);
-            backdrop-filter: blur(12px) saturate(1.2);
+            background: rgba(42,33,28,0.78);
+            backdrop-filter: blur(14px) saturate(1.2);
             display: flex; justify-content: center;
             z-index: 400;
             opacity: 0; pointer-events: none;

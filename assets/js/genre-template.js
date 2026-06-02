@@ -14,11 +14,10 @@ const FEATURES = {
     heritageSpanishMode: false,  // future: Heritage Spanish course mode
     geminiProvider:      true,   // Gemini Flash-Lite via Cloudflare Worker proxy
     instructorSettings:  false,  // future: instructor configuration panel
-    // Patch 11: browser-native TTS prototype — disabled after pilot evaluation.
-    // Browser voices produced dialect mismatch (es-ES vs Caribbean/Latinx Spanish).
-    // Future implementation will use curated audio assets (assets/audio/es/, assets/audio/en/).
-    // Set true only to re-test the prototype; do not re-enable for production without audio assets.
-    audioInstructions:   false
+    // Patch 12: human-recorded audio asset playback. Browser TTS permanently disabled.
+    // Spanish narrations in assets/audio/es/ (01–07). English deferred.
+    // When false: no audio buttons render, no Audio objects created.
+    audioInstructions:   true
 };
 
 // ════════════════════════════════════════════════════════

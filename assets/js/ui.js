@@ -93,6 +93,10 @@ const _ttsSupported = (typeof window !== 'undefined')
     && ('SpeechSynthesisUtterance' in window);
 let _ttsActiveBtn = null;
 
+// Patch 12: shared HTML5 Audio instance for onboarding narration (one at a time)
+const _onboardingAudio = new Audio();
+let _onboardingAudioBtn = null;
+
 function _getEsLang() {
     const voices = window.speechSynthesis.getVoices();
     const esUS = voices.find(v => v.lang === 'es-US');
@@ -133,23 +137,40 @@ function _setTtsBtnPlaying(btn) {
 }
 
 function _makeTtsBtn(textEs, textEn) {
+    return null; // TTS permanently disabled — audio assets handle onboarding narration (see _makeAudioBtn)
+}
+
+function _makeAudioBtn(src) {
     if (!FEATURES.audioInstructions) return null;
-    if (!_ttsSupported) return null;
+    if (state.lang === 'en') return null;  // English audio files don't exist yet
     const btn = document.createElement('button');
     btn.className = 'tts-listen-btn';
     btn.type = 'button';
     btn.dataset.ttsPlaying = 'false';
     _setTtsBtnIdle(btn);
     btn.addEventListener('click', () => {
-        if (_ttsActiveBtn === btn) {
-            stopStaticInstructionSpeech();
+        if (_onboardingAudioBtn === btn && !_onboardingAudio.paused) {
+            _stopOnboardingAudio();
         } else {
-            const text = (state.lang === 'en') ? textEn : textEs;
-            const lang = (state.lang === 'en') ? 'en' : 'es';
-            speakStaticInstruction(text, lang, btn);
+            _playOnboardingAudio(src, btn);
         }
     });
     return btn;
+}
+
+function _playOnboardingAudio(src, btn) {
+    if (_onboardingAudioBtn && _onboardingAudioBtn !== btn) _setTtsBtnIdle(_onboardingAudioBtn);
+    _onboardingAudioBtn = btn;
+    _setTtsBtnPlaying(btn);
+    _onboardingAudio.src = src;
+    _onboardingAudio.onended = () => { if (_onboardingAudioBtn === btn) { _setTtsBtnIdle(btn); _onboardingAudioBtn = null; } };
+    _onboardingAudio.onerror = () => { if (_onboardingAudioBtn === btn) { _setTtsBtnIdle(btn); _onboardingAudioBtn = null; } };
+    _onboardingAudio.play().catch(() => { _setTtsBtnIdle(btn); _onboardingAudioBtn = null; });
+}
+
+function _stopOnboardingAudio() {
+    _onboardingAudio.pause();
+    if (_onboardingAudioBtn) { _setTtsBtnIdle(_onboardingAudioBtn); _onboardingAudioBtn = null; }
 }
 
 // ════════════════════════════════════════════════════════
@@ -2991,7 +3012,17 @@ function updateManiAssetVisibility(claimed, focusActive = false) {
         el.setAttribute('tabindex', isActive ? '0' : '-1');
     });
     const prompt = document.getElementById('maniPrompt');
-    if (prompt) prompt.classList.toggle('hidden', !!nextKey);
+    if (prompt) {
+        prompt.classList.toggle('hidden', !!nextKey);
+        if (!nextKey) {
+            const _freireWrap = document.getElementById('maniFreireAudioWrap');
+            if (_freireWrap && !_freireWrap.dataset.wired) {
+                _freireWrap.dataset.wired = '1';
+                const btn = _makeAudioBtn('assets/audio/es/03-mani-freire.mp3');
+                if (btn) _freireWrap.appendChild(btn);
+            }
+        }
+    }
     if (focusActive && nextKey) {
         const activeEl = grid.querySelector(`.mani-asset[data-asset="${nextKey}"]`);
         if (activeEl) activeEl.focus();
@@ -3137,15 +3168,13 @@ function showLandingMoment() {
     document.body.appendChild(overlay);
     const _landingTtsWrap = overlay.querySelector('#landingTtsWrap');
     if (_landingTtsWrap) {
-        const _landingTtsBtn = _makeTtsBtn(
-            'Tu historia es donde comienza el argumento.',
-            'Your story is where the argument begins.'
-        );
-        if (_landingTtsBtn) _landingTtsWrap.appendChild(_landingTtsBtn);
+        const _landingAudioBtn = _makeAudioBtn('assets/audio/es/01-landing-welcome.mp3');
+        if (_landingAudioBtn) _landingTtsWrap.appendChild(_landingAudioBtn);
     }
     requestAnimationFrame(() => { overlay.style.opacity = '1'; });
 
     function dismissLanding() {
+        _stopOnboardingAudio();
         overlay.style.opacity = '0';
         setTimeout(() => { overlay.remove(); openMani(); }, 600);
     }
@@ -3212,6 +3241,12 @@ function openMani() {
     document.getElementById('maniBg').classList.add('on');
     initManiPrompt();
     restoreManiClaims();
+    const _maniAudioWrap = document.getElementById('maniIntroAudioWrap');
+    if (_maniAudioWrap && !_maniAudioWrap.dataset.wired) {
+        _maniAudioWrap.dataset.wired = '1';
+        const btn = _makeAudioBtn('assets/audio/es/02-mani-intro.mp3');
+        if (btn) _maniAudioWrap.appendChild(btn);
+    }
     // attach keyboard listeners once
     const grid = document.getElementById('maniGrid');
     if (grid) {
@@ -3285,6 +3320,7 @@ function showManiCelebration(onDone) {
 function maniProceed() {
     if (maniClaimed < MANI_TOTAL) return;
     if (!maniPromptInput || maniPromptInput.value.trim().length === 0) return;
+    _stopOnboardingAudio();
     const maniBgEl = document.getElementById('maniBg');
     if (!maniBgEl.classList.contains('on')) return;  // already dismissed — Safari ghost-touch guard
     const proceedBtn = document.getElementById('maniProceedBtn');
@@ -3331,6 +3367,12 @@ if (maniPromptInput) {
 //  EL LABORATORIO — onboarding wizard
 // ════════════════════════════════════════════════════════
 const LAB_TOTAL_STEPS = 4;   // 0=welcome, 1=read, 2=questions, 3=summary
+const _LAB_AUDIO_SRCS = [
+    'assets/audio/es/04-lab-step0.mp3',
+    'assets/audio/es/05-lab-step1.mp3',
+    'assets/audio/es/06-lab-step2.mp3',
+    'assets/audio/es/07-lab-step3.mp3',
+];
 let labCurrent = 0;
 let labAnswers  = { 1: null, 2: null, 3: null, 4: null, 5: null };
 
@@ -3345,11 +3387,19 @@ function buildLabProgress() {
 }
 
 function labShowStep(n) {
+    _stopOnboardingAudio();
     document.querySelectorAll('.lab-step').forEach(s => s.classList.remove('on'));
     const step = el('labStep' + n);
     if (step) step.classList.add('on');
     labCurrent = n;
     buildLabProgress();
+
+    const _labAudioWrap = document.getElementById('labAudioWrap' + n);
+    if (_labAudioWrap && !_labAudioWrap.dataset.wired) {
+        _labAudioWrap.dataset.wired = '1';
+        const audioBtn = _makeAudioBtn(_LAB_AUDIO_SRCS[n]);
+        if (audioBtn) _labAudioWrap.appendChild(audioBtn);
+    }
 
     // scroll lab body to top
     el('labBody').scrollTop = 0;
@@ -3462,6 +3512,7 @@ function flashChatFocus() {
 }
 
 function closeLab() {
+    _stopOnboardingAudio();
     el('labBg').classList.remove('on');
     try { localStorage.setItem('tupana_lab_done', 'true'); } catch(e) {}
     if (window.innerWidth <= 480) switchMobileTab('chat');

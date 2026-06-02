@@ -6046,3 +6046,8 @@ img, video, embed, object { max-width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) {
     .tts-listen-btn { transition: none; }
 }
+
+/* ── Patch 12: Onboarding Audio Playback ── */
+.lab-audio-wrap { margin-bottom: 8px; }
+#maniIntroAudioWrap { margin-top: 8px; }
+#maniFreireAudioWrap { margin-bottom: 8px; }

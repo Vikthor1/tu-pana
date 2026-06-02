@@ -6017,15 +6017,16 @@ img, video, embed, object { max-width: 100%; height: auto; }
     align-self: flex-start;
     flex-shrink: 0;
     background: transparent;
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--border-hi);
     border-radius: var(--radius-full);
-    color: var(--text-muted);
+    color: var(--text-sub);
     cursor: pointer;
     font-family: var(--font-body);
-    font-size: 0.72rem;
+    font-size: 0.95rem;
     font-weight: 600;
     line-height: 1;
-    padding: 3px 9px;
+    min-height: 36px;
+    padding: 6px 16px;
     white-space: nowrap;
     transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
@@ -6036,12 +6037,20 @@ img, video, embed, object { max-width: 100%; height: auto; }
 }
 .tts-listen-btn:focus-visible {
     outline: 2px solid var(--amber);
-    outline-offset: 1px;
+    outline-offset: 2px;
 }
 .tts-listen-btn[data-tts-playing="true"] {
     background: var(--amber);
     color: #fff;
     border-color: var(--amber);
+}
+@media (max-width: 640px) {
+    .tts-listen-btn {
+        font-size: 0.78rem;
+        min-height: 30px;
+        padding: 4px 11px;
+        border-width: 1px;
+    }
 }
 @media (prefers-reduced-motion: reduce) {
     .tts-listen-btn { transition: none; }

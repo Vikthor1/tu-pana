@@ -24,5 +24,8 @@ const CONFIG = {
     geminiProxyUrl: 'https://tupana-gemini-proxy.dr-torres-velez.workers.dev',
     geminiModel:    'gemini-2.5-flash-lite',
     userId:   'student-' + Math.random().toString(36).slice(2, 10),  // Ephemeral. New random suffix per page load. Not persisted.
-    userName: 'Estudiante'
+    userName: 'Estudiante',
+    // Bug report URL (Patch 25). Set to a Google Form or other URL to enable the student bug report button.
+    // Leave empty to show a "form not configured" fallback message.
+    bugReportUrl: ''
 };

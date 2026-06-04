@@ -5961,3 +5961,25 @@ function openHelpPanel() {
     setTimeout(() => overlay.querySelector('.toolkit-close')?.focus(), 120);
 }
 
+// ════════════════════════════════════════════════════════
+//  BUG REPORT — Patch 25
+// ════════════════════════════════════════════════════════
+function openBugReport() {
+    const base = (CONFIG.bugReportUrl || '').trim();
+    if (!base) {
+        alert(state.lang === 'en'
+            ? 'The report form is not configured yet. Please let your instructor know about the problem.'
+            : 'El formulario de reporte aún no está configurado. Por favor, informa a tu instructor/a del problema.');
+        return;
+    }
+    const stageObj = (typeof STAGES !== 'undefined' && STAGES[state.stage - 1]) || {};
+    const params = new URLSearchParams({
+        stage:    state.stage,
+        stage_en: (stageObj.en || '').replace('\n', ' '),
+        lang:     state.lang,
+        provider: state.coachMode,
+        ts:       new Date().toISOString().slice(0, 16),
+    });
+    window.open(`${base}?${params}`, '_blank', 'noopener,noreferrer');
+}
+

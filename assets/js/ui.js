@@ -1358,12 +1358,12 @@ function toggleChatProgress() {
 
 function initChatProgress() {
     try {
-        const collapsed = localStorage.getItem('tupana_progress_collapsed') === 'true';
-        if (collapsed && D.chatProgress) {
-            D.chatProgress.classList.add('collapsed');
-            if (D.chatProgressToggleText) D.chatProgressToggleText.textContent = 'Mi progreso · My progress';
+        // Default is collapsed (set in HTML). Only expand if student explicitly opened it before.
+        if (localStorage.getItem('tupana_progress_collapsed') === 'false' && D.chatProgress) {
+            D.chatProgress.classList.remove('collapsed');
+            if (D.chatProgressToggleText) D.chatProgressToggleText.textContent = 'Ocultar progreso · Hide progress';
             const _cpBtn = document.getElementById('chatProgressToggle');
-            if (_cpBtn) _cpBtn.setAttribute('aria-expanded', 'false');
+            if (_cpBtn) _cpBtn.setAttribute('aria-expanded', 'true');
         }
     } catch(e) {}
 }

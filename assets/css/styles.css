@@ -1399,6 +1399,7 @@
             display: flex; flex-direction: column;
             background: var(--bg-base);
             overflow: hidden;
+            min-height: 0;
             transition: opacity var(--transition-slow);
             position: relative;
         }
@@ -1487,6 +1488,9 @@
             position: relative;
             z-index: 1;
             min-height: 0;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
         }
 
         .msg {
@@ -5688,7 +5692,7 @@ img, video, embed, object { max-width: 100%; height: auto; }
     .workspace .draft-panel { display: flex !important; flex-direction: column; }
     .workspace .chat-panel  { display: none  !important; }
     .workspace.mobile-panel-chat .draft-panel { display: none  !important; }
-    .workspace.mobile-panel-chat .chat-panel  { display: flex !important; flex-direction: column; }
+    .workspace.mobile-panel-chat .chat-panel  { display: flex !important; flex-direction: column; height: 100%; }
 
     /* Focus mode on mobile: just hide chat (same as draft tab) */
     .workspace.focus-mode { grid-template-rows: 1fr !important; }

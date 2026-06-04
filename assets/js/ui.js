@@ -5962,16 +5962,13 @@ function openHelpPanel() {
 }
 
 // ════════════════════════════════════════════════════════
-//  BUG REPORT — Patch 25
+//  BUG REPORT — Patch 25 (disabled-state update: Patch 25b)
 // ════════════════════════════════════════════════════════
 function openBugReport() {
+    const btn = document.querySelector('.bug-report-btn');
+    if (btn && btn.getAttribute('aria-disabled') === 'true') return;
     const base = (CONFIG.bugReportUrl || '').trim();
-    if (!base) {
-        alert(state.lang === 'en'
-            ? 'The report form is not configured yet. Please let your instructor know about the problem.'
-            : 'El formulario de reporte aún no está configurado. Por favor, informa a tu instructor/a del problema.');
-        return;
-    }
+    if (!base) return;
     const stageObj = (typeof STAGES !== 'undefined' && STAGES[state.stage - 1]) || {};
     const params = new URLSearchParams({
         stage:    state.stage,
@@ -5982,4 +5979,23 @@ function openBugReport() {
     });
     window.open(`${base}?${params}`, '_blank', 'noopener,noreferrer');
 }
+
+function _initBugReportBtn() {
+    const btn = document.querySelector('.bug-report-btn');
+    if (!btn) return;
+    const hasUrl = !!(CONFIG.bugReportUrl || '').trim();
+    if (hasUrl) {
+        btn.classList.remove('is-unavailable');
+        btn.removeAttribute('aria-disabled');
+        btn.setAttribute('aria-label', 'Reportar un problema · Report a problem');
+        btn.setAttribute('title', 'Reportar un problema técnico o un momento confuso. No incluyas información privada. · Report a technical problem or confusing moment. Do not include private information.');
+    } else {
+        btn.classList.add('is-unavailable');
+        btn.setAttribute('aria-disabled', 'true');
+        btn.setAttribute('aria-label', 'Formulario de reporte no disponible todavía · Bug report form not available yet');
+        btn.setAttribute('title', 'Formulario de reporte próximamente · Bug report form coming soon');
+    }
+}
+
+_initBugReportBtn();
 

@@ -292,6 +292,18 @@
             outline: 3px solid var(--jade);
             outline-offset: 2px;
         }
+        .bug-report-btn.is-unavailable {
+            opacity: 0.42;
+            cursor: not-allowed;
+            color: var(--text-muted);
+            border-color: var(--border);
+        }
+        .bug-report-btn.is-unavailable:hover {
+            transform: none;
+            border-color: var(--border);
+            color: var(--text-muted);
+            background: var(--bg-raised);
+        }
         @media (max-width: 640px) {
             .bug-report-label { display: none; }
             .bug-report-btn { padding: 0 8px; font-size: 1rem; }

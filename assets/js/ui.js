@@ -5951,6 +5951,10 @@ function openHelpPanel() {
             <div class="help-section-body"><span class="show-es">Usa el botón <strong>Siguiente etapa</strong> en el área de tarea cuando estés listo/a. En móvil, usa el selector de etapas en la barra superior.</span><span class="lang-sep"> · </span><span class="show-en">Use the <strong>Next stage</strong> button in the task area when you're ready. On mobile, use the stage selector in the top bar.</span></div>
         </div>
         <div class="help-section">
+            <div class="help-section-title"><span class="show-es">Moverte entre etapas</span><span class="lang-sep"> · </span><span class="show-en">Moving between stages</span></div>
+            <div class="help-section-body"><span class="show-es">Puedes regresar a etapas anteriores en cualquier momento para seguir desarrollando tus ideas. Cuando avances otra vez, Tu Pana puede preguntarte si quieres traer tu trabajo anterior a la próxima etapa. Elige esta opción cuando sientas que tu escritura en la etapa anterior ya está lista para ayudarte a construir la siguiente parte de tu borrador.<br><br>No tienes que importarlo todo de inmediato. Puedes revisar una etapa primero, volver a ella más tarde y traerla hacia adelante cuando esté lista.</span><span class="lang-sep"> · </span><span class="show-en">You can go back to earlier stages at any time to keep developing your ideas. When you move forward again, Tu Pana may ask whether you want to bring your previous work into the next stage. Choose this option when you feel that your writing in the earlier stage is ready to help you build the next part of your draft.<br><br>You do not have to import everything right away. You can revise a stage first, return to it later, and bring it forward when it feels ready.</span></div>
+        </div>
+        <div class="help-section">
             <div class="help-section-title"><span class="show-es">¿Qué es Mi Toolkit?</span><span class="lang-sep"> · </span><span class="show-en">What is My Toolkit?</span></div>
             <div class="help-section-body"><span class="show-es">Mi Toolkit guarda lo que traes y lo que practicas: los activos culturales que reclamaste durante la introducción, las habilidades de escritura que desarrollas en cada etapa, tus evaluaciones críticas del coach, y las frases que proteges en la Bóveda de voz.</span><span class="lang-sep"> · </span><span class="show-en">My Toolkit saves what you bring and what you practice: the cultural assets you claimed during onboarding, the writing skills you develop at each stage, your critical evaluations of the coach, and the phrases you protect in your Voice Vault.</span></div>
         </div>
@@ -6071,8 +6075,8 @@ function _offerTransitionImport(prevText, nextStage, nextText) {
                 '<span class="show-en">Bring your previous work forward?</span>' +
             '</p>' +
             '<p class="tic-body">' +
-                '<span class="show-es">Escribiste algo en la etapa anterior. ¿Quieres traerlo aquí para seguir desarrollándolo?</span>' +
-                '<span class="show-en">You wrote something in the last stage. Would you like to bring it into this stage so you can keep building on it?</span>' +
+                '<span class="show-es">Escribiste algo en la etapa anterior. Si ya se siente listo, puedes traerlo a esta etapa y seguir desarrollándolo.</span>' +
+                '<span class="show-en">You wrote something in the last stage. If it feels ready, you can bring it into this stage and keep building on it.</span>' +
             '</p>' +
             '<div class="tic-actions">' +
                 '<button class="tic-btn tic-btn-yes" aria-label="Sí, traerlo · Yes, bring it forward">' +

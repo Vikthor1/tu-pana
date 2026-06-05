@@ -24,7 +24,7 @@
         </svg>
     </div>
     <div class="header-text">
-        <h1>Tu Pana de Escritura</h1>
+        <h1 aria-label="Tu Pana de Escritura"><span class="h1-full">Tu Pana de Escritura</span><span class="h1-short">Tu Pana</span></h1>
         <p id="headerSub"><span class="show-es">TU COACH DE ESCRITURA</span><span class="lang-sep">&nbsp;·&nbsp;</span><span class="show-en">YOUR WRITING COACH</span></p>
     </div>
     <div class="lang-switcher" id="langSwitcher" role="group" aria-label="Idioma · Language">
@@ -32,6 +32,11 @@
         <button class="lang-btn" id="langBtnEn" data-lang="en" onclick="setLang('en')" aria-pressed="false" title="English only · Solo inglés">EN</button>
         <button class="lang-btn" id="langBtnBoth" data-lang="both" onclick="setLang('both')" aria-pressed="false" title="Ambos idiomas · Both languages">ES·EN</button>
     </div>
+    <select id="langSelectMobile" class="lang-select-mobile" aria-label="Idioma · Language" onchange="setLang(this.value)">
+        <option value="es" selected>ES</option>
+        <option value="en">EN</option>
+        <option value="both">BI</option>
+    </select>
     <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema · Toggle theme" title="Cambiar tema · Toggle theme"><span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="tp-fill-mango" cx="32" cy="32" r="14"/><path d="M32 7v6M32 51v6M7 32h6M51 32h6M14 14l4 4M46 46l4 4M14 50l4-4M46 18l4-4"/></svg></span></button>
     <button class="reset-btn" onclick="resetApp()" aria-label="Reiniciar app · Reset app" title="Reiniciar desde el inicio · Reset to onboarding"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px" aria-hidden="true"><path d="M54 32a22 22 0 1 1-4-13"/><polyline points="54 12 54 26 40 26"/></svg></button>
     <button class="help-btn" onclick="openHelpPanel()" aria-label="Ayuda · Help" title="Cómo funciona Tu Pana · How Tu Pana Works">?</button>

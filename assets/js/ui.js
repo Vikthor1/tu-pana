@@ -251,6 +251,8 @@ function setLang(pref) {
         const active = b.dataset.lang === pref;
         b.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
+    const ms = document.getElementById('langSelectMobile');
+    if (ms) ms.value = pref;
     // Update html lang attribute for AT
     document.documentElement.lang = pref === 'en' ? 'en' : 'es';
 }

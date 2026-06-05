@@ -27,5 +27,5 @@ const CONFIG = {
     userName: 'Estudiante',
     // Bug report URL (Patch 25). Set to a Google Form or other URL to enable the student bug report button.
     // Leave empty to show a "form not configured" fallback message.
-    bugReportUrl: ''
+    bugReportUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSczOMvWbQtyOkr_HaqNvWpBZpfgdbw5Q0I0JzCS3uBl6EMPSA/viewform'
 };

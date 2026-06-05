@@ -1456,10 +1456,17 @@ function confirmStagePreview() {
     // Mobile: bring student to coach tab so new stage instructions / cards are visible
     if (window.innerWidth <= 480) switchMobileTab('chat');
 
-    // Transition import offer (Patch 26) — only when moving forward with meaningful text
+    // Queue import offer (Patch 26). Fires AFTER coach spotlight so the guidance
+    // order is: stage instructions → import choice → drafting space.
+    _pendingImport = null;
+    _importCompletionAction = null;
     if (prevText.length >= 30) {
         const nextText = (D.draftArea ? D.draftArea.value : '').trim();
-        setTimeout(() => _offerTransitionImport(prevStage, prevText, id, nextText), 300);
+        _pendingImport = { prevText, nextStage: id, nextText };
+        // If the coach spotlight won't show (already seen), fire import directly.
+        if (!shouldShowSpotlight(id)) {
+            setTimeout(_showPendingImport, 600);
+        }
     }
 }
 
@@ -4873,6 +4880,9 @@ function dismissCoachSpotlight() {
     if (state.spotlightStageId !== null) _spotlightSeen.add(state.spotlightStageId);
     state.spotlightTarget  = null;
     state.spotlightStageId = null;
+    // Step 2 of guidance sequence (Patch 26): show import card if queued.
+    // No editor spotlight follows this path (student dismissed without "Entendido").
+    if (_pendingImport) setTimeout(_showPendingImport, 200);
 }
 
 // Called only by the explicit "Entendido" button — the student has read the hints
@@ -4883,7 +4893,13 @@ function confirmCoachSpotlight() {
     D.chatMessages.querySelectorAll('.spotlight-target').forEach(el => el.classList.remove('spotlight-target'));
     document.getElementById('spotlightCoachLabel')?.remove();
     document.body.classList.remove('spotlight-coach');
-    _activateEditorSpotlight();
+    // Patch 26 guidance sequence: if an import card is queued, show it as step 2.
+    // The editor spotlight fires as step 3 only after the student makes their import choice.
+    if (_pendingImport) {
+        _showPendingImport(_activateEditorSpotlight);
+    } else {
+        _activateEditorSpotlight();
+    }
 }
 
 function _activateEditorSpotlight() {
@@ -4948,6 +4964,8 @@ function _disableSpotlight() {
     dismissEditorSpotlight();
     try { localStorage.setItem('tupana_spotlight_off', 'true'); } catch(e) {}
     addSysTech('Las guías visuales han sido desactivadas. / Visual guides have been disabled.');
+    // Import card still needed even when spotlight is disabled (Patch 26).
+    if (_pendingImport) setTimeout(_showPendingImport, 200);
 }
 
 //  INIT
@@ -6012,10 +6030,28 @@ _initBugReportBtn();
 
 // ════════════════════════════════════════════════════════
 //  TRANSITION IMPORT — Patch 26
-//  Offer to carry previous-stage text into the new stage.
+//  Guidance sequence: coach spotlight → import card → editor spotlight.
 //  Only shown when moving forward with >= 30 chars of text.
+//
+//  _pendingImport: queued import data set in confirmStagePreview().
+//  _importCompletionAction: callback fired after import card is dismissed.
+//    • Set to _activateEditorSpotlight when student clicked "Entendido" first.
+//    • null on all other dismissal paths (student dismissed or spotlight unseen).
+let _pendingImport         = null;
+let _importCompletionAction = null;
+
+function _showPendingImport(completionAction) {
+    if (!_pendingImport) {
+        if (typeof completionAction === 'function') completionAction();
+        return;
+    }
+    const { prevText, nextStage, nextText } = _pendingImport;
+    _pendingImport = null;
+    _importCompletionAction = typeof completionAction === 'function' ? completionAction : null;
+    _offerTransitionImport(prevText, nextStage, nextText);
+}
 // ════════════════════════════════════════════════════════
-function _offerTransitionImport(prevStage, prevText, nextStage, nextText) {
+function _offerTransitionImport(prevText, nextStage, nextText) {
     const existing = document.getElementById('transitionImportCard');
     if (existing) existing.remove();
 
@@ -6108,4 +6144,10 @@ function _dismissTransitionImportCard() {
     if (!card) return;
     if (card._escHandler) document.removeEventListener('keydown', card._escHandler);
     card.remove();
+    // Step 3: fire editor spotlight if student came via "Entendido" (Patch 26 sequence).
+    if (_importCompletionAction) {
+        const action = _importCompletionAction;
+        _importCompletionAction = null;
+        action();
+    }
 }

@@ -18,9 +18,10 @@ Each file must be reviewed before upload. If a file has not been reviewed since 
 
 | File | Derived from | Purpose | Status |
 |------|-------------|---------|--------|
-| `pedagogy-packet.md` | `docs/project-brief.md` | Philosophical and pedagogical grounding | Upload-safe |
-| `architecture-packet.md` | `docs/current-architecture.md` | Sanitized architecture overview | Upload-safe |
-| `session-digest.md` | Human-curated milestone summary | Project evolution and key decisions | Create after Tier 4 |
+| `pedagogy-packet.md` | `docs/project-brief.md`, VC-OS context.md | Pedagogical philosophy, Freirean design, bilingual-first, pilot-ready context | Upload-safe (updated 2026-06-05) |
+| `architecture-packet.md` | `docs/current-architecture.md`, git log | Sanitized architecture + mobile header + deployment + bug report | Upload-safe (updated 2026-06-05) |
+| `session-digest.md` | Human-curated milestone summary | Project evolution and key decisions, sessions 1–63 | Upload-safe (updated 2026-06-05) |
+| `pilot-evaluation-context.md` | `docs/pilot/survey-instrument.md`, VC-OS context.md | Survey structure, participant codes, what the pilot is learning, Google Forms setup notes | Upload-safe (created 2026-06-05) |
 
 ---
 

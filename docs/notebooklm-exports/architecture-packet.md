@@ -1,9 +1,9 @@
 ---
-Last updated: 2026-05-25
-Source: docs/current-architecture.md
+Last updated: 2026-06-05
+Source: docs/current-architecture.md, 01_projects/tupana/context.md (VC-OS), git log
 Upload-safe: YES
-Sanitized: internal URLs, config values, and API endpoint details removed
-Next review: after Tier 4 completion or major architectural change
+Sanitized: internal URLs, config values, API endpoint details, and Cloudflare Worker configuration removed
+Next review: after pilot completion or major architectural change
 ---
 
 # Tu Pana de Escritura — Architecture Overview
@@ -97,6 +97,56 @@ On small screens, a tab bar allows students to switch between the Draft panel an
 
 ---
 
+## Mobile architecture (updated June 2026)
+
+The app uses two breakpoints:
+
+- **≤ 768px** — touch targets enlarged, modals tightened
+- **≤ 480px** — layout switches from two-panel (draft left, chat right) to a tabbed single-panel interface; language selector switches from 3-button pill to compact native dropdown
+
+On small screens, a tab bar allows students to switch between the Draft panel and the Coach panel. Tab state persists through certain actions (e.g., after completing onboarding, the app automatically switches to the Chat tab).
+
+**Mobile header (as of 2026-06-05, commits f2cb715 + 8cb30b5):**
+
+| Element | Desktop | Mobile (≤480px) |
+|---------|---------|-----------------|
+| App title | "Tu Pana de Escritura" (full) | "Tu Pana" (short form; aria-label preserves full name) |
+| Branding icon | Animated laptop-and-coffee icon in banner | Same icon, header simplified |
+| Language selector | 3-button pill (ES · EN · BI) | Native `<select>` (~48px wide) with options ES / EN / BI |
+| Bug report button | "🐞 Problema · Problem?" | "🐞" (emoji only; label hidden ≤640px) |
+
+The mobile language selector uses a native `<select>` element (`#langSelectMobile`) distinct from the desktop 3-button group (`#langSwitcher`). Both are kept in sync by the shared `setLang()` function — the single source of truth for all language switching. Any code that changes the language must call `setLang()` rather than directly manipulating DOM elements.
+
+---
+
+## Deployment status
+
+**GitHub Pages:** Verified live as of 2026-06-05 (session 63). The app is hosted as a static site on GitHub Pages from the main branch. No server, no CI pipeline, no build step — the site is the repo. Deployment is automatic on every push to main.
+
+**Brightspace iframe:** Designed for iframe embedding in CUNY Brightspace. The `allow-downloads` sandbox attribute must be set by CUNY admin for downloads to work in Safari — this is a known constraint documented in the app's active risks. In-app copy-to-clipboard is the fallback.
+
+---
+
+## Bug report system (activated 2026-06-05, commit cd0168e)
+
+A student-facing bug report button appears in the app header. When activated, it opens a Google Form in a new tab. The form URL is stored in `CONFIG.bugReportUrl` in `assets/js/config.js` — the single activation point.
+
+Privacy: the only query parameters sent to the form are stage number, stage name (English), language setting, provider/mode, and timestamp. No student writing, chat content, draft text, name, email, or ID is ever sent. These bounds are enforced by the app and must be maintained for any future enhancement to the bug report feature.
+
+When the URL is empty (not configured), the button displays an `aria-disabled="true"` state and shows a bilingual message instructing students to tell the instructor. The button remains keyboard-discoverable in the disabled state.
+
+---
+
+## Pilot configuration (Summer 2026)
+
+For the LAC 118 pilot, the app has been configured as follows:
+
+- **Visible coach modes:** Offline and Gemini only. The Ollama button is hidden from the student interface via `style="display:none"` in `index.html`. This is a pilot-scoped suppression, not a permanent removal — the Ollama code path remains intact and must be restored after the pilot if instructor/dev use is desired.
+- **Stage 1 entry message:** Explicitly inoculates against ChatGPT-expectation mismatch with "Tu Pana makes questions — it does not write the essay for you" before the first coach interaction.
+- **Progress panel:** Collapsed by default. Students can expand it; the state persists across sessions via `tupana_progress_collapsed`.
+
+---
+
 ## What this app is not
 
 These are deliberate architectural decisions, not gaps:
@@ -107,3 +157,4 @@ These are deliberate architectural decisions, not gaps:
 - No state management library — `state` is a plain JavaScript object
 - No CSS preprocessor — styles are hand-authored vanilla CSS
 - No versioning scheme beyond git — the commit log is the release history
+- No backend, no authentication, no cloud sync — all student data is local to the student's device

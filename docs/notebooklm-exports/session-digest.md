@@ -1,9 +1,9 @@
 ---
-Last updated: 2026-05-25
-Covers: Sessions 1–40, through Phase 1 Day 4 (2026-05-25)
-Source: docs/session-status.md, SYSTEM_MEMORY.md, docs/current-architecture.md, git history
+Last updated: 2026-06-05
+Covers: Sessions 1–63, through Tier 4 pilot-ready state (2026-06-05)
+Source: docs/session-status.md, 01_projects/tupana/context.md and decisions.log (VC-OS), git log
 Upload-safe: YES
-Next review: after Tier 4 completion or major architecture milestone
+Next review: after pilot completion or major architecture milestone
 ---
 
 # Tu Pana de Escritura — Session Digest
@@ -72,24 +72,67 @@ As of Phase 1 (initiated 2026-05-25), a NotebookLM synthesis layer has been adde
 
 ---
 
-## 6. Current State and Next Milestone
+## 6. Tier 4 — Pilot Readiness Work (Sessions 41–63)
 
-As of Session 40 (latest pushed commit: `b2d5f78`), Tiers 1, 2, and 3 are fully complete and pushed to the main branch. The most recent change was a Voice Vault discoverability improvement — an inline "Protect selected phrase" button added directly inside the Voice Vault panel at Stage 8.
+Sessions 41–63 completed the Tier 4 pilot readiness work. No new architecture was introduced. All changes were hardening, UX refinement, and deployment preparation.
 
-The next milestone is **Tier 4: Pilot Logistics**, which requires real students. No further blocking code work exists. Tier 4 items include: recruiting and facilitating a five-student pilot; collecting pre/post surveys; exporting the revision decision log for IRB documentation; gathering student testimonials; and producing accessibility, privacy, and instructor-reflection documentation.
+**Survey infrastructure (Sessions 42, 60–62):**
+A pre/post survey instrument was designed (`docs/pilot/survey-instrument.md`) and a Google Apps Script builder (`docs/pilot/survey-builder.gs`) was created to generate both forms from a Google Sheet with one click. Participant codes (TPN-001 through TPN-NNN) are auto-generated and pre-filled into unique form URLs for distribution. A second Apps Script (`docs/pilot/create_bug_report_form.gs`) builds the student-facing bug report form. Bug report URL activated in the app: `CONFIG.bugReportUrl` set to the published form URL (commit `cd0168e`).
 
-Phase 1 of the AI-assisted memory architecture was also completed in parallel with the code freeze, establishing the NotebookLM synthesis layer and context-packet workflow described in `docs/phase1-memory-architecture.md`.
+**Pre-pilot UX hardening (Sessions 44–55, Patches 1–21):**
+Fourteen UX findings were assessed and five critical patches applied (Patch 19). Key changes: save-lock language reframed from constraint-first to reassurance-first; Stage 1 entry message inoculates against ChatGPT-expectation mismatch; Lab skip button surfaced at top of onboarding; Startup/Connecting state replaced with purposeful orientation messages; Evaluar bar auto-renders on every new coach response (bug fix, Patch 18); Help system modernized with 13 sections covering all current features (Patch 17).
+
+**Real-device mobile testing and fixes (Sessions 55–57, Patches 22–23):**
+iPhone 15 Pro Max testing revealed two functional failures: chat area was completely non-scrollable on iOS Safari (critical). Patch 22 fixed two compounding iOS Safari bugs with CSS-only changes. Patch 23 changed the progress panel to collapsed-by-default, reclaiming vertical space on small screens.
+
+**Onboarding audio (Sessions 47–51, Patches 11–13):**
+Seven Spanish-language MP3 narrations committed to `assets/audio/es/` and wired into the onboarding flow. Browser-native TTS was evaluated and abandoned (Patch 11 decision): the Web Speech API cannot reliably produce Caribbean/Latinx Spanish — a structural platform limitation. Audio is served from committed static files. English audio deferred.
+
+**Stage guidance cues and import transitions (Sessions 57–59, Patches 24–26):**
+Each stage now opens with a bilingual orientation message in the coach panel. When advancing stages, students are offered a compact import card to bring previous-stage work forward — always student-choice, never automatic. The guidance sequence is fixed: coach spotlight → import card → editor spotlight. This order was established after real-device testing showed import cards appearing before students had oriented to the new stage.
+
+**Mobile header hardening (Session 63, commits f2cb715 + 8cb30b5):**
+Animated branding icon (laptop and coffee) added to the header. "Tu Pana" becomes the visible mobile short-form title (full name preserved in aria-label). The 3-button language pill replaced at ≤480px with a compact native `<select>` (ES / EN / BI), reclaiming ~70px of horizontal space. Bug-button overflow fixed. Both changes pushed and verified live on GitHub Pages.
+
+**Pilot class confirmed:** LAC 118: Caribbean Society and Culture, Summer 2026 (4-week course).
 
 ---
 
-## 7. What This Digest Should Not Be Used For
+## 7. Current State and Next Step (as of 2026-06-05)
+
+**App status:** Pilot-ready. Tiers 1–3 complete. Tier 4 hardening complete. GitHub Pages deployment verified. Bug report system active. Survey instrument designed and Apps Script builder ready.
+
+**Latest commits (most recent first):**
+
+| Commit | Summary |
+|--------|---------|
+| `8cb30b5` | Compact mobile language selector + "Tu Pana" short title + overflow fix |
+| `f2cb715` | Animated branding icon + mobile header simplification |
+| `cd0168e` | Bug report form URL activated |
+| `ddff7b1` | Bug report Google Form builder script added |
+| `8ba6764` | Recursive stage guidance copy refinement |
+| `ac4be4d` | Stage-entry guidance sequence fix (spotlight before import card) |
+| `dcaf49c` | Previous-stage import transition feature |
+| `285fcc0` | Bug report button (disabled state) |
+| `e6a0d1b` | Bug report button infrastructure |
+
+**Immediate next action:** Build pre/post pilot Google Forms using `docs/pilot/survey-builder.gs`. Run from a Google Sheet; distribute participant code links to Dr. Torres-Vélez for distribution to LAC 118.
+
+**Remaining non-code logistics:**
+- Confirm Brightspace iframe embed is live with `allow-downloads` attribute (or communicate copy-to-clipboard fallback)
+- Distribute participant codes and survey links
+- Monitor Cloudflare Worker on Day 1 (Gemini routing dependency)
+
+---
+
+## 8. What This Digest Should Not Be Used For
 
 This digest is an orientation document. It should not be used for:
 
 - **Active coding sessions** — use `SYSTEM_MEMORY.md` and `docs/current-architecture.md` directly
 - **Debugging** — consult the source code and test files
 - **Current code state** — this digest is a milestone snapshot; it does not reflect individual commits after its last-updated date
-- **Canonical architectural decisions** — verify against `docs/current-architecture.md` and `docs/decisions/architecture-principles.md`
+- **Canonical architectural decisions** — verify against `docs/current-architecture.md` and `docs/decisions/`
 - **Anything involving student data, pilot outcomes, or IRB materials** — those sources are categorically excluded from this document and from NotebookLM
 
 If a NotebookLM answer derived from this digest conflicts with what you observe in the codebase or canonical docs, trust the codebase and canonical docs. Update this digest; do not modify the canonical source to match the digest.

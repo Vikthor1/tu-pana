@@ -309,6 +309,74 @@
             .bug-report-btn { padding: 0 8px; font-size: 1rem; }
         }
 
+        /* ── Transition Import Card (Patch 26) ── */
+        @keyframes ticSlideIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .transition-import-card {
+            margin: 0 20px 8px;
+            padding: 12px 14px;
+            background: rgba(42,122,106,0.07);
+            border-left: 3px solid var(--jade);
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            animation: ticSlideIn 0.2s ease;
+            flex-shrink: 0;
+        }
+        .tic-title {
+            font-weight: 600;
+            margin: 0 0 4px;
+            color: var(--jade-text);
+            line-height: 1.35;
+        }
+        .tic-body {
+            margin: 0 0 10px;
+            color: var(--text-sub);
+            line-height: 1.45;
+        }
+        .tic-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .tic-btn {
+            background: var(--bg-raised);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            padding: 5px 12px;
+            font-size: 0.80rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+        .tic-btn:hover {
+            border-color: var(--jade);
+            color: var(--jade-text);
+            background: var(--jade-glow);
+        }
+        .tic-btn:focus-visible {
+            outline: 3px solid var(--jade);
+            outline-offset: 2px;
+        }
+        .tic-btn-yes {
+            background: var(--jade);
+            border-color: var(--jade);
+            color: #fff;
+        }
+        .tic-btn-yes:hover {
+            background: var(--jade-dk);
+            border-color: var(--jade-dk);
+            color: #fff;
+        }
+        @media (max-width: 640px) {
+            .transition-import-card { margin: 0 10px 8px; }
+            .tic-btn { font-size: 0.78rem; padding: 5px 10px; }
+        }
+
         .report-btn {
             background: var(--bg-raised);
             border: 1px solid var(--border);

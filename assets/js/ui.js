@@ -1446,10 +1446,21 @@ function confirmStagePreview() {
     D.stagePreviewBg.classList.remove('on');
     const id = pendingStageId;
     pendingStageId = null;
+
+    // Capture previous stage text BEFORE goToStage (which saves and reloads the textarea)
+    const prevStage = state.stage;
+    const prevText  = (D.draftArea ? D.draftArea.value : '').trim();
+
     goToStage(id);
     scheduleCoachSpotlight(id);
     // Mobile: bring student to coach tab so new stage instructions / cards are visible
     if (window.innerWidth <= 480) switchMobileTab('chat');
+
+    // Transition import offer (Patch 26) — only when moving forward with meaningful text
+    if (prevText.length >= 30) {
+        const nextText = (D.draftArea ? D.draftArea.value : '').trim();
+        setTimeout(() => _offerTransitionImport(prevStage, prevText, id, nextText), 300);
+    }
 }
 
 function dismissStagePreview() {
@@ -5999,3 +6010,102 @@ function _initBugReportBtn() {
 
 _initBugReportBtn();
 
+// ════════════════════════════════════════════════════════
+//  TRANSITION IMPORT — Patch 26
+//  Offer to carry previous-stage text into the new stage.
+//  Only shown when moving forward with >= 30 chars of text.
+// ════════════════════════════════════════════════════════
+function _offerTransitionImport(prevStage, prevText, nextStage, nextText) {
+    const existing = document.getElementById('transitionImportCard');
+    if (existing) existing.remove();
+
+    const hasNextText = nextText.trim().length >= 10;
+    const card = document.createElement('div');
+    card.id = 'transitionImportCard';
+    card.className = 'transition-import-card';
+    card.setAttribute('role', 'region');
+    card.setAttribute('aria-label',
+        '¿Quieres traer tu trabajo anterior? · Bring your previous work forward?');
+
+    if (!hasNextText) {
+        card.innerHTML =
+            '<p class="tic-title">' +
+                '<span class="show-es">¿Quieres traer tu trabajo anterior?</span>' +
+                '<span class="lang-sep"> · </span>' +
+                '<span class="show-en">Bring your previous work forward?</span>' +
+            '</p>' +
+            '<p class="tic-body">' +
+                '<span class="show-es">Escribiste algo en la etapa anterior. ¿Quieres traerlo aquí para seguir desarrollándolo?</span>' +
+                '<span class="show-en">You wrote something in the last stage. Would you like to bring it into this stage so you can keep building on it?</span>' +
+            '</p>' +
+            '<div class="tic-actions">' +
+                '<button class="tic-btn tic-btn-yes" aria-label="Sí, traerlo · Yes, bring it forward">' +
+                    '<span class="show-es">Sí, traerlo</span><span class="lang-sep"> · </span><span class="show-en">Yes, bring it forward</span>' +
+                '</button>' +
+                '<button class="tic-btn tic-btn-no" aria-label="No, empezar de nuevo · No, start fresh">' +
+                    '<span class="show-es">No, empezar de nuevo</span><span class="lang-sep"> · </span><span class="show-en">No, start fresh</span>' +
+                '</button>' +
+            '</div>';
+
+        card.querySelector('.tic-btn-yes').addEventListener('click', () => {
+            D.draftArea.value = prevText;
+            D.draftArea.dispatchEvent(new Event('input'));
+            saveStageWork(nextStage, prevText);
+            _dismissTransitionImportCard();
+        });
+        card.querySelector('.tic-btn-no').addEventListener('click', _dismissTransitionImportCard);
+    } else {
+        card.innerHTML =
+            '<p class="tic-title">' +
+                '<span class="show-es">Esta etapa ya tiene texto.</span>' +
+                '<span class="lang-sep"> · </span>' +
+                '<span class="show-en">This stage already has writing.</span>' +
+            '</p>' +
+            '<p class="tic-body">' +
+                '<span class="show-es">¿Cómo quieres usar tu trabajo anterior?</span>' +
+                '<span class="show-en">How would you like to use your previous work?</span>' +
+            '</p>' +
+            '<div class="tic-actions">' +
+                '<button class="tic-btn tic-btn-above" aria-label="Añadirlo arriba de mi texto actual · Add it above my current writing">' +
+                    '<span class="show-es">Añadirlo arriba</span><span class="lang-sep"> · </span><span class="show-en">Add it above</span>' +
+                '</button>' +
+                '<button class="tic-btn tic-btn-below" aria-label="Añadirlo abajo de mi texto actual · Add it below my current writing">' +
+                    '<span class="show-es">Añadirlo abajo</span><span class="lang-sep"> · </span><span class="show-en">Add it below</span>' +
+                '</button>' +
+                '<button class="tic-btn tic-btn-no" aria-label="Mantener solo mi texto actual · Keep my current writing only">' +
+                    '<span class="show-es">Mantener solo mi texto</span><span class="lang-sep"> · </span><span class="show-en">Keep my current writing only</span>' +
+                '</button>' +
+            '</div>';
+
+        card.querySelector('.tic-btn-above').addEventListener('click', () => {
+            const combined = prevText + '\n\n' + D.draftArea.value;
+            D.draftArea.value = combined;
+            D.draftArea.dispatchEvent(new Event('input'));
+            saveStageWork(nextStage, combined);
+            _dismissTransitionImportCard();
+        });
+        card.querySelector('.tic-btn-below').addEventListener('click', () => {
+            const combined = D.draftArea.value + '\n\n' + prevText;
+            D.draftArea.value = combined;
+            D.draftArea.dispatchEvent(new Event('input'));
+            saveStageWork(nextStage, combined);
+            _dismissTransitionImportCard();
+        });
+        card.querySelector('.tic-btn-no').addEventListener('click', _dismissTransitionImportCard);
+    }
+
+    card._escHandler = e => { if (e.key === 'Escape') _dismissTransitionImportCard(); };
+    document.addEventListener('keydown', card._escHandler);
+
+    const wrap = document.querySelector('.draft-textarea-wrap');
+    if (wrap && wrap.parentNode) wrap.parentNode.insertBefore(card, wrap);
+
+    setTimeout(() => { const b = card.querySelector('.tic-btn'); if (b) b.focus(); }, 50);
+}
+
+function _dismissTransitionImportCard() {
+    const card = document.getElementById('transitionImportCard');
+    if (!card) return;
+    if (card._escHandler) document.removeEventListener('keydown', card._escHandler);
+    card.remove();
+}

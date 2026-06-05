@@ -18,6 +18,7 @@ Each file must be reviewed before upload. If a file has not been reviewed since 
 
 | File | Derived from | Purpose | Status |
 |------|-------------|---------|--------|
+| `architecture-principles.md` | `docs/decisions/architecture-principles.md` | Durable design rules: pedagogical, mobile, accessibility, language, privacy, technical, pilot | Upload-safe (created 2026-06-05) |
 | `pedagogy-packet.md` | `docs/project-brief.md`, VC-OS context.md | Pedagogical philosophy, Freirean design, bilingual-first, pilot-ready context | Upload-safe (updated 2026-06-05) |
 | `architecture-packet.md` | `docs/current-architecture.md`, git log | Sanitized architecture + mobile header + deployment + bug report | Upload-safe (updated 2026-06-05) |
 | `session-digest.md` | Human-curated milestone summary | Project evolution and key decisions, sessions 1–63 | Upload-safe (updated 2026-06-05) |
@@ -73,9 +74,11 @@ Do not update after every session. These are milestone-level documents, not sess
 ## Relationship to canonical sources
 
 ```
-docs/project-brief.md          ──► pedagogy-packet.md       (curated synthesis)
-docs/current-architecture.md   ──► architecture-packet.md   (sanitized overview)
-[human-written quarterly]       ──► session-digest.md        (milestone summary)
+docs/decisions/architecture-principles.md  ──► architecture-principles.md  (expanded export)
+docs/project-brief.md                      ──► pedagogy-packet.md           (curated synthesis)
+docs/current-architecture.md               ──► architecture-packet.md       (sanitized overview)
+[human-written quarterly]                  ──► session-digest.md            (milestone summary)
+docs/pilot/survey-instrument.md            ──► pilot-evaluation-context.md  (survey + evaluation context)
 ```
 
 If you find a discrepancy between a canonical source and an export packet, the canonical source wins. Update the export packet, not the canonical source.

@@ -2378,7 +2378,12 @@ async function sendMsg(text) {
             const reply = await generateCoachResponse({ prompt: geminiPrompt, stageId: getStageId(state.stage) });
             if (reply) addMsg(reply, 'bot');
         } catch(err) {
-            console.error('gemini:', err);
+            console.error('[Tu Pana] Coach error', {
+                category:  err?.category  ?? '(missing)',
+                status:    err?.status    ?? '(no status)',
+                message:   err?.message   ?? '(no message)',
+                timestamp: new Date().toISOString()
+            });
             addMsg(getGeminiErrorMessage(err), 'bot');
         } finally {
             showTyping(false);

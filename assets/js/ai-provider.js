@@ -120,6 +120,13 @@ async function _callGeminiOnce(coachPayload) {
 
     if (!response.ok) {
         const cat = data?.category || _statusToGeminiCategory(response.status);
+        console.warn('[Tu Pana] Gemini proxy non-OK response', {
+            proxyStatus:      response.status,
+            mappedCategory:   cat,
+            returnedCategory: data?.category      ?? '(none)',
+            upstreamStatus:   data?.upstreamStatus ?? '(none)',
+            timestamp:        new Date().toISOString()
+        });
         const e   = _mkGeminiErr('[Tu Pana] Gemini error: ' + (data?.message || response.status), cat);
         e.status  = response.status;
         throw e;

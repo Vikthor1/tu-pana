@@ -5839,10 +5839,19 @@ img, video, embed, object { max-width: 100%; height: auto; }
     .workspace .draft-panel { display: flex !important; flex-direction: column; }
     .workspace .chat-panel  { display: none  !important; }
     .workspace.mobile-panel-chat .draft-panel { display: none  !important; }
-    /* height: 100% removed — on iOS Safari, 100% in a 1fr grid track resolves to the
-       viewport height, not the grid area. align-self: stretch (the default) correctly
-       sizes the panel to the workspace height without overflowing the workspace clip. */
-    .workspace.mobile-panel-chat .chat-panel  { display: flex !important; flex-direction: column; min-height: 0; }
+    /* Anchor the active panel to workspace bounds using position:absolute.
+       Avoids the percentage-in-1fr-track height ambiguity that affects Opera iOS and
+       other non-Safari WebKit builds when align-self:stretch does not propagate a
+       definite height through the flex→grid chain.
+       .workspace already has position:relative + overflow:hidden, so the absolute
+       panel is clipped precisely to workspace bounds on every browser. */
+    .workspace.mobile-panel-chat .chat-panel  {
+        display: flex !important;
+        flex-direction: column;
+        min-height: 0;
+        position: absolute;
+        inset: 0;
+    }
 
     /* Focus mode on mobile: just hide chat (same as draft tab) */
     .workspace.focus-mode { grid-template-rows: 1fr !important; }

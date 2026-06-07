@@ -189,11 +189,23 @@ function switchMobileTab(panel) {
     tabChat.setAttribute('aria-selected', String(toChat));
     if (toChat) tabChat.classList.remove('has-notification');
     // Scroll to latest message after the panel becomes visible.
-    // rAF ensures the browser has completed layout for the newly-displayed panel
-    // before we read scrollHeight (auto-scroll is a no-op on display:none elements).
+    // Uses inline scrollBehavior override (not scrollTo({behavior:'instant'})) because
+    // behavior:'instant' is not consistently supported in Opera iOS WebKit builds.
+    // CSS scroll-behavior:smooth is respected by scrollTop= on modern browsers, so we
+    // must suppress it explicitly to guarantee an instant jump.
+    // A 80ms setTimeout second pass handles Opera's longer layout-settle time after
+    // display:none → display:flex (single rAF is not always sufficient).
     if (toChat && D.chatMessages) {
+        const _scrollNow = () => {
+            const m = D.chatMessages;
+            if (!m) return;
+            m.style.scrollBehavior = 'auto';
+            m.scrollTop = m.scrollHeight;
+            m.style.scrollBehavior = '';
+        };
         requestAnimationFrame(() => {
-            D.chatMessages.scrollTo({ top: D.chatMessages.scrollHeight, behavior: 'instant' });
+            _scrollNow();
+            setTimeout(_scrollNow, 80);
         });
     }
 }

@@ -2064,8 +2064,12 @@ function addMsg(text, who, skipLog, msgType) {
     if (who === 'bot') {
         setTimeout(injectFollowupPanel, 600);
     }
-    // render Evaluar · Evaluate bar on every new bot message
-    if (who === 'bot') {
+    // render Evaluar · Evaluate bar — Stage 7+ only (Revision and beyond).
+    // Matches the fiveQStrip visibility gate in setStage() and the Stage 7
+    // pedagogical intent documented in SYSTEM_MEMORY.md ("Five Questions protocol;
+    // eval cards; decision log"). Stages 1–6 are drafting/coaching stages where
+    // the eval bar adds no pedagogical value and wastes vertical space on mobile.
+    if (who === 'bot' && state.stage >= 7) {
         renderMsgEvalBar(msgId, {});
     }
 

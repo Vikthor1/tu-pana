@@ -1580,6 +1580,14 @@ function goToStage(id) {
                 const body = fqs.querySelector('.five-q-body');
                 if (body) body.appendChild(evalBtn);
             }
+            // Auto-open the strip once on first Stage 7 entry so the student
+            // discovers the Five Questions and the Evaluar action naturally.
+            // Only fires once (localStorage flag); student closing it is respected.
+            if (id === 7 && !localStorage.getItem('tupana_fiveq_stage7_opened_once')) {
+                const fqDetails = fqs.querySelector('.five-q-details');
+                if (fqDetails) fqDetails.open = true;
+                try { localStorage.setItem('tupana_fiveq_stage7_opened_once', '1'); } catch(e) {}
+            }
         }
     }
 

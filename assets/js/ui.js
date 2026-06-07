@@ -188,6 +188,14 @@ function switchMobileTab(panel) {
     tabDraft.setAttribute('aria-selected', String(!toChat));
     tabChat.setAttribute('aria-selected', String(toChat));
     if (toChat) tabChat.classList.remove('has-notification');
+    // Scroll to latest message after the panel becomes visible.
+    // rAF ensures the browser has completed layout for the newly-displayed panel
+    // before we read scrollHeight (auto-scroll is a no-op on display:none elements).
+    if (toChat && D.chatMessages) {
+        requestAnimationFrame(() => {
+            D.chatMessages.scrollTo({ top: D.chatMessages.scrollHeight, behavior: 'instant' });
+        });
+    }
 }
 
 // Called internally when the AI coach sends a message, to nudge student to look

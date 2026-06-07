@@ -5839,7 +5839,10 @@ img, video, embed, object { max-width: 100%; height: auto; }
     .workspace .draft-panel { display: flex !important; flex-direction: column; }
     .workspace .chat-panel  { display: none  !important; }
     .workspace.mobile-panel-chat .draft-panel { display: none  !important; }
-    .workspace.mobile-panel-chat .chat-panel  { display: flex !important; flex-direction: column; height: 100%; }
+    /* height: 100% removed — on iOS Safari, 100% in a 1fr grid track resolves to the
+       viewport height, not the grid area. align-self: stretch (the default) correctly
+       sizes the panel to the workspace height without overflowing the workspace clip. */
+    .workspace.mobile-panel-chat .chat-panel  { display: flex !important; flex-direction: column; min-height: 0; }
 
     /* Focus mode on mobile: just hide chat (same as draft tab) */
     .workspace.focus-mode { grid-template-rows: 1fr !important; }

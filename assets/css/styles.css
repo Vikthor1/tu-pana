@@ -5313,6 +5313,25 @@
             color: var(--text-sub);
             line-height: 1.5;
         }
+        /* Stage-level eval trigger — injected at bottom of five-q-body (Stage 7+) */
+        .five-q-eval-action {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 7px 12px;
+            background: var(--bg-raised);
+            border: 1px solid var(--border-hi);
+            border-radius: var(--radius-sm);
+            color: var(--amber-text);
+            font-family: var(--font-body);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: border-color var(--transition-fast), background var(--transition-fast);
+        }
+        .five-q-eval-action:hover { border-color: var(--amber); background: var(--amber-glow); }
+        .five-q-eval-action:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 
         /* ── Lab progressive-disclosure expander ── */
         .lab-expander {

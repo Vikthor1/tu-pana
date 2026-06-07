@@ -1560,10 +1560,27 @@ function goToStage(id) {
     // Inject Pana Hint for the new stage
     setTimeout(() => injectPanaHint(id), 500);
 
-    // Show Five Questions reference strip from Stage 7 onward
+    // Show Five Questions reference strip from Stage 7 onward.
+    // Also inject the stage-level "Evaluar" call-to-action (once) so students
+    // evaluate intentionally rather than rating every individual message.
     if (id >= 7) {
         const fqs = document.getElementById('fiveQStrip');
-        if (fqs) fqs.classList.remove('hidden');
+        if (fqs) {
+            fqs.classList.remove('hidden');
+            if (!fqs.querySelector('.five-q-eval-action')) {
+                const evalBtn = document.createElement('button');
+                evalBtn.className = 'five-q-eval-action';
+                evalBtn.setAttribute('aria-label',
+                    'Evaluar la última respuesta del coach · Evaluate the last coach response');
+                evalBtn.innerHTML =
+                    '<span class="show-es">Evaluar la última respuesta del coach</span>' +
+                    '<span class="lang-sep"> · </span>' +
+                    '<span class="show-en">Evaluate last coach response</span>';
+                evalBtn.addEventListener('click', evalLastCoachMessage);
+                const body = fqs.querySelector('.five-q-body');
+                if (body) body.appendChild(evalBtn);
+            }
+        }
     }
 
     // Inject research guidance card at Stage 4
@@ -2064,14 +2081,12 @@ function addMsg(text, who, skipLog, msgType) {
     if (who === 'bot') {
         setTimeout(injectFollowupPanel, 600);
     }
-    // render Evaluar · Evaluate bar — Stage 7+ only (Revision and beyond).
-    // Matches the fiveQStrip visibility gate in setStage() and the Stage 7
-    // pedagogical intent documented in SYSTEM_MEMORY.md ("Five Questions protocol;
-    // eval cards; decision log"). Stages 1–6 are drafting/coaching stages where
-    // the eval bar adds no pedagogical value and wastes vertical space on mobile.
-    if (who === 'bot' && state.stage >= 7) {
-        renderMsgEvalBar(msgId, {});
-    }
+    // Evaluar bars are no longer injected automatically on each bot message.
+    // Students use the "Evaluar última respuesta" action inside the Five Questions
+    // strip (visible Stage 7+) to evaluate intentionally. This converts repeated
+    // per-message bars into a single, purposeful stage-level metacognitive action.
+    // The restore path (below) still re-renders bars for messages the student
+    // already evaluated in a prior session, preserving their saved picks.
 
     return msgId;
 }
@@ -3943,10 +3958,46 @@ function sendFollowup(question, index) {
 }
 
 // ════════════════════════════════════════════════════════
+//  STAGE-LEVEL EVAL TRIGGER
+//  Called by the "Evaluar última respuesta" button inside
+//  the Five Questions strip. Surfaces the eval bar on the
+//  most recent bot message only — removing any stale bars
+//  from earlier messages that the student never used.
+// ════════════════════════════════════════════════════════
+
+function evalLastCoachMessage() {
+    const botMsgs = D.chatMessages.querySelectorAll('.msg.bot[data-msg-id]');
+    if (!botMsgs.length) return;
+    const lastMsg = botMsgs[botMsgs.length - 1];
+    const msgId = lastMsg.dataset.msgId;
+    if (!msgId) return;
+
+    // Read any existing picks from chatlog
+    let evals = {};
+    try {
+        const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
+        const entry = log.find(e => e.id === msgId);
+        if (entry) evals = entry.evals || {};
+    } catch(e) {}
+
+    // Remove eval bars from all messages that haven't been evaluated
+    // (active-* class present = student already picked something — keep those)
+    D.chatMessages.querySelectorAll('.msg-eval-bar').forEach(bar => {
+        const wrap = bar.closest('[data-msg-id]');
+        const hasPick = bar.querySelector('[class*="active-"]');
+        if (!hasPick && wrap && wrap.dataset.msgId !== msgId) bar.remove();
+    });
+
+    // Render or refresh the bar on the latest message
+    renderMsgEvalBar(msgId, evals);
+    lastMsg.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+// ════════════════════════════════════════════════════════
 //  INLINE MESSAGE EVALUATION (Five Questions per response)
-//  Each bot message gets a compact eval bar. Tapping a
-//  question opens inline feedback. State is persisted to
-//  the chatlog entry and restores on reload.
+//  renderMsgEvalBar is called explicitly via evalLastCoachMessage
+//  (stage-level trigger) or by the session restore path for
+//  messages the student already evaluated.
 // ════════════════════════════════════════════════════════
 
 function renderMsgEvalBar(msgId, evals) {

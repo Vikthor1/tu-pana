@@ -116,6 +116,27 @@ function buildSurveys() {
   var ui = SpreadsheetApp.getUi();
   var ss = SpreadsheetApp.getActiveSpreadsheet();
 
+  // FIX 3: Guard against accidental re-run. Re-running deletes the Distribution
+  // sheet (including manual tracking data in columns D/E) and creates new forms.
+  var existingDist  = ss.getSheetByName(CONFIG.DIST_SHEET);
+  var existingLinks = ss.getSheetByName(CONFIG.LINKS_SHEET);
+  if (existingDist || existingLinks) {
+    var proceed = ui.alert(
+      '⚠️  Surveys already built',
+      'The "' + CONFIG.DIST_SHEET + '" or "' + CONFIG.LINKS_SHEET + '" sheet already exists.\n\n' +
+      'Running this script AGAIN will:\n' +
+      '  • DELETE those sheets (including any manual tracking data)\n' +
+      '  • CREATE new Google Forms with new participant code URLs\n\n' +
+      'Only do this if you intend to start fresh for a new class.\n\n' +
+      'Are you sure you want to continue?',
+      ui.ButtonSet.YES_NO
+    );
+    if (proceed !== ui.Button.YES) {
+      ui.alert('Cancelled — no changes made.');
+      return;
+    }
+  }
+
   ui.alert(
     'Building surveys…\n\n' +
     'This takes about 20–30 seconds. Click OK and wait for the completion message.'
@@ -474,6 +495,11 @@ function buildLinksSheet_(ss, preForm, postForm) {
 function configureForm_(form, ss) {
   form.setDescription(CONSENT);
   form.setCollectEmail(false);
+  // FIX 1: Explicit false prevents CUNY Workspace admin default from silently
+  // requiring login and capturing respondent identity.
+  form.setLimitOneResponsePerUser(false);
+  // FIX 2: Prevent respondents from seeing aggregate summary charts.
+  form.setPublishingSummary(false);
   form.setAllowResponseEdits(false);
   form.setShowLinkToRespondAgain(false);
   // Link responses to the same spreadsheet as this script

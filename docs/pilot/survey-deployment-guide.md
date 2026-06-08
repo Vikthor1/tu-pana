@@ -1,6 +1,6 @@
 # Tu Pana de Escritura — Survey Deployment Guide
 
-**Version:** 1.0 (2026-06-08)  
+**Version:** 1.1 (revised 2026-06-08)  
 **Covers:** Pre-survey + Post-survey for LAC 118 Summer 2026 pilot (or any future class)  
 **Script:** `docs/pilot/survey-builder.gs`  
 **Instrument spec:** `docs/pilot/survey-instrument.md`
@@ -9,10 +9,10 @@
 
 ## Part 1 — One-Time Setup: Running the Script
 
-**Before you start:** You need a Google Account with access to Google Drive and Google Sheets. Your CUNY Google account works.
+**Before you start:** Use the instructor-controlled Google account selected for this pilot. This minimizes unnecessary institutional data exposure and preserves student anonymity — student responses will be held in an account you fully control, not routed through institutional systems.
 
-1. Go to **Google Drive** and create a new Google Sheet.
-   - Name it something like `Tu Pana Pilot Data — LAC 118 Summer 2026`
+1. Sign into that Google account and go to **Google Drive**. Create a new Google Sheet.
+   - Name it exactly: `Tu Pana Pilot Data — LAC 118 Summer 2026`
 
 2. In that sheet: **Extensions → Apps Script**
 
@@ -64,13 +64,13 @@
 - Confirm **"Limit to 1 response"** is OFF
 - Confirm **"Allow response editing"** is OFF
 
-> ⚠️ **CUNY Workspace note:** If "Require Hostos sign-in" appears as a forced setting, contact your Brightspace/IT administrator. The survey must be accessible without login to preserve anonymity. Students should NOT need to sign into Google to complete the survey.
+> ⚠️ **If "Require sign-in" appears as a forced setting** in your Google account's organization policy: switch to a personal or instructor-controlled account where you can disable this. The survey must be accessible without login to preserve student anonymity. Students should NOT need to sign into Google to complete the survey.
 
 ### Step 3 — Check "Who can access"
 
 - In the form editor: click **Send** (top right)
 - Confirm the form link does not require sign-in to access
-- If you see a lock or "Sign-in required" indicator, see the CUNY Workspace note above
+- If you see a lock or "Sign-in required" indicator, see the note in Step 2 above
 
 ### Step 4 — Confirm response sheets exist
 
@@ -227,7 +227,7 @@ The survey data itself contains no names, emails, or student IDs. Only the parti
 ## Part 8 — Reuse for Future Classes
 
 The survey is class-agnostic. For a new class:
-1. Create a new Google Sheet
+1. Sign into the instructor-controlled Google account for that course. Create a new Google Sheet.
 2. Paste `survey-builder.gs` and run it fresh
 3. New forms and new participant code URLs are generated
 4. Adjust `NUM_PARTICIPANTS` at the top of the script if the class size differs

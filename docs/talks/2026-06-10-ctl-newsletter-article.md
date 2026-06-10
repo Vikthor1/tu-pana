@@ -1,5 +1,5 @@
 ---
-title: "Tu Pana No Te Corrige: Toward a Culturally Responsive AI Writing Companion for Multilingual Community College Students"
+title: "What Would It Mean to Begin with Trust? Designing AI Writing Support for Multilingual Students"
 date: 2026-06-10
 type: scholarly-newsletter-article
 audience: Faculty, administrators, and educational technology stakeholders — Center for Teaching and Learning newsletter
@@ -20,17 +20,17 @@ provenance: >
 ## Proposed Titles
 
 **1. Tu Pana No Te Corrige: Toward a Culturally Responsive AI Writing Companion for Multilingual Community College Students**
-*(Selected — bilingual, culturally specific, states the central argument in a single phrase)*
+*(Alternative — bilingual, culturally specific, states the central argument in a single phrase)*
 
 **2. From Correction to Accompaniment: Writing, AI, and Linguistic Justice at a Hispanic-Serving Institution**
 *(Alternative — cleaner arc, more explicit about the institutional stakes)*
 
 **3. What Would It Mean to Begin with Trust? Designing AI Writing Support for Multilingual Students**
-*(Alternative — question format mirrors the closing; useful for workshop or panel contexts)*
+*(Selected — question format mirrors the closing; invites the reader in before making an argument)*
 
 ---
 
-# Tu Pana No Te Corrige: Toward a Culturally Responsive AI Writing Companion for Multilingual Community College Students
+# What Would It Mean to Begin with Trust? Designing AI Writing Support for Multilingual Students
 
 *Víctor M. Torres-Vélez, Hostos Community College, CUNY*
 

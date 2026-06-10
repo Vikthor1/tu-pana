@@ -570,6 +570,65 @@
     .tp-av-glow, .tp-av-line, .tp-av-cursor, .tp-av-steam, .tp-av-spark { animation: none; }
   }
 
+  /* ── Audio cards ── */
+  .audio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; }
+  .audio-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 22px 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .audio-card--faculty { border-top: 4px solid var(--jade); }
+  .audio-card--spanish { border-top: 4px solid var(--gold); }
+  .audio-card--english { border-top: 4px solid var(--clay); }
+  .audio-card-label {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .audio-card--faculty .audio-card-label { color: var(--jade); }
+  .audio-card--spanish .audio-card-label { color: var(--gold); }
+  .audio-card--english .audio-card-label { color: var(--clay); }
+  .audio-card h3 { font-size: 1rem; margin: 0 0 2px; }
+  .audio-card-desc { font-size: 0.9rem; color: var(--ink-mid); flex: 1; margin: 0; }
+  .audio-card-audience {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-style: italic;
+    margin: 0;
+  }
+  .audio-listen-btn {
+    display: inline-block;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 9px 18px;
+    border-radius: 30px;
+    text-decoration: none;
+    text-align: center;
+    transition: background 0.12s, color 0.12s;
+    margin-top: 6px;
+    background: transparent;
+  }
+  .audio-card--faculty .audio-listen-btn { border: 2px solid var(--jade); color: var(--jade); }
+  .audio-card--faculty .audio-listen-btn:hover { background: var(--jade-light); }
+  .audio-card--spanish .audio-listen-btn { border: 2px solid var(--gold); color: var(--gold); }
+  .audio-card--spanish .audio-listen-btn:hover { background: var(--gold-light); }
+  .audio-card--english .audio-listen-btn { border: 2px solid var(--clay); color: var(--clay); }
+  .audio-card--english .audio-listen-btn:hover { background: var(--clay-light); }
+  .audio-listen-btn:focus { outline: 3px solid var(--jade-mid); outline-offset: 3px; }
+  @media (max-width: 580px) {
+    .audio-grid { grid-template-columns: 1fr; }
+  }
+
   /* ── Footer ── */
   .doc-footer {
     text-align: center; padding: 24px;
@@ -682,6 +741,7 @@
   <div class="quick-nav-inner">
     <span class="quick-nav-label">Jump to /</span>
     <a class="quick-nav-btn" href="#hero">1. Open Tu Pana</a>
+    <a class="quick-nav-btn" href="#audio-onboarding">Audio Materials</a>
     <a class="quick-nav-btn" href="#testing-route">2. Testing Route</a>
     <a class="quick-nav-btn" href="#test-texts">3. Test Texts</a>
     <a class="quick-nav-btn" href="#what-to-notice">4. What to Notice</a>
@@ -738,6 +798,72 @@
     <div class="callout-title">Core design commitment</div>
     The student writes first. The AI responds second. The coach should never produce a finished paragraph, introduction, or conclusion for the student. Student voice — including code-switching, Spanglish, and bilingual expression — is treated as a rhetorical resource, not an error to fix.
   </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ── Audio Onboarding and Orientation Materials ── -->
+<section id="audio-onboarding">
+  <div class="section-label">Onboarding context</div>
+  <h2 class="section-title">Audio Onboarding and Orientation Materials</h2>
+  <p class="section-sub">How Tu Pana de Escritura is introduced to students and faculty before the pilot begins.</p>
+
+  <p>These recordings document how Tu Pana de Escritura is introduced to students and faculty during the pilot. They are included here as supplemental context for evaluators who want to understand the full onboarding environment surrounding the app.</p>
+
+  <div class="callout callout--jade" style="margin-top:8px; margin-bottom:20px;">
+    <div class="callout-title">Pilot ecosystem context</div>
+    These recordings are part of a broader onboarding sequence: Brightspace announcement → audio orientation → pre-survey → Tu Pana app use → post-survey → student reflection. Evaluators are not required to listen to all recordings — they are offered here as supplemental context for understanding the full pilot environment.
+  </div>
+
+  <div class="audio-grid" role="list">
+
+    <div class="audio-card audio-card--faculty" role="listitem">
+      <span class="audio-card-label">Faculty / Evaluator</span>
+      <h3>Faculty-Facing Orientation</h3>
+      <p class="audio-card-desc">A brief explanation of Tu Pana's pedagogical purpose for faculty, evaluators, and colleagues interested in writing support, authorship, and responsible AI use in the classroom.</p>
+      <p class="audio-card-audience">Intended audience: Faculty, CTL staff, and evaluators</p>
+      <a class="audio-listen-btn"
+         href="https://www.dropbox.com/scl/fi/mwc1u6b7atycztf9e395r/Tu-Pana-Explained-faculty-facing.mp3?rlkey=wpe9mqas3ytyd36i2c5fiqy89&st=8tsxi2wy&dl=0"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Listen to Tu Pana faculty-facing orientation recording (opens Dropbox in new tab)">
+        Listen to Faculty Orientation ↗
+      </a>
+    </div>
+
+    <div class="audio-card audio-card--spanish" role="listitem">
+      <span class="audio-card-label">Student Onboarding — Español</span>
+      <h3>Student Onboarding — Español</h3>
+      <p class="audio-card-desc">A student-facing Spanish introduction shared through Brightspace before students begin using Tu Pana. Explains the app as a writing coach that supports reflection, organization, revision, and student authorship — not a writing generator. Part of a bilingual onboarding strategy for students at an HSI.</p>
+      <p class="audio-card-audience">Intended audience: Spanish-speaking and bilingual students</p>
+      <a class="audio-listen-btn"
+         href="https://www.dropbox.com/scl/fi/zevr6ri4d5qat38cf86zs/Tu-Pana-Student-Facing-onboarding-Spanish.mp3?rlkey=fnem3u15e5wnnplh6xe7mip00&st=iswg3xi9&dl=0"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Listen to Tu Pana student onboarding in Spanish (opens Dropbox in new tab)">
+        Listen to Student Onboarding in Spanish ↗
+      </a>
+    </div>
+
+    <div class="audio-card audio-card--english" role="listitem">
+      <span class="audio-card-label">Student Onboarding — English</span>
+      <h3>Student Onboarding — English</h3>
+      <p class="audio-card-desc">A student-facing English introduction shared through Brightspace before students begin using Tu Pana. Explains how students should use the app responsibly while remaining the authors of their own work.</p>
+      <p class="audio-card-audience">Intended audience: English-dominant students and all enrolled students</p>
+      <a class="audio-listen-btn"
+         href="https://www.dropbox.com/scl/fi/1bh82yez8b6zoapnlpq1t/Tu-Pana-Student-Facing-onboarding.mp3?rlkey=hjslzddzejne44ucjd6nmcp7m&st=uwundpgg&dl=0"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Listen to Tu Pana student onboarding in English (opens Dropbox in new tab)">
+        Listen to Student Onboarding in English ↗
+      </a>
+    </div>
+
+  </div>
+
+  <div class="callout callout--gold" style="margin-top:20px;">
+    <div class="callout-title">Accessibility note</div>
+    Audio materials should be paired with transcripts or written summaries when used for instruction.
+    <br><em style="font-size:0.88rem; display:block; margin-top:6px;">Transcripts are not yet available. Transcript links will be added here when prepared.<!-- TODO: Add transcript links when available --></em>
+  </div>
+
 </section>
 
 <hr class="section-rule">

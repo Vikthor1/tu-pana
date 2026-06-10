@@ -17,26 +17,15 @@ provenance: >
 
 ---
 
-## Proposed Titles
 
-**1. Tu Pana No Te Corrige: Toward a Culturally Responsive AI Writing Companion for Multilingual Community College Students**
-*(Alternative — bilingual, culturally specific, states the central argument in a single phrase)*
+# What If the Problem Was Never the Student? 
+## AI, Writing, and the Limits of Deficit Pedagogy 
 
-**2. From Correction to Accompaniment: Writing, AI, and Linguistic Justice at a Hispanic-Serving Institution**
-*(Alternative — cleaner arc, more explicit about the institutional stakes)*
-
-**3. What Would It Mean to Begin with Trust? Designing AI Writing Support for Multilingual Students**
-*(Selected — question format mirrors the closing; invites the reader in before making an argument)*
+*Víctor M. Torres-Vélez, LAC Unit, Humanities Department, Hostos Community College, CUNY*
 
 ---
 
-# What Would It Mean to Begin with Trust? Designing AI Writing Support for Multilingual Students
-
-*Víctor M. Torres-Vélez, Hostos Community College, CUNY*
-
----
-
-When I enrolled at Michigan State University as a first-generation immigrant graduate student from Puerto Rico, I did not arrive with a single language. I arrived with several — Caribbean Spanish shaped by years in Bayamón and San Juan, an English constructed through American-style schooling on the island, and a way of moving between both that felt entirely natural to me but that I understood would be legible to the institution only selectively. I hoped the writing center might help me navigate the unfamiliar conventions of doctoral writing: the disciplinary genres, the voicing expectations, the invisible structural rules that seemed second nature to many of my American-born peers.
+When I enrolled at Michigan State University as a first-generation immigrant graduate student from Puerto Rico, I did not arrive with a single language. I arrived with several — Caribbean Spanish shaped by years in Barrio Obrero, Santurce, an English constructed through American-style schooling on the island, and a way of moving between both that felt entirely natural to me but that I understood would be legible to the institution only selectively. I hoped the writing center might help me navigate the unfamiliar conventions of doctoral writing: the disciplinary genres, the voicing expectations, the invisible structural rules that seemed second nature to many of my American-born peers.
 
 What I encountered, instead, was a form of support that was well-intentioned but monolingual in its underlying logic. The tutors I worked with were not hostile people. The problem was not their character but the model that had formed them. A sentence built on Spanish syntax, an argument organized through associative or narrative logic rather than strictly linear structure, a phrasing that carried the trace of another language — these seemed to register, in the encounter, as signs of intellectual deficiency rather than as artifacts of a bilingual mind working in real time. The correction on offer was often surface-level. The message beneath it was subtler and more damaging: your language practices are problems to be fixed before your ideas can be taken seriously.
 
@@ -96,7 +85,7 @@ Those are not only questions about technology. They are questions about pedagogy
 
 ## Further Reading
 
-*(APA 7 format. Sources cited in the article body are marked \*.)*
+*(Sources cited in the article body are marked \*.)*
 
 Anzaldúa, G. (1987). *Borderlands/La Frontera: The new mestiza*. Aunt Lute Books. \*
 
@@ -120,12 +109,3 @@ Young, V. A., Barrett, R., Young-Rivera, Y., & Lovejoy, K. B. (2014). *Other peo
 
 ---
 
-## Rhetorical Strategy Note
-
-The article uses a confessional opening to establish ethos before critical argument. The personal narrative does double work: it grounds the author's positionality as a Puerto Rican scholar and former first-generation immigrant student, and it gives readers a felt sense of what deficit-oriented support costs — without requiring abstract argument to make that case. The critique remains structural throughout; individual tutors are explicitly absolved so that the indictment can land where it belongs: on the model, not the person.
-
-The transition from personal history to students' present experience establishes that the problem is not historical but ongoing — and that Tu pana emerges from a recognized pedagogical need, not from novelty. Theory is woven into the argument at the moments when it illuminates something already in motion: Freire enters when the banking model is needed, Canagarajah when the linguistic stakes sharpen, hooks when the ethical stakes of AI design require a pedagogical frame. The article avoids the literature review by treating citation as evidence, not credential.
-
-The closing returns to the opening's questions — correction, trust, whose knowledge counts — completing the argumentative arc and leaving the reader with an invitation to examine their own practice rather than a verdict about anyone else's.
-
-*Estimated word count: ~1,500 words (article body). Full file including titles, further reading, and strategy note: ~1,800 words.*

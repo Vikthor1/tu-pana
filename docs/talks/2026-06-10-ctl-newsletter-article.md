@@ -5,7 +5,7 @@ type: scholarly-newsletter-article
 audience: Faculty, administrators, and educational technology stakeholders — Center for Teaching and Learning newsletter
 author: Víctor M. Torres-Vélez
 institution: Hostos Community College, CUNY
-status: Draft — ready for CTL submission
+status: Revised — citation audit complete 2026-06-10; ready for CTL submission after author verification of items flagged in 2026-06-10-ctl-newsletter-audit.md
 derived_from: Tu Pana de Escritura project (docs/project-brief.md · docs/current-architecture.md · docs/notebooklm-exports/ · direct practice-based reflection)
 notebooklm_upload_status: "DO NOT UPLOAD — derivative rhetorical artifact; would create synthesis feedback loop in operational notebooks"
 provenance: >
@@ -44,7 +44,7 @@ I eventually stopped going. I found my way through doctoral writing over years, 
 
 ---
 
-Now, teaching at Hostos Community College in the South Bronx, I have been shaken by how recognizable my students' stories sound. In casual conversations, students who are first-generation, immigrant, bilingual, Afro-Latinx, Caribbean, or multilingual in any of a dozen configurations describe encounters with writing support where their language practices were treated as problems to overcome rather than resources to develop. The details vary. The structure does not.
+Now, teaching at Hostos Community College in the South Bronx, I have been shaken by how recognizable my students' stories sound. In casual conversations, students who are first-generation, immigrant, bilingual, Afro-Latinx, Caribbean, or multilingual in any of a dozen configurations describe encounters with writing support where their language practices were treated as problems to overcome rather than resources to develop — a pattern others have noted in the scholarship on multilingual writers and writing center practice. The details vary. The structure does not.
 
 This is not an indictment of individual tutors, many of whom are genuinely committed to their students. The problem is structural: it lives in the assumptions embedded in what "writing support" is supposed to look like, and for whom that model was originally designed. As Mike Rose documented in *Lives on the Boundary* (1989), students classified as underprepared are often not struggling because they lack intelligence. They are struggling because institutions have not been built to recognize the knowledge they carry.
 
@@ -60,15 +60,15 @@ The name is not incidental. It signals the kind of support this tool aspires to 
 
 The design of Tu pana de escritura draws on several converging pedagogical traditions, each pushing back in its own way against deficit-oriented models of writing support.
 
-The most foundational is Paulo Freire's critique of what he called the "banking" model of education — the practice of treating learners as empty receptacles to be filled with sanctioned knowledge (*Pedagogy of the Oppressed*, 1970). In the banking model, the teacher holds knowledge, the student receives it, and the goal is transfer. Against this, Freire proposed problem-posing education: an approach that begins with the recognition that learners already know, already possess the capacity to name and examine their world, already carry the intellectual raw material for critical thought.
+The most foundational is Paulo Freire's critique of what he called the "banking" model of education — the practice of treating learners as empty receptacles to be filled with sanctioned knowledge (*Pedagogy of the Oppressed*, 1970/2000). In the banking model, the teacher holds knowledge, the student receives it, and the goal is transfer. Against this, Freire proposed problem-posing education: an approach that begins with the recognition that learners already know, already possess the capacity to name and examine their world, already carry the intellectual raw material for critical thought.
 
 Tu pana's opening stage is called "Tu Conocimiento" — *your knowledge*. Before students are asked to outline, draft, or thesis-formulate, the app asks them to reflect on what they already know, feel, and believe about the subject they are approaching. This is not a warm-up. It is a philosophical commitment: the student is the starting point, not the deficit to be corrected.
 
-Alongside Freire, Tu pana draws from translingual and linguistic justice scholarship. Suresh Canagarajah has argued for understanding multilingual writers' language practices as resources rather than deviations from a standard — as evidence of rhetorical sophistication, not linguistic failure (*Translingual Practice*, 2013). April Baker-Bell's work on linguistic justice makes the political stakes explicit: academic writing spaces that require students to shed their home language practices before their ideas can be heard are not merely enforcing genre conventions — they are enforcing racial and colonial hierarchies (*Linguistic Justice*, 2020). Vershawn Ashanti Young's concept of code-meshing offers a different model — one in which the integration of multiple language registers within a single text is understood as rhetorical strength, not error requiring removal (*Other People's English*, 2014).
+Alongside Freire, Tu pana draws from translingual and linguistic justice scholarship. Suresh Canagarajah has argued for understanding multilingual writers' language practices as resources rather than deviations from a standard — as evidence of rhetorical sophistication, not linguistic failure (*Translingual Practice*, 2013). April Baker-Bell's work makes explicit what is at stake for Black students specifically: many academic writing spaces that require the abandonment of Black Language are enacting Anti-Black Linguistic Racism, not merely enforcing style conventions (*Linguistic Justice*, 2020). Canagarajah's translingual framework and Anzaldúa's theorization of borderlands linguistic experience extend this critique to the colonial and imperial dimensions of language policing more broadly — showing how monolingual academic expectations operate as forms of racial and linguistic displacement across communities. Vershawn Ashanti Young's concept of code-meshing offers a generative alternative: the integration of multiple language registers within a single text understood as rhetorical strength, not error requiring removal (*Other People's English*, 2014).
 
-Gloria Anzaldúa named the violence of linguistic displacement long before these frameworks had institutional footing. In *Borderlands/La Frontera* (1987), she wrote: "I will no longer be made to feel ashamed of existing. I will have my voice: Indian, Spanish, white." Tu pana is designed to hold that multiplicity rather than resolve it.
+Gloria Anzaldúa named the violence of linguistic displacement long before these frameworks had institutional footing. In *Borderlands/La Frontera* (1987), in the essay "How to Tame a Wild Tongue," she wrote: "I will no longer be made to feel ashamed of existing. I will have my voice: Indian, Spanish, white. I will have my serpent's tongue — my woman's voice, my sexual voice, my poet's voice. I will overcome the tradition of silence." Tu pana is designed to hold that multiplicity — racial, linguistic, feminist, bodily — rather than resolve it.
 
-Process-based writing scholarship adds another dimension. The foundational insight of scholars like Nancy Sommers and Linda Flower and John Hayes is that writing is not the transcription of thought already formed — it is the cognitive and social process through which thought takes shape (Sommers, 1980; Flower & Hayes, 1981). The implication for writing support is significant: the most meaningful intervention rarely occurs at the level of surface correction on a finished draft. It occurs during the messy, generative work of drafting, revision, and metacognitive reflection — at the moments when students most need a question rather than an answer. Tu pana structures its support around precisely those moments.
+Process-based writing scholarship adds another dimension. Linda Flower and John Hayes's foundational research demonstrates that writing is not the transcription of thought already formed — it is a cognitive process of discovery, a recursive problem-solving activity in which writers generate, evaluate, and revise their own thinking (Flower & Hayes, 1981). Nancy Sommers's related research on revision sharpens this insight: experienced writers do not treat revision as error-correction appended to a finished draft; they return to their writing generatively, rethinking structure and meaning at every level (Sommers, 1980). Together, these findings point toward the same implication for writing support: the most meaningful intervention rarely occurs at surface correction after the fact. It occurs during the drafting, revision, and metacognitive moments when students most need a question rather than an answer. Tu pana structures its support around precisely those moments.
 
 ---
 
@@ -96,21 +96,27 @@ Those are not only questions about technology. They are questions about pedagogy
 
 ## Further Reading
 
-Baker-Bell, April. *Linguistic Justice: Black Language, Literacy, Identity, and Pedagogy*. New York: Routledge, 2020.
+*(APA 7 format. Sources cited in the article body are marked \*.)*
 
-Anzaldúa, Gloria. *Borderlands/La Frontera: The New Mestiza*. San Francisco: Aunt Lute Books, 1987.
+Anzaldúa, G. (1987). *Borderlands/La Frontera: The new mestiza*. Aunt Lute Books. \*
 
-Canagarajah, A. Suresh. *Translingual Practice: Global Englishes and Cosmopolitan Relations*. New York: Routledge, 2013.
+Baker-Bell, A. (2020). *Linguistic justice: Black language, literacy, identity, and pedagogy*. Routledge. \*
 
-Freire, Paulo. *Pedagogy of the Oppressed*. 30th Anniversary Edition. New York: Continuum, 2000.
+Canagarajah, A. S. (2013). *Translingual practice: Global Englishes and cosmopolitan relations*. Routledge. \*
 
-hooks, bell. *Teaching to Transgress: Education as the Practice of Freedom*. New York: Routledge, 1994.
+Flower, L., & Hayes, J. R. (1981). A cognitive process theory of writing. *College Composition and Communication, 32*(4), 365–387. \*
 
-Paris, Django, and H. Samy Alim, eds. *Culturally Sustaining Pedagogies: Teaching and Learning for Justice in a Changing World*. New York: Teachers College Press, 2017.
+Freire, P. (2000). *Pedagogy of the oppressed* (30th anniversary ed.; M. B. Ramos, Trans.). Continuum. (Original work published 1968; first English translation 1970) \*
 
-Rose, Mike. *Lives on the Boundary: The Struggles and Achievements of America's Underprepared*. New York: Free Press, 1989.
+hooks, b. (1994). *Teaching to transgress: Education as the practice of freedom*. Routledge. \*
 
-Young, Vershawn Ashanti, Rusty Barrett, Y'Shanda Young-Rivera, and Kim Brian Lovejoy. *Other People's English: Code-Meshing, Code-Switching, and African American Literacy*. New York: Teachers College Press, 2014.
+Paris, D., & Alim, H. S. (Eds.). (2017). *Culturally sustaining pedagogies: Teaching and learning for justice in a changing world*. Teachers College Press. \*
+
+Rose, M. (1989). *Lives on the boundary: The struggles and achievements of America's educationally underprepared*. Free Press. \*
+
+Sommers, N. (1980). Revision strategies of student writers and experienced adult writers. *College Composition and Communication, 31*(4), 378–388. \*
+
+Young, V. A., Barrett, R., Young-Rivera, Y., & Lovejoy, K. B. (2014). *Other people's English: Code-meshing, code-switching, and African American literacy*. Teachers College Press. \*
 
 ---
 

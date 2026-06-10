@@ -570,6 +570,20 @@
     .tp-av-glow, .tp-av-line, .tp-av-cursor, .tp-av-steam, .tp-av-spark { animation: none; }
   }
 
+  /* ── Audio player ── */
+  .audio-player { width: 100%; display: block; margin: 10px 0 6px; border-radius: var(--radius-sm); }
+  .audio-links { display: flex; flex-direction: column; gap: 5px; margin-top: 2px; }
+  .audio-script-link {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    color: var(--jade); text-decoration: underline; text-underline-offset: 2px;
+  }
+  .audio-script-link:hover { color: var(--jade-mid); }
+  .audio-fallback-link {
+    font-family: var(--font-ui); font-size: 11px;
+    color: var(--ink-muted); text-decoration: underline; text-underline-offset: 2px;
+  }
+  .audio-fallback-link:hover { color: var(--ink-mid); }
+
   /* ── Audio cards ── */
   .audio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; }
   .audio-card {
@@ -822,12 +836,23 @@
       <h3>Faculty-Facing Orientation</h3>
       <p class="audio-card-desc">A brief explanation of Tu Pana's pedagogical purpose for faculty, evaluators, and colleagues interested in writing support, authorship, and responsible AI use in the classroom.</p>
       <p class="audio-card-audience">Intended audience: Faculty, CTL staff, and evaluators</p>
-      <a class="audio-listen-btn"
-         href="https://www.dropbox.com/scl/fi/mwc1u6b7atycztf9e395r/Tu-Pana-Explained-faculty-facing.mp3?rlkey=wpe9mqas3ytyd36i2c5fiqy89&st=8tsxi2wy&dl=0"
-         target="_blank" rel="noopener noreferrer"
-         aria-label="Listen to Tu Pana faculty-facing orientation recording (opens Dropbox in new tab)">
-        Listen to Faculty Orientation ↗
-      </a>
+      <audio controls preload="none" class="audio-player"
+             aria-label="Tu Pana faculty-facing orientation recording">
+        <source src="../audio/tu-pana-faculty-facing-orientation.mp3" type="audio/mpeg">
+        Your browser does not support embedded audio. Use the fallback link below.
+      </audio>
+      <div class="audio-links">
+        <a class="audio-script-link"
+           href="../audio/tu-pana-faculty-facing-orientation-script.md"
+           target="_blank" rel="noopener noreferrer">
+          Read faculty-facing recording script
+        </a>
+        <a class="audio-fallback-link"
+           href="https://www.dropbox.com/scl/fi/mwc1u6b7atycztf9e395r/Tu-Pana-Explained-faculty-facing.mp3?rlkey=wpe9mqas3ytyd36i2c5fiqy89&st=8tsxi2wy&dl=0"
+           target="_blank" rel="noopener noreferrer">
+          Open fallback audio link (Dropbox) ↗
+        </a>
+      </div>
     </div>
 
     <div class="audio-card audio-card--spanish" role="listitem">
@@ -835,12 +860,23 @@
       <h3>Student Onboarding — Español</h3>
       <p class="audio-card-desc">A student-facing Spanish introduction shared through Brightspace before students begin using Tu Pana. Explains the app as a writing coach that supports reflection, organization, revision, and student authorship — not a writing generator. Part of a bilingual onboarding strategy for students at an HSI.</p>
       <p class="audio-card-audience">Intended audience: Spanish-speaking and bilingual students</p>
-      <a class="audio-listen-btn"
-         href="https://www.dropbox.com/scl/fi/zevr6ri4d5qat38cf86zs/Tu-Pana-Student-Facing-onboarding-Spanish.mp3?rlkey=fnem3u15e5wnnplh6xe7mip00&st=iswg3xi9&dl=0"
-         target="_blank" rel="noopener noreferrer"
-         aria-label="Listen to Tu Pana student onboarding in Spanish (opens Dropbox in new tab)">
-        Listen to Student Onboarding in Spanish ↗
-      </a>
+      <audio controls preload="none" class="audio-player"
+             aria-label="Tu Pana student onboarding recording in Spanish">
+        <source src="../audio/tu-pana-student-onboarding-es.mp3" type="audio/mpeg">
+        Your browser does not support embedded audio. Use the fallback link below.
+      </audio>
+      <div class="audio-links">
+        <a class="audio-script-link"
+           href="../audio/tu-pana-student-onboarding-es-script.md"
+           target="_blank" rel="noopener noreferrer">
+          Read Spanish student onboarding script
+        </a>
+        <a class="audio-fallback-link"
+           href="https://www.dropbox.com/scl/fi/zevr6ri4d5qat38cf86zs/Tu-Pana-Student-Facing-onboarding-Spanish.mp3?rlkey=fnem3u15e5wnnplh6xe7mip00&st=iswg3xi9&dl=0"
+           target="_blank" rel="noopener noreferrer">
+          Open fallback audio link (Dropbox) ↗
+        </a>
+      </div>
     </div>
 
     <div class="audio-card audio-card--english" role="listitem">
@@ -848,20 +884,31 @@
       <h3>Student Onboarding — English</h3>
       <p class="audio-card-desc">A student-facing English introduction shared through Brightspace before students begin using Tu Pana. Explains how students should use the app responsibly while remaining the authors of their own work.</p>
       <p class="audio-card-audience">Intended audience: English-dominant students and all enrolled students</p>
-      <a class="audio-listen-btn"
-         href="https://www.dropbox.com/scl/fi/1bh82yez8b6zoapnlpq1t/Tu-Pana-Student-Facing-onboarding.mp3?rlkey=hjslzddzejne44ucjd6nmcp7m&st=uwundpgg&dl=0"
-         target="_blank" rel="noopener noreferrer"
-         aria-label="Listen to Tu Pana student onboarding in English (opens Dropbox in new tab)">
-        Listen to Student Onboarding in English ↗
-      </a>
+      <audio controls preload="none" class="audio-player"
+             aria-label="Tu Pana student onboarding recording in English">
+        <source src="../audio/tu-pana-student-onboarding-en.mp3" type="audio/mpeg">
+        Your browser does not support embedded audio. Use the fallback link below.
+      </audio>
+      <div class="audio-links">
+        <a class="audio-script-link"
+           href="../audio/tu-pana-student-onboarding-en-script.md"
+           target="_blank" rel="noopener noreferrer">
+          Read English student onboarding script
+        </a>
+        <a class="audio-fallback-link"
+           href="https://www.dropbox.com/scl/fi/1bh82yez8b6zoapnlpq1t/Tu-Pana-Student-Facing-onboarding.mp3?rlkey=hjslzddzejne44ucjd6nmcp7m&st=uwundpgg&dl=0"
+           target="_blank" rel="noopener noreferrer">
+          Open fallback audio link (Dropbox) ↗
+        </a>
+      </div>
     </div>
 
   </div>
 
   <div class="callout callout--gold" style="margin-top:20px;">
     <div class="callout-title">Accessibility note</div>
-    Audio materials should be paired with transcripts or written summaries when used for instruction.
-    <br><em style="font-size:0.88rem; display:block; margin-top:6px;">Transcripts are not yet available. Transcript links will be added here when prepared.<!-- TODO: Add transcript links when available --></em>
+    Audio materials should be paired with transcripts or written summaries when used for instruction. Recording scripts are linked in each card above.
+    <br><em style="font-size:0.88rem; display:block; margin-top:6px;">Note: The linked files are recording scripts used to produce the audio — not post-recording verified transcripts. Verified transcripts will be added when prepared.<!-- TODO: Replace script links with verified transcript links when transcripts are complete --></em>
   </div>
 
 </section>

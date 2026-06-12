@@ -6283,6 +6283,69 @@ img, video, embed, object { max-width: 100%; height: auto; }
     .offline-fallback-btn { transition: none; }
 }
 
+/* ── P4: Journey Complete card (Stage 10 submission instructions) ── */
+.journey-complete-card {
+    background: var(--bg-raised);
+    border: 1.5px solid var(--border-hi);
+    border-left: 4px solid var(--jade, #5f8a65);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    margin: 14px 8px;
+    padding: 16px 18px;
+}
+.journey-complete-badge {
+    color: var(--jade, #5f8a65);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.journey-complete-title {
+    color: var(--text-primary);
+    font-size: 1.02rem;
+    font-weight: 700;
+    margin: 6px 0 10px;
+}
+.journey-complete-steps {
+    color: var(--text-sub);
+    font-size: 0.86rem;
+    line-height: 1.5;
+    margin: 0 0 12px;
+    padding-left: 20px;
+}
+.journey-complete-steps li { margin-bottom: 8px; }
+.journey-complete-steps li [lang="en"] { color: var(--text-muted); }
+.journey-complete-cta {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    border: 1.5px solid var(--border-hi);
+    border-radius: var(--radius-full);
+    color: var(--text-sub);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1;
+    min-height: 36px;
+    padding: 6px 16px;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+.journey-complete-cta:hover {
+    background: var(--bg-hover, rgba(0,0,0,0.05));
+    color: var(--text-primary);
+}
+.journey-complete-cta:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+}
+@media (max-width: 640px) {
+    .journey-complete-card { margin: 10px 4px; padding: 13px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .journey-complete-cta { transition: none; }
+}
+
 /* ── Patch 12: Onboarding Audio Playback ── */
 .lab-audio-wrap { margin-bottom: 8px; }
 #maniIntroAudioWrap { margin-top: 8px; }

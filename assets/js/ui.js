@@ -752,6 +752,10 @@ function injectCapstonePanel() {
         D.chatMessages.appendChild(trigger);
         D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
     }
+
+    // P4: returning students who already finished 10C see the persistent
+    // Journey Complete card with submission steps (no-op until the flag is set).
+    injectJourneyCompleteCard();
 }
 
 // ════════════════════════════════════════════════════════
@@ -2793,8 +2797,8 @@ document.addEventListener('keydown', e => {
         document.getElementById('labBg').classList.remove('on');
         document.getElementById('maniBg').classList.remove('on');
         document.getElementById('reportBg').classList.remove('on');
-        if (D.pnModalBg) D.pnModalBg.classList.remove('on');
-        if (D.completionBg) D.completionBg.classList.remove('on');
+        { const _pbg = D.pnModalBg || document.getElementById('pnModalBg'); if (_pbg) _pbg.classList.remove('on'); }
+        { const _cbg = D.completionBg || document.getElementById('completionBg'); if (_cbg) _cbg.classList.remove('on'); }
         // Exit focus mode
         const workspace = document.querySelector('.workspace');
         if (workspace && workspace.classList.contains('focus-mode')) {
@@ -5119,25 +5123,32 @@ function gatherProcessNoteData() {
 }
 
 function openProcessNoteModal() {
-    if (!D.pnModalBg || !D.pnModalBody) return;
+    // #pnModalBg / #pnModalBody sit below the script tag in index.html, so the
+    // D cache holds null — resolve at call time. Pre-P4 the early return made
+    // the entire 10C process-note modal (and with it the Stage 10 completion
+    // sequence) unreachable in production.
+    const bg   = D.pnModalBg   || document.getElementById('pnModalBg');
+    const body = D.pnModalBody || document.getElementById('pnModalBody');
+    if (!bg || !body) return;
     const data = gatherProcessNoteData();
-    D.pnModalBody.innerHTML = `
+    body.innerHTML = `
       <div class="report-note-box">
         <p>Completa cada sección directamente aquí. Tu trabajo se guarda automáticamente en este navegador. <em>Revisa y reescribe en tus propias palabras antes de entregar.</em></p>
         <p>Complete each section directly here. Your work auto-saves in this browser. <em>Review and rewrite in your own words before submitting.</em></p>
         ${buildProcessNoteHTML(data)}
       </div>
     `;
-    D.pnModalBg.classList.add('on');
+    bg.classList.add('on');
     // Focus the first textarea for accessibility
     setTimeout(() => {
-        const firstTextarea = D.pnModalBody.querySelector('.report-pn-text');
+        const firstTextarea = body.querySelector('.report-pn-text');
         if (firstTextarea) firstTextarea.focus();
     }, 100);
 }
 
 function closeProcessNoteModal() {
-    if (D.pnModalBg) D.pnModalBg.classList.remove('on');
+    const bg = D.pnModalBg || document.getElementById('pnModalBg');
+    if (bg) bg.classList.remove('on');
 }
 
 function finishProcessNote() {
@@ -5147,11 +5158,48 @@ function finishProcessNote() {
 }
 
 function showCompletionCelebration() {
-    if (D.completionBg) D.completionBg.classList.add('on');
+    // #completionBg sits below the script tag in index.html, so the D cache
+    // holds null — resolve at call time (pre-P4 this made the celebration a
+    // silent no-op; root cause of the audit's "no done-state" finding).
+    const bg = D.completionBg || document.getElementById('completionBg');
+    if (bg) bg.classList.add('on');
 }
 
 function dismissCompletionCelebration() {
-    if (D.completionBg) D.completionBg.classList.remove('on');
+    const bg = D.completionBg || document.getElementById('completionBg');
+    if (bg) bg.classList.remove('on');
+    injectJourneyCompleteCard();
+}
+
+// P4 (pre-pilot patch plan 2026-06-12): persistent "Journey Complete" card with
+// 3-step submission instructions. Renders in the chat surface once the process
+// note (10C) is finished (gate: tupana_completion_shown). Survives reloads via
+// injectCapstonePanel(); also fires when the celebration overlay closes.
+// Copy-to-clipboard leads the instructions — Brightspace iframe downloads may
+// be blocked by LMS sandbox policy (see Active Risks in project context).
+function injectJourneyCompleteCard() {
+    try {
+        if (localStorage.getItem('tupana_completion_shown') !== 'true') return;
+        if (document.getElementById('journeyCompleteCard')) return;
+        const card = document.createElement('div');
+        card.id = 'journeyCompleteCard';
+        card.className = 'journey-complete-card';
+        card.setAttribute('role', 'region');
+        card.setAttribute('aria-label', 'Proceso completo — cómo entregar tu reporte · Journey complete — how to submit your report');
+        card.innerHTML = `
+            <div class="journey-complete-badge"><span lang="es">Proceso completo</span><span class="lang-sep"> · </span><span lang="en">Journey Complete</span></div>
+            <div class="journey-complete-title"><span lang="es">Último paso: entrega tu reporte</span><span class="lang-sep"> · </span><span lang="en">Last step: submit your report</span></div>
+            <ol class="journey-complete-steps">
+                <li><span lang="es">Abre <strong>Guardar / Exportar</strong> (botón abajo, o en el pie de página).</span><br><span lang="en">Open <strong>Save / Export</strong> (button below, or in the footer).</span></li>
+                <li><span lang="es">Toca <strong>Copiar todo</strong> para copiar tu reporte. Si las descargas funcionan en tu dispositivo, también puedes usar <strong>Descargar informe del proceso</strong>.</span><br><span lang="en">Tap <strong>Copy all</strong> to copy your report. If downloads work on your device, you can also use <strong>Download process report</strong>.</span></li>
+                <li><span lang="es">Pega y entrega el reporte en Brightspace, según las instrucciones de tu instructor/a.</span><br><span lang="en">Paste and submit the report in Brightspace, following your instructor's directions.</span></li>
+            </ol>
+            <button type="button" class="journey-complete-cta" onclick="openReport()" aria-label="Abrir Guardar / Exportar · Open Save / Export">
+                <span lang="es">Abrir Guardar / Exportar</span><span class="lang-sep"> · </span><span lang="en">Open Save / Export</span> →
+            </button>`;
+        D.chatMessages.appendChild(card);
+        D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
+    } catch(e) {}
 }
 
 function loadProcessNoteAnswers() {
@@ -6083,6 +6131,7 @@ function openHelpPanel() {
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">Las 10 etapas</span><span class="lang-sep"> · </span><span class="show-en">The 10 stages</span></div>
             <ul class="help-stage-list">${stageListHtml}</ul>
+            <div class="help-section-body" style="margin-top:6px;"><span class="show-es">Al terminar la reflexión de la Etapa 10, verás una tarjeta "Proceso completo" con los pasos para copiar tu reporte y entregarlo en Brightspace.</span><span class="lang-sep"> · </span><span class="show-en">When you finish the Stage 10 reflection, a "Journey Complete" card shows the steps to copy your report and submit it in Brightspace.</span></div>
         </div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">Evaluar el coach</span><span class="lang-sep"> · </span><span class="show-en">Evaluate the coach</span></div>

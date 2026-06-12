@@ -618,8 +618,26 @@ function exportCapstone() {
 function openCapstoneModal() {
     el('capstoneBg').classList.add('on');
 }
+
+// P4 follow-up (Option A, founder decision 2026-06-12): the Stage 10 completion
+// sequence (process note → celebration → Journey Complete card) arms on first
+// successful instructor report generation and fires here — the first moment the
+// student leaves the capstone modal with the report artifact in hand. Firing on
+// close rather than on generation is deliberate: the capstone modal (z 350)
+// would cover the process-note modal (z 200), and the student is mid copy/
+// download. Once per page load (in-memory guard, no new storage key); re-arms
+// on reload until the process note is completed (tupana_completion_shown).
+let _completionPromptFired = false;
 function closeCapstoneModal() {
     el('capstoneBg').classList.remove('on');
+    if (_completionPromptFired) return;
+    try {
+        const done = localStorage.getItem('tupana_completion_shown') === 'true';
+        if (!done && loadCapstoneData().instrReportGenerated) {
+            _completionPromptFired = true;
+            setTimeout(() => openProcessNoteModal(), 450);
+        }
+    } catch(e) {}
 }
 
 function injectCapstonePanel() {
@@ -1539,15 +1557,9 @@ function goToStage(id) {
     if (PHASE_CELEBRATIONS[id]) {
         showPhaseCelebration(id);
     }
-    // Stage 12: open dedicated Process Note modal with breathing room
-    if (id === 12) {
-        setTimeout(() => {
-            const alreadyShown = (() => {
-                try { return localStorage.getItem('tupana_completion_shown') === 'true'; } catch(e) { return false; }
-            })();
-            if (!alreadyShown) openProcessNoteModal();
-        }, 800);
-    }
+    // P4 follow-up: the legacy `id === 12` process-note trigger (unreachable in
+    // the 10-stage app) was removed 2026-06-12. The single completion trigger
+    // now lives in closeCapstoneModal() — armed by instructor report generation.
     renderBadges();
     renderEvalStreak();
     updateDraftControls();

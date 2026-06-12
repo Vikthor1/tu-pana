@@ -1170,6 +1170,23 @@
         }
         .draft-textarea-wrap:focus-within .word-count { opacity: 0.9; }
 
+        /* P1: autosave status — mirrors .word-count, bottom-left corner */
+        .autosave-status {
+            position: absolute; bottom: 12px; left: 14px;
+            font-size: 0.72rem; color: var(--text-muted); font-weight: 600;
+            white-space: nowrap; pointer-events: none;
+            opacity: 0.75; transition: opacity var(--transition-fast);
+            z-index: 2;
+        }
+        .autosave-status--saved { color: var(--jade, #5f8a65); }
+        .autosave-status--error {
+            color: var(--rose, #b3503e);
+            opacity: 1;
+            font-weight: 700;
+            white-space: normal;
+            max-width: 70%;
+        }
+
         .draft-action-bar {
             display: flex; gap: 8px;
         }

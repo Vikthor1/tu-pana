@@ -1535,6 +1535,7 @@ function goToStage(id) {
 
     // Persist current stage's textarea content before switching
     saveStageWork(prev, D.draftArea.value);
+    _autosaveSettle(); // transition save above just persisted the outgoing stage
 
     if (id > 1) state.done.add(id - 1);
     state.stage = id;
@@ -1755,6 +1756,7 @@ D.draftArea.addEventListener('input', () => {
     if (state.spotlightTarget === 'editor') dismissEditorSpotlight();
     enterDraftFocus();
     if (state.stage === 8) renderVoiceVault();
+    _autosaveSchedule();
 });
 
 D.draftArea.addEventListener('focus', () => {
@@ -1765,6 +1767,82 @@ D.draftArea.addEventListener('focus', () => {
 D.draftArea.addEventListener('mouseup', updateProtectBtn);
 D.draftArea.addEventListener('keyup',   updateProtectBtn);
 D.draftArea.addEventListener('select',  updateProtectBtn);
+
+// ════════════════════════════════════════════════════════
+//  P1: AUTOSAVE (pre-pilot patch plan 2026-06-12)
+//  Persists the active stage textarea to the existing tupana_writing_s<N> key:
+//  at most every 30 s while the student keeps writing, immediately on blur,
+//  and on page hide (Brightspace reload / Safari refresh / mobile tab
+//  suspension fire pagehide or visibilitychange before unload). No new
+//  storage keys; never touches tupana_draft / tupana_draft_saved / skill
+//  unlocks — the Stage 6 authorship gate runs exclusively through
+//  executeSave(), and a locked Stage 6 textarea is disabled, so autosave
+//  cannot fire there (the flush also refuses disabled editors outright).
+// ════════════════════════════════════════════════════════
+const AUTOSAVE_INTERVAL_MS = 30000;
+let _autosaveTimer = null;
+let _autosaveDirty = false;
+
+function _setAutosaveStatus(mode) {
+    const elS = document.getElementById('autosaveStatus');
+    if (!elS) return;
+    elS.classList.remove('autosave-status--saved', 'autosave-status--error');
+    if (mode === 'saved') {
+        elS.classList.add('autosave-status--saved');
+        elS.innerHTML = '<span class="show-es">✓ Guardado</span><span class="lang-sep"> · </span><span class="show-en">Saved</span>';
+        clearTimeout(_setAutosaveStatus._fade);
+        _setAutosaveStatus._fade = setTimeout(() => {
+            if (elS.classList.contains('autosave-status--saved')) {
+                elS.classList.remove('autosave-status--saved');
+                elS.innerHTML = '';
+            }
+        }, 2600);
+    } else if (mode === 'error') {
+        elS.classList.add('autosave-status--error');
+        elS.innerHTML = '<span class="show-es">⚠ No se pudo guardar — descarga tu trabajo (Guardar / Exportar)</span><span class="lang-sep"> · </span><span class="show-en">Could not save — download your work (Save / Export)</span>';
+    } else {
+        elS.innerHTML = '';
+    }
+}
+
+// Cancels any pending autosave without writing — used when another save path
+// (stage-transition save, executeSave) has just persisted the same content.
+function _autosaveSettle() {
+    clearTimeout(_autosaveTimer);
+    _autosaveTimer = null;
+    _autosaveDirty = false;
+}
+
+function autosaveFlush() {
+    if (!_autosaveDirty) return true;
+    // A disabled editor is the locked Stage 6 first draft — never write past it.
+    if (D.draftArea.disabled) { _autosaveSettle(); return true; }
+    clearTimeout(_autosaveTimer);
+    _autosaveTimer = null;
+    let ok = false;
+    try {
+        localStorage.setItem(`tupana_writing_s${state.stage}`, D.draftArea.value);
+        ok = true;
+    } catch(e) { ok = false; }
+    if (ok) { _autosaveDirty = false; _setAutosaveStatus('saved'); }
+    else    { _setAutosaveStatus('error'); }
+    return ok;
+}
+
+function _autosaveSchedule() {
+    _autosaveDirty = true;
+    // One pending timer at a time — not reset per keystroke, so writes land at
+    // most every AUTOSAVE_INTERVAL_MS during continuous typing, and at latest
+    // AUTOSAVE_INTERVAL_MS after any unsaved change.
+    if (_autosaveTimer) return;
+    _autosaveTimer = setTimeout(() => { _autosaveTimer = null; autosaveFlush(); }, AUTOSAVE_INTERVAL_MS);
+}
+
+D.draftArea.addEventListener('blur', autosaveFlush);
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') autosaveFlush();
+});
+window.addEventListener('pagehide', autosaveFlush);
 
 // ════════════════════════════════════════════════════════
 //  EDIT TOOLBAR — Undo / Redo / Cut / Copy / Paste
@@ -1942,6 +2020,7 @@ function executeSave() {
         localStorage.setItem('tupana_draft_saved', 'true');
         localStorage.setItem('tupana_writing_s6',  D.draftArea.value);
     } catch(e) {}
+    _autosaveSettle(); // ceremony save above just persisted s6; cancel any pending autosave
     logProcessEvent('first_draft_saved', `Unassisted first draft saved. Word count: ${D.draftArea.value.trim().split(/\s+/).filter(Boolean).length}.`);
     unlockStageSkill(6); // Author-owned draft — gated on actual save, not stage entry
 
@@ -2398,6 +2477,10 @@ function _renderOfflineFallbackBtn(msgId) {
         btn.addEventListener('click', () => {
             btn.disabled = true;
             setCoachMode('offline');
+            // P1 carry-forward: flush any unsaved draft right now so the
+            // "Tu trabajo está guardado" line below is literally true at the
+            // moment it is shown (a failed write surfaces the error indicator).
+            autosaveFlush();
             addMsg(
                 'Coach sin conexión activado. Tu trabajo está guardado. Usa el botón "Estoy atascado" para recibir orientación en cada etapa.\n' +
                 'Offline coach is on. Your work is saved. Use the "I\'m stuck" button for guidance at each stage.',

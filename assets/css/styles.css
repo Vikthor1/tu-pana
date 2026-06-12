@@ -6248,6 +6248,41 @@ img, video, embed, object { max-width: 100%; height: auto; }
     .tts-listen-btn { transition: none; }
 }
 
+/* ── P2: Gemini→Offline fallback button (coach error bubbles) ── */
+.offline-fallback-btn {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    margin-top: 10px;
+    background: transparent;
+    border: 1.5px solid var(--border-hi);
+    border-radius: var(--radius-full);
+    color: var(--text-sub);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1;
+    min-height: 36px;
+    padding: 6px 16px;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+.offline-fallback-btn:hover {
+    background: var(--bg-raised);
+    color: var(--text-primary);
+}
+.offline-fallback-btn:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+}
+.offline-fallback-btn:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+@media (prefers-reduced-motion: reduce) {
+    .offline-fallback-btn { transition: none; }
+}
+
 /* ── Patch 12: Onboarding Audio Playback ── */
 .lab-audio-wrap { margin-bottom: 8px; }
 #maniIntroAudioWrap { margin-top: 8px; }

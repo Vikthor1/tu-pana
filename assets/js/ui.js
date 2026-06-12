@@ -2366,6 +2366,33 @@ function _injectStartupMsg() {
     } catch(e) {}
 }
 
+// P2 (pre-pilot patch plan 2026-06-12): one-tap recovery when the Gemini coach
+// errors. Renders a switch-to-Offline button inside the error bubble. Live
+// errors only — restored chatlogs show the error text without the button (the
+// coach-mode toggle remains the standing recovery path).
+function _renderOfflineFallbackBtn(msgId) {
+    try {
+        const bubble = D.chatMessages.querySelector(`.msg[data-msg-id="${msgId}"] .msg-bubble`);
+        if (!bubble || bubble.querySelector('.offline-fallback-btn')) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'offline-fallback-btn';
+        btn.setAttribute('aria-label', 'Cambiar a modo Offline · Switch to Offline Mode');
+        btn.innerHTML = '<span class="show-es">Cambiar a modo Offline</span><span class="lang-sep"> · </span><span class="show-en">Switch to Offline Mode</span>';
+        btn.addEventListener('click', () => {
+            btn.disabled = true;
+            setCoachMode('offline');
+            addMsg(
+                'Coach sin conexión activado. Tu trabajo está guardado. Usa el botón "Estoy atascado" para recibir orientación en cada etapa.\n' +
+                'Offline coach is on. Your work is saved. Use the "I\'m stuck" button for guidance at each stage.',
+                'bot', true, 'welcome'
+            );
+        });
+        bubble.appendChild(btn);
+        D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
+    } catch(e) {}
+}
+
 async function initDL() {
     if (state.coachMode === 'gemini' && FEATURES.geminiProvider) {
         setCoachMode('gemini');
@@ -2431,7 +2458,8 @@ async function sendMsg(text) {
                 message:   err?.message   ?? '(no message)',
                 timestamp: new Date().toISOString()
             });
-            addMsg(getGeminiErrorMessage(err), 'bot');
+            const _errMsgId = addMsg(getGeminiErrorMessage(err), 'bot');
+            _renderOfflineFallbackBtn(_errMsgId);
         } finally {
             showTyping(false);
             state.waiting = false;
@@ -6062,7 +6090,7 @@ function openHelpPanel() {
         </div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">El coach no responde</span><span class="lang-sep"> · </span><span class="show-en">Coach is not responding</span></div>
-            <div class="help-section-body"><span class="show-es">Tu Pana funciona en tres modos:<br><br><strong>Gemini</strong> — coach de IA usando internet. Si no responde, verifica tu conexión a internet.<br><strong>Offline</strong> — respuestas sin conexión. Funciona sin internet pero más limitado.<br><strong>Ollama</strong> — requiere instalación local.<br><br>Tus textos se guardan automáticamente en este navegador aunque el coach no responda.</span><span class="lang-sep"> · </span><span class="show-en">Tu Pana runs in three modes:<br><br><strong>Gemini</strong> — AI coach using the internet. If it is not responding, check your internet connection.<br><strong>Offline</strong> — responses without internet. Works without a connection but more limited.<br><strong>Ollama</strong> — requires a local installation.<br><br>Your texts are saved automatically in this browser even if the coach is not responding.</span></div>
+            <div class="help-section-body"><span class="show-es">Tu Pana funciona en tres modos:<br><br><strong>Gemini</strong> — coach de IA usando internet. Si no responde, verifica tu conexión a internet. Si el coach falla, aparecerá un botón para cambiar al modo Offline.<br><strong>Offline</strong> — respuestas sin conexión. Funciona sin internet pero más limitado.<br><strong>Ollama</strong> — requiere instalación local.<br><br>Tus textos se guardan automáticamente en este navegador aunque el coach no responda.</span><span class="lang-sep"> · </span><span class="show-en">Tu Pana runs in three modes:<br><br><strong>Gemini</strong> — AI coach using the internet. If it is not responding, check your internet connection. If the coach fails, a button will appear to switch to Offline mode.<br><strong>Offline</strong> — responses without internet. Works without a connection but more limited.<br><strong>Ollama</strong> — requires a local installation.<br><br>Your texts are saved automatically in this browser even if the coach is not responding.</span></div>
         </div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">Tu trabajo y tu privacidad</span><span class="lang-sep"> · </span><span class="show-en">Your work and your privacy</span></div>

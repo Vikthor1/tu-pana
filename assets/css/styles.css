@@ -3817,11 +3817,24 @@
             box-shadow: var(--shadow-lg), 0 0 50px var(--amber-glow);
             z-index: 500;
             text-align: center;
-            max-width: min(480px, 88vw);
+            max-width: min(520px, 92vw);
+            /* H1 (2026-06-12, iPhone QA): long bilingual bodies (e.g., stage 9)
+               exceeded short viewports with overflow:hidden — the Continue CTA
+               was clipped and unreachable. Cap height and allow scroll. */
+            max-height: 82vh;
+            max-height: 82dvh; /* iOS Safari dynamic viewport */
             opacity: 0;
             transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
             pointer-events: none;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+        @media (max-width: 640px) {
+            .phase-toast {
+                padding: 22px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+            }
         }
         .phase-toast::before {
             content: '';

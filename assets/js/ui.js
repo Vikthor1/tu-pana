@@ -1974,7 +1974,10 @@ async function editPaste() {
         editHistoryCapture();
         showEditStatus('Pegado. · Pasted.');
     } catch(e) {
-        showEditStatus('Para pegar: Ctrl+V (Windows) · Cmd+V (Mac).');
+        // H2 (iPhone QA 2026-06-12): iOS may refuse clipboard.readText after the
+        // system paste bubble is dismissed — guide touch users to the native
+        // long-press path instead of desktop-only keyboard shortcuts.
+        showEditStatus('Mantén presionado el área de texto y elige "Pegar". · Press and hold the writing area and choose "Paste". (Teclado: Ctrl+V / Cmd+V)');
     }
     area.focus();
 }

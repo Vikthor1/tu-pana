@@ -20,9 +20,11 @@ const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
 
 // Origins allowed to call this proxy.
 // Tighten this list before production — do not use '*'.
+// NOTE: the two localhost entries are DEV-ONLY (local testing against this Worker).
+// For a production-only deployment they can be removed, leaving the GitHub Pages origin.
 const ALLOWED_ORIGINS = new Set([
-    'http://localhost:8000',
-    'http://localhost:3001',
+    'http://localhost:8000',   // dev only
+    'http://localhost:3001',   // dev only
     'https://vikthor1.github.io',
 ]);
 
@@ -35,6 +37,7 @@ function corsHeaders(origin) {
         'Access-Control-Allow-Origin':  allowed,
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
+        'Vary':                         'Origin',  // correct caching when ACAO varies by origin
     };
 }
 
@@ -101,6 +104,18 @@ export default {
                 { error: 'Method not allowed' },
                 { status: 405, headers: corsHeaders(origin) }
             );
+        }
+
+        // F1 — Origin admission gate (TP-SR-02). Reject any request whose Origin is
+        // not allowlisted BEFORE spending Gemini quota. Previously a disallowed
+        // origin still reached Gemini (only the response lost its CORS headers), so
+        // casual cross-origin / naive-script calls could still burn quota and cost.
+        // LIMITATION: a determined non-browser client can forge the Origin header, so
+        // this stops casual/browser abuse only — meaningful abuse protection still
+        // requires the Cloudflare edge Rate Limiting rule documented in
+        // docs/security/tp-sr-02-live-verification-checklist.md.
+        if (!ALLOWED_ORIGINS.has(origin)) {
+            return Response.json({ error: 'Origin not allowed' }, { status: 403 });
         }
 
         // Secret guard — checked early so the error is clear during setup

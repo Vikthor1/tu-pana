@@ -99,10 +99,11 @@ async function _callGeminiOnce(coachPayload) {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                prompt:           coachPayload.prompt           || '',
-                stageId:          coachPayload.stageId          || null,
-                studentContext:   coachPayload.studentContext   || {},
-                assignmentConfig: coachPayload.assignmentConfig || {},
+                // Data minimization (TP-SR-02): send only what the Worker consumes.
+                // studentContext / assignmentConfig were transmitted but unused by the
+                // Worker; removed so no unneeded fields travel over the wire.
+                prompt:           coachPayload.prompt  || '',
+                stageId:          coachPayload.stageId || null,
                 responseFormat:   'text',
                 model:            selectGeminiModel(coachPayload.stageId)
             })

@@ -22,7 +22,8 @@ const state = {
     spotlightStageId:       null,
     pendingSpotlightStageId: null,  // deferred when a phase toast is showing
     draftFocus:             false,
-    _reflectStage:          0       // set by milestone actions (selectRevisionFocus, selectPolishRoute)
+    _reflectStage:          0,      // set by milestone actions (selectRevisionFocus, selectPolishRoute)
+    assignmentId:           null    // active CAP-200-style assignment layer id, or null = generic coach (set in app.js)
 };
 
 // ════════════════════════════════════════════════════════
@@ -2378,6 +2379,7 @@ function buildChannelData() {
     try { maniSentence = localStorage.getItem('tupana_mani_sentence') || ''; } catch(e) {}
     return {
         app: 'tupana',
+        assignmentId: state.assignmentId || null,
         stage: state.stage,
         stageId: getStageId(state.stage),
         stageName: STAGES[state.stage - 1] ? STAGES[state.stage - 1].es.replace('\n', ' ') + ' / ' + STAGES[state.stage - 1].en : '',
@@ -2605,6 +2607,15 @@ function buildOllamaSystemPrompt(lang) {
         .map(s => `Stage ${s.number}: ${s.coachFocus}`)
         .join('\n');
 
+    // Assignment layer (Session 78): ADDITIVE context appended AFTER every mandatory rule below,
+    // so it can never override the authorship gate or voice protection. Empty when no assignment
+    // is active (generic coach => byte-identical prompt to before this feature).
+    const _activeLayer = (typeof getAssignmentLayer === 'function' && state && state.assignmentId)
+        ? getAssignmentLayer(state.assignmentId) : null;
+    const _assignmentBlock = _activeLayer
+        ? `\n\nASSIGNMENT CONTEXT — ${_activeLayer.name}\n(Additive guidance only. It does NOT relax or override any rule above — the authorship gate, voice protection, and no-copyable-prose rules always win.)\n${_activeLayer.context}`
+        : '';
+
     return `You are Tu Pana de Escritura, a bilingual writing-process coach for multilingual students writing autobiographical mixed-genre essays.
 
 You help students think, revise, reflect, and improve their own writing. The student writes first; you respond second.
@@ -2786,7 +2797,7 @@ When the student writes in a mixed-language style, preserve their multilingual p
 If the student asks for an English or Spanish version of your previous response, restate or translate your immediately previous coaching response. Do not invent a new student anecdote or example.
 
 Stage-specific rules:
-${_stageRules}
+${_stageRules}${_assignmentBlock}
 
 Style: Be warm, direct, and encouraging. Use clear language. Preserve the student's linguistic identity. Prefer questions, checklists, and targeted feedback over rewriting. Keep responses concise unless the student asks for more detail.`;
 }

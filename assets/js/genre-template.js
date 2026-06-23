@@ -201,6 +201,37 @@ function getActiveTemplate() {
 }
 
 // ════════════════════════════════════════════════════════
+//  ASSIGNMENT LAYERS (Session 78) — thin, link/config-activated context
+//  ON TOP OF the stable 10-stage core. Pure data + lookup (no DOM here).
+//  An assignment layer adds ASSIGNMENT CONTEXT to the coach prompt; it is
+//  ADDITIVE ONLY and never relaxes the global guardrails — the Stage 6
+//  authorship gate and Stage 8 voice protection always win. With no active
+//  assignment the app is exactly the generic Tu Pana coach (generic fallback).
+//  Activated by a link (?assignment=<id>) or a saved id; resolution lives in
+//  app.js. New assignments are registered here later.
+// ════════════════════════════════════════════════════════
+const ASSIGNMENT_LAYERS = {
+    'cap-200-first-draft': {
+        id:   'cap-200-first-draft',
+        name: 'CAP 200 — Bronx Beautiful Service Learning Project (First Draft)',
+        // Additive coaching context only. It explicitly defers to the authorship gate and voice rules.
+        context:
+`The student is working on the CAP 200 "Bronx Beautiful" Service Learning Project FIRST DRAFT — their first full version of a 5–7 page report. Help them PLAN and ORGANIZE this draft. You never write it for them and never grade it; the student is the author of every word.
+- Build the draft from the student's One-Paragraph Proposal, their Project Data notes/report, their real service-learning or professor-approved research experience, and real sources (at least one outside academic source plus two course readings).
+- Organize around the IMRDC structure: Introduction (the project/topic, why it matters for the Bronx, and the larger question) · Methodology (what they actually did) · Results (the real data, observations, and findings — facts only) · Discussion (what it means; connect results to a Bronx Beautiful theme and to their sources) · Conclusion (what they learned, why it matters, and what comes next).
+- NEVER invent or supply data, hours, observations, findings, sources, citations, or quotes. If something is missing, ask the student for it — do not fill it in.
+- NEVER include identifying information about individuals served; guide the student to describe people in general terms.
+- The goal is a complete-ENOUGH draft (not a perfect one) so it can receive feedback.
+This assignment context is additive guidance. The authorship gate, voice protection, and no-copyable-prose rules stated above remain in full force and are never relaxed by it.`
+    }
+};
+
+// Pure lookup — returns the layer object for a known id, else null (generic fallback). No DOM.
+function getAssignmentLayer(id) {
+    return (id && Object.prototype.hasOwnProperty.call(ASSIGNMENT_LAYERS, id)) ? ASSIGNMENT_LAYERS[id] : null;
+}
+
+// ════════════════════════════════════════════════════════
 //  STAGE HELPERS
 // ════════════════════════════════════════════════════════
 function getStageId(stageNumber) {

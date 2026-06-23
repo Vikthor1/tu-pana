@@ -6,6 +6,24 @@
 initTheme();
 initTone();
 initLang();
+// CAP 200 assignment layer (Session 78): link/config-activated, generic-fallback-safe.
+// ?assignment=<id> activates a known layer (and is remembered for later visits); ?assignment=
+// (empty), ?assignment=none, or ?assignment=generic clears it; with no active assignment the app
+// is the generic Tu Pana coach, unchanged. Stage 6/8 guardrails are global and are NEVER altered
+// by an assignment layer; an unknown id falls back to the generic coach.
+try {
+    const _qAssign = new URLSearchParams(location.search).get('assignment');
+    if (_qAssign !== null && (!_qAssign || _qAssign === 'none' || _qAssign === 'generic')) {
+        localStorage.removeItem('tupana_assignment_id');
+    }
+    const _assignId = (_qAssign && _qAssign !== 'none' && _qAssign !== 'generic')
+        ? _qAssign
+        : (localStorage.getItem('tupana_assignment_id') || '');
+    if (_assignId && typeof getAssignmentLayer === 'function' && getAssignmentLayer(_assignId)) {
+        state.assignmentId = _assignId;
+        if (_qAssign) localStorage.setItem('tupana_assignment_id', _assignId);
+    }
+} catch(e) {}
 try {
     const expanded = localStorage.getItem('tupana_journey_expand');
     if (expanded === 'true') state.showAllJourney = true;

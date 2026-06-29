@@ -822,9 +822,11 @@ function updateCurrentTaskBar() {
         `<span class="lang-sep"> / </span>` +
         `<span class="show-en">Step ${ms.n}<span class="ctb-of-total"> of ${TOTAL_MILESTONES}</span> · ${escapeHtml(ms.en)}</span>`;
 
-    // Mobile progress strip — set CSS variable consumed by ::after on current-task-bar
+    // Mobile progress strip — set CSS variable consumed by ::after on current-task-bar.
+    // Driven by the 5-milestone student-facing model (M1=20% … M5=100%) so the strip
+    // matches the "Paso N de 5 / Step N of 5" label. Internal 10-stage engine unchanged.
     const ctbBar = document.getElementById('currentTaskBar');
-    if (ctbBar) ctbBar.style.setProperty('--ctb-progress', `${(state.stage / 10) * 100}%`);
+    if (ctbBar) ctbBar.style.setProperty('--ctb-progress', `${(ms.n / TOTAL_MILESTONES) * 100}%`);
 
     const ctbInstr = document.getElementById('ctbInstruction');
     if (ctbInstr) {
@@ -1464,9 +1466,9 @@ function dismissDraftWarning() {
 }
 
 const PHASE_COMPLETION_NOTES = {
-    4:  { es: 'Fase 1 completa — Encontrar', en: 'You found your story and made it your argument. Phase 2 (Construir) begins: research and outlining — two tools that serve your story, not replace it.' },
-    7:  { es: 'Fase 2 completa — Construir', en: 'You wrote your draft without help. That draft is yours in a way nothing else will be. Phase 3 (Afinar) begins: revision using the Five Questions — you decide what stays.' },
-    10: { es: 'Fase 3 completa — Afinar · Fase 4 (Completar) comienza', en: 'You revised with judgment and protected your voice. One step remains: Mi cierre de proceso — name what changed, what you protected, and what still needs attention. This is not a grade. Your judgment matters.' }
+    4:  { es: 'Paso 1 completo — Encuentra tu historia. Ahora empieza el Paso 2 (Investiga y planifica): la investigación y el esquema sirven tu historia, no la reemplazan.', en: 'Step 1 complete — Find Your Story. Step 2 (Research & Plan) begins: research and outlining serve your story; they do not replace it.' },
+    7:  { es: 'Paso 3 completo — Escribe tu primer borrador. Lo escribiste sin ayuda, y ese borrador es tuyo como ninguna otra cosa. Ahora empieza el Paso 4 (Pule tu ensayo): la revisión con las Cinco Preguntas — tú decides qué se queda.', en: 'Step 3 complete — Write Your First Draft. You wrote it without help, and that draft is yours like nothing else. Step 4 (Refine Your Essay) begins: revision with the Five Questions — you decide what stays.' },
+    10: { es: 'Paso 4 completo — Pule tu ensayo. Revisaste con criterio y protegiste tu voz. Queda el Paso 5 (Reflexiona y entrega): nombra qué cambió, qué protegiste y qué todavía necesita atención. Esto no es una nota — tu criterio importa.', en: 'Step 4 complete — Refine Your Essay. You revised with judgment and protected your voice. Step 5 (Reflect & Submit) remains: name what changed, what you protected, and what still needs attention. This is not a grade — your judgment matters.' }
 };
 
 // Track pending stage advance from preview modal

@@ -451,20 +451,43 @@ function updateProtectBtn() {
 }
 
 // Occasional light humor — one per category, used sparingly
+// H6 (Stage A.2 polish): coach humor/warmth, language-aware. These lines surface inside
+// bilingual messages (es line / en line, CSS show-es/show-en gated), so each key carries
+// parallel es[] and en[] arrays of equal length. Spanish keeps its café warmth in Spanish
+// (not English with Spanish labels). pickHumorPair() picks one aligned es/en pair.
 const HUMOR = {
-    welcome_multi: [
-        'The coffee is still warm. Let\'s keep going.',
-        'Your draft waited patiently. That is more than can be said for the coffee.',
-        'Good to have you back. The screen was getting lonely.'
-    ],
-    overwhelmed: [
-        'This part asks your brain to stretch a little. Café first, then we connect the dots.',
-        'Revision is not punishment. It is just your draft asking for a little more care.'
-    ],
-    draft_saved: [
-        'The draft is not messy because you failed. It is messy because thinking happened.',
-        'No need to sound like a textbook wearing a blazer. Keep your voice.'
-    ]
+    welcome_multi: {
+        es: [
+            'El café sigue caliente. Sigamos.',
+            'Tu borrador te esperó con paciencia. El café, no tanto.',
+            'Qué bueno tenerte de vuelta. La pantalla se estaba sintiendo sola.'
+        ],
+        en: [
+            'The coffee is still warm. Let\'s keep going.',
+            'Your draft waited patiently. That is more than can be said for the coffee.',
+            'Good to have you back. The screen was getting lonely.'
+        ]
+    },
+    overwhelmed: {
+        es: [
+            'Esta parte le pide a tu cerebro que se estire un poco. Primero el café, luego conectamos las ideas.',
+            'Revisar no es un castigo. Es tu borrador pidiéndote un poco más de cuidado.'
+        ],
+        en: [
+            'This part asks your brain to stretch a little. Café first, then we connect the dots.',
+            'Revision is not punishment. It is just your draft asking for a little more care.'
+        ]
+    },
+    draft_saved: {
+        es: [
+            'El borrador no está desordenado porque fallaste. Está desordenado porque hubo pensamiento.',
+            'No necesitas sonar como un libro de texto con saco y corbata. Conserva tu voz.'
+        ],
+        en: [
+            'The draft is not messy because you failed. It is messy because thinking happened.',
+            'No need to sound like a textbook wearing a blazer. Keep your voice.'
+        ]
+    }
 };
 
 // ════════════════════════════════════════════════════════
@@ -822,9 +845,11 @@ function updateCurrentTaskBar() {
         `<span class="lang-sep"> / </span>` +
         `<span class="show-en">Step ${ms.n}<span class="ctb-of-total"> of ${TOTAL_MILESTONES}</span> · ${escapeHtml(ms.en)}</span>`;
 
-    // Mobile progress strip — set CSS variable consumed by ::after on current-task-bar
+    // Mobile progress strip — set CSS variable consumed by ::after on current-task-bar.
+    // Driven by the 5-milestone student-facing model (M1=20% … M5=100%) so the strip
+    // matches the "Paso N de 5 / Step N of 5" label. Internal 10-stage engine unchanged.
     const ctbBar = document.getElementById('currentTaskBar');
-    if (ctbBar) ctbBar.style.setProperty('--ctb-progress', `${(state.stage / 10) * 100}%`);
+    if (ctbBar) ctbBar.style.setProperty('--ctb-progress', `${(ms.n / TOTAL_MILESTONES) * 100}%`);
 
     const ctbInstr = document.getElementById('ctbInstruction');
     if (ctbInstr) {
@@ -1256,10 +1281,20 @@ function submitCapstone10C() {
     renderDecisionLog();
 }
 
-function pickHumor(key) {
-    const arr = HUMOR[key];
-    if (!arr || arr.length === 0) return '';
+// Single humor line in one language ('en' → English, anything else → Spanish-primary).
+function pickHumor(key, lang) {
+    const grp = HUMOR[key];
+    if (!grp) return '';
+    const arr = grp[lang === 'en' ? 'en' : 'es'] || [];
+    if (arr.length === 0) return '';
     return arr[Math.floor(Math.random() * arr.length)];
+}
+// One aligned es/en humor pair (same index) for bilingual show-es/show-en rendering.
+function pickHumorPair(key) {
+    const grp = HUMOR[key];
+    if (!grp || !grp.es || grp.es.length === 0) return { es: '', en: '' };
+    const i = Math.floor(Math.random() * grp.es.length);
+    return { es: grp.es[i] || '', en: (grp.en && grp.en[i]) || '' };
 }
 
 // ════════════════════════════════════════════════════════
@@ -1464,9 +1499,9 @@ function dismissDraftWarning() {
 }
 
 const PHASE_COMPLETION_NOTES = {
-    4:  { es: 'Fase 1 completa — Encontrar', en: 'You found your story and made it your argument. Phase 2 (Construir) begins: research and outlining — two tools that serve your story, not replace it.' },
-    7:  { es: 'Fase 2 completa — Construir', en: 'You wrote your draft without help. That draft is yours in a way nothing else will be. Phase 3 (Afinar) begins: revision using the Five Questions — you decide what stays.' },
-    10: { es: 'Fase 3 completa — Afinar · Fase 4 (Completar) comienza', en: 'You revised with judgment and protected your voice. One step remains: Mi cierre de proceso — name what changed, what you protected, and what still needs attention. This is not a grade. Your judgment matters.' }
+    4:  { es: 'Paso 1 completo — Encuentra tu historia. Ahora empieza el Paso 2 (Investiga y planifica): la investigación y el esquema sirven tu historia, no la reemplazan.', en: 'Step 1 complete — Find Your Story. Step 2 (Research & Plan) begins: research and outlining serve your story; they do not replace it.' },
+    7:  { es: 'Paso 3 completo — Escribe tu primer borrador. Lo escribiste sin ayuda, y ese borrador es tuyo como ninguna otra cosa. Ahora empieza el Paso 4 (Pule tu ensayo): la revisión con las Cinco Preguntas — tú decides qué se queda.', en: 'Step 3 complete — Write Your First Draft. You wrote it without help, and that draft is yours like nothing else. Step 4 (Refine Your Essay) begins: revision with the Five Questions — you decide what stays.' },
+    10: { es: 'Paso 4 completo — Pule tu ensayo. Revisaste con criterio y protegiste tu voz. Queda el Paso 5 (Reflexiona y entrega): nombra qué cambió, qué protegiste y qué todavía necesita atención. Esto no es una nota — tu criterio importa.', en: 'Step 4 complete — Refine Your Essay. You revised with judgment and protected your voice. Step 5 (Reflect & Submit) remains: name what changed, what you protected, and what still needs attention. This is not a grade — your judgment matters.' }
 };
 
 // Track pending stage advance from preview modal
@@ -1618,11 +1653,12 @@ function goToStage(id) {
     editHistoryInit(_newContent);
     D.draftArea.dispatchEvent(new Event('input'));
 
-    // Stage-entry welcome (Patch 3): canned one-time orientation in the chat stream
+    // Stage-entry welcome (Patch 3): canned one-time orientation in the chat stream.
+    // H4 (Stage A.2 polish): this is the SINGLE automatic stage-entry guidance channel.
+    // The Pana Hint is no longer auto-pushed on entry (it duplicated this message at
+    // every stage). PANA_HINTS / injectPanaHint() are retained for on-demand/future use;
+    // STAGE_ENTRY_MESSAGES carries the Stage-6 authorship framing and Stage-8 voice framing.
     setTimeout(() => injectStageEntryWelcome(id), 400);
-
-    // Inject Pana Hint for the new stage
-    setTimeout(() => injectPanaHint(id), 500);
 
     // Show Five Questions reference strip from Stage 7 onward.
     // Also inject the stage-level "Evaluar" call-to-action (once) so students
@@ -3521,8 +3557,8 @@ function showWelcomeBack() {
 
     let humorLine = '';
     if (isReturn) {
-        const humor = pickHumor('welcome_multi');
-        if (humor) humorLine = `\n\n${humor}`;
+        const humor = pickHumorPair('welcome_multi');
+        if (humor.es || humor.en) humorLine = `\n\n${humor.es}\n${humor.en}`;
     }
 
     addMsg(greeting + draftLine + humorLine, 'bot', false, 'welcome');
@@ -4837,9 +4873,9 @@ function handleStuckOption(option) {
         );
         addSys(msg);
     } else if (option === 'overwhelmed') {
-        const humor = pickHumor('overwhelmed');
+        const humor = pickHumorPair('overwhelmed');
         addSys(t(
-            `Entiendo. Tomemos un respiro. Voy a activar el modo enfoque para que solo veas tu borrador. ${humor ? humor + ' ' : ''}/ I understand. Let's take a breath. I'm turning on focus mode so you only see your draft. ${humor || ''}`,
+            `Entiendo. Tomemos un respiro. Voy a activar el modo enfoque para que solo veas tu borrador. ${humor.es ? humor.es + ' ' : ''}/ I understand. Let's take a breath. I'm turning on focus mode so you only see your draft. ${humor.en || ''}`,
             `Modo enfoque activado. Solo tu borrador. Vuelve cuando estés listo/a. / Focus mode on. Just your draft. Come back when you're ready.`
         ));
         if (!document.querySelector('.workspace').classList.contains('focus-mode')) {
@@ -6065,7 +6101,14 @@ function generateInstructorReport() {
     r += `${line(72)}\n`;
     r += `SECTION 7 — AUTHORSHIP CONFIRMATION\n`;
     r += `${line(72)}\n`;
-    r += `☑  I completed my first draft before using AI feedback.\n`;
+    // H5 (Stage A.2 polish): the first-draft attestation is a REAL attestation tied to
+    // the recorded gate status — not an unconditional system stamp. When the unassisted
+    // first draft was not saved, it must not falsely claim completion (which contradicted
+    // Section 1's honest "NOT DOCUMENTED"). The remaining lines are general attestations.
+    r += draftSaved
+        ? `☑  I completed my first draft before using AI feedback.\n`
+        : `☐  I completed my first draft before using AI feedback.\n` +
+          `   — NOT documented: no unassisted first draft was saved in the app (see Section 1).\n`;
     r += `☑  The draft, revisions, and final decisions are my own responsibility.\n`;
     r += `☑  I used Tu Pana de Escritura as a writing support tool, not as a\n`;
     r += `   replacement for my own judgment.\n`;

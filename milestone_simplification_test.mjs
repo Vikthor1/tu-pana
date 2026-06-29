@@ -34,6 +34,10 @@ async function openAt(stage, extra) {
 // #ctbStage holds both .show-es and .show-en spans; read textContent (not
 // innerText) so the assertion is language-mode-independent.
 const ctbText = () => page.locator('#ctbStage').evaluate(el => el.textContent);
+// H2: the mobile progress strip width var must track the 5-milestone model
+// (M1=20% … M5=100%), never the internal /10 stage scale.
+const stripPct = () => page.locator('#currentTaskBar')
+      .evaluate(el => el.style.getPropertyValue('--ctb-progress').trim());
 
 // ── Milestone 1: Find Your Story (stages 1–3) ──
 console.log('Stage 1 → Milestone 1');
@@ -45,6 +49,7 @@ check('task bar: Paso 1 / Step 1', /Paso 1/.test(ctb1) && /Step 1/.test(ctb1));
 check('task bar: milestone name "Find Your Story"', /Find Your Story/.test(ctb1));
 check('task bar: "of 5 / de 5", never "of 10"',
       /of 5/.test(ctb1) && /de 5/.test(ctb1) && !/of 10/.test(ctb1));
+check('progress strip = 20% at M1 (milestone scale, not /10)', await stripPct() === '20%');
 const hdr = await page.locator('.journey-track .milestone-group .phase-label.show-en').allTextContents();
 check('the 5 milestone names appear as headers',
       ['Find Your Story','Research & Plan','Write Your First Draft','Refine Your Essay','Reflect & Submit']
@@ -63,6 +68,8 @@ check('task bar: Paso 3 / Step 3', /Paso 3/.test(ctb6) && /Step 3/.test(ctb6));
 check('task bar: "Write Your First Draft"', /Write Your First Draft/.test(ctb6));
 check('Stage-6 authorship-gate icon preserved',
       await page.locator('.stage-node[data-id="6"] .stage-circle svg').count() === 1);
+check('progress strip = 60% at M3 (stage 6; not 60%≠stage/10=60% coincidence guarded at M1/M5)',
+      await stripPct() === '60%');
 
 // ── Milestone 5: Reflect & Submit (stage 10) ──
 console.log('Stage 10 → Milestone 5');
@@ -70,6 +77,9 @@ await openAt(10);
 const ctb10 = await ctbText();
 check('task bar: Paso 5 / Step 5 · Reflect & Submit',
       /Paso 5/.test(ctb10) && /Step 5/.test(ctb10) && /Reflect & Submit/.test(ctb10));
+// At stage 10 the old /10 formula gave 100% too, but M5 must also give 100% on the
+// milestone scale; M1 (20% vs stage/10=10%) is the discriminating assertion above.
+check('progress strip = 100% at M5 (stage 10)', await stripPct() === '100%');
 
 check('no page JS errors across all stages', errs.length === 0);
 if (errs.length) console.log('  errors:', errs);

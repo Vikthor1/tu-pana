@@ -64,13 +64,43 @@ const MICRO_PROMPTS = {
     ]
 };
 
-const STUCK_AFFIRMATIONS = [
-    "No pasa nada. Let's make this smaller.",
-    'One sentence. That is all we need right now.',
-    "The blank page is acting dramatic. Let's give it one sentence and calm it down.",
-    'This is not the whole essay. This is just one brave little sentence.',
-    'Café first, panic later. Actually, no panic — just one sentence.'
-];
+// H6 (Stage A.2 polish): language-aware warmth. The stuck-mini affirmation renders as
+// a single line (NOT a bilingual show-es/show-en pair), so a Spanish-mode student used
+// to get English/Spanglish text regardless of language. Now:
+//   es   → Spanish-anchored warmth (café warmth kept, in Spanish)
+//   en   → warm English
+//   both → intentional translanguaging / café Spanglish (the original voice, preserved)
+// Spanish-primary convention: anything other than 'en' falls back to 'es'.
+const STUCK_AFFIRMATIONS = {
+    es: [
+        'No pasa nada. Vamos a hacerlo más pequeño.',
+        'Una oración. Es todo lo que necesitamos ahora.',
+        'La página en blanco se está poniendo dramática. Dale una oración y se calma.',
+        'Esto no es el ensayo entero. Es solo una oración valiente.',
+        'Primero el café, el pánico después. Mejor aún: sin pánico — solo una oración.'
+    ],
+    en: [
+        "No worries. Let's make this smaller.",
+        'One sentence. That is all we need right now.',
+        "The blank page is acting dramatic. Let's give it one sentence and calm it down.",
+        'This is not the whole essay. This is just one brave little sentence.',
+        'Coffee first, panic later. Actually, no panic — just one sentence.'
+    ],
+    both: [
+        "No pasa nada. Let's make this smaller.",
+        'Una oración — one sentence. That is all we need right now.',
+        "La página en blanco está siendo dramática. Let's give it one sentence and calm it down.",
+        'Esto no es el ensayo entero. Just one brave little sentence.',
+        'Café first, panic later. Actually, no panic — solo una oración.'
+    ]
+};
+
+// Pick a warmth line in the student's current language (Spanish-primary fallback).
+function pickAffirmation() {
+    const lang = (typeof state !== 'undefined' && state.lang) || 'es';
+    const arr = STUCK_AFFIRMATIONS[lang] || STUCK_AFFIRMATIONS.es;
+    return arr[Math.floor(Math.random() * arr.length)];
+}
 
 let stuckMiniIdx = {};  // tracks prompt index per stage
 
@@ -90,7 +120,7 @@ function showStuckMini() {
     const _pickStarter = o => state.lang === 'en' ? o.en : o.es;
     const taskText     = _pickBoth(p.task);
     const starterText  = _pickStarter(p.starter);
-    const aff   = STUCK_AFFIRMATIONS[Math.floor(Math.random() * STUCK_AFFIRMATIONS.length)];
+    const aff   = pickAffirmation();
 
     const card = document.createElement('div');
     card.className = 'stuck-mini';
@@ -590,7 +620,7 @@ const STAGE_ENTRY_MESSAGES = {
     3: 'Define la tensión de tu argumento: ¿qué tira en dos direcciones en tu historia?\nDefine the tension in your argument: what pulls in two directions in your story?',
     4: 'Busca una fuente que contextualice tu experiencia — no para reemplazarla, sino para profundizarla.\nFind one source that contextualizes your experience — not to replace it, but to deepen it.',
     5: 'Traza el mapa de cómo tu ensayo pasa de la anécdota al argumento — puedes cambiarlo mientras escribes.\nOutline how your essay moves from anecdote to argument — you can change it as you write.',
-    6: 'Este es tu borrador: lo escribes tú, sin el coach. No tiene que ser perfecto — solo tiene que ser tuyo. Escribe sin detenerte.\n\nThis is your draft: you write it, without the coach. It does not need to be perfect — it just needs to be yours. Write without stopping.\n\n(Opcional: si una etapa anterior quedó incompleta, puedes volver y usar la opción de importar para traer tus partes más fuertes. · Optional: if an earlier stage feels unfinished, you can go back and use import to bring your strongest pieces forward.)',
+    6: 'Este es tu borrador: lo escribes tú, sin el coach. No tiene que ser perfecto — solo tiene que ser tuyo. Escribe sin detenerte.\n\nThis is your draft: you write it, without the coach. It does not need to be perfect — it just needs to be yours. Write without stopping.',
     7: 'Revisa para hacer tu argumento más claro, sin borrarte de la página — elige una oración y empieza ahí.\nRevise to make your argument clearer without erasing yourself — choose one sentence and start there.',
     8: 'Elige una oración de tu borrador y decide qué tipo de ayuda necesita: claridad, especificidad o protección de voz.\nChoose one sentence from your draft and decide what kind of help it needs: clarity, specificity, or voice protection.',
     9: 'Antes de avanzar, confirma que tu borrador está guardado y que tu ensayo incluye un momento personal y una conexión más amplia.\nBefore you move on, confirm your draft is saved and your essay includes a personal moment and a larger connection.',

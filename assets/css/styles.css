@@ -4595,7 +4595,7 @@
         .ctb-es  { color: var(--text-primary); font-weight: 500; }
         .ctb-sep { color: var(--border-hi); margin: 0 3px; }
         .ctb-en  { color: var(--text-muted); font-size: 0.75rem; }
-        /* "de 10 / of 10" — hidden on desktop where the journey map shows progress */
+        /* "de 5 / of 5" — hidden on desktop where the journey map shows progress */
         .ctb-of-total { display: none; }
         @media (max-width: 640px) {
             .current-task-bar { padding: 0 14px; }
@@ -5862,7 +5862,7 @@ img, video, embed, object { max-width: 100%; height: auto; }
         cursor: pointer;
     }
 
-    /* Show "de 10 / of 10" so students know overall progress without the journey map */
+    /* Show "de 5 / of 5" so students know overall progress without the journey map */
     .ctb-of-total {
         display: inline;
         color: var(--text-muted);

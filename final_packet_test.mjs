@@ -63,13 +63,24 @@ check('B: diagnostic OK (essay revised, gate passed, reflection done, decisions 
 check('B: report contains the REVISED essay text (not just first draft)', /REVISEDESSAY beta/.test(r.rep));
 check('B: report marks "revised draft"', /revised draft/.test(r.rep));
 check('B: report SUBMISSION CHECK says ready', /Ready to submit/.test(r.rep));
+// H5: gate passed → Section 7 first-draft attestation is CHECKED.
+check('B: Section 7 first-draft attestation CHECKED when gate passed',
+      /☑  I completed my first draft before using AI feedback\./.test(r.rep));
 
 // ── Scenario C: no essay at all ──
 console.log('Scenario C — no essay');
 await seed(2, {});
-r = await page.evaluate(() => { const e = getFinalEssay(); const d = buildSubmissionDiagnostic(); return { txt: e.text, warns: d.warnings.map(w=>w.en).join(' | ') }; });
+r = await page.evaluate(() => { const e = getFinalEssay(); const d = buildSubmissionDiagnostic(); const rep = generateInstructorReport(); return { txt: e.text, warns: d.warnings.map(w=>w.en).join(' | '), rep }; });
 check('C: getFinalEssay returns empty', r.txt === '');
 check('C: diagnostic warns "No essay found"', /No essay found/.test(r.warns));
+// H5: gate NOT passed → Section 7 attestation must NOT falsely claim completion,
+// and must stay consistent with Section 1's honest "NOT DOCUMENTED".
+check('C: Section 7 first-draft attestation UNCHECKED when gate not passed',
+      /☐  I completed my first draft before using AI feedback\./.test(r.rep));
+check('C: Section 7 explains NOT documented (no unassisted first draft)',
+      /NOT documented: no unassisted first draft/.test(r.rep));
+check('C: Section 1 gate reads NOT DOCUMENTED (no self-contradiction)',
+      /NOT DOCUMENTED/.test(r.rep) && !/☑  I completed my first draft/.test(r.rep));
 
 // ── UI: modal shows diagnostic banner + recommended packet path ──
 console.log('UI — Save/Export modal');

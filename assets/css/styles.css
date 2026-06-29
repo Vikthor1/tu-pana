@@ -2908,13 +2908,14 @@
             padding: 4px 4px 2px;
         }
         .reflect-btn {
+            display: inline-flex; align-items: center; justify-content: center;
             font-family: var(--font-body);
             font-size: 0.75rem; font-weight: 600;
             color: var(--text-muted);
             background: transparent;
             border: 1px solid var(--border);
             border-radius: var(--radius-full);
-            padding: 3px 10px; min-height: 28px;
+            padding: 6px 14px; min-height: 44px;
             cursor: pointer; transition: all var(--transition-fast);
             letter-spacing: 0.02em;
         }
@@ -2946,7 +2947,7 @@
             .reflect-option-btn:hover { transform: none; }
         }
         @media (max-width: 430px) {
-            .reflect-btn { min-height: 36px; font-size: 0.8rem; }
+            .reflect-btn { min-height: 44px; font-size: 0.8rem; }
             .reflect-option-btn { min-height: 48px; font-size: 0.88rem; }
         }
 
@@ -3730,6 +3731,7 @@
         .confirm-btns { display: flex; gap: 10px; justify-content: center; }
         .confirm-btn-cancel {
             padding: 12px 24px;
+            min-height: 44px;
             background: var(--bg-surface);
             border: 1px solid var(--border-hi);
             border-radius: var(--radius-full);
@@ -3741,6 +3743,7 @@
         .confirm-btn-cancel:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
         .confirm-btn-ok {
             padding: 12px 24px;
+            min-height: 44px;
             background: var(--grad-amber);
             border: none;
             border-radius: var(--radius-full);
@@ -5816,7 +5819,7 @@ img, video, embed, object { max-width: 100%; height: auto; }
         letter-spacing: 0.04em;
         padding: 5px 22px 5px 10px;
         flex-shrink: 0;
-        min-height: 32px;
+        min-height: 44px;
         min-width: 42px;
         max-width: 52px;
     }
@@ -5846,12 +5849,13 @@ img, video, embed, object { max-width: 100%; height: auto; }
         flex: 1;
         min-width: 0;
         font-family: var(--font-body);
-        font-size: 0.88rem;
+        font-size: 1rem;
         color: var(--text-main);
         background: var(--bg-raised);
         border: 1px solid var(--border-mid);
         border-radius: var(--radius-sm);
         padding: 6px 8px;
+        min-height: 44px;
         cursor: pointer;
     }
 
@@ -5986,7 +5990,7 @@ img, video, embed, object { max-width: 100%; height: auto; }
     /* Action buttons: compact 2-col grid */
     .report-actions { padding: 8px 12px 10px; gap: 6px; }
     .report-action-btn {
-        min-height: 36px;
+        min-height: 44px;
         padding: 6px 8px;
         font-size: 0.75rem;
         flex: 1 1 calc(50% - 3px);
@@ -6036,12 +6040,12 @@ img, video, embed, object { max-width: 100%; height: auto; }
 
     /* ── Edit toolbar: icon-only saves horizontal space ── */
     .etb-label    { display: none; }
-    .etb-btn      { padding: 8px; min-height: 36px; }
+    .etb-btn      { padding: 8px; min-height: 44px; }
     .edit-toolbar { padding: 4px 8px; }
 
     /* ── Draft panel ── */
     .panel-header    { padding: 10px 14px; }
-    .draft-textarea  { padding: 14px 14px 28px; font-size: 0.95rem; line-height: 1.8; }
+    .draft-textarea  { padding: 14px 14px 28px; font-size: 1rem; line-height: 1.8; }
     .draft-footer    { padding: 5px 10px 8px; gap: 4px; }
     .draft-action-bar { gap: 6px; }
 
@@ -6197,7 +6201,7 @@ img, video, embed, object { max-width: 100%; height: auto; }
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .theme-toggle, .reset-btn, .help-btn { width: 40px; height: 40px; }
+    .theme-toggle, .reset-btn, .help-btn { width: 44px; height: 44px; }
     .lang-btn { padding: 3px 5px; font-size: 0.58rem; }
 
     /* ── Workspace: draft gets most of the screen ── */

@@ -44,6 +44,8 @@
 !stage8_sequencing_test.mjs
 !coachfocus_governance_test.mjs
 !bilingual_starter_test.mjs
+# ── Allow Stage A.2 polish-sprint regression tests ───────
+!stage_entry_channel_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

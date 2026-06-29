@@ -1620,11 +1620,12 @@ function goToStage(id) {
     editHistoryInit(_newContent);
     D.draftArea.dispatchEvent(new Event('input'));
 
-    // Stage-entry welcome (Patch 3): canned one-time orientation in the chat stream
+    // Stage-entry welcome (Patch 3): canned one-time orientation in the chat stream.
+    // H4 (Stage A.2 polish): this is the SINGLE automatic stage-entry guidance channel.
+    // The Pana Hint is no longer auto-pushed on entry (it duplicated this message at
+    // every stage). PANA_HINTS / injectPanaHint() are retained for on-demand/future use;
+    // STAGE_ENTRY_MESSAGES carries the Stage-6 authorship framing and Stage-8 voice framing.
     setTimeout(() => injectStageEntryWelcome(id), 400);
-
-    // Inject Pana Hint for the new stage
-    setTimeout(() => injectPanaHint(id), 500);
 
     // Show Five Questions reference strip from Stage 7 onward.
     // Also inject the stage-level "Evaluar" call-to-action (once) so students

@@ -5,60 +5,62 @@
 // ════════════════════════════════════════════════════════
 //  MICRO-PROMPTS — one tiny task + one sentence starter per stage
 // ════════════════════════════════════════════════════════
+// Stage A.2 / B3: bilingual { es, en } task + starter. showStuckMini() resolves by
+// state.lang so a Spanish-mode student never gets English text inserted into the draft.
 const MICRO_PROMPTS = {
     1: [
-        { task: 'Name one moment you remember.', starter: 'I remember the moment when…' },
-        { task: 'Start with a place.', starter: 'This happened in…' },
-        { task: 'Start with a person.', starter: 'The person I remember most in this story is…' },
-        { task: 'Start with a feeling.', starter: 'At that moment, I felt…' },
-        { task: 'Start with what you noticed first.', starter: 'The first thing I noticed was…' },
-        { task: 'Start with what you did not understand.', starter: 'I did not understand why…' }
+        { task: { es: 'Nombra un momento que recuerdas.', en: 'Name one moment you remember.' }, starter: { es: 'Recuerdo el momento en que…', en: 'I remember the moment when…' } },
+        { task: { es: 'Empieza con un lugar.', en: 'Start with a place.' }, starter: { es: 'Esto pasó en…', en: 'This happened in…' } },
+        { task: { es: 'Empieza con una persona.', en: 'Start with a person.' }, starter: { es: 'La persona que más recuerdo en esta historia es…', en: 'The person I remember most in this story is…' } },
+        { task: { es: 'Empieza con un sentimiento.', en: 'Start with a feeling.' }, starter: { es: 'En ese momento, sentí…', en: 'At that moment, I felt…' } },
+        { task: { es: 'Empieza con lo primero que notaste.', en: 'Start with what you noticed first.' }, starter: { es: 'Lo primero que noté fue…', en: 'The first thing I noticed was…' } },
+        { task: { es: 'Empieza con lo que no entendiste.', en: 'Start with what you did not understand.' }, starter: { es: 'No entendía por qué…', en: 'I did not understand why…' } }
     ],
     2: [
-        { task: 'Name the part of your story you understand best right now.', starter: 'The part of my story I understand best right now is…' },
-        { task: 'Name the part you still need to figure out.', starter: 'The part I still need to figure out is…' },
-        { task: 'Write one question your essay might explore.', starter: 'One question my essay might explore is…' }
+        { task: { es: 'Nombra la parte de tu historia que entiendes mejor ahora.', en: 'Name the part of your story you understand best right now.' }, starter: { es: 'La parte de mi historia que entiendo mejor ahora es…', en: 'The part of my story I understand best right now is…' } },
+        { task: { es: 'Nombra la parte que todavía necesitas descifrar.', en: 'Name the part you still need to figure out.' }, starter: { es: 'La parte que todavía necesito descifrar es…', en: 'The part I still need to figure out is…' } },
+        { task: { es: 'Escribe una pregunta que tu ensayo podría explorar.', en: 'Write one question your essay might explore.' }, starter: { es: 'Una pregunta que mi ensayo podría explorar es…', en: 'One question my essay might explore is…' } }
     ],
     3: [
-        { task: 'Write what this story might really be about.', starter: 'This story might be about…' },
-        { task: 'Name a tension you notice in this memory.', starter: 'A tension I notice in this memory is…' },
-        { task: 'Write the bigger question hiding inside this moment.', starter: 'The bigger question behind this moment might be…' },
-        { task: 'Name the personal side and the larger-issue side of your pitch.', starter: 'The personal side of my essay is ___, and the larger issue is…' }
+        { task: { es: 'Escribe de qué podría tratarse realmente esta historia.', en: 'Write what this story might really be about.' }, starter: { es: 'Esta historia podría tratar de…', en: 'This story might be about…' } },
+        { task: { es: 'Nombra una tensión que notas en este recuerdo.', en: 'Name a tension you notice in this memory.' }, starter: { es: 'Una tensión que noto en este recuerdo es…', en: 'A tension I notice in this memory is…' } },
+        { task: { es: 'Escribe la pregunta más grande escondida en este momento.', en: 'Write the bigger question hiding inside this moment.' }, starter: { es: 'La pregunta más grande detrás de este momento podría ser…', en: 'The bigger question behind this moment might be…' } },
+        { task: { es: 'Nombra el lado personal y el lado del tema más amplio de tu pitch.', en: 'Name the personal side and the larger-issue side of your pitch.' }, starter: { es: 'El lado personal de mi ensayo es ___, y el tema más amplio es…', en: 'The personal side of my essay is ___, and the larger issue is…' } }
     ],
     4: [
-        { task: 'Name what was happening around your personal experience.', starter: 'At the time this happened, my community was also dealing with…' },
-        { task: 'Name a larger historical issue connected to this memory.', starter: 'A larger historical issue connected to this memory is…' },
-        { task: 'Write what a reader needs to know to understand this moment.', starter: 'To understand this moment, a reader needs to know…' },
-        { task: 'Name a question you want to research.', starter: 'I need a source that helps me understand…' }
+        { task: { es: 'Nombra lo que pasaba alrededor de tu experiencia personal.', en: 'Name what was happening around your personal experience.' }, starter: { es: 'En la época en que pasó esto, mi comunidad también enfrentaba…', en: 'At the time this happened, my community was also dealing with…' } },
+        { task: { es: 'Nombra un tema histórico más amplio conectado con este recuerdo.', en: 'Name a larger historical issue connected to this memory.' }, starter: { es: 'Un tema histórico más amplio conectado con este recuerdo es…', en: 'A larger historical issue connected to this memory is…' } },
+        { task: { es: 'Escribe lo que un lector necesita saber para entender este momento.', en: 'Write what a reader needs to know to understand this moment.' }, starter: { es: 'Para entender este momento, un lector necesita saber…', en: 'To understand this moment, a reader needs to know…' } },
+        { task: { es: 'Nombra una pregunta que quieres investigar.', en: 'Name a question you want to research.' }, starter: { es: 'Necesito una fuente que me ayude a entender…', en: 'I need a source that helps me understand…' } }
     ],
     5: [
-        { task: 'Write how your essay could begin.', starter: 'My essay could begin with…' },
-        { task: 'Write what the reader needs to understand after the anecdote.', starter: 'After the anecdote, the reader needs to understand…' },
-        { task: 'Name one section your essay should focus on.', starter: 'One section of my essay should focus on…' },
-        { task: 'Write how the ending might connect back.', starter: 'The ending might return to…' }
+        { task: { es: 'Escribe cómo podría empezar tu ensayo.', en: 'Write how your essay could begin.' }, starter: { es: 'Mi ensayo podría empezar con…', en: 'My essay could begin with…' } },
+        { task: { es: 'Escribe lo que el lector necesita entender después de la anécdota.', en: 'Write what the reader needs to understand after the anecdote.' }, starter: { es: 'Después de la anécdota, el lector necesita entender…', en: 'After the anecdote, the reader needs to understand…' } },
+        { task: { es: 'Nombra una sección en la que tu ensayo debería concentrarse.', en: 'Name one section your essay should focus on.' }, starter: { es: 'Una sección de mi ensayo debería concentrarse en…', en: 'One section of my essay should focus on…' } },
+        { task: { es: 'Escribe cómo el final podría conectar de regreso.', en: 'Write how the ending might connect back.' }, starter: { es: 'El final podría regresar a…', en: 'The ending might return to…' } }
     ],
     6: [
-        { task: 'Write the next part of your draft — one sentence.', starter: 'The next part of my draft needs to explain…' },
-        { task: 'Name one idea you have not developed yet.', starter: 'One idea I have not developed yet is…' },
-        { task: 'Write what this paragraph is trying to show.', starter: 'This paragraph is trying to show…' },
-        { task: 'Connect the memory to the larger issue.', starter: 'I can connect this memory to the larger issue by…' }
+        { task: { es: 'Escribe la siguiente parte de tu borrador — una oración.', en: 'Write the next part of your draft — one sentence.' }, starter: { es: 'La siguiente parte de mi borrador necesita explicar…', en: 'The next part of my draft needs to explain…' } },
+        { task: { es: 'Nombra una idea que todavía no has desarrollado.', en: 'Name one idea you have not developed yet.' }, starter: { es: 'Una idea que todavía no he desarrollado es…', en: 'One idea I have not developed yet is…' } },
+        { task: { es: 'Escribe lo que este párrafo intenta mostrar.', en: 'Write what this paragraph is trying to show.' }, starter: { es: 'Este párrafo intenta mostrar…', en: 'This paragraph is trying to show…' } },
+        { task: { es: 'Conecta el recuerdo con el tema más amplio.', en: 'Connect the memory to the larger issue.' }, starter: { es: 'Puedo conectar este recuerdo con el tema más amplio mediante…', en: 'I can connect this memory to the larger issue by…' } }
     ],
     7: [
-        { task: 'Paste one sentence you want to make clearer.', starter: 'One sentence I want to make clearer is…' },
-        { task: 'Name what this paragraph would be stronger if it had.', starter: 'This paragraph would be stronger if…' },
-        { task: 'Write the idea you want the reader to understand.', starter: 'The idea I want the reader to understand is…' },
-        { task: 'Name what you want to protect as you revise.', starter: 'I want to revise without losing…' }
+        { task: { es: 'Pega una oración que quieras hacer más clara.', en: 'Paste one sentence you want to make clearer.' }, starter: { es: 'Una oración que quiero hacer más clara es…', en: 'One sentence I want to make clearer is…' } },
+        { task: { es: 'Nombra lo que haría más fuerte a este párrafo.', en: 'Name what this paragraph would be stronger if it had.' }, starter: { es: 'Este párrafo sería más fuerte si…', en: 'This paragraph would be stronger if…' } },
+        { task: { es: 'Escribe la idea que quieres que el lector entienda.', en: 'Write the idea you want the reader to understand.' }, starter: { es: 'La idea que quiero que el lector entienda es…', en: 'The idea I want the reader to understand is…' } },
+        { task: { es: 'Nombra lo que quieres proteger mientras revisas.', en: 'Name what you want to protect as you revise.' }, starter: { es: 'Quiero revisar sin perder…', en: 'I want to revise without losing…' } }
     ],
     8: [
-        { task: 'Name the sentence you most want to revise.', starter: 'One sentence I want to make clearer is…' },
-        { task: 'Describe what the paragraph needs.', starter: 'This paragraph would be stronger if…' },
-        { task: 'Write what you want to protect.', starter: 'I want to keep my voice by…' }
+        { task: { es: 'Nombra la oración que más quieres revisar.', en: 'Name the sentence you most want to revise.' }, starter: { es: 'Una oración que quiero hacer más clara es…', en: 'One sentence I want to make clearer is…' } },
+        { task: { es: 'Describe lo que necesita el párrafo.', en: 'Describe what the paragraph needs.' }, starter: { es: 'Este párrafo sería más fuerte si…', en: 'This paragraph would be stronger if…' } },
+        { task: { es: 'Escribe lo que quieres proteger.', en: 'Write what you want to protect.' }, starter: { es: 'Quiero mantener mi voz al…', en: 'I want to keep my voice by…' } }
     ],
     9: [
-        { task: 'Name one item you still need to check before Stage 10.', starter: 'One thing I still need to check is…' },
-        { task: 'Confirm your first draft is saved and complete.', starter: 'My first draft is saved and…' },
-        { task: 'Check whether your essay includes both a personal moment and a larger connection.', starter: 'My essay includes a personal moment and a connection to…' },
-        { task: 'Name one part of your draft that needs one last look.', starter: 'The part of my draft that still needs attention is…' }
+        { task: { es: 'Nombra algo que todavía necesitas revisar antes de la Etapa 10.', en: 'Name one item you still need to check before Stage 10.' }, starter: { es: 'Algo que todavía necesito revisar es…', en: 'One thing I still need to check is…' } },
+        { task: { es: 'Confirma que tu primer borrador está guardado y completo.', en: 'Confirm your first draft is saved and complete.' }, starter: { es: 'Mi primer borrador está guardado y…', en: 'My first draft is saved and…' } },
+        { task: { es: 'Verifica si tu ensayo incluye tanto un momento personal como una conexión más amplia.', en: 'Check whether your essay includes both a personal moment and a larger connection.' }, starter: { es: 'Mi ensayo incluye un momento personal y una conexión con…', en: 'My essay includes a personal moment and a connection to…' } },
+        { task: { es: 'Nombra una parte de tu borrador que necesita una última mirada.', en: 'Name one part of your draft that needs one last look.' }, starter: { es: 'La parte de mi borrador que todavía necesita atención es…', en: 'The part of my draft that still needs attention is…' } }
     ]
 };
 
@@ -81,6 +83,13 @@ function showStuckMini() {
     if (stuckMiniIdx[stage] === undefined) stuckMiniIdx[stage] = 0;
     const idx   = stuckMiniIdx[stage] % prompts.length;
     const p     = prompts[idx];
+    // Stage A.2 / B3: resolve language so a Spanish-mode student never gets English
+    // text inserted into the draft. The instruction shows bilingually in 'both' mode;
+    // the inserted starter is single-language (en→EN, es/both→ES, Spanish-primary).
+    const _pickBoth    = o => state.lang === 'en' ? o.en : state.lang === 'es' ? o.es : `${o.es} · ${o.en}`;
+    const _pickStarter = o => state.lang === 'en' ? o.en : o.es;
+    const taskText     = _pickBoth(p.task);
+    const starterText  = _pickStarter(p.starter);
     const aff   = STUCK_AFFIRMATIONS[Math.floor(Math.random() * STUCK_AFFIRMATIONS.length)];
 
     const card = document.createElement('div');
@@ -91,14 +100,14 @@ function showStuckMini() {
         <div class="stuck-mini-affirmation" aria-live="polite">${aff}</div>
         <div class="stuck-mini-task">
             <strong>Tiny task · Tarea pequeña:</strong>
-            ${p.task}
+            ${taskText}
         </div>
         <div class="stuck-mini-starter">
             <span class="stuck-mini-starter-label">Sentence starter · Cómo empezar:</span>
-            "${p.starter}"
+            "${starterText}"
         </div>
         <div class="stuck-mini-actions">
-            <button class="stuck-mini-primary" onclick="useStarter(this)" data-starter="${p.starter.replace(/"/g,'&quot;')}"
+            <button class="stuck-mini-primary" onclick="useStarter(this)" data-starter="${starterText.replace(/"/g,'&quot;')}"
                 aria-label="Copiar este inicio de oración a mi borrador · Copy this sentence starter to my draft">
                 Usar este inicio · Use this starter
             </button>

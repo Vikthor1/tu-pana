@@ -4283,7 +4283,8 @@
             display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
         }
         .stuck-mini-primary {
-            padding: 9px 18px;
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 9px 18px; min-height: 44px;
             background: var(--grad-success); color: #fff;
             border: none; border-radius: var(--radius-full);
             font-family: var(--font-body); font-size: 0.86rem; font-weight: 700;
@@ -4292,7 +4293,8 @@
         }
         .stuck-mini-primary:hover { opacity: 0.88; }
         .stuck-mini-secondary {
-            padding: 8px 14px;
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 8px 14px; min-height: 44px;
             background: none; border: 1px solid var(--border-hi);
             border-radius: var(--radius-full);
             font-family: var(--font-body); font-size: 0.82rem;
@@ -4301,9 +4303,10 @@
         }
         .stuck-mini-secondary:hover { border-color: var(--amber); color: var(--amber-text); }
         .stuck-mini-close {
+            display: inline-flex; align-items: center; justify-content: center;
             margin-left: auto; background: none; border: none;
             font-size: 0.75rem; color: var(--text-muted); cursor: pointer;
-            padding: 4px 6px; border-radius: var(--radius-sm);
+            padding: 4px 6px; min-height: 44px; min-width: 44px; border-radius: var(--radius-sm);
         }
         .stuck-mini-close:hover { color: var(--text-primary); }
         @media (prefers-reduced-motion: reduce) {

@@ -521,7 +521,12 @@ function injectVoicePolishCard() {
         `<div class="vp-routes">` +
             vpBtn('clearer') + vpBtn('specific') + vpBtn('voice') +
             vpBtn('matters') + vpBtn('protect') +
-        `</div>`;
+        `</div>` +
+        `<p class="vp-guardrail">` +
+            `<span class="show-es">Tu coach puede sugerir opciones, pero tú haces la edición final para que la oración siga sonando como tú.</span>` +
+            `<span class="lang-sep"> · </span>` +
+            `<span class="show-en">The coach can suggest options, but you make the final edit so the sentence still sounds like you.</span>` +
+        `</p>`;
 
     D.chatMessages.appendChild(card);
     D.chatMessages.scrollTop = D.chatMessages.scrollHeight;

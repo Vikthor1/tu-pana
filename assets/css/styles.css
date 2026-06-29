@@ -638,6 +638,36 @@
             width: 100%; margin: 0 0 4px;
             font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;
         }
+        /* Final Submission Packet — recommended export path (Batch 5) */
+        .packet-recommended {
+            width: 100%; box-sizing: border-box;
+            display: flex; flex-direction: column; gap: 8px;
+            background: var(--jade-glow); border: 1px solid var(--jade);
+            border-radius: var(--radius-md); padding: 14px 16px;
+        }
+        .packet-recommended-label {
+            font-size: 0.72rem; font-weight: 800; letter-spacing: 0.05em;
+            text-transform: uppercase; color: var(--jade-text);
+        }
+        .packet-btn { align-self: stretch; justify-content: center; }
+        .packet-note { margin: 2px 0 0; font-size: 0.78rem; color: var(--text-sub); line-height: 1.45; }
+        .report-other-options { width: 100%; margin-top: 4px; }
+        .report-other-options > summary {
+            cursor: pointer; font-size: 0.82rem; font-weight: 600;
+            color: var(--text-sub); padding: 6px 0; list-style: revert;
+        }
+        .report-other-options[open] > summary { margin-bottom: 6px; }
+        .report-other-options .report-action-btn { margin: 4px 6px 0 0; }
+        /* Submission diagnostic banner (Batch 5) */
+        .packet-diag {
+            margin: 0 0 14px; padding: 12px 14px;
+            border-radius: var(--radius-md); font-size: 0.86rem; line-height: 1.5;
+        }
+        .packet-diag--ok   { background: var(--jade-glow);  border: 1px solid var(--jade);  color: var(--jade-text); }
+        .packet-diag--warn { background: var(--amber-glow); border: 1px solid var(--amber); color: var(--text-primary); }
+        .packet-diag-title { font-weight: 800; margin-bottom: 6px; color: var(--amber-text); }
+        .packet-diag-list { margin: 0; padding-left: 20px; }
+        .packet-diag-list li { margin: 3px 0; }
         .report-action-btn {
             padding: 10px 20px;
             border-radius: var(--radius-full);
@@ -986,6 +1016,11 @@
             display: flex; flex-direction: column; align-items: center;
             gap: 7px; cursor: pointer; position: relative; padding: 0 22px;
         }
+        /* Milestone header emphasis (Batch 1 — milestone simplification).
+           Additive; scoped to .milestone-group so base .phase-* rules are untouched. */
+        .milestone-group .phase-label { transition: color var(--transition-medium); }
+        .milestone-group.ms-active .phase-label { color: var(--jade-text); font-weight: 800; }
+        .milestone-group.ms-done   .phase-label { color: var(--amber-text); }
         /* Phase groups */
         .phase-group {
             display: flex; flex-direction: column; align-items: flex-start;
@@ -1520,6 +1555,7 @@
         .decision-dot.good { background: var(--success); }
         .decision-dot.warn { background: var(--amber); }
         .decision-dot.flag { background: var(--warn); }
+        .decision-dot.check { background: var(--metal-mid); }  /* revision check (Pause-and-Reflect) — neutral */
 
         /* ── Chat Panel ── */
         .chat-panel {
@@ -4365,6 +4401,28 @@
             display: flex; flex-direction: column; gap: 12px;
             margin: 6px 0 10px;
         }
+        /* In-flow micro-reflection (Batch 4) — compact, warm, one question */
+        .micro-reflect {
+            background: var(--bg-raised);
+            border: 1px solid var(--border-mid);
+            border-left: 3px solid var(--jade);
+            border-radius: var(--radius-lg);
+            padding: 14px 16px;
+            display: flex; flex-direction: column; gap: 8px;
+            margin: 6px 0 10px;
+        }
+        .micro-reflect-prompt {
+            font-size: 0.92rem; font-weight: 600; color: var(--text-primary); line-height: 1.4;
+        }
+        .micro-reflect-text {
+            width: 100%; box-sizing: border-box; resize: vertical; min-height: 44px;
+            font-family: inherit; font-size: 0.9rem; line-height: 1.5;
+            color: var(--text-primary); background: var(--bg-surface);
+            border: 1px solid var(--border-mid); border-radius: var(--radius-sm);
+            padding: 8px 10px;
+        }
+        .micro-reflect-text:focus { outline: none; border-color: var(--jade); }
+        .micro-reflect-benefit { font-size: 0.78rem; color: var(--text-sub); line-height: 1.5; }
         .research-card-title {
             font-family: var(--font-display); font-size: 1rem; font-weight: 600;
             color: var(--text-primary); line-height: 1.3;

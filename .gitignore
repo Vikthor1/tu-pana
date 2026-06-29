@@ -30,6 +30,14 @@
 !assets/js/ui.js
 !assets/js/app.js
 
+# ── Allow Stage A regression tests (Playwright) ──────────
+!milestone_simplification_test.mjs
+!pause_reflect_rework_test.mjs
+!decision_counter_test.mjs
+!reflection_inflow_test.mjs
+!final_packet_test.mjs
+!stage10_completion_test.mjs
+
 # ── Allow project documentation ──────────────────────────
 !docs/
 !docs/**

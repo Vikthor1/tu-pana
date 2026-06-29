@@ -5377,14 +5377,14 @@ function injectJourneyCompleteCard() {
         card.id = 'journeyCompleteCard';
         card.className = 'journey-complete-card';
         card.setAttribute('role', 'region');
-        card.setAttribute('aria-label', 'Proceso completo — cómo entregar tu reporte · Journey complete — how to submit your report');
+        card.setAttribute('aria-label', 'Proceso completo — cómo entregar tu paquete final · Journey complete — how to submit your Final Packet');
         card.innerHTML = `
             <div class="journey-complete-badge"><span lang="es">Proceso completo</span><span class="lang-sep"> · </span><span lang="en">Journey Complete</span></div>
-            <div class="journey-complete-title"><span lang="es">Último paso: entrega tu reporte</span><span class="lang-sep"> · </span><span lang="en">Last step: submit your report</span></div>
+            <div class="journey-complete-title"><span lang="es">Último paso: entrega tu paquete final</span><span class="lang-sep"> · </span><span lang="en">Last step: submit your Final Packet</span></div>
             <ol class="journey-complete-steps">
                 <li><span lang="es">Abre <strong>Guardar / Exportar</strong> (botón abajo, o en el pie de página).</span><br><span lang="en">Open <strong>Save / Export</strong> (button below, or in the footer).</span></li>
                 <li><span lang="es">Toca <strong>Copiar mi paquete final</strong> — copia tu ensayo y tu reporte de proceso juntos. Si las descargas funcionan en tu dispositivo, también puedes usar <strong>Descargar paquete final</strong>.</span><br><span lang="en">Tap <strong>Copy my Final Submission Packet</strong> — it copies your essay and process report together. If downloads work on your device, you can also use <strong>Download Final Packet</strong>.</span></li>
-                <li><span lang="es">Pega y entrega el reporte en Brightspace, según las instrucciones de tu instructor/a.</span><br><span lang="en">Paste and submit the report in Brightspace, following your instructor's directions.</span></li>
+                <li><span lang="es">Pega y entrega el paquete final en Brightspace, según las instrucciones de tu instructor/a.</span><br><span lang="en">Paste and submit the Final Packet in Brightspace, following your instructor's directions.</span></li>
             </ol>
             <button type="button" class="journey-complete-cta" onclick="openReport()" aria-label="Abrir Guardar / Exportar · Open Save / Export">
                 <span lang="es">Abrir Guardar / Exportar</span><span class="lang-sep"> · </span><span lang="en">Open Save / Export</span> →

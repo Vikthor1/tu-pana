@@ -91,8 +91,8 @@
         <div class="draft-warning" id="draftWarning" role="status">
             <span class="draft-warning-icon"><span class="tp-icon" style="width:14px;height:14px"><svg viewBox="0 0 64 64" aria-hidden="true"><rect class="tp-fill-paper" x="14" y="8" width="36" height="48" rx="5"/><path d="M32 19v12"/><circle class="tp-fill-mango" cx="32" cy="35" r="4"/><path d="M22 20h20"/></svg></span></span>
             <div>
-                <strong class="show-es">Tu borrador es tuyo.</strong><span class="show-es"> Se guarda en este dispositivo — no en ningún servidor. Usa la misma computadora y navegador cada vez.</span>
-                <span class="show-en">Your draft belongs to you. It saves on this device only — never on a server.</span>
+                <strong class="show-es">Tu borrador es tuyo.</strong><span class="show-es"> Se guarda automáticamente en este dispositivo — no en ningún servidor. Usa la misma computadora y navegador cada vez.</span>
+                <span class="show-en">Your draft belongs to you. It saves automatically on this device only — never on a server. Use the same computer and browser each time.</span>
             </div>
             <button class="draft-warning-dismiss" onclick="dismissDraftWarning()" aria-label="Ocultar aviso · Dismiss warning">✕</button>
         </div>
@@ -840,12 +840,12 @@
         <button class="report-action-btn secondary" onclick="downloadFinalPacket()">
           <span class="show-es">Descargar paquete final</span><span class="lang-sep"> · </span><span class="show-en">Download Final Packet</span>
         </button>
-        <p class="packet-note"><span class="show-es">Incluye tu ensayo final + tu reporte de proceso, todo junto. Pégalo en Brightspace.</span><span class="lang-sep"> · </span><span class="show-en">Includes your final essay + process report together. Paste it into Brightspace.</span></p>
+        <p class="packet-note"><span class="show-es">Incluye tu ensayo final + tu reporte de proceso, todo junto. Nada se envía automáticamente — tú tienes que copiarlo o descargarlo y pegarlo en Brightspace.</span><span class="lang-sep"> · </span><span class="show-en">Includes your final essay + process report together. Nothing is sent automatically — you must copy or download it and paste it into Brightspace yourself.</span></p>
       </div>
 
       <details class="report-other-options">
         <summary><span class="show-es">Otras opciones</span><span class="lang-sep"> · </span><span class="show-en">Other options</span></summary>
-        <p class="report-export-hint"><span class="show-es">Descarga una copia de seguridad para no perder tu progreso, o importa trabajo guardado más tarde.</span><span class="lang-sep"> · </span><span class="show-en">Download a backup so you do not lose your progress, or import saved work later.</span></p>
+        <p class="report-export-hint"><span class="show-es">Descarga una copia de seguridad para no perder tu progreso. ¿Cambias de dispositivo? Descárgala aquí y luego usa “Importar trabajo guardado” en el otro.</span><span class="lang-sep"> · </span><span class="show-en">Download a backup so you do not lose your progress. Switching devices? Download here, then use “Import saved work” on the other device.</span></p>
         <button class="report-action-btn secondary" onclick="exportData()">
           <span class="show-es">Descargar copia de seguridad (.json)</span><span class="lang-sep"> · </span><span class="show-en">Download backup (.json)</span>
         </button>

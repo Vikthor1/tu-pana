@@ -1584,6 +1584,7 @@ function goToStage(id) {
 
     if (id > 1) state.done.add(id - 1);
     state.stage = id;
+    state._reflectStage = 0; // Stage A.2 / B1: clear any stale milestone-reflection flag on entry so a Stage-8 (or 7) check never leaks into a later stage. The in-stage milestone action (selectRevisionFocus/selectPolishRoute) re-sets it for the current stage.
     logProcessEvent('stage_advanced', `Advanced to Stage ${id}${STAGES[id - 1] ? ' — ' + STAGES[id - 1].en : ''}.`);
     state.step  = loadStepForStage(id);
     const s = STAGES[id - 1];
@@ -4064,7 +4065,11 @@ function openReflectionCheckpoint(cp) {
     setTimeout(() => card.querySelector('.reflect-option-btn')?.focus(), 40);
 }
 
-const AUTO_REFLECTION_STAGES = new Set([4, 7, 8]);
+// Stage 8 intentionally excluded (Stage A.2 / B1): the Stage-8 "Before You Continue"
+// check surfaces via the reflect button after a Voice-Polish route is chosen
+// (selectPolishRoute sets _reflectStage = 8), NOT as an auto-opening modal on entry —
+// Stage-8 entry was over-saturated. Stages 4 and 7 still auto-open once.
+const AUTO_REFLECTION_STAGES = new Set([4, 7]);
 
 function maybeOpenStageEntryReflectionCheckpoint(stageId) {
     try {

@@ -40,6 +40,10 @@
 # ── Allow Stage A.1 Skills-Gains regression tests ────────
 !badge_test.mjs
 !milestone_gate_test.mjs
+# ── Allow Stage A.2 blocker-fix regression tests ─────────
+!stage8_sequencing_test.mjs
+!coachfocus_governance_test.mjs
+!bilingual_starter_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

@@ -691,9 +691,9 @@ function injectCapstonePanel() {
                 </div>
             </details>
             <p style="margin:10px 0 0;font-size:0.77rem;color:var(--text-muted);line-height:1.4;">
-                <span class="show-es">Este es el cierre de tu proceso. Completa la reflexión final y luego genera tu reporte para compartir tu trabajo.</span>
+                <span class="show-es">Completa esta reflexión y luego genera tu reporte.</span>
                 <span class="lang-sep"> · </span>
-                <span class="show-en">This is the final step in your process. Complete the reflection, then generate your report to share your work.</span>
+                <span class="show-en">Complete this reflection, then generate your report.</span>
             </p>
         </div>
 
@@ -3869,8 +3869,8 @@ const EVAL_FEEDBACK = {
 const REFLECTION_CHECKPOINTS = [
     {
         stageId: 4,
-        titleEs: 'Antes de seguir',
-        titleEn: 'Before You Continue',
+        titleEs: 'Antes de seguir: tu investigación',
+        titleEn: 'Before You Continue: your research',
         reportLabel: 'Revision Check',
         skill: 'Research verification',
         skillsGainsLabel: 'I practiced checking whether AI research advice needs verification.',
@@ -3892,8 +3892,8 @@ const REFLECTION_CHECKPOINTS = [
     },
     {
         stageId: 7,
-        titleEs: 'Antes de seguir',
-        titleEn: 'Before You Continue',
+        titleEs: 'Antes de seguir: tu revisión',
+        titleEn: 'Before You Continue: your revision',
         reportLabel: 'Revision Check',
         skill: 'Revision judgment',
         skillsGainsLabel: 'I practiced deciding whether AI revision advice supported my own choices as a writer.',
@@ -3915,8 +3915,8 @@ const REFLECTION_CHECKPOINTS = [
     },
     {
         stageId: 8,
-        titleEs: 'Antes de seguir',
-        titleEn: 'Before You Continue',
+        titleEs: 'Antes de seguir: tu voz',
+        titleEn: 'Before You Continue: your voice',
         reportLabel: 'Revision Check',
         skill: 'Voice protection',
         skillsGainsLabel: 'I practiced checking whether AI advice protected my voice, language, and cultural knowledge.',

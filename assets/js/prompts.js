@@ -227,7 +227,7 @@ const PANA_HINTS = {
     8: {
         gentle: {
             title: 'Pulir voz empieza con una oración. · Voice polish starts with one sentence.',
-            body: 'Elige una oración o pasaje corto. Pregúntate si necesita claridad, especificidad o protección de voz. El coach sugiere una ruta — tú haces el cambio final. / Choose one sentence or short passage. Ask whether it needs clarity, specificity, or voice protection. The coach suggests a route — you make the final edit.',
+            body: 'Elige una oración — no todo a la vez. La tarjeta de abajo te guía paso a paso. / Choose one sentence — not everything at once. The card below walks you through it.',
             action: 'Elige una oración. Selecciona una ruta en la tarjeta de abajo. · Choose one sentence. Pick a route in the card below.'
         },
         direct: {
@@ -523,9 +523,9 @@ function injectVoicePolishCard() {
             vpBtn('matters') + vpBtn('protect') +
         `</div>` +
         `<p class="vp-guardrail">` +
-            `<span class="show-es">El coach identifica posibilidades y sugiere rutas de revisión — no reescribe tu oración. Tú haces el cambio final.</span>` +
+            `<span class="show-es">Tu coach puede sugerir opciones, pero tú haces la edición final para que la oración siga sonando como tú.</span>` +
             `<span class="lang-sep"> · </span>` +
-            `<span class="show-en">The coach identifies possibilities and suggests revision routes — it does not rewrite your sentence. You make the final edit.</span>` +
+            `<span class="show-en">The coach can suggest options, but you make the final edit so the sentence still sounds like you.</span>` +
         `</p>`;
 
     D.chatMessages.appendChild(card);
@@ -581,7 +581,7 @@ const STAGE_ENTRY_MESSAGES = {
     3: 'Define la tensión de tu argumento: ¿qué tira en dos direcciones en tu historia?\nDefine the tension in your argument: what pulls in two directions in your story?',
     4: 'Busca una fuente que contextualice tu experiencia — no para reemplazarla, sino para profundizarla.\nFind one source that contextualizes your experience — not to replace it, but to deepen it.',
     5: 'Traza el mapa de cómo tu ensayo pasa de la anécdota al argumento — puedes cambiarlo mientras escribes.\nOutline how your essay moves from anecdote to argument — you can change it as you write.',
-    6: 'Antes de empezar el borrador, puedes regresar a etapas anteriores y fortalecer cualquier parte que todavía se sienta incompleta. Luego usa la opción de importar para traer tus partes más fuertes.\n\nBefore drafting, you may want to revisit earlier stages and strengthen any part that still feels unfinished. Then use the import option to bring your strongest pieces forward.\n\nEscribe sin detenerte — el borrador no necesita ser perfecto, solo necesita ser tuyo.\nWrite without stopping — the draft does not need to be perfect, it just needs to be yours.',
+    6: 'Este es tu borrador: lo escribes tú, sin el coach. No tiene que ser perfecto — solo tiene que ser tuyo. Escribe sin detenerte.\n\nThis is your draft: you write it, without the coach. It does not need to be perfect — it just needs to be yours. Write without stopping.\n\n(Opcional: si una etapa anterior quedó incompleta, puedes volver y usar la opción de importar para traer tus partes más fuertes. · Optional: if an earlier stage feels unfinished, you can go back and use import to bring your strongest pieces forward.)',
     7: 'Revisa para hacer tu argumento más claro, sin borrarte de la página — elige una oración y empieza ahí.\nRevise to make your argument clearer without erasing yourself — choose one sentence and start there.',
     8: 'Elige una oración de tu borrador y decide qué tipo de ayuda necesita: claridad, especificidad o protección de voz.\nChoose one sentence from your draft and decide what kind of help it needs: clarity, specificity, or voice protection.',
     9: 'Antes de avanzar, confirma que tu borrador está guardado y que tu ensayo incluye un momento personal y una conexión más amplia.\nBefore you move on, confirm your draft is saved and your essay includes a personal moment and a larger connection.',

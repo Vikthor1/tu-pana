@@ -1513,8 +1513,8 @@ function showStagePreview(targetId) {
     // Authorship gate check
     if (targetId >= 7 && !state.draftSaved) {
         addSys(t(
-            `⭐ Para llegar a la Etapa ${targetId}, primero necesitas guardar tu primer borrador sin ayuda en el panel izquierdo. Ese borrador es el corazón de todo lo que viene después. / To reach Stage ${targetId}, first save your unassisted first draft in the left panel. That draft is the foundation of everything that follows.`,
-            `⭐ Etapa ${targetId} requires a saved first draft. Write and save your draft in the left panel first.`
+            `⭐ Para seguir, primero necesitas guardar tu primer borrador sin ayuda en el panel izquierdo. Ese borrador es el corazón de todo lo que viene después. / To continue, first save your unassisted first draft in the left panel. That draft is the foundation of everything that follows.`,
+            `⭐ This step requires a saved first draft. Write and save your draft in the left panel first.`
         ));
         return;
     }
@@ -1724,8 +1724,8 @@ function goToStage(id) {
 function onStageClick(s) {
     if (s.id >= 7 && !state.draftSaved) {
         addSys(t(
-            `⭐ Para llegar a la Etapa ${s.id}, primero guarda tu primer borrador sin ayuda en el panel izquierdo. Ese borrador es tuyo — nada puede reemplazarlo. / To reach Stage ${s.id}, first save your unassisted first draft in the left panel. That draft is yours — nothing can replace it.`,
-            `⭐ Stage ${s.id} requires a saved first draft. Write and save your draft first.`
+            `⭐ Para seguir, primero guarda tu primer borrador sin ayuda en el panel izquierdo. Ese borrador es tuyo — nada puede reemplazarlo. / To continue, first save your unassisted first draft in the left panel. That draft is yours — nothing can replace it.`,
+            `⭐ This step requires a saved first draft. Write and save your draft first.`
         ));
         return;
     }

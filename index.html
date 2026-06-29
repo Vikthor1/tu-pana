@@ -169,7 +169,7 @@
             <button class="continue-btn" id="continueBtn" onclick="showStagePreview(state.stage + 1)" aria-label="Continuar · Continue">
                 <span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 32h36"/><path d="M36 20l14 12-14 12"/></svg></span><span class="show-es"> Continuar</span><span class="lang-sep"> · </span><span class="show-en">Continue</span>
             </button>
-            <p class="draft-footer-note" id="draftFooterNote"><span class="show-es">Tu borrador de la Etapa 6 queda protegido al guardar — sigues revisando en la Etapa 7.</span><span class="show-en">Your Stage 6 draft is protected when saved — you keep revising in Stage 7.</span></p>
+            <p class="draft-footer-note" id="draftFooterNote"><span class="show-es">Tu primer borrador queda protegido al guardar — sigues revisando después.</span><span class="show-en">Your first draft is protected when saved — you keep revising afterward.</span></p>
         </div>
     </section>
 
@@ -219,9 +219,9 @@
                 <span id="toneToggleLabel"><span class="show-es">Suave</span><span class="lang-sep"> · </span><span class="show-en">Gentle</span></span>
             </button>
             <div class="coach-mode-toggle" role="group" aria-label="Modo del coach · Coach mode" id="coachModeToggle">
-                <button class="coach-mode-btn" data-mode="offline" onclick="setCoachMode('offline')" aria-pressed="false" title="Offline — built-in stage guidance, no external AI / Orientación integrada por etapa">Offline</button>
+                <button class="coach-mode-btn" data-mode="offline" onclick="setCoachMode('offline')" aria-pressed="false" title="Guía sin IA — orientación integrada, sin coach de IA (no necesita IA) · Guided (no AI) — built-in step guidance, no AI coach"><span class="show-es">Guía</span><span class="lang-sep"> · </span><span class="show-en">Guided</span></button>
                 <button class="coach-mode-btn" data-mode="ollama" onclick="setCoachMode('ollama')" aria-pressed="false" title="Local AI · Ollama — requires Ollama running locally / Ollama local en tu máquina" style="display:none">Ollama</button>
-                <button class="coach-mode-btn active" data-mode="gemini" onclick="setCoachMode('gemini')" aria-pressed="true" title="Gemini AI — cloud coach via secure proxy / Coach en la nube por proxy seguro">Gemini</button>
+                <button class="coach-mode-btn active" data-mode="gemini" onclick="setCoachMode('gemini')" aria-pressed="true" title="Coach de IA — responde a tus mensajes a través de un proxy seguro · AI Coach — responds to your messages via a secure proxy"><span class="show-es">Coach IA</span><span class="lang-sep"> · </span><span class="show-en">AI Coach</span></button>
             </div>
         </div>
 
@@ -406,9 +406,13 @@
       <div class="mani-eyebrow">Antes de comenzar · Before we begin</div>
       <h2 class="mani-title">Tú ya produces conocimiento.<br>You already produce knowledge.</h2>
       <p class="mani-subtitle">
-        Your languages, your story, your community, your angle of vision —
+        Tus idiomas, tu historia, tu comunidad, tu manera de ver el mundo
+        no son obstáculos para la escritura académica.
+        Son <em>recursos intelectuales</em>.<br>
+        <span style="color:var(--text-muted); font-size:0.8rem;">Toca cada uno para reclamarlo como tuyo.</span><br><br>
+        <span style="font-size:0.92rem;">Your languages, your story, your community, your angle of vision —
         these are not obstacles to academic writing.
-        They are <em>intellectual assets</em>.<br>
+        They are <em>intellectual assets</em>.</span><br>
         <span style="color:var(--text-muted); font-size:0.8rem;">Tap each one to claim it as yours.</span>
       </p>
       <div id="maniIntroAudioWrap"></div>
@@ -715,8 +719,8 @@
             <span>Save your first draft?</span>
         </div>
         <p class="confirm-body">
-            Tu borrador de la Etapa 6 queda protegido al guardar — sigues revisando en la Etapa 7.<br>
-            <em>Your Stage 6 draft is protected when saved — you keep revising in Stage 7.</em><br><br>
+            Tu primer borrador queda protegido al guardar — sigues revisando después.<br>
+            <em>Your first draft is protected when saved — you keep revising afterward.</em><br><br>
             This is a checkpoint, not a final version. Your words stay yours.<br>
             <em style="display:block;margin-top:6px;color:var(--text-muted);">Esto es un punto de control, no la versión final. Tus palabras siguen siendo tuyas.</em>
         </p>
@@ -754,7 +758,7 @@
         </p>
 
         <div class="save-ceremony-actions" role="group" aria-label="Next steps · Próximos pasos">
-            <button class="save-ceremony-btn primary" id="modalClose" onclick="saveCeremonyNext('revise')" aria-label="Comenzar la revisión — Stage 7 · Start Revising — Stage 7">
+            <button class="save-ceremony-btn primary" id="modalClose" onclick="saveCeremonyNext('revise')" aria-label="Comenzar la revisión · Start Revising">
                 <span class="show-es">Comenzar la revisión →</span><span class="lang-sep"> · </span><span class="show-en">Start Revising →</span>
             </button>
             <button class="save-ceremony-btn secondary" onclick="saveCeremonyNext('review')" aria-label="Leer mi borrador primero · Read my draft first">

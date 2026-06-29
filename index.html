@@ -831,25 +831,40 @@
       <!-- Populated by JS -->
     </div>
     <div class="report-actions">
-      <p class="report-export-hint"><span class="show-es">Descarga tu trabajo para no perder tu progreso. También puedes importar trabajo guardado más tarde.</span><span class="lang-sep"> · </span><span class="show-en">Download your work so you do not lose your progress. You can also import saved work later.</span></p>
-      <button class="report-action-btn primary" onclick="exportData()">
-        <span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M14 7h33l7 7v43H14z"/><path d="M47 7v8h7M22 23h21M22 31h16"/><circle class="tp-fill-jade" cx="43" cy="45" r="10"/><path d="M38 45l4 4 7-8"/></svg></span> <span class="show-es">Descargar mi trabajo</span><span class="lang-sep"> · </span><span class="show-en">Download my work</span>
-      </button>
-      <button class="report-action-btn secondary" onclick="importData()">
-        <span class="show-es">Importar trabajo guardado</span><span class="lang-sep"> · </span><span class="show-en">Import saved work</span>
-      </button>
-      <button class="report-action-btn secondary" onclick="copyReport()">
-        <span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M13 8h30l6 6v42H15z"/><path d="M45 8v7h7"/><circle class="tp-fill-teal" cx="33" cy="34" r="14"/><circle class="tp-fill-paper" cx="33" cy="34" r="8"/><circle class="tp-fill-clay" cx="33" cy="34" r="3"/><path d="M43 24l9-9M47 15h5v5"/></svg></span> <span class="show-es">Copiar todo</span><span class="lang-sep"> · </span><span class="show-en">Copy all</span>
-      </button>
-      <button class="report-action-btn secondary" onclick="downloadReport()">
-        <span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M14 7h33l7 7v43H14z"/><path d="M47 7v8h7M22 23h21M22 31h16"/><circle class="tp-fill-jade" cx="43" cy="45" r="10"/><path d="M38 45l4 4 7-8"/></svg></span> <span class="show-es">Descargar informe del proceso</span><span class="lang-sep"> · </span><span class="show-en">Download process report</span>
-      </button>
-      <button class="report-action-btn secondary" onclick="emailReport()">
-        <span class="show-es">Enviar por correo</span><span class="lang-sep"> · </span><span class="show-en">Email</span>
-      </button>
-      <button class="report-action-btn secondary" onclick="clearAllData()" style="border-color:var(--rose); color:var(--rose);">
-        <span class="show-es">Borrar mis datos</span><span class="lang-sep"> · </span><span class="show-en">Clear my data</span>
-      </button>
+      <!-- Recommended: the one packet to submit for class (Batch 5) -->
+      <div class="packet-recommended">
+        <div class="packet-recommended-label"><span class="show-es">Para entregar en clase — usa esto</span><span class="lang-sep"> · </span><span class="show-en">For class submission — use this</span></div>
+        <button class="report-action-btn primary packet-btn" onclick="exportFinalPacket()">
+          📦 <span class="show-es">Copiar mi paquete final</span><span class="lang-sep"> · </span><span class="show-en">Copy my Final Submission Packet</span>
+        </button>
+        <button class="report-action-btn secondary" onclick="downloadFinalPacket()">
+          <span class="show-es">Descargar paquete final</span><span class="lang-sep"> · </span><span class="show-en">Download Final Packet</span>
+        </button>
+        <p class="packet-note"><span class="show-es">Incluye tu ensayo final + tu reporte de proceso, todo junto. Pégalo en Brightspace.</span><span class="lang-sep"> · </span><span class="show-en">Includes your final essay + process report together. Paste it into Brightspace.</span></p>
+      </div>
+
+      <details class="report-other-options">
+        <summary><span class="show-es">Otras opciones</span><span class="lang-sep"> · </span><span class="show-en">Other options</span></summary>
+        <p class="report-export-hint"><span class="show-es">Descarga una copia de seguridad para no perder tu progreso, o importa trabajo guardado más tarde.</span><span class="lang-sep"> · </span><span class="show-en">Download a backup so you do not lose your progress, or import saved work later.</span></p>
+        <button class="report-action-btn secondary" onclick="exportData()">
+          <span class="show-es">Descargar copia de seguridad (.json)</span><span class="lang-sep"> · </span><span class="show-en">Download backup (.json)</span>
+        </button>
+        <button class="report-action-btn secondary" onclick="importData()">
+          <span class="show-es">Importar trabajo guardado</span><span class="lang-sep"> · </span><span class="show-en">Import saved work</span>
+        </button>
+        <button class="report-action-btn secondary" onclick="copyReport()">
+          <span class="show-es">Copiar solo el informe del proceso (para revisar)</span><span class="lang-sep"> · </span><span class="show-en">Copy process report only (for review)</span>
+        </button>
+        <button class="report-action-btn secondary" onclick="downloadReport()">
+          <span class="show-es">Descargar solo el informe del proceso</span><span class="lang-sep"> · </span><span class="show-en">Download process report only</span>
+        </button>
+        <button class="report-action-btn secondary" onclick="emailReport()">
+          <span class="show-es">Enviar por correo</span><span class="lang-sep"> · </span><span class="show-en">Email</span>
+        </button>
+        <button class="report-action-btn secondary" onclick="clearAllData()" style="border-color:var(--rose); color:var(--rose);">
+          <span class="show-es">Borrar mis datos</span><span class="lang-sep"> · </span><span class="show-en">Clear my data</span>
+        </button>
+      </details>
     </div>
     <details class="report-persistence-note">
       <summary class="report-persistence-summary"><strong>Consejo · Tip</strong></summary>

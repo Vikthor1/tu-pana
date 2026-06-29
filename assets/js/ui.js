@@ -677,7 +677,7 @@ function injectCapstonePanel() {
     panel.innerHTML = `
         <div class="capstone-card-label">10A · Mi autoevaluación · My Self-Assessment</div>
         <div class="capstone-panel-title" lang="es">Mi cierre de proceso</div>
-        <div class="capstone-panel-subtitle" lang="en">My Writing Snapshot — Stage 10 of 10</div>
+        <div class="capstone-panel-subtitle" lang="en">My Writing Snapshot — Step 5 of 5 · Reflect &amp; Submit</div>
 
         <div class="capstone-intro">
             <strong>Ya hiciste el trabajo difícil.</strong>
@@ -815,11 +815,12 @@ function updateCurrentTaskBar() {
     const total    = steps.length;
     const stepData = steps[step - 1] || steps[0];
 
+    const ms = milestoneForStage(state.stage);
     const ctbStage = document.getElementById('ctbStage');
     if (ctbStage) ctbStage.innerHTML =
-        `<span class="show-es">Etapa ${state.stage}<span class="ctb-of-total"> de 10</span> · ${escapeHtml(s.es.replace('\n', ' '))}</span>` +
+        `<span class="show-es">Paso ${ms.n}<span class="ctb-of-total"> de ${TOTAL_MILESTONES}</span> · ${escapeHtml(ms.es)}</span>` +
         `<span class="lang-sep"> / </span>` +
-        `<span class="show-en">Stage ${state.stage}<span class="ctb-of-total"> of 10</span> · ${escapeHtml(s.en)}</span>`;
+        `<span class="show-en">Step ${ms.n}<span class="ctb-of-total"> of ${TOTAL_MILESTONES}</span> · ${escapeHtml(ms.en)}</span>`;
 
     // Mobile progress strip — set CSS variable consumed by ::after on current-task-bar
     const ctbBar = document.getElementById('currentTaskBar');
@@ -1271,23 +1272,54 @@ const PHASES = [
     { label: 'Completar', en: 'Complete', ids: [10] }
 ];
 
+// ════════════════════════════════════════════════════════
+//  STUDENT-FACING MILESTONES  (Batch 1 — milestone simplification)
+//  A presentation layer over the internal 10 stages. The 10-stage
+//  state machine, logs, reports, and authorship gate are UNCHANGED —
+//  this only reframes what the student SEES so the journey reads as
+//  5 milestones, not a 10-step compliance sequence. Stage 6 (the
+//  unassisted first-draft authorship gate) is its own milestone (M3).
+//  Map flow-aligned per founder decision 2026-06-29.
+// ════════════════════════════════════════════════════════
+const MILESTONES = [
+    { n: 1, es: 'Encuentra tu historia',      en: 'Find Your Story',        ids: [1, 2, 3] },
+    { n: 2, es: 'Investiga y planifica',      en: 'Research & Plan',        ids: [4, 5] },
+    { n: 3, es: 'Escribe tu primer borrador', en: 'Write Your First Draft', ids: [6] },
+    { n: 4, es: 'Pule tu ensayo',             en: 'Refine Your Essay',      ids: [7, 8, 9] },
+    { n: 5, es: 'Reflexiona y entrega',       en: 'Reflect & Submit',       ids: [10] }
+];
+const TOTAL_MILESTONES = MILESTONES.length;
+// Internal stage id (1–10) → its student-facing milestone object.
+function milestoneForStage(stageId) {
+    return MILESTONES.find(m => m.ids.includes(stageId)) || MILESTONES[0];
+}
+// How many milestones are fully complete (all their stages in state.done).
+function milestonesCompletedCount() {
+    return MILESTONES.filter(m => m.ids.every(id => state.done.has(id))).length;
+}
+
 function buildMap() {
     D.journeyTrack.innerHTML = '';
     let dimmedCount = 0;
 
-    PHASES.forEach((phase, pi) => {
+    MILESTONES.forEach((ms) => {
         const group = document.createElement('div');
-        group.className = 'phase-group';
+        group.className = 'phase-group milestone-group';
+        // Milestone-level state for header emphasis
+        if (ms.ids.every(id => state.done.has(id)))  group.classList.add('ms-done');
+        if (ms.ids.includes(state.stage))            group.classList.add('ms-active');
 
         const labelRow = document.createElement('div');
         labelRow.className = 'phase-label-row';
-        labelRow.innerHTML = `<span class="phase-label show-es" lang="es">${phase.label}</span><span class="phase-label show-en" lang="en">${phase.en}</span>`;
+        labelRow.innerHTML =
+            `<span class="phase-label show-es" lang="es">${ms.n}. ${ms.es}</span>` +
+            `<span class="phase-label show-en" lang="en">${ms.n}. ${ms.en}</span>`;
         group.appendChild(labelRow);
 
         const nodesRow = document.createElement('div');
         nodesRow.className = 'phase-nodes';
 
-        phase.ids.forEach(id => {
+        ms.ids.forEach(id => {
             const s = STAGES.find(st => st.id === id);
             if (!s) return;
 
@@ -1313,7 +1345,10 @@ function buildMap() {
                 circle.innerHTML = '<svg viewBox="0 0 16 16" style="width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><path d="M2 12l8-8 4 4-8 8zM6 8l4 4"/></svg>';
                 circle.title = 'Puerta de autoría · Authorship gate';
             } else {
-                circle.textContent = s.id;
+                // Milestone model: no raw stage numbers — an empty outlined
+                // circle reads as "upcoming" without the 10-step feel. The
+                // stage name below + hover tooltip still identify each step.
+                circle.classList.add('stage-circle--upcoming');
             }
 
             const stageLabel = document.createElement('div');
@@ -1360,12 +1395,21 @@ function buildMobileNav() {
     const sel = D.mobileStageSelect;
     if (!sel) return;
     sel.innerHTML = '';
-    STAGES.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.id;
-        opt.textContent = `${s.id} · ${s.en}`;
-        if (s.id === state.stage) opt.selected = true;
-        sel.appendChild(opt);
+    // Group stages under their student-facing milestone so the dropdown
+    // reads as 5 milestones, not a flat list of 10 stages.
+    MILESTONES.forEach(ms => {
+        const og = document.createElement('optgroup');
+        og.label = `${ms.n}. ${ms.en} · ${ms.es}`;
+        ms.ids.forEach(id => {
+            const s = STAGES.find(st => st.id === id);
+            if (!s) return;
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = `${s.en} · ${s.es.replace('\n', ' ')}`;
+            if (s.id === state.stage) opt.selected = true;
+            og.appendChild(opt);
+        });
+        sel.appendChild(og);
     });
 }
 
@@ -1544,7 +1588,8 @@ function goToStage(id) {
     state.step  = loadStepForStage(id);
     const s = STAGES[id - 1];
     if (D.headerSub) {
-        D.headerSub.innerHTML = `<span class="show-es">TU COACH DE ESCRITURA</span><span class="lang-sep">&nbsp;·&nbsp;</span><span class="show-en">YOUR WRITING COACH</span>&nbsp;—&nbsp;<span class="header-stage-inline"><span class="show-es">Etapa ${id} · ${s.es.replace('\n', ' ')}</span><span class="lang-sep"> / </span><span class="show-en">Stage ${id} · ${s.en}</span></span>`;
+        const ms = milestoneForStage(id);
+        D.headerSub.innerHTML = `<span class="show-es">TU COACH DE ESCRITURA</span><span class="lang-sep">&nbsp;·&nbsp;</span><span class="show-en">YOUR WRITING COACH</span>&nbsp;—&nbsp;<span class="header-stage-inline"><span class="show-es">Paso ${ms.n} de ${TOTAL_MILESTONES} · ${ms.es}</span><span class="lang-sep"> / </span><span class="show-en">Step ${ms.n} of ${TOTAL_MILESTONES} · ${ms.en}</span></span>`;
     }
     try { localStorage.setItem('tupana_stage', String(id)); } catch(e) {}
     buildMap();
@@ -1624,6 +1669,11 @@ function goToStage(id) {
 
     // Inject self-assessment capstone panel at stage 10
     if (id === 10) setTimeout(() => injectCapstonePanel(), 700);
+
+    // In-flow micro-reflections (Batch 4): after revision (entering checklist)
+    // and before final submit (Stage 10). Lightweight, autosave, optional.
+    if (id === 9)  setTimeout(() => injectMicroReflection('changed'), 700);
+    if (id === 10) setTimeout(() => injectMicroReflection('needs_work'), 1000);
 
     // Unlock writing skill for this stage.
     // Stage 6 is intentionally excluded — its skill unlocks only after executeSave().
@@ -2044,6 +2094,10 @@ function executeSave() {
 
     // Show decision log for revision tracking
     renderDecisionLog();
+
+    // In-flow micro-reflection #1 — capture the main idea right after the
+    // first draft is locked in (Batch 4). Lightweight, autosaves, optional.
+    setTimeout(() => injectMicroReflection('main_idea'), 1000);
 
     if (state.connected) {
         const draftText = D.draftArea.value.trim();
@@ -3815,13 +3869,14 @@ const EVAL_FEEDBACK = {
 const REFLECTION_CHECKPOINTS = [
     {
         stageId: 4,
-        titleEs: 'Pausa y reflexiona',
-        titleEn: 'Pause and Reflect',
+        titleEs: 'Antes de seguir',
+        titleEn: 'Before You Continue',
+        reportLabel: 'Revision Check',
         skill: 'Research verification',
         skillsGainsLabel: 'I practiced checking whether AI research advice needs verification.',
         skillsGainsLabelEs: 'Practiqué verificar si el consejo de investigación del coach necesita comprobación.',
-        promptEs: 'Antes de usar consejos de investigación de un coach de IA, pregúntate: ¿el coach me ayudó a buscar y verificar fuentes, o actuó como si las fuentes no necesitaran verificación?',
-        promptEn: 'Before using research advice from an AI coach, pause and ask: Did the coach help me search and verify sources, or did it act as if sources do not need to be checked?',
+        promptEs: 'Antes de seguir, revisa esto: ¿sabes de dónde viene cada dato y cada fuente que vas a usar? Esto mantiene la investigación tuya — algo que puedes explicar y defender.',
+        promptEn: 'Before moving on, check this: do you know where each fact and source you plan to use actually comes from? This keeps your research yours — something you can explain and stand behind.',
         questionEs: '¿El coach te ayudó a pensar en dónde y cómo buscar, o hizo que la investigación pareciera ya terminada?',
         questionEn: 'Did the coach help you think about where and how to search, or did it make research sound already finished?',
         options: [
@@ -3837,13 +3892,14 @@ const REFLECTION_CHECKPOINTS = [
     },
     {
         stageId: 7,
-        titleEs: 'Pausa y reflexiona',
-        titleEn: 'Pause and Reflect',
+        titleEs: 'Antes de seguir',
+        titleEn: 'Before You Continue',
+        reportLabel: 'Revision Check',
         skill: 'Revision judgment',
         skillsGainsLabel: 'I practiced deciding whether AI revision advice supported my own choices as a writer.',
         skillsGainsLabelEs: 'Practiqué decidir si el consejo de revisión del coach apoyó mis propias decisiones como escritor/a.',
-        promptEs: 'Antes de aceptar consejo de revisión, pregúntate: ¿el coach me está ayudando a tomar mis propias decisiones, o está tomando el control de la escritura?',
-        promptEn: 'Before accepting revision advice, pause and ask: Is the coach helping me make my own choices, or is it taking over the writing?',
+        promptEs: 'Antes de seguir, revisa esto: ¿tu ensayo presenta una idea clara que un lector pueda seguir? Esto ayuda a que tu mejor pensamiento se note.',
+        promptEn: 'Before moving on, check this: does your essay make one clear claim a reader can follow? This helps your strongest thinking come through.',
         questionEs: '¿El coach te ayudó a revisar tu propio párrafo, o empezó a escribir por ti?',
         questionEn: 'Did the coach help you revise your own paragraph, or did it start writing for you?',
         options: [
@@ -3859,13 +3915,14 @@ const REFLECTION_CHECKPOINTS = [
     },
     {
         stageId: 8,
-        titleEs: 'Pausa y reflexiona',
-        titleEn: 'Pause and Reflect',
+        titleEs: 'Antes de seguir',
+        titleEn: 'Before You Continue',
+        reportLabel: 'Revision Check',
         skill: 'Voice protection',
         skillsGainsLabel: 'I practiced checking whether AI advice protected my voice, language, and cultural knowledge.',
         skillsGainsLabelEs: 'Practiqué verificar si el consejo del coach protegió mi voz, lenguaje y conocimiento cultural.',
-        promptEs: 'Antes de pulir tu lenguaje, pregúntate: ¿el coach protegió tu voz, o empujó tu escritura hacia algo genérico?',
-        promptEn: 'Before polishing your language, pause and ask: Did the coach protect your voice, or did it push your writing toward sounding generic?',
+        promptEs: 'Antes de seguir, revisa esto: ¿cuál oración suena menos como tú — y cómo la dirías con tu propia voz? Esto te ayuda a ganar claridad sin perderte a ti mismo/a.',
+        promptEn: 'Before moving on, check this: which sentence sounds least like you — and how would you say it in your own voice? This helps you get clearer without losing yourself.',
         questionEs: '¿El coach te ayudó a aclarar tu escritura preservando tu voz?',
         questionEn: 'Did the coach help clarify your writing while preserving your voice?',
         options: [
@@ -3881,13 +3938,14 @@ const REFLECTION_CHECKPOINTS = [
     },
     {
         stageId: 10,
-        titleEs: 'Pausa y reflexiona',
-        titleEn: 'Pause and Reflect',
+        titleEs: 'Antes de entregar',
+        titleEn: 'Before You Submit',
+        reportLabel: 'Final Reflection',
         skill: 'AI advice evaluation',
         skillsGainsLabel: 'I practiced explaining how I accepted, questioned, changed, or rejected AI advice.',
         skillsGainsLabelEs: 'Practiqué explicar cómo acepté, cuestioné, cambié o rechacé el consejo del coach.',
-        promptEs: 'Piensa en un momento en que aceptaste, cuestionaste, cambiaste o rechazaste el consejo del coach. ¿Qué decidiste y por qué?',
-        promptEn: 'Think about one moment when you accepted, questioned, changed, or rejected the coach\'s advice. What did you decide, and why?',
+        promptEs: 'Antes de entregar, revisa esto: mirando todo tu proceso, ¿cuál es una decisión sobre el consejo del coach de la que te sientes bien? Esto te ayuda a reconocer el trabajo que es tuyo.',
+        promptEn: 'Before you submit, check this: looking back over your whole process, what is one decision about the coach\'s advice that you feel good about? This helps you own the work that is yours.',
         questionEs: '¿Cómo describirías tu decisión más importante sobre el consejo del coach?',
         questionEn: 'How would you describe your most important decision about the coach\'s advice?',
         options: [
@@ -3920,8 +3978,8 @@ function renderReflectButton(msgId) {
     wrap.className = 'reflect-btn-wrap';
     const btn = document.createElement('button');
     btn.className = 'reflect-btn';
-    btn.setAttribute('aria-label', 'Pausa y reflexiona · Pause and Reflect');
-    btn.textContent = 'Reflect · Pausa crítica';
+    btn.setAttribute('aria-label', 'Antes de seguir · Before you continue');
+    btn.textContent = 'Revisión rápida · Quick check';
     btn.addEventListener('click', () => {
         if (cp) openReflectionCheckpoint(cp);
         else openMsgEvalDrawer(msgId, EVAL_QUESTIONS[0].key, {});
@@ -3976,7 +4034,7 @@ function openReflectionCheckpoint(cp) {
             btn.setAttribute('aria-pressed', 'true');
             try {
                 const log = JSON.parse(localStorage.getItem('tupana_decisions') || '[]');
-                log.push({ q: `${cp.titleEn} (Stage ${cp.stageId})`, choice: `option_${idx + 1}`, t: new Date().toISOString(), checkpoint: true, stage: cp.stageId, skill: cp.skill });
+                log.push({ q: `${cp.reportLabel || cp.titleEn} (Stage ${cp.stageId})`, choice: `option_${idx + 1}`, t: new Date().toISOString(), checkpoint: true, stage: cp.stageId, skill: cp.skill });
                 localStorage.setItem('tupana_decisions', JSON.stringify(log.slice(-50)));
             } catch(e) {}
             logProcessEvent('feedback_evaluated', `Reflection checkpoint Stage ${cp.stageId} (${cp.skill}): option ${idx + 1}.`);
@@ -4462,6 +4520,37 @@ function evalPick(btn, type) {
 }
 
 // ════════════════════════════════════════════════════════
+//  DECISION CLASSIFICATION  (Batch 3 — counter-bug fix)
+//  Single source of truth so summary COUNTS and per-row LABELS always
+//  agree. Five-Questions evaluations carry choice good/warn/flag →
+//  accepted/thinking/questioned. Pause-and-Reflect / Revision Check
+//  entries carry checkpoint:true (choice 'option_N' or free text) →
+//  their own "checks" bucket. Before this fix, checkpoints were dropped
+//  from the counts but fell through an else-branch and rendered as
+//  "Questioned" — so reports showed Accepted 0 / Questioned 0 while the
+//  decision log listed rows as "Questioned". tallyDecisions() counts
+//  every entry exactly once; decisionRowLabel() labels each correctly.
+// ════════════════════════════════════════════════════════
+function tallyDecisions(decisions) {
+    const t = { accepted: 0, thinking: 0, questioned: 0, checks: 0, total: 0 };
+    (decisions || []).forEach(d => {
+        if (!d) return;
+        t.total++;
+        if      (d.checkpoint === true) t.checks++;
+        else if (d.choice === 'good')   t.accepted++;
+        else if (d.choice === 'warn')   t.thinking++;
+        else if (d.choice === 'flag')   t.questioned++;
+    });
+    return t;
+}
+function decisionRowLabel(d) {
+    if (d && d.checkpoint === true) return { es: 'Revisión · Revision check', plain: '◆ Revision check', dot: 'check' };
+    if (d && d.choice === 'good')   return { es: 'Acepté · Accepted',          plain: '✓ Accepted',       dot: 'good' };
+    if (d && d.choice === 'warn')   return { es: 'Pensando más · Thinking more', plain: '? Thinking more', dot: 'warn' };
+    return { es: 'Cuestioné · Questioned', plain: '✗ Questioned', dot: 'flag' };
+}
+
+// ════════════════════════════════════════════════════════
 //  REVISION DECISION LOG
 // ════════════════════════════════════════════════════════
 function renderDecisionLog() {
@@ -4471,9 +4560,6 @@ function renderDecisionLog() {
 
     try {
         const log = JSON.parse(localStorage.getItem('tupana_decisions') || '[]');
-        const accepted = log.filter(d => d.choice === 'good').length;
-        const questioned = log.filter(d => d.choice === 'flag').length;
-        const thinking = log.filter(d => d.choice === 'warn').length;
         const total = log.length;
 
         // Update header with count and toggle
@@ -4492,10 +4578,9 @@ function renderDecisionLog() {
             return;
         }
         itemsWrap.innerHTML = log.slice(-8).reverse().map(d => {
-            const dotClass = d.choice === 'good' ? 'good' : d.choice === 'warn' ? 'warn' : 'flag';
-            const label = d.choice === 'good' ? 'Acepté · Accepted' : d.choice === 'warn' ? 'Pensando más · Thinking more' : 'Cuestioné · Questioned';
+            const rl = decisionRowLabel(d);
             const time = new Date(d.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-            return `<div class="decision-log-item"><span class="decision-dot ${dotClass}"></span><span>${d.q}: <strong>${label}</strong> <span style="color:var(--text-muted)">— ${time}</span></span></div>`;
+            return `<div class="decision-log-item"><span class="decision-dot ${rl.dot}"></span><span>${d.q}: <strong>${rl.es}</strong> <span style="color:var(--text-muted)">— ${time}</span></span></div>`;
         }).join('');
         container.classList.add('on');
     } catch(e) {}
@@ -5206,7 +5291,7 @@ function _disableSpotlight() {
 function openReport() {
     const bg = document.getElementById('reportBg');
     const body = document.getElementById('reportBody');
-    body.innerHTML = buildReportHTML();
+    body.innerHTML = buildPacketDiagnosticHTML() + buildReportHTML();
     bg.classList.add('on');
 }
 function closeReport() {
@@ -5224,11 +5309,9 @@ function gatherProcessNoteData() {
     const stageName = STAGES[stage - 1] ? STAGES[stage - 1].es.replace('\n', ' ') + ' / ' + STAGES[stage - 1].en : '';
     const now = new Date();
     const dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    const accepted = decisions.filter(d => d.choice === 'good').length;
-    const questioned = decisions.filter(d => d.choice === 'flag').length;
-    const thinking = decisions.filter(d => d.choice === 'warn').length;
+    const { accepted, questioned, thinking, checks } = tallyDecisions(decisions);
     const botMsgs = chatLog.filter(m => m.who === 'bot').length;
-    return { draftSaved, wordCount, stage, stageName, maniSentence, accepted, questioned, thinking, botMsgs, dateStr };
+    return { draftSaved, wordCount, stage, stageName, maniSentence, accepted, questioned, thinking, checks, botMsgs, dateStr };
 }
 
 function openProcessNoteModal() {
@@ -5300,7 +5383,7 @@ function injectJourneyCompleteCard() {
             <div class="journey-complete-title"><span lang="es">Último paso: entrega tu reporte</span><span class="lang-sep"> · </span><span lang="en">Last step: submit your report</span></div>
             <ol class="journey-complete-steps">
                 <li><span lang="es">Abre <strong>Guardar / Exportar</strong> (botón abajo, o en el pie de página).</span><br><span lang="en">Open <strong>Save / Export</strong> (button below, or in the footer).</span></li>
-                <li><span lang="es">Toca <strong>Copiar todo</strong> para copiar tu reporte. Si las descargas funcionan en tu dispositivo, también puedes usar <strong>Descargar informe del proceso</strong>.</span><br><span lang="en">Tap <strong>Copy all</strong> to copy your report. If downloads work on your device, you can also use <strong>Download process report</strong>.</span></li>
+                <li><span lang="es">Toca <strong>Copiar mi paquete final</strong> — copia tu ensayo y tu reporte de proceso juntos. Si las descargas funcionan en tu dispositivo, también puedes usar <strong>Descargar paquete final</strong>.</span><br><span lang="en">Tap <strong>Copy my Final Submission Packet</strong> — it copies your essay and process report together. If downloads work on your device, you can also use <strong>Download Final Packet</strong>.</span></li>
                 <li><span lang="es">Pega y entrega el reporte en Brightspace, según las instrucciones de tu instructor/a.</span><br><span lang="en">Paste and submit the report in Brightspace, following your instructor's directions.</span></li>
             </ol>
             <button type="button" class="journey-complete-cta" onclick="openReport()" aria-label="Abrir Guardar / Exportar · Open Save / Export">
@@ -5333,6 +5416,72 @@ function saveProcessNoteAnswer(key, value) {
             setTimeout(() => indicator.classList.remove('show'), 1200);
         }
     }, 400);
+}
+
+// ════════════════════════════════════════════════════════
+//  IN-FLOW MICRO-REFLECTIONS  (Batch 4 — reflection simplification)
+//  Three short, well-timed reflections embedded in the writing journey
+//  (after first draft, after revision, before submit). They reduce the
+//  ~80% skip rate of the deeper Q3–Q8 Process Note by being lightweight,
+//  in-flow, and one question each. Answers are stored as SUB-KEYS inside
+//  the existing tupana_process_note object (no new localStorage key), so
+//  export/import/clear already cover them and the deep Q3–Q8 note is
+//  preserved unchanged for students who want to go further.
+// ════════════════════════════════════════════════════════
+const MICRO_REFLECTIONS = {
+    main_idea: {
+        key: 'mr_main_idea',
+        promptEs: 'Antes de seguir, una reflexión rápida: ¿cuál es tu idea principal ahora mismo, en una oración?',
+        promptEn: 'A quick reflection before you go on: what is your main idea right now, in one sentence?',
+        benefitEs: 'Esto te ayuda a mantener tu ensayo enfocado mientras revisas.',
+        benefitEn: 'This helps you keep your essay focused as you revise.',
+        placeholder: 'Tu idea principal en una oración… · Your main idea in one sentence…'
+    },
+    changed: {
+        key: 'mr_changed',
+        promptEs: 'Reflexión rápida: ¿qué cambiaste en tu ensayo gracias a la retroalimentación?',
+        promptEn: 'Quick reflection: what did you change in your essay because of feedback?',
+        benefitEs: 'Esto te ayuda a ver tu propio crecimiento como escritor/a.',
+        benefitEn: 'This helps you see your own growth as a writer.',
+        placeholder: 'Un cambio que hiciste por la retroalimentación… · One change you made because of feedback…'
+    },
+    needs_work: {
+        key: 'mr_needs_work',
+        promptEs: 'Antes de entregar, una última reflexión: ¿qué parte de tu ensayo todavía necesita trabajo?',
+        promptEn: 'One last reflection before you submit: what part of your essay still needs work?',
+        benefitEs: 'Reconocer esto es parte de ser un/a escritor/a fuerte — no tienes que arreglarlo todo hoy.',
+        benefitEn: 'Naming this is part of being a strong writer — you do not have to fix everything today.',
+        placeholder: 'Una parte que todavía necesita trabajo… · One part that still needs work…'
+    }
+};
+
+function injectMicroReflection(id) {
+    const cfg = MICRO_REFLECTIONS[id];
+    if (!cfg || !D.chatMessages) return;
+    // One card per reflection key (guards against re-injection on re-entry)
+    if (document.querySelector(`.micro-reflect[data-mr="${cfg.key}"]`)) return;
+    const answers = loadProcessNoteAnswers();
+    const card = document.createElement('div');
+    card.className = 'micro-reflect';
+    card.dataset.mr = cfg.key;
+    card.setAttribute('role', 'region');
+    card.setAttribute('aria-label', 'Reflexión rápida · Quick reflection');
+    card.innerHTML =
+        `<div class="micro-reflect-prompt"><span class="show-es">${escapeHtml(cfg.promptEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(cfg.promptEn)}</span></div>` +
+        `<textarea class="micro-reflect-text" id="mr-${cfg.key}" rows="2" placeholder="${escapeHtml(cfg.placeholder)}" oninput="saveProcessNoteAnswer('${cfg.key}', this.value)">${escapeHtml(answers[cfg.key] || '')}</textarea>` +
+        `<div class="micro-reflect-benefit"><span class="show-es">${escapeHtml(cfg.benefitEs)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(cfg.benefitEn)}</span></div>` +
+        `<span class="report-pn-saved" id="pn-saved-${cfg.key}">Guardado · Saved</span>`;
+    D.chatMessages.appendChild(card);
+    D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
+}
+
+// Reflection completion status from the 3 in-flow micro-reflections.
+function reflectionStatus() {
+    const a = loadProcessNoteAnswers();
+    const keys = Object.values(MICRO_REFLECTIONS).map(m => m.key);
+    const filled = keys.filter(k => (a[k] || '').trim().length > 0).length;
+    const status = filled === 0 ? 'BLANK' : filled === keys.length ? 'COMPLETED' : 'PARTIAL';
+    return { filled, total: keys.length, status };
 }
 
 function buildProcessNoteHTML(data) {
@@ -5404,9 +5553,7 @@ function buildReportHTML() {
     const now = new Date();
     const dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-    const accepted = decisions.filter(d => d.choice === 'good').length;
-    const questioned = decisions.filter(d => d.choice === 'flag').length;
-    const thinking = decisions.filter(d => d.choice === 'warn').length;
+    const { accepted, questioned, thinking, checks } = tallyDecisions(decisions);
     const botMsgs = chatLog.filter(m => m.who === 'bot').length;
     const userMsgs = chatLog.filter(m => m.who === 'user').length;
 
@@ -5419,7 +5566,7 @@ Etapa actual · Current stage: ${stage} — ${stageName}
 Borrador guardado · Draft saved: ${draftSaved ? 'Sí · Yes' : 'No'}
 Palabras en borrador · Draft words: ${wordCount}
 Mensajes con el coach · Coach messages: ${botMsgs} respuestas · responses, ${userMsgs} mensajes del estudiante · student messages
-Decisiones de revisión · Revision decisions: ${decisions.length} total (${accepted} aceptadas · accepted, ${questioned} cuestionadas · questioned, ${thinking} pensando · thinking)
+Decisiones de revisión · Revision decisions: ${decisions.length} total (${accepted} aceptadas · accepted, ${questioned} cuestionadas · questioned, ${thinking} pensando · thinking${checks ? `, ${checks} chequeos de revisión · revision checks` : ''})
         </div>
       </div>
 
@@ -5509,8 +5656,7 @@ function formatChatForReport(log) {
 function formatDecisionsForReport(decisions) {
     return decisions.map(d => {
         const time = new Date(d.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-        const label = d.choice === 'good' ? 'Acepté · Accepted' : d.choice === 'warn' ? '? Pensando más · Thinking more' : 'Cuestioné · Questioned';
-        return `${time} — ${d.q}: ${label}`;
+        return `${time} — ${d.q}: ${decisionRowLabel(d).es}`;
     }).join('\n');
 }
 
@@ -5535,9 +5681,7 @@ function getReportText() {
     const dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     const dateStrEn = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-    const accepted = decisions.filter(d => d.choice === 'good').length;
-    const questioned = decisions.filter(d => d.choice === 'flag').length;
-    const thinking = decisions.filter(d => d.choice === 'warn').length;
+    const { accepted, questioned, thinking, checks } = tallyDecisions(decisions);
     const botMsgs = chatLog.filter(m => m.who === 'bot').length;
     const userMsgs = chatLog.filter(m => m.who === 'user').length;
 
@@ -5562,7 +5706,7 @@ Etapa actual · Current stage: ${stage} — ${stageName}
 Borrador guardado · Draft saved: ${draftSaved ? 'Sí · Yes' : 'No · No'}
 Palabras en borrador · Draft words: ${wordCount}
 Mensajes con el coach · Coach messages: ${botMsgs} responses, ${userMsgs} student messages
-Decisiones de revisión · Revision decisions: ${decisions.length} total (${accepted} accepted, ${questioned} questioned, ${thinking} thinking)
+Decisiones de revisión · Revision decisions: ${decisions.length} total (${accepted} accepted, ${questioned} questioned, ${thinking} thinking${checks ? `, ${checks} revision checks` : ''})
 
 ${maniSentence ? `[ MI CONOCIMIENTO · MY KNOWLEDGE ]
 --------------------------------------------------------------------------------
@@ -5635,6 +5779,97 @@ function saveReportMeta(meta) {
     try { localStorage.setItem(REPORT_META_KEY, JSON.stringify(meta)); } catch(e) {}
 }
 
+// ════════════════════════════════════════════════════════
+//  FINAL SUBMISSION PACKET  (Batch 5 — export simplification)
+//  The pilot showed students submitting inconsistent artifacts (one a
+//  report with no essay, one a report with only the FIRST draft). Root
+//  cause: no export included the REVISED final essay — the student report
+//  embedded tupana_draft (the locked Stage-6 first draft) and the
+//  instructor report had no essay at all. getFinalEssay() resolves the
+//  revised essay (latest revision-stage textarea, falling back to the
+//  first draft) and buildSubmissionDiagnostic() flags missing-essay /
+//  first-draft-only / blank-reflection / gate-not-passed so the student
+//  is warned BEFORE submitting. One recommended path: the Final Packet.
+// ════════════════════════════════════════════════════════
+function getFinalEssay() {
+    const read = k => { try { return localStorage.getItem(k) || ''; } catch(e) { return ''; } };
+    const draft = read('tupana_draft');
+    const candidates = [];
+    for (const s of [7, 8, 9]) { const v = read('tupana_writing_s' + s); if (v.trim()) candidates.push({ text: v, stage: s }); }
+    // Live textarea captures unsaved edits while ON a revision stage (7/8 only —
+    // stages 9/10 show a fallback copy of the first draft, not fresh revision).
+    try { if (D.draftArea && (state.stage === 7 || state.stage === 8) && D.draftArea.value.trim()) candidates.push({ text: D.draftArea.value, stage: state.stage }); } catch(e) {}
+    if (candidates.length) {
+        candidates.sort((a, b) => (b.stage - a.stage) || (b.text.length - a.text.length));
+        const top = candidates[0];
+        // "Revised" = genuinely different from the first draft (guards the
+        // fallback case where a revision-stage textarea just mirrors the draft).
+        return { text: top.text, stage: top.stage, revised: top.text.trim() !== draft.trim() };
+    }
+    if (draft.trim()) return { text: draft, stage: 6, revised: false };
+    return { text: '', stage: 0, revised: false };
+}
+
+function buildSubmissionDiagnostic() {
+    const warnings = [];
+    const essay = getFinalEssay();
+    const draftSaved = (() => { try { return localStorage.getItem('tupana_draft_saved') === 'true'; } catch(e) { return false; } })();
+    const decisions = (() => { try { return JSON.parse(localStorage.getItem('tupana_decisions') || '[]'); } catch(e) { return []; } })();
+    const rs = reflectionStatus();
+    if (!essay.text.trim()) {
+        warnings.push({ es: 'No se encontró tu ensayo. Escribe y guarda tu trabajo antes de entregar.', en: 'No essay found — write and save your work before submitting.' });
+    } else if (!essay.revised) {
+        warnings.push({ es: 'Solo se encontró tu PRIMER borrador — tu ensayo revisado no aparece. Revisa en "Pule tu ensayo" antes de entregar.', en: 'Only your FIRST draft was found — your revised essay is missing. Revise in "Refine Your Essay" before submitting.' });
+    }
+    if (!draftSaved) warnings.push({ es: 'La puerta de autoría no está documentada: no guardaste tu primer borrador sin ayuda.', en: 'Authorship gate not documented: your unassisted first draft was not saved.' });
+    if (rs.status === 'BLANK') warnings.push({ es: 'No completaste ninguna reflexión del proceso.', en: 'No process reflection completed yet.' });
+    if (!decisions.length) warnings.push({ es: 'No hay decisiones de revisión registradas todavía.', en: 'No revision decisions recorded yet.' });
+    return { ok: warnings.length === 0, warnings, essay, rs };
+}
+
+// Bilingual diagnostic banner for the Save/Export modal.
+function buildPacketDiagnosticHTML() {
+    const d = buildSubmissionDiagnostic();
+    if (d.ok) {
+        return `<div class="packet-diag packet-diag--ok" role="status">` +
+            `<span class="show-es">✓ Tu paquete está listo para entregar.</span>` +
+            `<span class="lang-sep"> · </span>` +
+            `<span class="show-en">✓ Your packet is ready to submit.</span></div>`;
+    }
+    const items = d.warnings.map(w =>
+        `<li><span class="show-es">${escapeHtml(w.es)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(w.en)}</span></li>`
+    ).join('');
+    return `<div class="packet-diag packet-diag--warn" role="alert">` +
+        `<div class="packet-diag-title"><span class="show-es">Revisa antes de entregar</span><span class="lang-sep"> · </span><span class="show-en">Check before you submit</span></div>` +
+        `<ul class="packet-diag-list">${items}</ul></div>`;
+}
+
+// One recommended export: the complete packet (essay + process report).
+// generateInstructorReport() now includes the Submission Check + Final Essay,
+// so it IS the packet; copy/download both use it.
+function exportFinalPacket() {
+    const text = generateInstructorReport();
+    const diag = buildSubmissionDiagnostic();
+    const okMsg = 'Paquete final copiado. Pégalo y entrégalo en Brightspace.\nFinal packet copied. Paste and submit it in Brightspace.';
+    const warnMsg = 'Paquete final copiado — pero revisa esto antes de entregar:\nFinal packet copied — but review this before submitting:\n\n' +
+        diag.warnings.map(w => '• ' + w.en).join('\n');
+    navigator.clipboard.writeText(text)
+        .then(() => alert(diag.ok ? okMsg : warnMsg))
+        .catch(() => window.prompt(t('Copia este texto · Copy this text:', 'Copy this text:'), text));
+}
+function downloadFinalPacket() {
+    const text = generateInstructorReport();
+    const date = new Date().toISOString().slice(0, 10);
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `tupana-final-packet-${date}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 300);
+}
+
 function generateInstructorReport() {
     const meta       = loadReportMeta();
     const capstone   = loadCapstoneData();
@@ -5650,9 +5885,7 @@ function generateInstructorReport() {
     const dateStr = now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
     const timeStr = now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', hour12:true });
 
-    const accepted   = decisions.filter(d => d.choice === 'good').length;
-    const questioned = decisions.filter(d => d.choice === 'flag').length;
-    const thinking   = decisions.filter(d => d.choice === 'warn').length;
+    const { accepted, questioned, thinking, checks } = tallyDecisions(decisions);
     const botMsgs    = chatLog.filter(m => m.who === 'bot').length;
     const userMsgs   = chatLog.filter(m => m.who === 'user').length;
 
@@ -5688,11 +5921,49 @@ function generateInstructorReport() {
     r += `  Generated: ${dateStr} at ${timeStr}\n`;
     r += `${line(72)}\n\n`;
 
+    // Batch 6 — compact instructor at-a-glance summary (one scan, no scrolling)
+    const _sumDraftSaved = (() => { try { return localStorage.getItem('tupana_draft_saved') === 'true'; } catch(e) { return false; } })();
+    const _sumStages = Array.from({ length: 10 }, (_, i) => i + 1).filter(i => state.done.has(i) || i < state.stage);
+    const _sumRs   = reflectionStatus();
+    const _sumDiag = buildSubmissionDiagnostic();
+    r += `AT-A-GLANCE SUMMARY  [System-recorded]\n`;
+    r += `${line(40)}\n`;
+    r += `Process report present : Yes\n`;
+    r += `Authorship gate        : ${_sumDraftSaved ? 'PASSED' : 'NOT DOCUMENTED'}\n`;
+    r += `Final essay            : ${_sumDiag.essay.text.trim() ? (_sumDiag.essay.revised ? 'Revised draft present' : 'First draft only') : 'Not found'}\n`;
+    r += `Milestones completed   : ${milestonesCompletedCount()} of ${TOTAL_MILESTONES}\n`;
+    r += `Internal stages done   : ${_sumStages.length} of 10${_sumStages.length ? ' (' + _sumStages.join(',') + ')' : ''}\n`;
+    r += `Reflection             : ${_sumRs.status} (${_sumRs.filled}/${_sumRs.total})\n`;
+    r += `Submission diagnostic  : ${_sumDiag.ok ? 'READY — no issues detected' : _sumDiag.warnings.length + ' item(s) to review (see Submission Check)'}\n\n`;
+
     r += `STUDENT INFORMATION\n`;
     r += `${line(40)}\n`;
     r += `Name / Identifier : ${na(meta.studentName, 'Not provided')}\n`;
     r += `Assignment Title  : ${na(meta.assignmentTitle, 'Not provided')}\n`;
     r += `Course / Section  : ${na(meta.courseSection, 'Not provided')}\n\n`;
+
+    // Batch 5: Submission Check + Final Essay lead the packet, so the single
+    // artifact a student submits already contains the revised essay and flags
+    // any missing piece (the pilot's "first draft only / no essay" problem).
+    const _essay = getFinalEssay();
+    const _diag  = buildSubmissionDiagnostic();
+    r += `${line(72)}\n`;
+    r += `SUBMISSION CHECK  [System-recorded]\n`;
+    r += `${line(72)}\n`;
+    if (_diag.ok) {
+        r += `Ready to submit — no issues detected.\n\n`;
+    } else {
+        r += `Review before submitting:\n`;
+        _diag.warnings.forEach(w => { r += `  ! ${w.en}\n`; });
+        r += `\n`;
+    }
+
+    r += `${line(72)}\n`;
+    r += `FINAL ESSAY  [Student work — ${_essay.revised ? 'revised draft' : (_essay.stage === 6 ? 'FIRST DRAFT ONLY — not yet revised' : 'none found')}]\n`;
+    r += `${line(72)}\n`;
+    r += (_essay.text.trim()
+        ? `${_essay.text.trim()}\n\n`
+        : `[No essay found — student has not written or saved essay text]\n\n`);
 
     r += `${line(72)}\n`;
     r += `SECTION 1 — FIRST DRAFT GATE  [System-recorded]\n`;
@@ -5717,15 +5988,15 @@ function generateInstructorReport() {
     r += `Coach responses received   : ${botMsgs}\n`;
     r += `Student messages sent      : ${userMsgs}\n`;
     r += `Feedback evaluations total : ${decisions.length}\n`;
-    r += `  ✓ Accepted               : ${accepted}\n`;
-    r += `  ? Thinking more about    : ${thinking}\n`;
-    r += `  ✗ Questioned / flagged   : ${questioned}\n`;
+    r += `  ✓ Accepted                       : ${accepted}\n`;
+    r += `  ? Thinking more about            : ${thinking}\n`;
+    r += `  ✗ Questioned / flagged           : ${questioned}\n`;
+    r += `  ◆ Revision checks (Pause-and-Reflect) : ${checks}\n`;
     if (decisions.length) {
         r += `\nDecision log (most recent first, up to 20):\n`;
-        const choiceLabel = c => c === 'good' ? '✓ Accepted' : c === 'warn' ? '? Thinking more' : '✗ Questioned';
         decisions.slice(-20).reverse().forEach((d, i) => {
             const ts = d.t ? new Date(d.t).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit', hour12:true }) : '';
-            r += `  ${i + 1}. ${choiceLabel(d.choice)} — "${d.q}"${ts ? ' (' + ts + ')' : ''}\n`;
+            r += `  ${i + 1}. ${decisionRowLabel(d).plain} — "${d.q}"${ts ? ' (' + ts + ')' : ''}\n`;
         });
     }
     r += `\n`;
@@ -5744,12 +6015,16 @@ function generateInstructorReport() {
     r += `\n`;
 
     r += `${line(72)}\n`;
-    r += `SECTION 5 — PROCESS REFLECTIONS  [Student-written via Process Note]\n`;
+    r += `SECTION 5 — PROCESS REFLECTIONS  [Student-written]\n`;
     r += `${line(72)}\n`;
-    r += `NOTE: These fields are filled by the student using the Process Note button\n`;
-    r += `in the app's draft footer. If a field shows "[Not filled in]", the student\n`;
-    r += `has not yet completed that question — it does not indicate a system error.\n`;
-    r += `See Section 6 for Stage 10 self-assessment data (separate from this section).\n\n`;
+    const rs = reflectionStatus();
+    r += `Reflection status : ${rs.status} (${rs.filled} of ${rs.total} in-flow reflections completed)\n\n`;
+    r += `In-flow reflections (captured during the writing journey):\n`;
+    r += `  • Main idea after first draft   : ${na(pnAnswers.mr_main_idea, '[blank]')}\n`;
+    r += `  • What changed after revision   : ${na(pnAnswers.mr_changed, '[blank]')}\n`;
+    r += `  • What still needs work (pre-submit) : ${na(pnAnswers.mr_needs_work, '[blank]')}\n\n`;
+    r += `Deeper Process Note (Q3–Q8, optional — filled via the Process Note button;\n`;
+    r += `"[Not filled in]" means the student has not completed it, not a system error):\n\n`;
     const q3 = na(pnAnswers.q3); const q4 = na(pnAnswers.q4);
     const q5 = na(pnAnswers.q5); const q6 = na(pnAnswers.q6);
     const q7 = na(pnAnswers.q7); const q8 = na(pnAnswers.q8);
@@ -5822,15 +6097,14 @@ function injectInstructorReportPanel(scrollTo) {
     const decisions  = (() => { try { return JSON.parse(localStorage.getItem('tupana_decisions') || '[]'); } catch(e) { return []; } })();
     const chatLog    = (() => { try { return JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]'); } catch(e) { return []; } })();
     const protected_ = loadProtected();
-    const accepted   = decisions.filter(d => d.choice === 'good').length;
-    const questioned = decisions.filter(d => d.choice === 'flag').length;
-    const thinking   = decisions.filter(d => d.choice === 'warn').length;
+    const { accepted, questioned, thinking, checks } = tallyDecisions(decisions);
     const botMsgs    = chatLog.filter(m => m.who === 'bot').length;
     const draft      = (() => { try { return localStorage.getItem('tupana_draft') || ''; } catch(e) { return ''; } })();
     const wc         = draft.trim().split(/\s+/).filter(Boolean).length;
     const finalStageObj = STAGES[state.stage - 1];
     const finalStageName = finalStageObj ? `${state.stage} — ${finalStageObj.en}` : state.stage;
     const stagesDone = Array.from({ length: 10 }, (_,i) => i + 1).filter(i => state.done.has(i) || i < state.stage);
+    const rs = reflectionStatus();
 
     logProcessEvent('instructor_report_generated', 'Instructor Process Report generated for Stage 10.');
 
@@ -5911,11 +6185,15 @@ function injectInstructorReportPanel(scrollTo) {
             </div>
             <div class="instr-evidence-row" role="listitem">
                 <span class="instr-evidence-key"><span class="show-es">Decisiones de retroalimentación</span><span class="lang-sep"> · </span><span class="show-en">Feedback decisions</span></span>
-                <span class="instr-evidence-val">${decisions.length} total — ${accepted} accepted · ${thinking} reconsidered · ${questioned} questioned</span>
+                <span class="instr-evidence-val">${decisions.length} total — ${accepted} accepted · ${thinking} reconsidered · ${questioned} questioned${checks ? ` · ${checks} revision checks` : ''}</span>
             </div>
             <div class="instr-evidence-row" role="listitem">
                 <span class="instr-evidence-key"><span class="show-es">Frases protegidas (Bóveda de voz)</span><span class="lang-sep"> · </span><span class="show-en">Voice Vault phrases</span></span>
                 <span class="instr-evidence-val">${protected_.length ? protected_.length + ' phrase' + (protected_.length > 1 ? 's' : '') : 'None recorded'}</span>
+            </div>
+            <div class="instr-evidence-row" role="listitem">
+                <span class="instr-evidence-key"><span class="show-es">Reflexión del proceso</span><span class="lang-sep"> · </span><span class="show-en">Process reflection</span></span>
+                <span class="instr-evidence-val ${rs.status === 'COMPLETED' ? 'ok' : rs.status === 'BLANK' ? 'warn' : ''}">${rs.status} — ${rs.filled}/${rs.total}</span>
             </div>
         </div>
 

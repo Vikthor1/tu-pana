@@ -354,6 +354,56 @@ function buildServiceLearningContext(profile) {
 }
 
 // ════════════════════════════════════════════════════════
+//  CAP 200 / BRONX BEAUTIFUL — course PROFILE on the generic type (Stage B)
+//  The first concrete service_learning_project profile. ALL CAP-200-specific
+//  values live here (and in the selector labels), never in the generic engine.
+//  serviceHours is a CONFIGURABLE profile field — not globally hard-coded.
+//  This is the comprehensive CAP 200 layer; the older cap-200-first-draft
+//  layer is left UNTOUCHED and continues to serve the live pilot.
+// ════════════════════════════════════════════════════════
+const cap200BronxBeautifulServiceLearning = {
+    profileId:             'cap200_bronx_beautiful_service_learning',
+    typeId:                'service_learning_project',
+    courseName:            'CAP 200',
+    institution:           'Hostos Community College',
+    projectLabel:          'the CAP 200 "Bronx Beautiful" Service-Learning Project',
+    finalDeliverable:      'a 5–7 page written report',
+    assignmentWeight:      '40% of the course grade',
+    requiredHours:         10,                 // configurable profile field
+    serviceType:           'direct service',
+    proposalRequired:      true,
+    proposalDetail:        'a structured project proposal using the provided template, with a timeline for completion, submitted for a student-selected community-based organization (CBO)',
+    approvalRequired:      true,
+    dataRequirement:       'every student collects and analyzes real data',
+    evidenceTypes:         ['logged service hours', 'reflective journals', 'interview transcripts', 'survey data'],
+    reflectionRequirement: 'critical, course-connected reflection (not generic "community service" sentimentality)',
+    academicStructure:     ['Introduction', 'Methodology', 'Results', 'Discussion', 'Conclusion'],
+    courseConcepts:        ['critical thinking', 'problem solving'],
+    supportResources:      ['the Hostos Writing Center'],
+    revisionExpectation:   'A rough draft in academic format is expected; revisions are expected after detailed instructor feedback, working toward polished, college-level writing.',
+    feedbackProcess:       'The instructor gives detailed feedback and scores with a rubric; the coach never grades and never predicts a rubric score.',
+    instructorCautions:    ['only personal reflection', 'only a volunteer-hours log', 'only a generic research paper', 'only a data report disconnected from community meaning'],
+    // Short, student-facing selector copy (kept brief on purpose — the selector
+    // helps students choose, it does not explain the full assignment).
+    studentLabelEs:        'Proyecto de Aprendizaje-Servicio CAP 200',
+    studentLabelEn:        'CAP 200 Service-Learning Project',
+    studentDescEs:         'Construye tu reporte de 5–7 páginas: tu proyecto con la CBO, tus datos, los conceptos del curso, tu análisis y tu reflexión.',
+    studentDescEn:         'Build your 5–7 page report from your CBO project, your data, course concepts, analysis, and reflection.'
+};
+
+// Registry-ready layer object. Backward-compatible shape ({id, name, context})
+// so the existing ui.js injection point consumes it UNCHANGED; `type`/`profile`
+// are additive metadata. `context` is composed by the generic builder — all the
+// CAP-200 wording flows in through the profile, not the engine.
+const cap200ServiceLearningLayer = {
+    id:      'cap200-bronx-beautiful-service-learning',
+    name:    'CAP 200 — Bronx Beautiful Service-Learning Project',
+    type:    'service_learning_project',
+    profile: cap200BronxBeautifulServiceLearning,
+    context: buildServiceLearningContext(cap200BronxBeautifulServiceLearning)
+};
+
+// ════════════════════════════════════════════════════════
 //  ASSIGNMENT LAYERS (Session 78) — thin, link/config-activated context
 //  ON TOP OF the stable 10-stage core. Pure data + lookup (no DOM here).
 //  An assignment layer adds ASSIGNMENT CONTEXT to the coach prompt; it is
@@ -376,7 +426,9 @@ const ASSIGNMENT_LAYERS = {
 - NEVER include identifying information about individuals served; guide the student to describe people in general terms.
 - The goal is a complete-ENOUGH draft (not a perfect one) so it can receive feedback.
 This assignment context is additive guidance. The authorship gate, voice protection, and no-copyable-prose rules stated above remain in full force and are never relaxed by it.`
-    }
+    },
+    // Stage B: comprehensive CAP 200 service-learning profile (generic engine + profile config).
+    'cap200-bronx-beautiful-service-learning': cap200ServiceLearningLayer
 };
 
 // Pure lookup — returns the layer object for a known id, else null (generic fallback). No DOM.

@@ -317,6 +317,16 @@ function buildServiceLearningContext(profile) {
 
     // 2. The reusable service-learning arc + academic structure
     L.push('Coach the work as a connected arc: ' + SERVICE_LEARNING_MOVES.map(m => m.label).join(' → ') + '.');
+
+    // 2b. Integration map — where each move lives in Tu Pana's existing 10-step
+    // journey. The steps themselves do NOT change; only the coaching focus shifts.
+    const byStage = {};
+    SERVICE_LEARNING_MOVES.forEach(m => (m.stages || []).forEach(n => { (byStage[n] = byStage[n] || []).push(m.label); }));
+    const stageLines = Object.keys(byStage).sort((a, b) => a - b).map(n => 'Step ' + n + ': ' + byStage[n].join(', '));
+    if (stageLines.length) {
+        L.push('These moves map onto the existing 10-step journey (the steps do not change — match your focus to the student\'s current step):\n- ' + stageLines.join('\n- '));
+    }
+
     const struct = list(profile.academicStructure);
     if (struct.length) {
         L.push('Organize the academic report around this structure: ' + struct.join(' · ') + '. Guide the student through each part with questions and structure — never copy-ready prose.');

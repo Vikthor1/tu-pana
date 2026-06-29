@@ -6101,7 +6101,14 @@ function generateInstructorReport() {
     r += `${line(72)}\n`;
     r += `SECTION 7 — AUTHORSHIP CONFIRMATION\n`;
     r += `${line(72)}\n`;
-    r += `☑  I completed my first draft before using AI feedback.\n`;
+    // H5 (Stage A.2 polish): the first-draft attestation is a REAL attestation tied to
+    // the recorded gate status — not an unconditional system stamp. When the unassisted
+    // first draft was not saved, it must not falsely claim completion (which contradicted
+    // Section 1's honest "NOT DOCUMENTED"). The remaining lines are general attestations.
+    r += draftSaved
+        ? `☑  I completed my first draft before using AI feedback.\n`
+        : `☐  I completed my first draft before using AI feedback.\n` +
+          `   — NOT documented: no unassisted first draft was saved in the app (see Section 1).\n`;
     r += `☑  The draft, revisions, and final decisions are my own responsibility.\n`;
     r += `☑  I used Tu Pana de Escritura as a writing support tool, not as a\n`;
     r += `   replacement for my own judgment.\n`;

@@ -47,6 +47,7 @@
 # ── Allow Stage A.2 polish-sprint regression tests ───────
 !stage_entry_channel_test.mjs
 !bilingual_warmth_test.mjs
+!report_attestation_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

@@ -64,13 +64,43 @@ const MICRO_PROMPTS = {
     ]
 };
 
-const STUCK_AFFIRMATIONS = [
-    "No pasa nada. Let's make this smaller.",
-    'One sentence. That is all we need right now.',
-    "The blank page is acting dramatic. Let's give it one sentence and calm it down.",
-    'This is not the whole essay. This is just one brave little sentence.',
-    'Café first, panic later. Actually, no panic — just one sentence.'
-];
+// H6 (Stage A.2 polish): language-aware warmth. The stuck-mini affirmation renders as
+// a single line (NOT a bilingual show-es/show-en pair), so a Spanish-mode student used
+// to get English/Spanglish text regardless of language. Now:
+//   es   → Spanish-anchored warmth (café warmth kept, in Spanish)
+//   en   → warm English
+//   both → intentional translanguaging / café Spanglish (the original voice, preserved)
+// Spanish-primary convention: anything other than 'en' falls back to 'es'.
+const STUCK_AFFIRMATIONS = {
+    es: [
+        'No pasa nada. Vamos a hacerlo más pequeño.',
+        'Una oración. Es todo lo que necesitamos ahora.',
+        'La página en blanco se está poniendo dramática. Dale una oración y se calma.',
+        'Esto no es el ensayo entero. Es solo una oración valiente.',
+        'Primero el café, el pánico después. Mejor aún: sin pánico — solo una oración.'
+    ],
+    en: [
+        "No worries. Let's make this smaller.",
+        'One sentence. That is all we need right now.',
+        "The blank page is acting dramatic. Let's give it one sentence and calm it down.",
+        'This is not the whole essay. This is just one brave little sentence.',
+        'Coffee first, panic later. Actually, no panic — just one sentence.'
+    ],
+    both: [
+        "No pasa nada. Let's make this smaller.",
+        'Una oración — one sentence. That is all we need right now.',
+        "La página en blanco está siendo dramática. Let's give it one sentence and calm it down.",
+        'Esto no es el ensayo entero. Just one brave little sentence.',
+        'Café first, panic later. Actually, no panic — solo una oración.'
+    ]
+};
+
+// Pick a warmth line in the student's current language (Spanish-primary fallback).
+function pickAffirmation() {
+    const lang = (typeof state !== 'undefined' && state.lang) || 'es';
+    const arr = STUCK_AFFIRMATIONS[lang] || STUCK_AFFIRMATIONS.es;
+    return arr[Math.floor(Math.random() * arr.length)];
+}
 
 let stuckMiniIdx = {};  // tracks prompt index per stage
 
@@ -90,7 +120,7 @@ function showStuckMini() {
     const _pickStarter = o => state.lang === 'en' ? o.en : o.es;
     const taskText     = _pickBoth(p.task);
     const starterText  = _pickStarter(p.starter);
-    const aff   = STUCK_AFFIRMATIONS[Math.floor(Math.random() * STUCK_AFFIRMATIONS.length)];
+    const aff   = pickAffirmation();
 
     const card = document.createElement('div');
     card.className = 'stuck-mini';

@@ -451,20 +451,43 @@ function updateProtectBtn() {
 }
 
 // Occasional light humor — one per category, used sparingly
+// H6 (Stage A.2 polish): coach humor/warmth, language-aware. These lines surface inside
+// bilingual messages (es line / en line, CSS show-es/show-en gated), so each key carries
+// parallel es[] and en[] arrays of equal length. Spanish keeps its café warmth in Spanish
+// (not English with Spanish labels). pickHumorPair() picks one aligned es/en pair.
 const HUMOR = {
-    welcome_multi: [
-        'The coffee is still warm. Let\'s keep going.',
-        'Your draft waited patiently. That is more than can be said for the coffee.',
-        'Good to have you back. The screen was getting lonely.'
-    ],
-    overwhelmed: [
-        'This part asks your brain to stretch a little. Café first, then we connect the dots.',
-        'Revision is not punishment. It is just your draft asking for a little more care.'
-    ],
-    draft_saved: [
-        'The draft is not messy because you failed. It is messy because thinking happened.',
-        'No need to sound like a textbook wearing a blazer. Keep your voice.'
-    ]
+    welcome_multi: {
+        es: [
+            'El café sigue caliente. Sigamos.',
+            'Tu borrador te esperó con paciencia. El café, no tanto.',
+            'Qué bueno tenerte de vuelta. La pantalla se estaba sintiendo sola.'
+        ],
+        en: [
+            'The coffee is still warm. Let\'s keep going.',
+            'Your draft waited patiently. That is more than can be said for the coffee.',
+            'Good to have you back. The screen was getting lonely.'
+        ]
+    },
+    overwhelmed: {
+        es: [
+            'Esta parte le pide a tu cerebro que se estire un poco. Primero el café, luego conectamos las ideas.',
+            'Revisar no es un castigo. Es tu borrador pidiéndote un poco más de cuidado.'
+        ],
+        en: [
+            'This part asks your brain to stretch a little. Café first, then we connect the dots.',
+            'Revision is not punishment. It is just your draft asking for a little more care.'
+        ]
+    },
+    draft_saved: {
+        es: [
+            'El borrador no está desordenado porque fallaste. Está desordenado porque hubo pensamiento.',
+            'No necesitas sonar como un libro de texto con saco y corbata. Conserva tu voz.'
+        ],
+        en: [
+            'The draft is not messy because you failed. It is messy because thinking happened.',
+            'No need to sound like a textbook wearing a blazer. Keep your voice.'
+        ]
+    }
 };
 
 // ════════════════════════════════════════════════════════
@@ -1258,10 +1281,20 @@ function submitCapstone10C() {
     renderDecisionLog();
 }
 
-function pickHumor(key) {
-    const arr = HUMOR[key];
-    if (!arr || arr.length === 0) return '';
+// Single humor line in one language ('en' → English, anything else → Spanish-primary).
+function pickHumor(key, lang) {
+    const grp = HUMOR[key];
+    if (!grp) return '';
+    const arr = grp[lang === 'en' ? 'en' : 'es'] || [];
+    if (arr.length === 0) return '';
     return arr[Math.floor(Math.random() * arr.length)];
+}
+// One aligned es/en humor pair (same index) for bilingual show-es/show-en rendering.
+function pickHumorPair(key) {
+    const grp = HUMOR[key];
+    if (!grp || !grp.es || grp.es.length === 0) return { es: '', en: '' };
+    const i = Math.floor(Math.random() * grp.es.length);
+    return { es: grp.es[i] || '', en: (grp.en && grp.en[i]) || '' };
 }
 
 // ════════════════════════════════════════════════════════
@@ -3524,8 +3557,8 @@ function showWelcomeBack() {
 
     let humorLine = '';
     if (isReturn) {
-        const humor = pickHumor('welcome_multi');
-        if (humor) humorLine = `\n\n${humor}`;
+        const humor = pickHumorPair('welcome_multi');
+        if (humor.es || humor.en) humorLine = `\n\n${humor.es}\n${humor.en}`;
     }
 
     addMsg(greeting + draftLine + humorLine, 'bot', false, 'welcome');
@@ -4840,9 +4873,9 @@ function handleStuckOption(option) {
         );
         addSys(msg);
     } else if (option === 'overwhelmed') {
-        const humor = pickHumor('overwhelmed');
+        const humor = pickHumorPair('overwhelmed');
         addSys(t(
-            `Entiendo. Tomemos un respiro. Voy a activar el modo enfoque para que solo veas tu borrador. ${humor ? humor + ' ' : ''}/ I understand. Let's take a breath. I'm turning on focus mode so you only see your draft. ${humor || ''}`,
+            `Entiendo. Tomemos un respiro. Voy a activar el modo enfoque para que solo veas tu borrador. ${humor.es ? humor.es + ' ' : ''}/ I understand. Let's take a breath. I'm turning on focus mode so you only see your draft. ${humor.en || ''}`,
             `Modo enfoque activado. Solo tu borrador. Vuelve cuando estés listo/a. / Focus mode on. Just your draft. Come back when you're ready.`
         ));
         if (!document.querySelector('.workspace').classList.contains('focus-mode')) {

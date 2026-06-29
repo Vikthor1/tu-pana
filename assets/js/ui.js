@@ -3444,6 +3444,88 @@ function handleManiKey(e) {
     }
 }
 
+// ════════════════════════════════════════════════════════
+//  PROJECT SELECTOR (Stage B) — minimal genre/profile chooser
+//  Regular-link access to a service-learning profile. Subtractive by design:
+//  one short question + compact option cards, then it chains into the normal
+//  landing → onboarding flow. Shown once on first run when no profile is active;
+//  a deep link (?assignment=…) or a prior choice skips it (gated in app.js).
+//  Bilingual labels (shown before the language step, so both are always visible).
+// ════════════════════════════════════════════════════════
+function showProjectSelector() {
+    const overlay = document.createElement('div');
+    overlay.id = 'projectSelector';
+    overlay.style.cssText = `
+        position:fixed; inset:0; z-index:999;
+        background: rgba(42,33,28,0.78);
+        backdrop-filter: blur(14px) saturate(1.2);
+        display:flex; align-items:center; justify-content:center;
+        opacity:0; transition: opacity 0.6s ease;
+        padding: 40px 24px; overflow-y:auto;
+    `;
+
+    const profiles = (typeof getSelectableProfiles === 'function') ? getSelectableProfiles() : [];
+    const card = (id, labelEs, labelEn, descEs, descEn) => `
+        <button class="project-option" data-assign="${id}" style="
+            display:block; width:100%; text-align:left; cursor:pointer;
+            background: var(--bg-base); border: 1px solid var(--border-hi);
+            border-radius: var(--radius-md); padding: 16px 18px; margin-bottom: 12px;
+            transition: border-color 0.2s ease;
+        " onmouseover="this.style.borderColor='var(--jade)'" onmouseout="this.style.borderColor='var(--border-hi)'">
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.0rem; font-weight:600; color:var(--text-primary); margin-bottom:4px;">${labelEs} · ${labelEn}</div>
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.8rem; color:var(--text-sub); line-height:1.4;">${descEs} · ${descEn}</div>
+        </button>`;
+
+    let cards = card('__default__',
+        'Ensayo personal', 'Personal Essay',
+        'Tu ensayo autobiográfico con Tu Pana.', 'Your Tu Pana autobiographical essay.');
+    profiles.forEach(p => { cards += card(p.assignmentId, p.labelEs, p.labelEn, p.descEs, p.descEn); });
+
+    overlay.innerHTML = `
+        <div style="
+            max-width:560px; width:100%;
+            background: var(--bg-raised);
+            border: 1px solid var(--border-hi);
+            border-radius: var(--radius-lg);
+            padding: 34px 34px 28px;
+            box-shadow: var(--shadow-lg);
+        ">
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.2rem; font-weight:700; color:var(--text-primary); margin-bottom:4px;">Elige tu proyecto · Choose your project</div>
+            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.85rem; color:var(--text-sub); margin-bottom:22px;">¿En qué vas a trabajar? · What are you working on?</div>
+            ${cards}
+        </div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+
+    let _picked = false;
+    overlay.querySelectorAll('.project-option').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (_picked) return;          // guard against double-tap (iOS Safari)
+            _picked = true;
+            const id = btn.getAttribute('data-assign');
+            chooseProject(id === '__default__' ? null : id);
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.remove(); showLandingMoment(); }, 450);
+        });
+    });
+    setTimeout(() => { const f = overlay.querySelector('.project-option'); if (f) f.focus(); }, 600);
+}
+
+// Records the student's project choice. Non-default ids set the active assignment
+// layer (persisted via the existing tupana_assignment_id key); default clears any
+// stale assignment so the app is the generic coach. tupana_project_chosen makes
+// the selector idempotent across a mid-onboarding reload.
+function chooseProject(assignmentId) {
+    try { localStorage.setItem('tupana_project_chosen', 'true'); } catch(e) {}
+    if (assignmentId && typeof getAssignmentLayer === 'function' && getAssignmentLayer(assignmentId)) {
+        state.assignmentId = assignmentId;
+        try { localStorage.setItem('tupana_assignment_id', assignmentId); } catch(e) {}
+    } else {
+        state.assignmentId = null;
+        try { localStorage.removeItem('tupana_assignment_id'); } catch(e) {}
+    }
+}
+
 function showLandingMoment() {
     const overlay = document.createElement('div');
     overlay.id = 'landingMoment';

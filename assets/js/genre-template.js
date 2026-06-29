@@ -396,11 +396,12 @@ const cap200BronxBeautifulServiceLearning = {
 // are additive metadata. `context` is composed by the generic builder — all the
 // CAP-200 wording flows in through the profile, not the engine.
 const cap200ServiceLearningLayer = {
-    id:      'cap200-bronx-beautiful-service-learning',
-    name:    'CAP 200 — Bronx Beautiful Service-Learning Project',
-    type:    'service_learning_project',
-    profile: cap200BronxBeautifulServiceLearning,
-    context: buildServiceLearningContext(cap200BronxBeautifulServiceLearning)
+    id:         'cap200-bronx-beautiful-service-learning',
+    name:       'CAP 200 — Bronx Beautiful Service-Learning Project',
+    type:       'service_learning_project',
+    selectable: true,   // appears in the in-app project selector (Batch 4)
+    profile:    cap200BronxBeautifulServiceLearning,
+    context:    buildServiceLearningContext(cap200BronxBeautifulServiceLearning)
 };
 
 // ════════════════════════════════════════════════════════
@@ -434,6 +435,23 @@ This assignment context is additive guidance. The authorship gate, voice protect
 // Pure lookup — returns the layer object for a known id, else null (generic fallback). No DOM.
 function getAssignmentLayer(id) {
     return (id && Object.prototype.hasOwnProperty.call(ASSIGNMENT_LAYERS, id)) ? ASSIGNMENT_LAYERS[id] : null;
+}
+
+// Profiles that opt into the in-app project selector (Batch 4). Returns short,
+// student-facing copy only — never the full assignment context. Future profiles
+// flagged `selectable: true` with student labels appear automatically, so the
+// selector never needs a redesign to add a course. No DOM.
+function getSelectableProfiles() {
+    return Object.keys(ASSIGNMENT_LAYERS)
+        .map(id => ASSIGNMENT_LAYERS[id])
+        .filter(l => l && l.selectable && l.profile)
+        .map(l => ({
+            assignmentId: l.id,
+            labelEs: l.profile.studentLabelEs || l.name,
+            labelEn: l.profile.studentLabelEn || l.name,
+            descEs:  l.profile.studentDescEs  || '',
+            descEn:  l.profile.studentDescEn  || ''
+        }));
 }
 
 // ════════════════════════════════════════════════════════

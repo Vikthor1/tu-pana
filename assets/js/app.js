@@ -125,8 +125,16 @@ try {
     const labDone  = localStorage.getItem('tupana_lab_done')  === 'true';
 
     if (!maniDone) {
-        // First-ever visit: show landing quote, then Tu Conocimiento
-        setTimeout(showLandingMoment, 400);
+        // First-ever visit. If no profile is active yet (regular link, no prior
+        // choice, no ?assignment= deep link), show the minimal project selector
+        // first; it chains into the landing quote. A deep link or prior choice
+        // skips straight to the landing quote. (Stage B)
+        const _projectChosen = localStorage.getItem('tupana_project_chosen') === 'true' || !!state.assignmentId;
+        if (!_projectChosen && typeof showProjectSelector === 'function') {
+            setTimeout(showProjectSelector, 400);
+        } else {
+            setTimeout(showLandingMoment, 400);
+        }
     } else if (!labDone) {
         // Returned after Conocimiento but Lab not yet done
         setTimeout(openLab, 700);

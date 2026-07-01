@@ -139,20 +139,20 @@ Give **after** one meaningful Tu Pana session, or after the assigned draft miles
 
 ## Personalized-link / code workflow
 
-Preserve the Pilot 1 anonymous-code workflow **as-is**:
+Preserve the Pilot 1 coded-link workflow **as-is**:
 
 - Codes are **system-generated** and delivered as **pre-filled URLs**. Students **do not type a code and never enter a student ID number.**
-- Keep the **`TPN-###`** format for cross-pilot continuity of the code style.
+- Pilot 2 codes use the **`TPN2-###`** format (`TPN2-001`, `TPN2-002`, …) — the builder ships `CONFIG.CODE_PREFIX = 'TPN2'` by default, keeping the Pilot 1 `TPN-###` code style while marking Pilot 2 provenance.
 - **Run Pilot 2 in a separate Google Sheet workbook** (paste the Apps Script into a fresh sheet) so Pilot 2 forms, codes, and responses do not mix with Pilot 1.
-- **Optional provenance:** if you plan to merge Pilot 1 + Pilot 2 data into one analysis, set `CONFIG.CODE_PREFIX = 'TPN2'` so a code's pilot is unambiguous. If you keep `'TPN'`, rely on the separate workbook to distinguish pilots.
+- **Provenance / merge-safety:** `TPN2` makes each code's pilot unambiguous if Pilot 1 + Pilot 2 data are ever merged. Switch `CONFIG.CODE_PREFIX` to `'TPN'` only if you deliberately want to mirror Pilot 1's exact prefix (rely on the separate workbook to distinguish pilots).
 - Distribution sheet columns are unchanged: **`Code | Pre-Survey URL | Post-Survey URL | Pre Submitted? | Post Submitted?`** — distribute one row per student privately (Brightspace message/email); **do not share the sheet with students.**
 
 ### Apps Script Pilot-2 change list *(apply manually in the new workbook — NOT applied to `survey-builder.gs` here)*
 1. `CONFIG.NUM_PARTICIPANTS` → your CAP 200 class size.
-2. `CONFIG.CODE_PREFIX` → keep `'TPN'` (or `'TPN2'` for merged-analysis provenance).
-3. Form titles in `buildPreSurvey_`/`buildPostSurvey_`:
-   - `Tu Pana de Escritura — CAP 200 Encuesta Inicial · Pre-Survey (Pilot 2)`
-   - `Tu Pana de Escritura — CAP 200 Encuesta Final · Post-Survey (Pilot 2)`
+2. `CONFIG.CODE_PREFIX` → the shipped Pilot 2 builder uses `'TPN2'` (default); switch to `'TPN'` only to mirror Pilot 1's exact prefix.
+3. Form titles in `buildPreSurvey_`/`buildPostSurvey_` (as shipped in the builder):
+   - `Tu Pana CAP 200 Pilot 2 — Pre-Use Survey · Encuesta Inicial`
+   - `Tu Pana CAP 200 Pilot 2 — Post-Use Survey · Encuesta Final`
 4. Add the new items in code: **Part F** (F1–F6) after Part C in `buildPreSurvey_`; **Part G** (G1–G11) after Part D and **E4** in Part E of `buildPostSurvey_`. Use `addScaleItems_` for the Likert items; `addMultipleChoiceItem` for G10; `addCheckboxItem` for F6; `addParagraphTextItem` for E4.
 5. Everything else — consent preamble, code system, `makePrefilledUrl_`, distribution/links sheets, `configureForm_` settings, `verifySurveySetup` — **unchanged**.
 
@@ -204,4 +204,4 @@ Preserve the Pilot 1 anonymous-code workflow **as-is**:
 
 ---
 
-*Adapted from the Pilot 1 Tu Pana survey packet. Pilot 1 source files: `docs/pilot/survey-instrument.md`, `docs/pilot/survey-builder.gs`. Prepared after Tu Pana Stage B.1. Product current main: `063f316`. Stage B.1 live commit: `ab799b2`. VC-OS governed close: `ef4da22`. Date: 2026-07-01.*
+*Adapted from the Pilot 1 Tu Pana survey packet. Pilot 1 source files: `docs/pilot/survey-instrument.md`, `docs/pilot/survey-builder.gs`. Prepared after Tu Pana Stage B.1. Product main at packet creation: `063f316`. Stage B.1 live commit: `ab799b2`. VC-OS governed close: `ef4da22`. Date: 2026-07-01.*

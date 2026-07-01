@@ -836,14 +836,17 @@ function updateCurrentTaskBar() {
 
     const step     = state.step;
     const total    = steps.length;
-    const stepData = steps[step - 1] || steps[0];
+    const stepOverride = (typeof getStageStepOverride === 'function')
+        ? getStageStepOverride(state.stage, step - 1, state.assignmentId) : null;
+    const stepData = stepOverride || steps[step - 1] || steps[0];
 
     const ms = milestoneForStage(state.stage);
+    const mL = msLabel(ms);
     const ctbStage = document.getElementById('ctbStage');
     if (ctbStage) ctbStage.innerHTML =
-        `<span class="show-es">Paso ${ms.n}<span class="ctb-of-total"> de ${TOTAL_MILESTONES}</span> · ${escapeHtml(ms.es)}</span>` +
+        `<span class="show-es">Paso ${ms.n}<span class="ctb-of-total"> de ${TOTAL_MILESTONES}</span> · ${escapeHtml(mL.es)}</span>` +
         `<span class="lang-sep"> / </span>` +
-        `<span class="show-en">Step ${ms.n}<span class="ctb-of-total"> of ${TOTAL_MILESTONES}</span> · ${escapeHtml(ms.en)}</span>`;
+        `<span class="show-en">Step ${ms.n}<span class="ctb-of-total"> of ${TOTAL_MILESTONES}</span> · ${escapeHtml(mL.en)}</span>`;
 
     // Mobile progress strip — set CSS variable consumed by ::after on current-task-bar.
     // Driven by the 5-milestone student-facing model (M1=20% … M5=100%) so the strip
@@ -1333,6 +1336,32 @@ function milestonesCompletedCount() {
     return MILESTONES.filter(m => m.ids.every(id => state.done.has(id))).length;
 }
 
+// ── Stage B.1: profile-aware label helpers ──
+// Return the active profile's label override when one exists, else the default
+// MILESTONES / STAGES label. Keeps CAP-200 (or any future profile) copy in the
+// profile layer; the default essay flow is untouched. See genre-template.js.
+function msLabel(ms) {
+    const o = (typeof getMilestoneLabelOverride === 'function')
+        ? getMilestoneLabelOverride(ms.n, state.assignmentId) : null;
+    return o ? { es: o.es, en: o.en } : { es: ms.es, en: ms.en };
+}
+function stLabel(stageId) {
+    const s = STAGES.find(x => x.id === stageId) || STAGES[stageId - 1] || STAGES[0];
+    const o = (typeof getStageLabelOverride === 'function')
+        ? getStageLabelOverride(stageId, state.assignmentId) : null;
+    return o ? { es: o.es, en: o.en } : { es: s.es, en: s.en };
+}
+// Stage B.1 add-on: set the draft-area placeholder from the active profile's
+// override, else restore the original (cached from the DOM). Default flow keeps
+// its personal-essay placeholder; CAP 200 cues the service-learning project.
+let _defaultDraftPlaceholder = null;
+function applyDraftPlaceholder() {
+    if (!D.draftArea) return;
+    if (_defaultDraftPlaceholder === null) _defaultDraftPlaceholder = D.draftArea.getAttribute('placeholder') || '';
+    const o = (typeof getDraftPlaceholderOverride === 'function') ? getDraftPlaceholderOverride(state.assignmentId) : null;
+    D.draftArea.setAttribute('placeholder', o || _defaultDraftPlaceholder);
+}
+
 function buildMap() {
     D.journeyTrack.innerHTML = '';
     let dimmedCount = 0;
@@ -1346,9 +1375,10 @@ function buildMap() {
 
         const labelRow = document.createElement('div');
         labelRow.className = 'phase-label-row';
+        const mL = msLabel(ms);
         labelRow.innerHTML =
-            `<span class="phase-label show-es" lang="es">${ms.n}. ${ms.es}</span>` +
-            `<span class="phase-label show-en" lang="en">${ms.n}. ${ms.en}</span>`;
+            `<span class="phase-label show-es" lang="es">${ms.n}. ${escapeHtml(mL.es)}</span>` +
+            `<span class="phase-label show-en" lang="en">${ms.n}. ${escapeHtml(mL.en)}</span>`;
         group.appendChild(labelRow);
 
         const nodesRow = document.createElement('div');
@@ -1388,7 +1418,8 @@ function buildMap() {
 
             const stageLabel = document.createElement('div');
             stageLabel.className = 'stage-label';
-            stageLabel.innerHTML = `<span class="label-es" lang="es">${s.es.replace('\n','<br>')}</span><span class="label-en" lang="en">${s.en}</span>`;
+            const sL = stLabel(s.id);
+            stageLabel.innerHTML = `<span class="label-es" lang="es">${escapeHtml(sL.es).replace('\n','<br>')}</span><span class="label-en" lang="en">${escapeHtml(sL.en)}</span>`;
 
             node.append(circle, stageLabel);
             nodesRow.appendChild(node);
@@ -1434,13 +1465,15 @@ function buildMobileNav() {
     // reads as 5 milestones, not a flat list of 10 stages.
     MILESTONES.forEach(ms => {
         const og = document.createElement('optgroup');
-        og.label = `${ms.n}. ${ms.en} · ${ms.es}`;
+        const mL = msLabel(ms);
+        og.label = `${ms.n}. ${mL.en} · ${mL.es}`;
         ms.ids.forEach(id => {
             const s = STAGES.find(st => st.id === id);
             if (!s) return;
+            const sL = stLabel(s.id);
             const opt = document.createElement('option');
             opt.value = s.id;
-            opt.textContent = `${s.en} · ${s.es.replace('\n', ' ')}`;
+            opt.textContent = `${sL.en} · ${sL.es.replace('\n', ' ')}`;
             if (s.id === state.stage) opt.selected = true;
             og.appendChild(opt);
         });
@@ -1529,9 +1562,11 @@ function showStagePreview(targetId) {
     const s = STAGES[targetId - 1];
     if (!s) return;
     pendingStageId = targetId;
+    const pL = stLabel(s.id);
+    const pStep = (typeof getStageStepOverride === 'function') ? getStageStepOverride(s.id, 0, state.assignmentId) : null;
     D.previewStageNum.textContent = s.id;
-    D.previewTitle.innerHTML = `<span class="show-es">${escapeHtml(s.es.replace('\n', ' '))}</span><span class="lang-sep"> / </span><span class="show-en">${escapeHtml(s.en)}</span>`;
-    D.previewDesc.textContent = s.desc;
+    D.previewTitle.innerHTML = `<span class="show-es">${escapeHtml(pL.es.replace('\n', ' '))}</span><span class="lang-sep"> / </span><span class="show-en">${escapeHtml(pL.en)}</span>`;
+    D.previewDesc.textContent = pStep ? (pStep.es + ' / ' + pStep.en) : s.desc;
 
     // Completed milestone text (what the student just finished)
     const tr = STAGE_TRANSITIONS[targetId];
@@ -1600,7 +1635,11 @@ function dismissStagePreview() {
 }
 
 function injectStageEntryWelcome(id) {
-    const msg = STAGE_ENTRY_MESSAGES[id];
+    // Stage B.1: use the active profile's coach stage-entry override when present
+    // (CAP 200), else the default STAGE_ENTRY_MESSAGES. Default flow unchanged.
+    const override = (typeof getStageEntryOverride === 'function')
+        ? getStageEntryOverride(id, state.assignmentId) : null;
+    const msg = override || STAGE_ENTRY_MESSAGES[id];
     if (!msg) return;
     try {
         const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
@@ -1625,7 +1664,8 @@ function goToStage(id) {
     const s = STAGES[id - 1];
     if (D.headerSub) {
         const ms = milestoneForStage(id);
-        D.headerSub.innerHTML = `<span class="show-es">TU COACH DE ESCRITURA</span><span class="lang-sep">&nbsp;·&nbsp;</span><span class="show-en">YOUR WRITING COACH</span>&nbsp;—&nbsp;<span class="header-stage-inline"><span class="show-es">Paso ${ms.n} de ${TOTAL_MILESTONES} · ${ms.es}</span><span class="lang-sep"> / </span><span class="show-en">Step ${ms.n} of ${TOTAL_MILESTONES} · ${ms.en}</span></span>`;
+        const mL = msLabel(ms);
+        D.headerSub.innerHTML = `<span class="show-es">TU COACH DE ESCRITURA</span><span class="lang-sep">&nbsp;·&nbsp;</span><span class="show-en">YOUR WRITING COACH</span>&nbsp;—&nbsp;<span class="header-stage-inline"><span class="show-es">Paso ${ms.n} de ${TOTAL_MILESTONES} · ${escapeHtml(mL.es)}</span><span class="lang-sep"> / </span><span class="show-en">Step ${ms.n} of ${TOTAL_MILESTONES} · ${escapeHtml(mL.en)}</span></span>`;
     }
     try { localStorage.setItem('tupana_stage', String(id)); } catch(e) {}
     buildMap();
@@ -1822,7 +1862,10 @@ function updateDraftControls() {
 
 function showTip(e, s) {
     const r = e.currentTarget.getBoundingClientRect();
-    D.tooltip.innerHTML = `<strong>${s.id}. <span class="show-es">${s.es.replace('\n', ' ')}</span><span class="lang-sep"> / </span><span class="show-en">${s.en}</span></strong>${s.desc}`;
+    const tL = stLabel(s.id);
+    const tStep = (typeof getStageStepOverride === 'function') ? getStageStepOverride(s.id, 0, state.assignmentId) : null;
+    const tDesc = tStep ? (tStep.es + ' / ' + tStep.en) : s.desc;
+    D.tooltip.innerHTML = `<strong>${s.id}. <span class="show-es">${escapeHtml(tL.es).replace('\n', ' ')}</span><span class="lang-sep"> / </span><span class="show-en">${escapeHtml(tL.en)}</span></strong>${escapeHtml(tDesc)}`;
     D.tooltip.style.left = `${Math.min(r.left, window.innerWidth - 230)}px`;
     D.tooltip.style.top  = `${r.bottom + 7}px`;
     D.tooltip.classList.add('on');
@@ -2473,7 +2516,7 @@ function buildChannelData() {
         assignmentId: state.assignmentId || null,
         stage: state.stage,
         stageId: getStageId(state.stage),
-        stageName: STAGES[state.stage - 1] ? STAGES[state.stage - 1].es.replace('\n', ' ') + ' / ' + STAGES[state.stage - 1].en : '',
+        stageName: (function(){ const l = stLabel(state.stage); return l ? l.es.replace('\n', ' ') + ' / ' + l.en : ''; })(),
         draftSaved: state.draftSaved,
         maniDone: localStorage.getItem('tupana_mani_done') === 'true',
         labDone: localStorage.getItem('tupana_lab_done') === 'true',
@@ -3524,6 +3567,7 @@ function chooseProject(assignmentId) {
         state.assignmentId = null;
         try { localStorage.removeItem('tupana_assignment_id'); } catch(e) {}
     }
+    applyDraftPlaceholder();   // Stage B.1: reflect the chosen project in the draft placeholder
 }
 
 function showLandingMoment() {
@@ -3602,7 +3646,7 @@ function showWelcomeBack() {
 
     let stage = 1;
     try { stage = parseInt(localStorage.getItem('tupana_stage') || '1', 10) || 1; } catch(e) {}
-    const stageName = (STAGES.find(s => s.id === stage) || STAGES[0]);
+    const stageName = stLabel(stage);   // Stage B.1: CAP-200-aware when active, default otherwise
     const draftSaved = localStorage.getItem('tupana_draft_saved') === 'true';
     const draftWords = (() => {
         try {
@@ -3930,10 +3974,20 @@ function closeLab() {
     if (window.innerWidth <= 480) switchMobileTab('chat');
     flashChatFocus();
 
-    // Post-onboarding welcome from the coach
-    const welcomeMsg = state.connected
-        ? '¡Bienvenido/a! You\'ve completed Tu Conocimiento and El Laboratorio. I can see the assets you claimed and the sentence you wrote about your own knowledge. We\'re at Stage 1 — Anecdote. Write a few sentences in the draft panel about a specific memory, then tell me what you\'re thinking. Tu voz importa.'
-        : '¡Bienvenido/a! You\'ve completed the orientation. Head to Stage 1 and start writing in the draft panel on the left — write your first ideas in your own words. Your coach will be ready once the instructor connects the AI.';
+    // Post-onboarding welcome from the coach. Stage B.1: service-learning-aware
+    // when the CAP 200 profile is active; default essay welcome otherwise.
+    const capEntry = (typeof getStageEntryOverride === 'function') && getStageEntryOverride(1, state.assignmentId);
+    let welcomeMsg;
+    if (capEntry) {
+        const sL = stLabel(1);
+        welcomeMsg = state.connected
+            ? `¡Bienvenido/a! Completaste Tu Conocimiento y El Laboratorio. Estás en el Paso 1: ${sL.es} de tu Proyecto de Aprendizaje-Servicio CAP 200. Empieza en el panel del borrador: tu CBO, tu tema comunitario, o el momento que te conectó con este proyecto — en tus propias palabras. Tu voz importa.`
+            : `¡Bienvenido/a! Completaste la orientación. Ve al Paso 1: ${sL.es} y empieza a escribir en el panel del borrador — tu CBO, tu tema comunitario, o el momento que te conectó con este proyecto, en tus propias palabras. Tu coach estará listo cuando el instructor conecte la IA.`;
+    } else {
+        welcomeMsg = state.connected
+            ? '¡Bienvenido/a! You\'ve completed Tu Conocimiento and El Laboratorio. I can see the assets you claimed and the sentence you wrote about your own knowledge. We\'re at Stage 1 — Anecdote. Write a few sentences in the draft panel about a specific memory, then tell me what you\'re thinking. Tu voz importa.'
+            : '¡Bienvenido/a! You\'ve completed the orientation. Head to Stage 1 and start writing in the draft panel on the left — write your first ideas in your own words. Your coach will be ready once the instructor connects the AI.';
+    }
     setTimeout(() => addMsg(welcomeMsg, 'bot', false, 'welcome'), 600);
 }
 

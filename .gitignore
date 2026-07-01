@@ -51,6 +51,8 @@
 # ── Allow Stage B service-learning regression tests ──────
 !service_learning_test.mjs
 !storage_keys_test.mjs
+# ── Allow Stage B.1 label-alignment regression test ──────
+!cap200_labels_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

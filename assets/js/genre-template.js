@@ -398,7 +398,61 @@ const cap200BronxBeautifulServiceLearning = {
     studentLabelEs:        'Proyecto de Aprendizaje-Servicio CAP 200',
     studentLabelEn:        'CAP 200 Service-Learning Project',
     studentDescEs:         'Construye tu reporte de 5–7 páginas: tu proyecto con la CBO, tus datos, los conceptos del curso, tu análisis y tu reflexión.',
-    studentDescEn:         'Build your 5–7 page report from your CBO project, your data, course concepts, analysis, and reflection.'
+    studentDescEn:         'Build your 5–7 page report from your CBO project, your data, course concepts, analysis, and reflection.',
+
+    // ── Stage B.1: student-facing DISPLAY + COACH-ENTRY overrides ──
+    // Presentation-only overlay applied ONLY when this profile is active. It
+    // never mutates the default STAGES / MILESTONES / STAGE_ENTRY_MESSAGES; the
+    // 10-stage engine, storage, gate logic, and default essay flow are untouched.
+    // Keyed by the internal stage id (1–10) / milestone number (1–5).
+    // Draft-area placeholder (bilingual "ES\n\nEN") — cues the service-learning project.
+    draftPlaceholder: 'Empieza con tu CBO, tu tema comunitario, tu servicio, o una evidencia que ya tengas…\n\nStart with your CBO, your community issue, your service, or one piece of evidence you already have…',
+    stageDisplay: {
+        1:  { es: 'Punto de partida\ncomunitario', en: 'Community Starting Point' },
+        2:  { es: 'Tema comunitario\n+ curso',      en: 'Community Issue + Course' },
+        3:  { es: 'Propuesta del\nproyecto',        en: 'Project Proposal' },
+        4:  { es: 'Evidencia +\nplan de datos',     en: 'Evidence + Data Plan' },
+        5:  { es: 'Estructura del\nreporte',        en: 'Report Structure' },
+        6:  { es: 'Primer\nborrador',               en: 'First Draft' },
+        7:  { es: 'Revisión con\nevidencia',        en: 'Revision with Evidence' },
+        8:  { es: 'Voz + estilo\nacadémico',        en: 'Voice + Academic Style' },
+        9:  { es: 'Revisión\nfinal',                en: 'Final Readiness Check' },
+        10: { es: 'Reflexión del\nproceso',         en: 'Process Reflection' }
+    },
+    milestones: {
+        1: { es: 'Comunidad y propuesta', en: 'Community & Proposal' },
+        2: { es: 'Evidencia y estructura', en: 'Evidence & Structure' },
+        3: { es: 'Escribe tu primer borrador', en: 'Write Your First Draft' },
+        4: { es: 'Revisa y pule', en: 'Revise & Polish' },
+        5: { es: 'Reflexiona y entrega', en: 'Reflect & Submit' }
+    },
+    // Coach stage-entry messages ("ES\nEN"). Stage 6 preserves the global
+    // authorship framing; Stage 8 preserves the global voice-protection framing.
+    stageEntry: {
+        1:  'Paso 1: Punto de partida comunitario. Empieza con tu CBO, tu tema comunitario, o el momento que te conectó con este proyecto — en tus propias palabras.\nStep 1: Community Starting Point. Start with your CBO, your community issue, or the moment that connected you to this project — in your own words.',
+        2:  'Paso 2: Tema comunitario y conexión con el curso. Conecta tu punto de partida con un problema social, histórico, cultural, ambiental o cívico más amplio, y con una idea del curso.\nStep 2: Community Issue + Course Connection. Connect your starting point to a larger social, historical, cultural, environmental, or civic issue — and to a course concept.',
+        3:  'Paso 3: Propuesta del proyecto. Aclara tu CBO, el servicio que propones, tu cronograma y qué falta para estar listo/a para la aprobación de tu instructor/a. (Yo no apruebo propuestas.)\nStep 3: Project Proposal Pitch. Clarify your CBO, the service you propose, your timeline, and what is left to be ready for your instructor\'s approval. (I do not approve proposals.)',
+        4:  'Paso 4: Evidencia y plan de datos. Planea tus horas registradas, diarios, entrevistas, encuestas u observaciones. Yo sugiero métodos — nunca invento datos ni fuentes.\nStep 4: Evidence + Data Plan. Plan your logged hours, journals, interviews, surveys, or observations. I suggest methods — I never invent data or sources.',
+        5:  'Paso 5: Estructura del reporte. Organiza tu reporte de 5–7 páginas con introducción, metodología, resultados, discusión y conclusión. El esquema lo haces tú.\nStep 5: Report Structure. Organize your 5–7 page report with introduction, methodology, results, discussion, and conclusion. You build the outline.',
+        6:  'Paso 6: Primer borrador. Este borrador lo escribes tú, sin el coach. No tiene que ser perfecto — solo tiene que ser tuyo. Escríbelo y guárdalo para desbloquear la revisión.\nStep 6: First Draft Checkpoint. You write this draft yourself, without the coach. It does not need to be perfect — it just needs to be yours. Write and save it to unlock revision.',
+        7:  'Paso 7: Revisión con evidencia. Fortalece tu análisis, la interpretación de tus datos y la conexión con los conceptos del curso — sin borrarte de la página.\nStep 7: Revision with Evidence. Strengthen your analysis, your data interpretation, and your course-concept connection — without erasing yourself from the page.',
+        8:  'Paso 8: Voz y estilo académico. Pule tu escritura a nivel universitario sin borrar tu idioma, tu posicionalidad ni tu voz. Elige una oración y decide qué ayuda necesita.\nStep 8: Voice + Academic Style. Polish your writing to a college level without erasing your language, positionality, or voice. Choose one sentence and decide what help it needs.',
+        9:  'Paso 9: Lista de revisión final. Confirma el contexto de tu CBO, tu propuesta/servicio/datos, la estructura IMRDC, tu reflexión, tus revisiones y el significado comunitario.\nStep 9: Final Readiness Checklist. Confirm your CBO context, your proposal/service/data, the IMRDC structure, your reflection, your revisions, and the public/community significance.',
+        10: 'Paso 10: Reflexión del proceso. Documenta lo que aprendiste, cómo usaste la IA, cómo revisaste, y qué entiendes ahora sobre el aprendizaje-servicio.\nStep 10: Process Reflection. Document what you learned, how you used AI, how you revised, and what you now understand about service-learning.'
+    },
+    // One concise task-bar cue per stage (clamped by the consumer for any sub-step index).
+    stageSteps: {
+        1:  [{ es: 'Nombra tu CBO, tu tema comunitario, o el momento que te conectó.', en: 'Name your CBO, your community issue, or the moment that connected you.' }],
+        2:  [{ es: 'Conecta tu proyecto con un problema más amplio y una idea del curso.', en: 'Connect your project to a larger issue and a course concept.' }],
+        3:  [{ es: 'Aclara CBO, servicio, cronograma y qué falta para la aprobación.', en: 'Clarify CBO, service, timeline, and what is left for approval.' }],
+        4:  [{ es: 'Planea cómo reunirás evidencia real (horas, entrevistas, encuestas).', en: 'Plan how you will gather real evidence (hours, interviews, surveys).' }],
+        5:  [{ es: 'Organiza el reporte: introducción, metodología, resultados, discusión, conclusión.', en: 'Organize the report: introduction, methodology, results, discussion, conclusion.' }],
+        6:  [{ es: '⭐ Escribe y guarda tu primer borrador sin ayuda. Este borrador es tuyo.', en: '⭐ Write and save your unassisted first draft. This draft is yours.' }],
+        7:  [{ es: 'Mejora tu análisis y la interpretación de tus datos con evidencia.', en: 'Strengthen your analysis and data interpretation with evidence.' }],
+        8:  [{ es: 'Pule tu estilo académico sin borrar tu voz ni tu posicionalidad.', en: 'Polish your academic style without erasing your voice or positionality.' }],
+        9:  [{ es: 'Verifica CBO, datos, estructura IMRDC, reflexión y significado comunitario.', en: 'Check CBO, data, IMRDC structure, reflection, and community significance.' }],
+        10: [{ es: 'Documenta tu aprendizaje, tu uso de la IA y tu proceso de revisión.', en: 'Document your learning, your AI use, and your revision process.' }]
+    }
 };
 
 // Registry-ready layer object. Backward-compatible shape ({id, name, context})
@@ -462,6 +516,49 @@ function getSelectableProfiles() {
             descEs:  l.profile.studentDescEs  || '',
             descEn:  l.profile.studentDescEn  || ''
         }));
+}
+
+// ════════════════════════════════════════════════════════
+//  STAGE B.1 — PROFILE-AWARE DISPLAY / COACH-ENTRY RESOLVERS
+//  Each returns the ACTIVE profile's override, or null when no override applies
+//  (unknown/absent assignment, or a stage without an override). Callers fall
+//  back to the default STAGES / MILESTONES / STAGE_ENTRY_MESSAGES on null, so
+//  the default essay flow is provably unchanged and no CAP-200 copy can leak.
+// ════════════════════════════════════════════════════════
+function _profileForAssignment(assignmentId) {
+    const layer = (typeof getAssignmentLayer === 'function') ? getAssignmentLayer(assignmentId) : null;
+    return (layer && layer.profile) ? layer.profile : null;
+}
+// Stage display label override → { es, en } | null
+function getStageLabelOverride(stageId, assignmentId) {
+    const p = _profileForAssignment(assignmentId);
+    const o = p && p.stageDisplay && p.stageDisplay[stageId];
+    return o ? { es: o.es, en: o.en } : null;
+}
+// Milestone (1–5) label override → { es, en } | null
+function getMilestoneLabelOverride(milestoneN, assignmentId) {
+    const p = _profileForAssignment(assignmentId);
+    const o = p && p.milestones && p.milestones[milestoneN];
+    return o ? { es: o.es, en: o.en } : null;
+}
+// Coach stage-entry override → "ES\nEN" string | null
+function getStageEntryOverride(stageId, assignmentId) {
+    const p = _profileForAssignment(assignmentId);
+    const o = p && p.stageEntry && p.stageEntry[stageId];
+    return (typeof o === 'string' && o.trim()) ? o : null;
+}
+// Task-bar short-cue override for a given sub-step index (clamped) → { es, en } | null
+function getStageStepOverride(stageId, stepIdx, assignmentId) {
+    const p = _profileForAssignment(assignmentId);
+    const arr = p && p.stageSteps && p.stageSteps[stageId];
+    if (!Array.isArray(arr) || !arr.length) return null;
+    const i = Math.max(0, Math.min(stepIdx || 0, arr.length - 1));
+    return arr[i] || null;
+}
+// Draft-area placeholder override (bilingual string) → string | null
+function getDraftPlaceholderOverride(assignmentId) {
+    const p = _profileForAssignment(assignmentId);
+    return (p && typeof p.draftPlaceholder === 'string' && p.draftPlaceholder.trim()) ? p.draftPlaceholder : null;
 }
 
 // ════════════════════════════════════════════════════════

@@ -469,6 +469,99 @@ const cap200ServiceLearningLayer = {
 };
 
 // ════════════════════════════════════════════════════════
+//  RESEARCH PAPER GENRE LAYER A.1 — academic research-paper overlay
+//  A second genre profile on the SAME Stage-B.1 overlay pattern as CAP 200.
+//  Pure presentation/coaching data: it supplies stageDisplay / milestones /
+//  stageEntry / stageSteps / draftPlaceholder + a coach `context` string, all
+//  consumed by the existing profile-aware resolvers UNCHANGED. It never mutates
+//  the default STAGES / MILESTONES / STAGE_ENTRY_MESSAGES, and it is LINK-ONLY
+//  (selectable:false) — activated only by ?assignment=research-paper, never in
+//  the bare-app selector. The 10-stage engine, Stage 6 authorship gate, Stage 8
+//  voice protection, default essay flow, and CAP 200 flow are all untouched.
+//  No citation generation, source search, retrieval, or verification.
+// ════════════════════════════════════════════════════════
+const researchPaperProfile = {
+    profileId:      'research_paper_academic',
+    // Short student-facing copy (kept for a future selectable release; unused while link-only).
+    studentLabelEs: 'Trabajo de investigación',
+    studentLabelEn: 'Research Paper',
+    studentDescEs:  'Desarrolla tu trabajo de investigación: tu pregunta, tus fuentes, tu evidencia, tu argumento y tu revisión.',
+    studentDescEn:  'Build your research paper: your question, your sources, your evidence, your argument, and your revision.',
+
+    // ── Stage-B.1 presentation overlay (applied ONLY when this profile is active) ──
+    // Draft-area placeholder (bilingual "ES\n\nEN") — cues the research paper. No CBO
+    // (no CAP leak) and no personal-essay starter (no default leak).
+    draftPlaceholder: 'Empieza con tu tema, tu pregunta de investigación, o una fuente o idea que ya tengas…\n\nStart with your topic, your research question, or one source or idea you already have…',
+    stageDisplay: {
+        1:  { es: 'Tema y\ncontexto',            en: 'Topic & Context' },
+        2:  { es: 'Pregunta de\ninvestigación',  en: 'Research Question' },
+        3:  { es: 'Plan de búsqueda\ny fuentes',  en: 'Search Plan & Sources' },
+        4:  { es: 'Evaluación de\nfuentes',       en: 'Source Evaluation' },
+        5:  { es: 'Notas, evidencia\ny patrones', en: 'Notes & Evidence' },
+        6:  { es: 'Primer\nborrador',             en: 'First Draft' },
+        7:  { es: 'Argumento, tesis\ny estructura', en: 'Argument & Thesis' },
+        8:  { es: 'Revisión y\nvoz',              en: 'Revision & Voice' },
+        9:  { es: 'Citas y\npulido final',        en: 'Citations & Polish' },
+        10: { es: 'Reporte del\nproceso',         en: 'Process Report' }
+    },
+    milestones: {
+        1: { es: 'Tema y pregunta',              en: 'Topic & Question' },
+        2: { es: 'Fuentes y evidencia',          en: 'Sources & Evidence' },
+        3: { es: 'Escribe tu primer borrador',   en: 'Write Your First Draft' },
+        4: { es: 'Revisa y pule',                en: 'Revise & Polish' },
+        5: { es: 'Reflexiona y entrega',         en: 'Reflect & Submit' }
+    },
+    // Coach stage-entry messages ("ES\nEN"). Stage 6 preserves the global authorship
+    // framing ("you write this draft yourself, without the coach"); Stage 8 preserves
+    // the global voice-protection framing ("without erasing your voice").
+    stageEntry: {
+        1:  'Paso 1: Tema y contexto de la tarea. Empieza nombrando tu tema y lo que pide la tarea: extensión, tipo de fuentes, y la pregunta o problema que te interesa — en tus propias palabras.\nStep 1: Topic & Assignment Context. Start by naming your topic and what the assignment asks for: length, source types, and the question or problem that interests you — in your own words.',
+        2:  'Paso 2: Pregunta de investigación. Convierte tu tema en una pregunta clara, enfocada y discutible. Yo te hago preguntas para afinarla; la pregunta la decides tú.\nStep 2: Research Question. Turn your topic into a clear, focused, arguable question. I ask questions to sharpen it; you decide the question.',
+        3:  'Paso 3: Plan de búsqueda y tipos de fuentes. Planea dónde buscarás y qué tipos de fuentes necesitas (académicas y populares, primarias y secundarias). Yo sugiero estrategias de búsqueda — nunca invento ni busco fuentes o citas por ti.\nStep 3: Search Plan & Source Types. Plan where you will look and what source types you need (scholarly and popular, primary and secondary). I suggest search strategies — I never invent or look up sources or citations for you.',
+        4:  'Paso 4: Evaluación de fuentes. Examina cada fuente: quién la escribió, cuándo, para quién, y qué tan confiable y relevante es. Yo te ayudo a hacer las preguntas; tú juzgas la fuente.\nStep 4: Source Evaluation. Examine each source: who wrote it, when, for whom, and how credible and relevant it is. I help you ask the questions; you judge the source.',
+        5:  'Paso 5: Notas, evidencia y patrones. Toma notas con tus propias palabras y mantén separadas la cita, la paráfrasis y el resumen. Busca patrones y tensiones entre tus fuentes.\nStep 5: Notes, Evidence & Patterns. Take notes in your own words and keep quotation, paraphrase, and summary clearly apart. Look for patterns and tensions across your sources.',
+        6:  'Paso 6: Primer borrador. Este borrador lo escribes tú, sin el coach. No tiene que ser perfecto — solo tiene que ser tuyo. Escríbelo y guárdalo para desbloquear la revisión.\nStep 6: First Draft Checkpoint. You write this draft yourself, without the coach. It does not need to be perfect — it just needs to be yours. Write and save it to unlock revision.',
+        7:  'Paso 7: Argumento, tesis y estructura. Aclara tu tesis y organiza tu argumento para que tu evidencia sostenga cada afirmación. Fortalece la estructura sin borrarte de la página.\nStep 7: Argument, Thesis & Structure. Clarify your thesis and organize your argument so your evidence supports each claim. Strengthen the structure without erasing yourself from the page.',
+        8:  'Paso 8: Revisión y protección de la voz. Pule tu escritura a nivel académico sin borrar tu idioma, tu perspectiva ni tu voz. Elige una oración y decide qué ayuda necesita.\nStep 8: Revision + Voice Protection. Polish your writing to an academic level without erasing your language, your perspective, or your voice. Choose one sentence and decide what help it needs.',
+        9:  'Paso 9: Citas, uso de fuentes y pulido final. Revisa que cada cita, paráfrasis y resumen tenga su fuente, y que tu formato de citas sea consistente. Yo señalo qué revisar — no genero citas ni verifico fuentes por ti.\nStep 9: Citations, Source Use & Final Polish. Check that every quotation, paraphrase, and summary is credited, and that your citation format is consistent. I point out what to check — I do not generate citations or verify sources for you.',
+        10: 'Paso 10: Reporte del proceso de investigación. Documenta cómo desarrollaste tu pregunta, cómo encontraste y evaluaste tus fuentes, cómo formaste tu argumento, y cómo revisaste — con tus propias palabras.\nStep 10: Research Process Report. Document how you developed your question, how you found and evaluated your sources, how you formed your argument, and how you revised — in your own words.'
+    },
+    // One concise task-bar cue per stage (clamped by the consumer for any sub-step index).
+    stageSteps: {
+        1:  [{ es: 'Nombra tu tema, la extensión y el tipo de fuentes que pide la tarea.', en: 'Name your topic, the length, and the source types the assignment asks for.' }],
+        2:  [{ es: 'Convierte tu tema en una pregunta enfocada y discutible.', en: 'Turn your topic into a focused, arguable question.' }],
+        3:  [{ es: 'Planea dónde buscar y qué tipos de fuentes necesitas.', en: 'Plan where to search and what source types you need.' }],
+        4:  [{ es: 'Evalúa cada fuente: autor, fecha, propósito, credibilidad, relevancia.', en: 'Evaluate each source: author, date, purpose, credibility, relevance.' }],
+        5:  [{ es: 'Toma notas con tus palabras; separa cita, paráfrasis y resumen.', en: 'Take notes in your words; separate quotation, paraphrase, and summary.' }],
+        6:  [{ es: '⭐ Escribe y guarda tu primer borrador sin ayuda. Este borrador es tuyo.', en: '⭐ Write and save your unassisted first draft. This draft is yours.' }],
+        7:  [{ es: 'Aclara tu tesis y ordena tu argumento con evidencia.', en: 'Clarify your thesis and order your argument with evidence.' }],
+        8:  [{ es: 'Pule tu estilo académico sin borrar tu voz ni tu perspectiva.', en: 'Polish your academic style without erasing your voice or perspective.' }],
+        9:  [{ es: 'Verifica que cada fuente esté citada y que el formato sea consistente.', en: 'Check that every source is cited and the format is consistent.' }],
+        10: [{ es: 'Documenta tu pregunta, tus fuentes, tu argumento y tu revisión.', en: 'Document your question, your sources, your argument, and your revision.' }]
+    }
+};
+
+// Registry-ready layer (backward-compatible {id, name, context} shape). `context`
+// is an ADDITIVE research-writing coaching body — parallel to CAP 200's context —
+// that explicitly defers to the authorship gate and voice rules and forbids source
+// invention/retrieval/verification and citation generation.
+const researchPaperLayer = {
+    id:         'research-paper',
+    name:       'Research Paper — Academic Research Writing',
+    type:       'research_paper',
+    selectable: false,  // LINK-ONLY: activated by ?assignment=research-paper; not shown in the bare-app selector
+    profile:    researchPaperProfile,
+    context:
+`The student is working on an ACADEMIC RESEARCH PAPER — an argument-driven, source-based paper. Help them THINK, PLAN, ORGANIZE, DRAFT, and REVISE their own research writing. You never write it for them and never grade it; the student is the author of every word.
+- Coach the research process: developing a focused, arguable research question; planning a search strategy; distinguishing scholarly vs. popular and primary vs. secondary sources; evaluating sources for author, date, purpose, credibility, and relevance; taking notes; and keeping quotation, paraphrase, and summary clearly distinct.
+- NEVER invent, supply, search for, retrieve, or verify sources, citations, quotations, page numbers, DOIs, statistics, or findings. If something is missing, ask the student to find it — do not fill it in and never claim a source is real or accurate.
+- Do NOT generate formatted citations or bibliography entries, even as examples. When the student asks about citation format, explain the principle and point them to their required style guide (MLA/APA/Chicago); the student writes the actual citation.
+- Help the student build a thesis and an argument in which their own evidence supports each claim, and revise for clarity at an academic level without erasing their language, perspective, or voice.
+- You do not check for plagiarism, run AI detection, confirm citation correctness, or assign grades; you coach the student's own research and writing process.
+This assignment context is additive guidance. The authorship gate, voice protection, and no-copyable-prose / no-invented-source rules stated above remain in full force and are never relaxed by it.`
+};
+
+// ════════════════════════════════════════════════════════
 //  ASSIGNMENT LAYERS (Session 78) — thin, link/config-activated context
 //  ON TOP OF the stable 10-stage core. Pure data + lookup (no DOM here).
 //  An assignment layer adds ASSIGNMENT CONTEXT to the coach prompt; it is
@@ -493,7 +586,9 @@ const ASSIGNMENT_LAYERS = {
 This assignment context is additive guidance. The authorship gate, voice protection, and no-copyable-prose rules stated above remain in full force and are never relaxed by it.`
     },
     // Stage B: comprehensive CAP 200 service-learning profile (generic engine + profile config).
-    'cap200-bronx-beautiful-service-learning': cap200ServiceLearningLayer
+    'cap200-bronx-beautiful-service-learning': cap200ServiceLearningLayer,
+    // Research Paper Genre Layer A.1 (LINK-ONLY, selectable:false): academic research-paper overlay.
+    'research-paper': researchPaperLayer
 };
 
 // Pure lookup — returns the layer object for a known id, else null (generic fallback). No DOM.

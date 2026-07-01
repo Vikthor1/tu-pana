@@ -148,7 +148,7 @@ Preserve the Pilot 1 coded-link workflow **as-is**:
 - Distribution sheet columns are unchanged: **`Code | Pre-Survey URL | Post-Survey URL | Pre Submitted? | Post Submitted?`** — distribute one row per student privately (Brightspace message/email); **do not share the sheet with students.**
 
 ### Apps Script Pilot-2 change list *(apply manually in the new workbook — NOT applied to `survey-builder.gs` here)*
-1. `CONFIG.NUM_PARTICIPANTS` → your CAP 200 class size.
+1. `CONFIG.NUM_CODES` → your CAP 200 class size / number of survey-code rows to generate.
 2. `CONFIG.CODE_PREFIX` → the shipped Pilot 2 builder uses `'TPN2'` (default); switch to `'TPN'` only to mirror Pilot 1's exact prefix.
 3. Form titles in `buildPreSurvey_`/`buildPostSurvey_` (as shipped in the builder):
    - `Tu Pana CAP 200 Pilot 2 — Pre-Use Survey · Encuesta Inicial`

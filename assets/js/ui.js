@@ -2738,7 +2738,16 @@ function buildOllamaSystemPrompt(lang) {
     // Derive stage-specific rules from the active genre template.
     // Swapping templates automatically updates coaching rules for the new genre.
     const _stageRules = getActiveTemplate().stages
-        .map(s => `Stage ${s.number}: ${s.coachFocus}`)
+        .map(s => {
+            // A.2a: profile-aware per-stage coachFocus. When the active assignment
+            // profile supplies a stage override (currently research-paper only), it
+            // REPLACES the default essay coachFocus line for that stage; otherwise
+            // the default template line is used exactly as before. Null-safe: no
+            // assignment / no override => byte-identical default behavior.
+            const _ov = (typeof getCoachFocusOverride === 'function')
+                ? getCoachFocusOverride(s.number, state && state.assignmentId) : null;
+            return `Stage ${s.number}: ${_ov || s.coachFocus}`;
+        })
         .join('\n');
 
     // Assignment layer (Session 78): ADDITIVE context appended AFTER every mandatory rule below,

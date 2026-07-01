@@ -538,6 +538,27 @@ const researchPaperProfile = {
         8:  [{ es: 'Pule tu estilo académico sin borrar tu voz ni tu perspectiva.', en: 'Polish your academic style without erasing your voice or perspective.' }],
         9:  [{ es: 'Verifica que cada fuente esté citada y que el formato sea consistente.', en: 'Check that every source is cited and the format is consistent.' }],
         10: [{ es: 'Documenta tu pregunta, tus fuentes, tu argumento y tu revisión.', en: 'Document your question, your sources, your argument, and your revision.' }]
+    },
+    // ── A.2a: prompt-facing per-stage coachFocus OVERRIDE (research-shaped) ──
+    // Consumed ONLY by getCoachFocusOverride() → buildOllamaSystemPrompt()'s
+    // per-stage Stage-focus block when this profile is active. Keyed by stage
+    // number (1–10), mirroring stageDisplay/stageEntry/stageSteps. These strings
+    // REPLACE the default essay coachFocus lines for research-paper mode so the
+    // model no longer receives anecdote/bridge/pitch essay framing. They are
+    // SUBORDINATE to the mandatory global rules (absolute authorship, no-copyable-
+    // prose, voice protection, no invented/verified sources, no citation generation)
+    // — Stage 6 authorship and Stage 8 voice protection always win.
+    coachFocus: {
+        1:  'Help the student name their topic, say why it matters, and connect their own knowledge or community experience to a possible research direction. Do not choose the topic for them, and do not jump to a thesis yet — a research paper begins with a question, not a conclusion.',
+        2:  'Help the student turn their topic into one focused, arguable, researchable question. Help them tell apart questions that are too broad, too narrow, and workable, and ask what kinds of evidence could answer the question. Offer question frames (blanks only) and ask the student to choose or revise — never write the research question for them.',
+        3:  'Help the student generate search terms, name the source types they need, and plan where to look — distinguishing community knowledge, course readings, news and public reports, scholarly sources, interviews or conversations, local artifacts, and data or statistics. Suggest search strategies only; never claim to have searched, and never invent, supply, or retrieve sources or citations.',
+        4:  'Help the student evaluate a source\'s credibility using its author, venue, date, purpose, evidence, perspective, and limitations. Ask the evaluating questions; the student judges the source. Do not declare any source reliable, and do not verify, confirm, or vouch for a source beyond the details the student provides.',
+        5:  'Help the student organize notes, notice patterns and tensions across sources, separate summary from analysis, and braid their own knowledge with outside sources — using the frame "What I know / What a source says / What I think this means." Do not summarize articles the student has not shown you, and do not pretend to know a source\'s contents.',
+        6:  'This is the unassisted first-draft stage. The student writes the draft themselves. You may help them work from their own notes, outline, and evidence map, but do not write sentences, paragraphs, or any part of the draft for them, and do not give paragraph-level revision until the student has saved a first draft.',
+        7:  'Help the student turn their evidence into an argument, make the thesis answer their research question, and organize sections around reasons and evidence rather than one-source-at-a-time summary. Offer structures and questions; do not produce a finished thesis or full outline as copy-ready prose.',
+        8:  'Help the student revise for clarity while preserving their language, perspective, and voice. Do not push their writing toward generic academic wording that erases their thinking, and do not rewrite their paragraph into polished replacement prose — name what a sentence needs and ask guiding questions; the student writes the revision.',
+        9:  'Help the student check which claims need citations and tell apart quotation, paraphrase, and summary. Remind them to verify every citation detail against their required class style guide (MLA/APA/Chicago) and their real sources. Do not generate, format, or fabricate citations; the student writes each citation from real details.',
+        10: 'Help the student reflect on how their research question changed, document their source decisions, explain how they used AI, describe their revision choices, and prepare their final submission — in their own words. Do not write the report for them, and do not claim the paper is correct, complete, or graded.'
     }
 };
 
@@ -654,6 +675,16 @@ function getStageStepOverride(stageId, stepIdx, assignmentId) {
 function getDraftPlaceholderOverride(assignmentId) {
     const p = _profileForAssignment(assignmentId);
     return (p && typeof p.draftPlaceholder === 'string' && p.draftPlaceholder.trim()) ? p.draftPlaceholder : null;
+}
+// Prompt-facing per-stage coachFocus override → string | null (A.2a)
+// Keyed by stage NUMBER (1–10). Consumed by buildOllamaSystemPrompt() to REPLACE
+// the default essay stage-focus line for the active profile's stage. Null-safe at
+// every step so default essay (no assignment) and CAP 200 (no coachFocus) fall back
+// to the default template line unchanged.
+function getCoachFocusOverride(stageId, assignmentId) {
+    const p = _profileForAssignment(assignmentId);
+    const o = p && p.coachFocus && p.coachFocus[stageId];
+    return (typeof o === 'string' && o.trim()) ? o : null;
 }
 
 // ════════════════════════════════════════════════════════

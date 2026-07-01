@@ -47,7 +47,8 @@ try {
             // Milestone wording on load — mirror goToStage() so the header is not
             // stale "Etapa N" before the first navigation (Stage A consistency).
             const ms = milestoneForStage(savedStage);
-            D.headerSub.innerHTML = `<span class="show-es">TU COACH DE ESCRITURA</span><span class="lang-sep">&nbsp;·&nbsp;</span><span class="show-en">YOUR WRITING COACH</span>&nbsp;—&nbsp;<span class="header-stage-inline"><span class="show-es">Paso ${ms.n} de ${TOTAL_MILESTONES} · ${ms.es}</span><span class="lang-sep"> / </span><span class="show-en">Step ${ms.n} of ${TOTAL_MILESTONES} · ${ms.en}</span></span>`;
+            const mL = (typeof msLabel === 'function') ? msLabel(ms) : { es: ms.es, en: ms.en };
+            D.headerSub.innerHTML = `<span class="show-es">TU COACH DE ESCRITURA</span><span class="lang-sep">&nbsp;·&nbsp;</span><span class="show-en">YOUR WRITING COACH</span>&nbsp;—&nbsp;<span class="header-stage-inline"><span class="show-es">Paso ${ms.n} de ${TOTAL_MILESTONES} · ${escapeHtml(mL.es)}</span><span class="lang-sep"> / </span><span class="show-en">Step ${ms.n} of ${TOTAL_MILESTONES} · ${escapeHtml(mL.en)}</span></span>`;
         }
     }
 } catch(e) {}
@@ -55,6 +56,7 @@ buildMap();
 updateCurrentTaskBar();
 restoreChatLog();
 restoreDraft();
+applyDraftPlaceholder();   // Stage B.1: profile-aware draft placeholder (CAP 200 vs default)
 editHistoryInit(D.draftArea.value);
 updateDraftControls();
 initChatProgress();

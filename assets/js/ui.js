@@ -1375,12 +1375,22 @@ function renderPathwayChip() {
         ? escapeHtml(l.es)
         : `<span class="show-es">${escapeHtml(l.es)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(l.en)}</span>`;
 }
+// Mobile-safe chat placeholder (Visual Polish Q6): the desktop placeholder text
+// truncates awkwardly at phone widths. Display-only swap at boot — no chat
+// behavior, no send path, no storage change.
+function applyMobileChatPlaceholder() {
+    if (!D.chatInput) return;
+    if (window.matchMedia('(max-width: 480px)').matches) {
+        D.chatInput.setAttribute('placeholder', 'Escribe aquí · Type here');
+    }
+}
 // state.assignmentId is resolved in app.js, which loads after ui.js — defer the
 // first render to DOMContentLoaded (fires after all classic end-of-body scripts).
+function _initHeaderChipAndPlaceholder() { renderPathwayChip(); applyMobileChatPlaceholder(); }
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderPathwayChip);
+    document.addEventListener('DOMContentLoaded', _initHeaderChipAndPlaceholder);
 } else {
-    renderPathwayChip();
+    _initHeaderChipAndPlaceholder();
 }
 
 function buildMap() {
@@ -3658,7 +3668,7 @@ function showLandingMoment() {
                 "Your story is where the argument begins."
             </div>
             <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.78rem; color:var(--text-sub); margin-bottom:28px; line-height:1.5;">
-                <span class="show-es">Tu trabajo se guarda en este navegador. Si usas el coach Gemini, tu mensaje se envía al servicio de IA para responderte. Tu profesor solo ve lo que tú decidas exportar, copiar o compartir.</span><span class="lang-sep"> · </span><span class="show-en">Your work is saved in this browser. If you use the Gemini coach, your message is sent to the AI service so it can respond. Your instructor only sees what you choose to export, copy, or share.</span>
+                <span class="show-es">Tu trabajo se guarda en este navegador. Si usas el Coach IA en vivo, tu mensaje se envía al servicio de IA para responderte. Tu profesor solo ve lo que tú decidas exportar, copiar o compartir.</span><span class="lang-sep"> · </span><span class="show-en">Your work is saved in this browser. If you use the Live AI coach, your message is sent to the AI service so it can respond. Your instructor only sees what you choose to export, copy, or share.</span>
             </div>
             <div id="landingTtsWrap" style="margin-bottom:12px;"></div>
             <button id="landingContinueBtn" style="

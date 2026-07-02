@@ -939,11 +939,17 @@
             overflow-x: auto;
             scrollbar-width: thin;
             scrollbar-color: var(--border-mid) transparent;
+            /* Soft right-edge fade so overflowing milestone labels dissolve instead of
+               clipping hard against the "Ver todo/menos" toggle (Visual Polish Q4). */
+            -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+            mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
         }
         .journey-track {
             display: flex; align-items: flex-start;
             min-width: max-content;
-            padding: 4px 8px;
+            /* Right padding lets the last milestone's labels scroll fully clear of the
+               faded edge / toggle (Visual Polish Q4). */
+            padding: 4px 36px 4px 8px;
             gap: 0;
         }
 
@@ -1000,10 +1006,11 @@
             transform: rotate(180deg);
         }
 
-        /* Compact mode: dim far-future stages */
+        /* Compact mode: dim far-future stages — subdued but LEGIBLE (Visual Polish Q3:
+           the old 0.12/0.2 ghosting read as a rendering failure, not de-emphasis). */
         .journey-track.compact .stage-node.dimmed,
         .journey-track.compact .phase-group:has(.stage-node.active ~ .stage-node.dimmed) .stage-node.dimmed {
-            opacity: 0.12;
+            opacity: 0.38;
             pointer-events: none;
             filter: grayscale(0.5);
         }
@@ -1012,16 +1019,17 @@
         }
         .journey-track.compact .stage-node.dimmed .stage-circle {
             transform: scale(0.82);
-            opacity: 0.35;
+            opacity: 0.5;
         }
-        /* Dim phase label when all stages in that phase are dimmed */
+        /* Dim phase label when all stages in that phase are dimmed — students should
+           still be able to READ the road ahead at a glance. */
         .journey-track.compact .phase-group:not(:has(.stage-node:not(.dimmed))) .phase-label {
-            opacity: 0.2;
+            opacity: 0.5;
         }
         /* dim connectors leading into dimmed nodes */
         .journey-track.compact .stage-node.dimmed:not(:last-child)::after,
         .journey-track.compact .stage-node:has(+ .stage-node.dimmed):not(:last-child)::after {
-            opacity: 0.12;
+            opacity: 0.3;
         }
 
         .stage-node {
@@ -1233,10 +1241,12 @@
            Also hidden when the area is disabled. pointer-events: none — informational
            only, never intercepts a tap meant for the textarea. */
         .draft-start-cue {
-            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
             display: inline-flex; align-items: center; gap: 6px;
             padding: 4px 12px;
-            background: var(--amber-glow);
+            /* Opaque warm surface — amber tint layered OVER a solid panel — so the
+               placeholder text can never show through the pill (Visual Polish Q1). */
+            background: linear-gradient(var(--amber-glow), var(--amber-glow)), var(--bg-panel);
             border: 1px dashed var(--amber-text);
             border-radius: 999px;
             color: var(--amber-text);
@@ -1343,10 +1353,23 @@
             outline: 2px solid var(--amber);
             outline-offset: 1px;
         }
+        /* Visual Polish Q8: disabled editor controls look INTENTIONALLY off —
+           muted ink, no surface, no border, consistent across the toolbar. */
         .etb-btn:disabled {
-            opacity: 0.35; cursor: not-allowed;
+            opacity: 0.4; cursor: not-allowed;
+            color: var(--text-muted);
+            background: none;
+            border-color: transparent;
         }
         .etb-btn svg { flex-shrink: 0; }
+
+        /* Visual Polish Q7: the landing Continue button is styled inline (JS-injected);
+           its focus ring was the browser-default blue — the one off-palette accent in
+           the app's calmest screen. Warm, high-contrast, always-visible ring instead. */
+        #landingContinueBtn:focus {
+            outline: 3px solid var(--amber-dk);
+            outline-offset: 3px;
+        }
         .etb-sep {
             width: 1px; height: 16px; background: var(--border);
             margin: 0 3px; flex-shrink: 0; align-self: center;
@@ -1444,11 +1467,13 @@
             box-shadow: 0 2px 16px var(--success-glow), inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
+        /* Visual Polish Q2: the continue action is THE primary action of the draft
+           panel — filled amber so exactly one button leads; siblings stay ghost. */
         .continue-btn {
             width: 100%; padding: 9px 10px;
-            background: var(--bg-raised);
-            color: var(--text-primary);
-            border: 1px solid var(--border-hi);
+            background: var(--grad-amber);
+            color: #fff;
+            border: 1px solid var(--amber-dk);
             border-radius: var(--radius-sm);
             font-family: var(--font-body);
             font-size: 0.85rem; font-weight: 700;
@@ -1457,18 +1482,27 @@
             transition: all var(--transition-medium);
         }
         .continue-btn:hover:not(:disabled) {
-            background: var(--bg-panel);
-            border-color: var(--amber);
+            background: var(--grad-amber-hi);
+            border-color: var(--amber-dk);
             transform: translateY(-1px);
         }
+        .continue-btn:focus-visible {
+            outline: 3px solid var(--amber-dk);
+            outline-offset: 2px;
+        }
+        /* Disabled = quiet ghost ("not yet"), not translucent amber — the gate state
+           must read as intentionally inactive. */
         .continue-btn:disabled {
-            opacity: 0.38;
+            background: var(--bg-raised);
+            color: var(--text-muted);
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
             border-color: var(--border);
         }
         .continue-btn--ready {
             border-color: var(--jade);
+            box-shadow: 0 0 0 3px var(--jade-glow);
         }
 
         .saved-notice {
@@ -5832,6 +5866,33 @@ img, video, embed, object { max-width: 100%; height: auto; }
 @media (max-width: 480px) {
     /* Journey map hidden — stage info visible in current-task-bar + mobile stage nav */
     .journey-wrap { display: none; }
+    /* Current-task instruction: wrap to two lines instead of clipping mid-word;
+       marquee scroll is neutralized at this width (Visual Polish Q5). */
+    .ctb-instruction, .ctb-instruction.ctb-marquee {
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.3;
+    }
+    .ctb-instruction .ctb-marquee-inner {
+        display: inline;
+        white-space: normal;
+        padding-right: 0;
+        animation: none;
+    }
+    /* Draft cue: on phones the placeholder fills the whole textarea, so no floating
+       position can avoid text. Render the cue as a static row BELOW the textarea
+       instead — zero overlap possible; :placeholder-shown hiding still applies
+       (Visual Polish Q1, mobile treatment). */
+    .draft-start-cue {
+        position: static;
+        transform: none;
+        align-self: center;
+        margin: 6px auto 2px;
+    }
     /* Banner simplified: subtitle + stage text hidden — stage shown in current-task-bar */
     #headerSub { display: none; }
     /* Pathway chip stays (only sub-line on phones) — compacted to fit the tight header */

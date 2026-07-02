@@ -109,7 +109,7 @@ console.log('\n── B. CAP 200 deep link ──');
     check('CAP DOM journey node 1 = Community Starting Point', r.domNode1 === 'Community Starting Point');
     check('CAP DOM milestone 1 = Community & Proposal', r.domMs1 === '1. Community & Proposal');
     check('CAP header shows COMUNIDAD Y PROPUESTA', /COMUNIDAD Y PROPUESTA/i.test(r.header));
-    check('CAP dropdown option 1 = Community Starting Point', /Community Starting Point/.test(r.dropOpt1));
+    check('CAP dropdown option 1 = Punto de partida comunitario (ES mode — VP2 M5 language-aware)', /Punto de partida comunitario/.test(r.dropOpt1));
     check('CAP channelStageName is service-learning label', /Community Starting Point/.test(r.channelStageName));
     check('engine still 10 stages (CAP)', r.stageCount === 10);
     check('Stage 6 still exists as the authorship-gate stage', r.stage6Id === 6);

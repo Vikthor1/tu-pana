@@ -276,6 +276,9 @@ function setLang(pref) {
     if (ms) ms.value = pref;
     // Update html lang attribute for AT
     document.documentElement.lang = pref === 'en' ? 'en' : 'es';
+    // VP2 M5: the mobile stage <select> holds plain text (no show-es/show-en
+    // spans), so rebuild its labels in the newly selected language mode.
+    try { buildMobileNav(); } catch(e) {}
 }
 
 function initLang() {
@@ -1492,19 +1495,29 @@ function buildMobileNav() {
     const sel = D.mobileStageSelect;
     if (!sel) return;
     sel.innerHTML = '';
+    // Language-mode-aware label (VP2 M5): a native <select> cannot use the
+    // show-es/show-en span toggles, so build the text per state.lang — Spanish
+    // first in bilingual mode, matching the app-wide ES · EN convention.
+    // msLabel/stLabel keep it pathway-aware (Default / CAP 200 / Research).
+    const biLabel = (es, en) => {
+        const e = es.replace(/\n/g, ' '), n = en.replace(/\n/g, ' ');
+        if (state.lang === 'es') return e;
+        if (state.lang === 'en') return n;
+        return `${e} · ${n}`;
+    };
     // Group stages under their student-facing milestone so the dropdown
     // reads as 5 milestones, not a flat list of 10 stages.
     MILESTONES.forEach(ms => {
         const og = document.createElement('optgroup');
         const mL = msLabel(ms);
-        og.label = `${ms.n}. ${mL.en} · ${mL.es}`;
+        og.label = `${ms.n}. ${biLabel(mL.es, mL.en)}`;
         ms.ids.forEach(id => {
             const s = STAGES.find(st => st.id === id);
             if (!s) return;
             const sL = stLabel(s.id);
             const opt = document.createElement('option');
             opt.value = s.id;
-            opt.textContent = `${sL.en} · ${sL.es.replace('\n', ' ')}`;
+            opt.textContent = biLabel(sL.es, sL.en);
             if (s.id === state.stage) opt.selected = true;
             og.appendChild(opt);
         });

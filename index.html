@@ -105,32 +105,32 @@
                 aria-label="Deshacer · Undo"
                 title="Deshacer · Undo — Ctrl+Z (Mac: Cmd+Z)">
                 <svg viewBox="0 0 16 16" style="width:12px;height:12px" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5H10a3 3 0 0 1 0 6H8"/><path d="M5 5L3 3M5 5L3 7"/></svg>
-                <span class="etb-label">Deshacer</span>
+                <span class="etb-label"><span class="show-es">Deshacer</span><span class="lang-sep"> · </span><span class="show-en">Undo</span></span>
             </button>
             <button class="etb-btn" id="editRedo" onclick="editHistoryRedo()" disabled
                 aria-label="Rehacer · Redo"
                 title="Rehacer · Redo — Ctrl+Shift+Z (Mac: Cmd+Shift+Z)">
                 <svg viewBox="0 0 16 16" style="width:12px;height:12px" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5H6a3 3 0 0 0 0 6h2"/><path d="M11 5L13 3M11 5L13 7"/></svg>
-                <span class="etb-label">Rehacer</span>
+                <span class="etb-label"><span class="show-es">Rehacer</span><span class="lang-sep"> · </span><span class="show-en">Redo</span></span>
             </button>
             <div class="etb-sep" aria-hidden="true"></div>
             <button class="etb-btn" id="editCut" onclick="editCut()"
                 aria-label="Cortar texto seleccionado · Cut selected text"
                 title="Cortar · Cut — Ctrl+X (Mac: Cmd+X)">
                 <svg viewBox="0 0 16 16" style="width:12px;height:12px" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="3.5" cy="12" r="2"/><circle cx="3.5" cy="4" r="2"/><line x1="5.5" y1="10.5" x2="14" y2="3"/><line x1="5.5" y1="5.5" x2="14" y2="13"/></svg>
-                <span class="etb-label">Cortar</span>
+                <span class="etb-label"><span class="show-es">Cortar</span><span class="lang-sep"> · </span><span class="show-en">Cut</span></span>
             </button>
             <button class="etb-btn" id="editCopy" onclick="editCopy()"
                 aria-label="Copiar texto seleccionado · Copy selected text"
                 title="Copiar · Copy — Ctrl+C (Mac: Cmd+C)">
                 <svg viewBox="0 0 16 16" style="width:12px;height:12px" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="8" height="9" rx="1"/><rect x="3" y="2" width="8" height="9" rx="1"/></svg>
-                <span class="etb-label">Copiar</span>
+                <span class="etb-label"><span class="show-es">Copiar</span><span class="lang-sep"> · </span><span class="show-en">Copy</span></span>
             </button>
             <button class="etb-btn" id="editPaste" onclick="editPaste()"
                 aria-label="Pegar texto · Paste text"
                 title="Pegar · Paste — Ctrl+V (Mac: Cmd+V)">
                 <svg viewBox="0 0 16 16" style="width:12px;height:12px" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="10" height="10" rx="1.5"/><path d="M5 5V3.5C5 3.22 5.22 3 5.5 3h5c.28 0 .5.22.5.5V5"/><line x1="6" y1="9" x2="10" y2="9"/><line x1="6" y1="12" x2="9" y2="12"/></svg>
-                <span class="etb-label">Pegar</span>
+                <span class="etb-label"><span class="show-es">Pegar</span><span class="lang-sep"> · </span><span class="show-en">Paste</span></span>
             </button>
             <div class="etb-sep" id="etbProtectSep" aria-hidden="true" style="display:none"></div>
             <button class="etb-btn" id="etbProtectBtn" onclick="protectSelectedPhrase()"
@@ -170,7 +170,7 @@
                     <span class="tp-icon" style="width:14px;height:14px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M14 7h33l7 7v43H14z"/><path d="M47 7v8h7M22 23h21M22 31h16"/><circle class="tp-fill-jade" cx="43" cy="45" r="10"/><path d="M38 45l4 4 7-8"/></svg></span> <span class="show-es">Guardar / Exportar</span><span class="lang-sep"> · </span><span class="show-en">Save / Export</span>
                 </button>
                 <button class="save-btn" id="saveBtn" disabled aria-label="Guardar mi primer borrador · Save my first draft" title="Escribe al menos 10 palabras para guardar · Write at least 10 words to save">
-                    <span id="saveBtnLabel"><span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M14 7h33l7 7v43H14z"/><path d="M47 7v8h7M22 23h21M22 31h16"/><circle class="tp-fill-jade" cx="43" cy="45" r="10"/><path d="M38 45l4 4 7-8"/></svg></span> Guardar</span>
+                    <span id="saveBtnLabel"><span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M14 7h33l7 7v43H14z"/><path d="M47 7v8h7M22 23h21M22 31h16"/><circle class="tp-fill-jade" cx="43" cy="45" r="10"/><path d="M38 45l4 4 7-8"/></svg></span> <span class="show-es">Guardar</span><span class="lang-sep"> · </span><span class="show-en">Save</span></span>
                 </button>
             </div>
             <button class="continue-btn" id="continueBtn" onclick="showStagePreview(state.stage + 1)" aria-label="Continuar · Continue">

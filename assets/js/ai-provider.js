@@ -88,7 +88,9 @@ function getGeminiErrorMessage(err) {
     if (cat === 'invalid_response') {
         return 'El coach devolvió una respuesta inesperada. Intenta de nuevo.\nThe coach returned an unexpected response. Try again.';
     }
-    return 'El coach Gemini no está disponible temporalmente. Puedes intentar de nuevo o continuar con el Coach sin conexión.\nGemini coach is temporarily unavailable. You can try again or continue with the Offline Coach.';
+    // Visible copy only (Localization QA): approved AI-mode vocabulary — no
+    // behavior, retry, or payload change in this function.
+    return 'El Coach IA no está disponible temporalmente. Puedes intentar de nuevo o continuar con la Guía sin IA.\nThe Live AI coach is temporarily unavailable. You can try again or continue with Built-in, no AI mode.';
 }
 
 // Single-attempt Gemini fetch — called by callGeminiProviderViaProxy retry loop

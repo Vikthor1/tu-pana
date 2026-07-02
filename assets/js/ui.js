@@ -573,9 +573,9 @@ function submitCapstone() {
                 <span class="show-en">Generate Report for Brightspace</span>
             </button>
             <span class="instr-report-trigger-sub">
-                <span class="show-es">Revisa y entrega este reporte con tu ensayo.</span>
+                <span class="show-es">Revisa y entrega este reporte con tu trabajo escrito.</span>
                 <span class="lang-sep"> · </span>
-                <span class="show-en">Review and submit this report with your essay.</span>
+                <span class="show-en">Review and submit this report with your written work.</span>
             </span>`;
         done.appendChild(trigger);
     }
@@ -1575,11 +1575,19 @@ function dismissDraftWarning() {
     try { sessionStorage.setItem('tupana_warn_dismissed', '1'); } catch(e) {}
 }
 
-const PHASE_COMPLETION_NOTES = {
-    4:  { es: 'Paso 1 completo — Encuentra tu historia. Ahora empieza el Paso 2 (Investiga y planifica): la investigación y el esquema sirven tu historia, no la reemplazan.', en: 'Step 1 complete — Find Your Story. Step 2 (Research & Plan) begins: research and outlining serve your story; they do not replace it.' },
-    7:  { es: 'Paso 3 completo — Escribe tu primer borrador. Lo escribiste sin ayuda, y ese borrador es tuyo como ninguna otra cosa. Ahora empieza el Paso 4 (Pule tu ensayo): la revisión con las Cinco Preguntas — tú decides qué se queda.', en: 'Step 3 complete — Write Your First Draft. You wrote it without help, and that draft is yours like nothing else. Step 4 (Refine Your Essay) begins: revision with the Five Questions — you decide what stays.' },
-    10: { es: 'Paso 4 completo — Pule tu ensayo. Revisaste con criterio y protegiste tu voz. Queda el Paso 5 (Reflexiona y entrega): nombra qué cambió, qué protegiste y qué todavía necesita atención. Esto no es una nota — tu criterio importa.', en: 'Step 4 complete — Refine Your Essay. You revised with judgment and protected your voice. Step 5 (Reflect & Submit) remains: name what changed, what you protected, and what still needs attention. This is not a grade — your judgment matters.' }
-};
+// Phase-completion notes (system log). Milestone NAMES resolve through msLabel at
+// display time (Localization QA sprint), so CAP 200 / Research Paper students see
+// their own pathway's milestone vocabulary instead of the default essay names.
+function phaseCompletionNote(id) {
+    const done = milestoneForStage(id - 1), next = milestoneForStage(id);
+    const dL = msLabel(done), nL = msLabel(next);
+    const NOTES = {
+        4:  { es: `Paso ${done.n} completo — ${dL.es}. Ahora empieza el Paso ${next.n} (${nL.es}): la investigación y el esquema sirven tu historia, no la reemplazan.`, en: `Step ${done.n} complete — ${dL.en}. Step ${next.n} (${nL.en}) begins: research and outlining serve your story; they do not replace it.` },
+        7:  { es: `Paso ${done.n} completo — ${dL.es}. Lo escribiste sin ayuda, y ese borrador es tuyo como ninguna otra cosa. Ahora empieza el Paso ${next.n} (${nL.es}): la revisión con las Cinco Preguntas — tú decides qué se queda.`, en: `Step ${done.n} complete — ${dL.en}. You wrote it without help, and that draft is yours like nothing else. Step ${next.n} (${nL.en}) begins: revision with the Five Questions — you decide what stays.` },
+        10: { es: `Paso ${done.n} completo — ${dL.es}. Revisaste con criterio y protegiste tu voz. Queda el Paso ${next.n} (${nL.es}): nombra qué cambió, qué protegiste y qué todavía necesita atención. Esto no es una nota — tu criterio importa.`, en: `Step ${done.n} complete — ${dL.en}. You revised with judgment and protected your voice. Step ${next.n} (${nL.en}) remains: name what changed, what you protected, and what still needs attention. This is not a grade — your judgment matters.` }
+    };
+    return NOTES[id] || null;
+}
 
 // Track pending stage advance from preview modal
 let pendingStageId = null;
@@ -1716,9 +1724,9 @@ function goToStage(id) {
     updateCurrentTaskBar();
 
     // Phase completion note (system log — only for true phase boundaries)
-    if (PHASE_COMPLETION_NOTES[id]) {
-        const note = PHASE_COMPLETION_NOTES[id];
-        setTimeout(() => addSys(`${note.es} · ${note.en}`), 400);
+    {
+        const note = phaseCompletionNote(id);
+        if (note) setTimeout(() => addSys(`${note.es} · ${note.en}`), 400);
     }
     // Celebration toast — fires at any significant milestone, not only phase boundaries
     if (PHASE_CELEBRATIONS[id]) {
@@ -1852,7 +1860,7 @@ function updateDraftControls() {
         // Reset save button state if draft not yet saved
         if (!state.draftSaved) {
             D.saveBtn.classList.remove('saved');
-            D.saveBtnLabel.innerHTML = '<span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M14 7h33l7 7v43H14z"/><path d="M47 7v8h7M22 23h21M22 31h16"/><circle class="tp-fill-jade" cx="43" cy="45" r="10"/><path d="M38 45l4 4 7-8"/></svg></span> Guardar';
+            D.saveBtnLabel.innerHTML = '<span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M14 7h33l7 7v43H14z"/><path d="M47 7v8h7M22 23h21M22 31h16"/><circle class="tp-fill-jade" cx="43" cy="45" r="10"/><path d="M38 45l4 4 7-8"/></svg></span> <span class="show-es">Guardar</span><span class="lang-sep"> · </span><span class="show-en">Save</span>';
             D.saveBtn.disabled = false;
         }
     } else if (isS10) {
@@ -2655,8 +2663,8 @@ function _renderOfflineFallbackBtn(msgId) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'offline-fallback-btn';
-        btn.setAttribute('aria-label', 'Cambiar a modo Offline · Switch to Offline Mode');
-        btn.innerHTML = '<span class="show-es">Cambiar a modo Offline</span><span class="lang-sep"> · </span><span class="show-en">Switch to Offline Mode</span>';
+        btn.setAttribute('aria-label', 'Cambiar a Guía sin IA · Switch to Built-in, no AI');
+        btn.innerHTML = '<span class="show-es">Cambiar a Guía sin IA</span><span class="lang-sep"> · </span><span class="show-en">Switch to Built-in, no AI</span>';
         btn.addEventListener('click', () => {
             btn.disabled = true;
             setCoachMode('offline');
@@ -2665,8 +2673,8 @@ function _renderOfflineFallbackBtn(msgId) {
             // moment it is shown (a failed write surfaces the error indicator).
             autosaveFlush();
             addMsg(
-                'Coach sin conexión activado. Tu trabajo está guardado. Usa el botón "Estoy atascado" para recibir orientación en cada etapa.\n' +
-                'Offline coach is on. Your work is saved. Use the "I\'m stuck" button for guidance at each stage.',
+                'Guía sin IA activada. Tu trabajo está guardado. Usa el botón "Estoy atascado" para recibir orientación en cada etapa.\n' +
+                'Built-in, no AI mode is on. Your work is saved. Use the "I\'m stuck" button for guidance at each stage.',
                 'bot', true, 'welcome'
             );
         });
@@ -3155,12 +3163,12 @@ function submitChat() {
                 : ' In Stage 8, the coach helps you strengthen your voice — it will not rewrite your text for you.';
         } else if (state.stage === 10) {
             stageNote = isEs
-                ? ' En la Etapa 10, completa los cuatro campos de la tarjeta final para terminar tu ensayo.'
-                : ' In Stage 10, complete the four fields in the final card to finish your essay.';
+                ? ' En la Etapa 10, completa los cuatro campos de la tarjeta final para terminar tu trabajo.'
+                : ' In Stage 10, complete the four fields in the final card to finish your written work.';
         }
         const fallback = isEs
-            ? `Parece que tienes una pregunta sobre cómo usar Tu Pana.${stageNote} Haz clic en el botón **?** (arriba a la derecha) para ver la guía de orientación. Si tienes una pregunta sobre tu ensayo, escríbela y el coach te ayudará.`
-            : `It looks like you have a question about how to use Tu Pana.${stageNote} Click the **?** button (top right) to open the orientation guide. If you have a question about your essay, type it and the coach will help.`;
+            ? `Parece que tienes una pregunta sobre cómo usar Tu Pana.${stageNote} Haz clic en el botón **?** (arriba a la derecha) para ver la guía de orientación. Si tienes una pregunta sobre tu escritura, escríbela y el coach te ayudará.`
+            : `It looks like you have a question about how to use Tu Pana.${stageNote} Click the **?** button (top right) to open the orientation guide. If you have a question about your writing, type it and the coach will help.`;
         addMsg(fallback, 'bot');
         D.sendBtn.disabled = false;
         return;
@@ -4145,8 +4153,8 @@ const REFLECTION_CHECKPOINTS = [
         skill: 'Revision judgment',
         skillsGainsLabel: 'I practiced deciding whether AI revision advice supported my own choices as a writer.',
         skillsGainsLabelEs: 'Practiqué decidir si el consejo de revisión del coach apoyó mis propias decisiones como escritor/a.',
-        promptEs: 'Antes de seguir, revisa esto: ¿tu ensayo presenta una idea clara que un lector pueda seguir? Esto ayuda a que tu mejor pensamiento se note.',
-        promptEn: 'Before moving on, check this: does your essay make one clear claim a reader can follow? This helps your strongest thinking come through.',
+        promptEs: 'Antes de seguir, revisa esto: ¿tu trabajo presenta una idea clara que un lector pueda seguir? Esto ayuda a que tu mejor pensamiento se note.',
+        promptEn: 'Before moving on, check this: does your written work make one clear claim a reader can follow? This helps your strongest thinking come through.',
         questionEs: '¿El coach te ayudó a revisar tu propio párrafo, o empezó a escribir por ti?',
         questionEn: 'Did the coach help you revise your own paragraph, or did it start writing for you?',
         options: [
@@ -4196,7 +4204,7 @@ const REFLECTION_CHECKPOINTS = [
         questionEs: '¿Cómo describirías tu decisión más importante sobre el consejo del coach?',
         questionEn: 'How would you describe your most important decision about the coach\'s advice?',
         options: [
-            { es: 'Acepté el consejo y mejoró mi ensayo.', en: 'I accepted the advice and it improved my essay.' },
+            { es: 'Acepté el consejo y mejoró mi trabajo.', en: 'I accepted the advice and it improved my work.' },
             { es: 'Cuestioné el consejo y lo modifiqué.', en: 'I questioned the advice and modified it.' },
             { es: 'Rechacé el consejo porque no encajaba con mi voz.', en: 'I rejected the advice because it did not fit my voice.' },
             { es: 'Usé parte del consejo y descarté el resto.', en: 'I used part of the advice and discarded the rest.' },
@@ -5049,8 +5057,8 @@ function handleStuckOption(option) {
                 'Name the larger force behind your personal moment. One sentence: "My experience connects to ______."'
             ),
             3: t(
-                'Completa esta oración con tus propias palabras: Mi ensayo es sobre ______ porque ______. No tiene que ser perfecto. / Complete this: My essay is about ______ because ______. It does not have to be perfect.',
-                'State the tension in one sentence: "My essay argues that [experience] reveals [structural issue]."'
+                'Completa esta oración con tus propias palabras: Mi trabajo es sobre ______ porque ______. No tiene que ser perfecto. / Complete this: My work is about ______ because ______. It does not have to be perfect.',
+                'State the tension in one sentence: "My work argues that [experience] reveals [structural issue]."'
             ),
             4: t(
                 'Escribe una pregunta que todavía no puedes responder sobre tu tema. A veces la pregunta es el comienzo. / Write one question you still cannot answer about your topic. Sometimes the question is the beginning.',
@@ -5061,7 +5069,7 @@ function handleStuckOption(option) {
                 'List your 5 sections. For each, write one sentence: what does this section do for the reader?'
             ),
             6: t(
-                'Escribe un párrafo sobre el momento más específico de tu historia. No pienses en el ensayo — solo escribe el momento. / Write one paragraph about the most specific moment in your story. Do not think about the essay — just write the moment.',
+                'Escribe un párrafo sobre el momento más específico de tu historia. No pienses en el texto completo — solo escribe el momento. / Write one paragraph about the most specific moment in your story. Do not think about the whole piece — just write the moment.',
                 'Write the most specific scene you remember. Keep going without stopping. You can revise later.'
             ),
             7: t(
@@ -5136,7 +5144,7 @@ const PHASE_CELEBRATIONS = {
         badge:   'Encontrar · Discovery',
         titleEs: 'Encontraste tu historia',
         titleEn: 'You found your story',
-        body:    'Has identificado una memoria específica y conectado tu experiencia personal con un contexto más grande. Ese movimiento — de <em>mi historia</em> a <em>nuestro mundo</em> — es donde comienza el ensayo. / You have identified a specific memory and connected your personal experience to a larger context. That move — from <em>my story</em> to <em>our world</em> — is where the essay begins.'
+        body:    'Has identificado una memoria específica y conectado tu experiencia personal con un contexto más grande. Ese movimiento — de <em>mi historia</em> a <em>nuestro mundo</em> — es donde comienza tu trabajo. / You have identified a specific memory and connected your personal experience to a larger context. That move — from <em>my story</em> to <em>our world</em> — is where your writing begins.'
     },
     6:  {
         badge:   'Construir · Building',
@@ -5155,7 +5163,7 @@ const PHASE_CELEBRATIONS = {
         badge:   'Completar · Completing',
         titleEs: 'Llegaste al final con dignidad',
         titleEn: 'You reached the end with dignity',
-        body:    'Tu ensayo, tu nota de proceso, y tu registro de decisiones están listos. No solo completaste una tarea — documentaste cómo usaste la IA con criterio. / Your essay, your process note, and your decision log are ready. You did not just complete an assignment — you documented how you used AI with judgment.'
+        body:    'Tu trabajo escrito, tu nota de proceso, y tu registro de decisiones están listos. No solo completaste una tarea — documentaste cómo usaste la IA con criterio. / Your written work, your process note, and your decision log are ready. You did not just complete an assignment — you documented how you used AI with judgment.'
     }
 };
 
@@ -5195,7 +5203,7 @@ function computeBadges() {
         badges.push({ cls: 'story',  text: 'Fundador/a de Historia · Story Founder', icon: 'community-map' });
     }
     if (draftSaved) {
-        badges.push({ cls: 'arch',   text: 'Arquitecto/a del Ensayo · Essay Architect', icon: 'first-draft-door' });
+        badges.push({ cls: 'arch',   text: 'Arquitecto/a del Borrador · Draft Architect', icon: 'first-draft-door' });
     }
     // Earned by completing 1+ distinct reflection checkpoints, or by legacy ≥5 decisions
     if (checkpointCount >= 1 || decisions.length >= 5) {
@@ -5634,7 +5642,7 @@ function injectJourneyCompleteCard() {
             <div class="journey-complete-title"><span lang="es">Último paso: entrega tu paquete final</span><span class="lang-sep"> · </span><span lang="en">Last step: submit your Final Packet</span></div>
             <ol class="journey-complete-steps">
                 <li><span lang="es">Abre <strong>Guardar / Exportar</strong> (botón abajo, o en el pie de página).</span><br><span lang="en">Open <strong>Save / Export</strong> (button below, or in the footer).</span></li>
-                <li><span lang="es">Toca <strong>Copiar mi paquete final</strong> — copia tu ensayo y tu reporte de proceso juntos. Si las descargas funcionan en tu dispositivo, también puedes usar <strong>Descargar paquete final</strong>.</span><br><span lang="en">Tap <strong>Copy my Final Submission Packet</strong> — it copies your essay and process report together. If downloads work on your device, you can also use <strong>Download Final Packet</strong>.</span></li>
+                <li><span lang="es">Toca <strong>Copiar mi paquete final</strong> — copia tu trabajo escrito y tu reporte de proceso juntos. Si las descargas funcionan en tu dispositivo, también puedes usar <strong>Descargar paquete final</strong>.</span><br><span lang="en">Tap <strong>Copy my Final Submission Packet</strong> — it copies your written work and process report together. If downloads work on your device, you can also use <strong>Download Final Packet</strong>.</span></li>
                 <li><span lang="es">Pega y entrega el paquete final en Brightspace, según las instrucciones de tu instructor/a.</span><br><span lang="en">Paste and submit the Final Packet in Brightspace, following your instructor's directions.</span></li>
             </ol>
             <button type="button" class="journey-complete-cta" onclick="openReport()" aria-label="Abrir Guardar / Exportar · Open Save / Export">
@@ -5684,22 +5692,22 @@ const MICRO_REFLECTIONS = {
         key: 'mr_main_idea',
         promptEs: 'Antes de seguir, una reflexión rápida: ¿cuál es tu idea principal ahora mismo, en una oración?',
         promptEn: 'A quick reflection before you go on: what is your main idea right now, in one sentence?',
-        benefitEs: 'Esto te ayuda a mantener tu ensayo enfocado mientras revisas.',
-        benefitEn: 'This helps you keep your essay focused as you revise.',
+        benefitEs: 'Esto te ayuda a mantener tu trabajo enfocado mientras revisas.',
+        benefitEn: 'This helps you keep your work focused as you revise.',
         placeholder: 'Tu idea principal en una oración… · Your main idea in one sentence…'
     },
     changed: {
         key: 'mr_changed',
-        promptEs: 'Reflexión rápida: ¿qué cambiaste en tu ensayo gracias a la retroalimentación?',
-        promptEn: 'Quick reflection: what did you change in your essay because of feedback?',
+        promptEs: 'Reflexión rápida: ¿qué cambiaste en tu texto gracias a la retroalimentación?',
+        promptEn: 'Quick reflection: what did you change in your text because of feedback?',
         benefitEs: 'Esto te ayuda a ver tu propio crecimiento como escritor/a.',
         benefitEn: 'This helps you see your own growth as a writer.',
         placeholder: 'Un cambio que hiciste por la retroalimentación… · One change you made because of feedback…'
     },
     needs_work: {
         key: 'mr_needs_work',
-        promptEs: 'Antes de entregar, una última reflexión: ¿qué parte de tu ensayo todavía necesita trabajo?',
-        promptEn: 'One last reflection before you submit: what part of your essay still needs work?',
+        promptEs: 'Antes de entregar, una última reflexión: ¿qué parte de tu texto todavía necesita atención?',
+        promptEn: 'One last reflection before you submit: what part of your text still needs attention?',
         benefitEs: 'Reconocer esto es parte de ser un/a escritor/a fuerte — no tienes que arreglarlo todo hoy.',
         benefitEn: 'Naming this is part of being a strong writer — you do not have to fix everything today.',
         placeholder: 'Una parte que todavía necesita trabajo… · One part that still needs work…'
@@ -5772,7 +5780,7 @@ function buildProcessNoteHTML(data) {
 
       ${section(4, '¿Qué sugerencia aceptaste y por qué?', 'What suggestion did you accept and why?',
         '', 'q4',
-        'Describe una sugerencia específica que te dio el coach y que decidiste incorporar. Explica por qué mejoró tu ensayo. / Describe one specific suggestion the coach gave that you decided to incorporate...')}
+        'Describe una sugerencia específica que te dio el coach y que decidiste incorporar. Explica por qué mejoró tu trabajo. / Describe one specific suggestion the coach gave that you decided to incorporate...')}
 
       ${section(5, '¿Qué sugerencia rechazaste o modificaste?', 'What suggestion did you reject or modify?',
         q5Static, 'q5',
@@ -5780,15 +5788,15 @@ function buildProcessNoteHTML(data) {
 
       ${section(6, '¿Cómo protegiste tu propia voz?', 'How did you protect your own voice?',
         '', 'q6',
-        'Menciona detalles específicos de tu ensayo que decidiste mantener a pesar de las sugerencias: una frase en español, un detalle familiar, un momento sensorial... / Mention specific details from your essay you chose to keep despite coach suggestions...')}
+        'Menciona detalles específicos de tu trabajo que decidiste mantener a pesar de las sugerencias: una frase en español, un detalle familiar, un momento sensorial... / Mention specific details from your work you chose to keep despite coach suggestions...')}
 
-      ${section(7, '¿Qué parte del ensayo final todavía suena más como tú?', 'What part of the final essay still sounds most like you?',
+      ${section(7, '¿Qué parte de tu trabajo final todavía suena más como tú?', 'What part of your final work still sounds most like you?',
         '', 'q7',
         'Identifica el párrafo, la oración o el detalle que sientes que representa mejor tu voz. / Identify the paragraph, sentence, or detail that best represents your voice.')}
 
       ${section(8, 'Reflexión final', 'Final reflection',
         q8Static, 'q8',
-        'Reflexiona sobre cómo tu conocimiento previo —lingüístico, familiar, comunitario— se refleja en tu ensayo final. / Reflect on how your prior knowledge is reflected in your final essay.')}
+        'Reflexiona sobre cómo tu conocimiento previo —lingüístico, familiar, comunitario— se refleja en tu trabajo final. / Reflect on how your prior knowledge is reflected in your final work.')}
     `;
 }
 
@@ -5883,12 +5891,12 @@ ${ans('q5', '[PENDIENTE · PENDING: describe una sugerencia que rechazaste o mod
 === 6. ¿Cómo protegiste tu propia voz? · How did you protect your own voice? ===
 ${ans('q6', '[PENDIENTE · PENDING: menciona detalles específicos que mantuviste / mention specific details you chose to keep]')}
 
-=== 7. ¿Qué parte del ensayo final todavía suena más como tú? · What part of the final essay still sounds most like you? ===
+=== 7. ¿Qué parte de tu trabajo final todavía suena más como tú? · What part of your final work still sounds most like you? ===
 ${ans('q7', '[PENDIENTE · PENDING: identifica el párrafo, oración o detalle que representa mejor tu voz / identify the paragraph, sentence, or detail that best represents your voice]')}
 
 === 8. Reflexión final · Final reflection ===
 ${maniSentence ? `Recuerdo lo que escribí en Tu Conocimiento: "${maniSentence}" / I remember what I wrote in Tu Conocimiento: "${maniSentence}"` : ''}
-${ans('q8', '[PENDIENTE · PENDING: reflexiona sobre cómo tu conocimiento previo se refleja en tu ensayo / reflect on how your prior knowledge is reflected in your final essay]')}
+${ans('q8', '[PENDIENTE · PENDING: reflexiona sobre cómo tu conocimiento previo se refleja en tu trabajo / reflect on how your prior knowledge is reflected in your final work]')}
 
 ---
 Nota: Esta nota de proceso fue completada dentro de Tu Pana de Escritura y exportada para entrega.
@@ -6068,9 +6076,12 @@ function buildSubmissionDiagnostic() {
     const decisions = (() => { try { return JSON.parse(localStorage.getItem('tupana_decisions') || '[]'); } catch(e) { return []; } })();
     const rs = reflectionStatus();
     if (!essay.text.trim()) {
-        warnings.push({ es: 'No se encontró tu ensayo. Escribe y guarda tu trabajo antes de entregar.', en: 'No essay found — write and save your work before submitting.' });
+        warnings.push({ es: 'No se encontró tu trabajo escrito. Escribe y guarda tu trabajo antes de entregar.', en: 'No written work found — write and save your work before submitting.' });
     } else if (!essay.revised) {
-        warnings.push({ es: 'Solo se encontró tu PRIMER borrador — tu ensayo revisado no aparece. Revisa en "Pule tu ensayo" antes de entregar.', en: 'Only your FIRST draft was found — your revised essay is missing. Revise in "Refine Your Essay" before submitting.' });
+        // Milestone 4's name resolves through msLabel so CAP 200 / Research students
+        // are pointed at THEIR revision milestone, not the default essay name.
+        const _m4 = msLabel(MILESTONES[3]);
+        warnings.push({ es: `Solo se encontró tu PRIMER borrador — tu versión revisada no aparece. Revisa en "${_m4.es}" antes de entregar.`, en: `Only your FIRST draft was found — your revised version is missing. Revise in "${_m4.en}" before submitting.` });
     }
     if (!draftSaved) warnings.push({ es: 'La puerta de autoría no está documentada: no guardaste tu primer borrador sin ayuda.', en: 'Authorship gate not documented: your unassisted first draft was not saved.' });
     if (rs.status === 'BLANK') warnings.push({ es: 'No completaste ninguna reflexión del proceso.', en: 'No process reflection completed yet.' });
@@ -6181,7 +6192,7 @@ function generateInstructorReport() {
     r += `${line(40)}\n`;
     r += `Process report present : Yes\n`;
     r += `Authorship gate        : ${_sumDraftSaved ? 'PASSED' : 'NOT DOCUMENTED'}\n`;
-    r += `Final essay            : ${_sumDiag.essay.text.trim() ? (_sumDiag.essay.revised ? 'Revised draft present' : 'First draft only') : 'Not found'}\n`;
+    r += `Final written work     : ${_sumDiag.essay.text.trim() ? (_sumDiag.essay.revised ? 'Revised draft present' : 'First draft only') : 'Not found'}\n`;
     r += `Milestones completed   : ${milestonesCompletedCount()} of ${TOTAL_MILESTONES}\n`;
     r += `Internal stages done   : ${_sumStages.length} of 10${_sumStages.length ? ' (' + _sumStages.join(',') + ')' : ''}\n`;
     r += `Reflection             : ${_sumRs.status} (${_sumRs.filled}/${_sumRs.total})\n`;
@@ -6210,11 +6221,11 @@ function generateInstructorReport() {
     }
 
     r += `${line(72)}\n`;
-    r += `FINAL ESSAY  [Student work — ${_essay.revised ? 'revised draft' : (_essay.stage === 6 ? 'FIRST DRAFT ONLY — not yet revised' : 'none found')}]\n`;
+    r += `FINAL WRITTEN WORK  [Student work — ${_essay.revised ? 'revised draft' : (_essay.stage === 6 ? 'FIRST DRAFT ONLY — not yet revised' : 'none found')}]\n`;
     r += `${line(72)}\n`;
     r += (_essay.text.trim()
         ? `${_essay.text.trim()}\n\n`
-        : `[No essay found — student has not written or saved essay text]\n\n`);
+        : `[No written work found — student has not written or saved draft text]\n\n`);
 
     r += `${line(72)}\n`;
     r += `SECTION 1 — FIRST DRAFT GATE  [System-recorded]\n`;
@@ -6283,7 +6294,7 @@ function generateInstructorReport() {
     r += `Q4. What suggestion did you accept and why?\n${q4}\n\n`;
     r += `Q5. What suggestion did you reject or modify?\n${q5}\n\n`;
     r += `Q6. How did you protect your own voice?\n${q6}\n\n`;
-    r += `Q7. What part of the final essay still sounds most like you?\n${q7}\n\n`;
+    r += `Q7. What part of your final work still sounds most like you?\n${q7}\n\n`;
     r += `Q8. Final reflection (prior knowledge, community, language):\n${q8}\n\n`;
 
     r += `${line(72)}\n`;
@@ -6379,9 +6390,9 @@ function injectInstructorReportPanel(scrollTo) {
             <span class="show-en">Instructor Process Report</span>
         </div>
         <p class="instr-panel-sub">
-            <span class="show-es">Revisa este reporte antes de entregarlo. Cópialo o descárgalo y entrégalo en Brightspace junto con tu ensayo.</span>
+            <span class="show-es">Revisa este reporte antes de entregarlo. Cópialo o descárgalo y entrégalo en Brightspace junto con tu trabajo escrito.</span>
             <span class="lang-sep"> · </span>
-            <span class="show-en">Review this report before submitting. Copy or download it and submit it in Brightspace with your essay.</span>
+            <span class="show-en">Review this report before submitting. Copy or download it and submit it in Brightspace with your written work.</span>
         </p>
 
         <div class="instr-section-label">
@@ -6405,7 +6416,7 @@ function injectInstructorReportPanel(scrollTo) {
             </label>
             <input type="text" class="instr-field-input" id="instrAssignment"
                 value="${escapeHtml(meta.assignmentTitle || '')}"
-                placeholder="Assignment or essay title..."
+                placeholder="Título de la tarea · Assignment title..."
                 oninput="saveReportMeta({...loadReportMeta(), assignmentTitle: this.value}); refreshInstrPreview()" />
         </div>
         <div class="instr-field-row">
@@ -6512,7 +6523,7 @@ function injectInstructorReportPanel(scrollTo) {
 
         <div class="instr-brightspace-note" role="note">
             <strong><span class="show-es">Instrucciones para Brightspace</span><span class="lang-sep"> · </span><span class="show-en">Brightspace Submission Instructions</span></strong><br>
-            <span class="show-es">Copia o descarga este reporte y entrégalo en Brightspace junto con tu ensayo, según las instrucciones de tu profesor/a. Esta aplicación <em>no entrega automáticamente</em> a Brightspace.</span>
+            <span class="show-es">Copia o descarga este reporte y entrégalo en Brightspace junto con tu trabajo escrito, según las instrucciones de tu profesor/a. Esta aplicación <em>no entrega automáticamente</em> a Brightspace.</span>
             <span class="lang-sep"> · </span>
             <span class="show-en">Copy or download this report and submit it in Brightspace with your assignment as instructed by your professor. This app does <em>not</em> submit directly to Brightspace.</span>
         </div>`;
@@ -6648,11 +6659,11 @@ function openToolkitPanel() {
             ${claimHtml}
         </div>
         <div class="toolkit-section">
-            <div class="toolkit-section-title"><span class="show-es">Habilidades practicadas en este ensayo</span><span class="lang-sep"> · </span><span class="show-en">Skills practiced in this essay</span></div>
+            <div class="toolkit-section-title"><span class="show-es">Habilidades practicadas en este trabajo</span><span class="lang-sep"> · </span><span class="show-en">Skills practiced in this work</span></div>
             ${skillsHtml}
         </div>
         <div class="toolkit-section">
-            <div class="toolkit-section-title"><span class="show-es">Más allá de este ensayo</span><span class="lang-sep"> · </span><span class="show-en">Beyond This Essay</span></div>
+            <div class="toolkit-section-title"><span class="show-es">Más allá de este trabajo</span><span class="lang-sep"> · </span><span class="show-en">Beyond This Work</span></div>
             <p class="toolkit-transfer-intro"><span class="show-es">Habilidades de alfabetización de IA que puedes usar en otras clases, trabajos y situaciones digitales cotidianas.</span><span class="lang-sep"> · </span><span class="show-en">AI literacy skills you can use in other classes, jobs, and everyday digital life.</span></p>
             <div class="toolkit-transfer-card">
                 <div class="toolkit-transfer-principle"><span class="show-es">La IA no es una fuente.</span><span class="lang-sep"> · </span><span class="show-en">AI is not a source.</span></div>
@@ -6757,7 +6768,7 @@ function openHelpPanel() {
         <div class="help-current-stage">${stageLineHtml}</div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">¿Qué es Tu Pana?</span><span class="lang-sep"> · </span><span class="show-en">What is Tu Pana?</span></div>
-            <div class="help-section-body"><span class="show-es">Tu Pana de Escritura es tu coach de escritura. Te guía etapa por etapa a través de un ensayo personal usando IA como herramienta de apoyo — tú tomas las decisiones.</span><span class="lang-sep"> · </span><span class="show-en">Tu Pana de Escritura is your writing coach. It guides you stage by stage through a personal essay using AI as a support tool — you make the decisions.</span></div>
+            <div class="help-section-body"><span class="show-es">Tu Pana de Escritura es tu coach de escritura. Te guía etapa por etapa en tu trabajo de escritura usando IA como herramienta de apoyo — tú tomas las decisiones.</span><span class="lang-sep"> · </span><span class="show-en">Tu Pana de Escritura is your writing coach. It guides you stage by stage through your writing using AI as a support tool — you make the decisions.</span></div>
         </div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">¿Qué pasa al inicio?</span><span class="lang-sep"> · </span><span class="show-en">What happens at the start?</span></div>
@@ -6769,7 +6780,7 @@ function openHelpPanel() {
         </div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">Idioma y modos de lengua</span><span class="lang-sep"> · </span><span class="show-en">Language and language modes</span></div>
-            <div class="help-section-body"><span class="show-es">Puedes escribir en español, inglés o los dos — tu idioma es válido aquí.<br><br>Usa los botones <strong>Español · English · ES-EN</strong> para cambiar el idioma de la interfaz. El modo ES-EN muestra el texto en ambos idiomas.<br><br>Nota: la narración de audio está disponible actualmente solo en español.</span><span class="lang-sep"> · </span><span class="show-en">You can write in Spanish, English, or both — your language is valid here.<br><br>Use the <strong>Español · English · ES-EN</strong> buttons to change the interface language. ES-EN mode shows text in both languages.<br><br>Note: audio narration is currently available in Spanish only.</span></div>
+            <div class="help-section-body"><span class="show-es">Puedes escribir en español, inglés o los dos — tu idioma es válido aquí.<br><br>Usa los botones <strong>Español · English · ES-EN</strong> para cambiar el idioma de la interfaz. El modo ES-EN muestra el texto en ambos idiomas.<br><br>Tu Pana apoya completamente el español y el inglés. Si te sientes más cómodo/a usando otro idioma que puedas escribir con tu teclado, puedes intentarlo con el Coach IA; cuando sea posible, el coach responderá en ese idioma. La interfaz y la Guía sin IA están disponibles solo en español e inglés.<br><br>Nota: la narración de audio está disponible actualmente solo en español.</span><span class="lang-sep"> · </span><span class="show-en">You can write in Spanish, English, or both — your language is valid here.<br><br>Use the <strong>Español · English · ES-EN</strong> buttons to change the interface language. ES-EN mode shows text in both languages.<br><br>Tu Pana fully supports Spanish and English. If you feel more comfortable using another language that you can type with your keyboard, you may try it with the Live AI coach; when possible, the coach will respond in that language. The interface and the Built-in, no AI guide are available in Spanish and English only.<br><br>Note: audio narration is currently available in Spanish only.</span></div>
         </div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">Narración de audio</span><span class="lang-sep"> · </span><span class="show-en">Audio narration</span></div>

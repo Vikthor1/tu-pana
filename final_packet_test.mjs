@@ -72,7 +72,7 @@ console.log('Scenario C — no essay');
 await seed(2, {});
 r = await page.evaluate(() => { const e = getFinalEssay(); const d = buildSubmissionDiagnostic(); const rep = generateInstructorReport(); return { txt: e.text, warns: d.warnings.map(w=>w.en).join(' | '), rep }; });
 check('C: getFinalEssay returns empty', r.txt === '');
-check('C: diagnostic warns "No essay found"', /No essay found/.test(r.warns));
+check('C: diagnostic warns "No written work found" (Localization QA wording)', /No written work found/.test(r.warns));
 // H5: gate NOT passed → Section 7 attestation must NOT falsely claim completion,
 // and must stay consistent with Section 1's honest "NOT DOCUMENTED".
 check('C: Section 7 first-draft attestation UNCHECKED when gate not passed',

@@ -1362,6 +1362,27 @@ function applyDraftPlaceholder() {
     D.draftArea.setAttribute('placeholder', o || _defaultDraftPlaceholder);
 }
 
+// Read-only pathway chip (IA Sprint Batch 1): shows which pathway is active —
+// default essay, CAP 200, or Research Paper. INFORMATIONAL ONLY: no click handler,
+// no assignment mutation, no persistence. Same-text labels (CAP 200) render once,
+// bilingual labels use the standard show-es/show-en language-toggle spans.
+function renderPathwayChip() {
+    const chip = document.getElementById('pathwayChip');
+    if (!chip) return;
+    const l = (typeof getPathwayLabel === 'function' && getPathwayLabel(state.assignmentId))
+        || { es: 'Ensayo', en: 'Essay' };
+    chip.innerHTML = (l.es === l.en)
+        ? escapeHtml(l.es)
+        : `<span class="show-es">${escapeHtml(l.es)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(l.en)}</span>`;
+}
+// state.assignmentId is resolved in app.js, which loads after ui.js — defer the
+// first render to DOMContentLoaded (fires after all classic end-of-body scripts).
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderPathwayChip);
+} else {
+    renderPathwayChip();
+}
+
 function buildMap() {
     D.journeyTrack.innerHTML = '';
     let dimmedCount = 0;
@@ -2572,7 +2593,7 @@ function setCoachMode(mode) {
         if (chatInputWrap) chatInputWrap.style.display = '';
 
         state.connected = true;
-        D.chatStatus.innerHTML = '<span class="status-dot" aria-hidden="true">●</span> <span class="show-es">Gemini AI</span><span class="lang-sep"> · </span><span class="show-en">Gemini AI</span>';
+        D.chatStatus.innerHTML = '<span class="status-dot" aria-hidden="true">●</span> <span class="show-es">Coach IA</span><span class="lang-sep"> · </span><span class="show-en">Live AI</span>';
         D.chatStatus.classList.remove('idle');
 
     } else {
@@ -2580,7 +2601,7 @@ function setCoachMode(mode) {
         if (chatMessages)  chatMessages.style.display  = '';
         if (typingRow)     typingRow.style.display     = '';
         if (chatInputWrap) chatInputWrap.style.display = '';
-        D.chatStatus.innerHTML = '<span class="status-dot" aria-hidden="true">●</span> <span class="show-es">Offline</span><span class="lang-sep"> · </span><span class="show-en">Offline</span>';
+        D.chatStatus.innerHTML = '<span class="status-dot" aria-hidden="true">●</span> <span class="show-es">Guía sin IA</span><span class="lang-sep"> · </span><span class="show-en">Built-in, no AI</span>';
         D.chatStatus.classList.remove('idle');
     }
 }
@@ -2645,11 +2666,33 @@ async function initDL() {
     setCoachMode('offline');
 }
 
+// One-time, non-blocking first-live-AI-send cue (IA Sprint Batch 2). The first time
+// a real student message goes to the live AI coach, a small strip explains that the
+// message and the relevant text from their writing are sent to the AI. Purely
+// informational: it never blocks or delays the send, requires no student action,
+// and changes no provider, payload, or default-mode behavior. Persistent flag
+// tupana_ai_cue_seen (additive key); a per-load guard keeps it once-per-session
+// even if storage is unavailable.
+let _aiCueShownThisLoad = false;
+function maybeShowFirstAiSendCue() {
+    if (_aiCueShownThisLoad) return;
+    _aiCueShownThisLoad = true;
+    try {
+        if (localStorage.getItem('tupana_ai_cue_seen') === 'true') return;
+        localStorage.setItem('tupana_ai_cue_seen', 'true');
+    } catch(e) {}
+    addMsg(
+        'Coach IA en vivo: tu mensaje y el texto relevante de tu escritura se envían a la IA para generar la respuesta. Tu Pana no guarda tu escritura en un servidor.\nLive AI coach: your message and the relevant text from your writing are sent to the AI to generate the response. Tu Pana does not store your writing on a server.',
+        'bot', false, 'welcome'
+    );
+}
+
 async function sendMsg(text) {
     if (!state.connected || state.waiting) return;
     if (text !== '__INIT__') {
         addMsg(text, 'user');
         logProcessEvent('coach_message_sent', 'Student sent message to coach.');
+        if (state.coachMode === 'gemini') maybeShowFirstAiSendCue();
     }
     state.waiting = true;
     showTyping(true);
@@ -3983,19 +4026,18 @@ function closeLab() {
     if (window.innerWidth <= 480) switchMobileTab('chat');
     flashChatFocus();
 
-    // Post-onboarding welcome from the coach. Stage B.1: service-learning-aware
-    // when the CAP 200 profile is active; default essay welcome otherwise.
-    const capEntry = (typeof getStageEntryOverride === 'function') && getStageEntryOverride(1, state.assignmentId);
+    // Post-onboarding welcome from the coach, resolved by ASSIGNMENT IDENTITY
+    // (getWelcomeOverride) — never by stage-entry presence, which mislabeled every
+    // profile with a stage-1 entry as CAP 200 (IA Sprint Batch 1). A profile
+    // without its own welcome, and the default flow, get the bilingual default.
+    const wOverride = (typeof getWelcomeOverride === 'function') ? getWelcomeOverride(state.assignmentId) : null;
     let welcomeMsg;
-    if (capEntry) {
-        const sL = stLabel(1);
-        welcomeMsg = state.connected
-            ? `¡Bienvenido/a! Completaste Tu Conocimiento y El Laboratorio. Estás en el Paso 1: ${sL.es} de tu Proyecto de Aprendizaje-Servicio CAP 200. Empieza en el panel del borrador: tu CBO, tu tema comunitario, o el momento que te conectó con este proyecto — en tus propias palabras. Tu voz importa.`
-            : `¡Bienvenido/a! Completaste la orientación. Ve al Paso 1: ${sL.es} y empieza a escribir en el panel del borrador — tu CBO, tu tema comunitario, o el momento que te conectó con este proyecto, en tus propias palabras. Tu coach estará listo cuando el instructor conecte la IA.`;
+    if (wOverride) {
+        welcomeMsg = state.connected ? wOverride.connected : wOverride.offline;
     } else {
         welcomeMsg = state.connected
-            ? '¡Bienvenido/a! You\'ve completed Tu Conocimiento and El Laboratorio. I can see the assets you claimed and the sentence you wrote about your own knowledge. We\'re at Stage 1 — Anecdote. Write a few sentences in the draft panel about a specific memory, then tell me what you\'re thinking. Tu voz importa.'
-            : '¡Bienvenido/a! You\'ve completed the orientation. Head to Stage 1 and start writing in the draft panel on the left — write your first ideas in your own words. Your coach will be ready once the instructor connects the AI.';
+            ? '¡Bienvenido/a! Completaste Tu Conocimiento y El Laboratorio. Puedo ver los activos que reclamaste y la oración que escribiste sobre tu propio conocimiento. Estamos en la Etapa 1 — Anécdota. Escribe unas oraciones en el panel del borrador sobre un recuerdo específico, y luego cuéntame qué estás pensando. Tu voz importa.\nWelcome! You\'ve completed Tu Conocimiento and El Laboratorio. I can see the assets you claimed and the sentence you wrote about your own knowledge. We\'re at Stage 1 — Anecdote. Write a few sentences in the draft panel about a specific memory, then tell me what you\'re thinking. Your voice matters.'
+            : '¡Bienvenido/a! Completaste la orientación. Ve a la Etapa 1 y empieza a escribir en el panel del borrador a la izquierda — escribe tus primeras ideas en tus propias palabras. Tu coach estará listo cuando el instructor conecte la IA.\nWelcome! You\'ve completed the orientation. Head to Stage 1 and start writing in the draft panel on the left — write your first ideas in your own words. Your coach will be ready once the instructor connects the AI.';
     }
     setTimeout(() => addMsg(welcomeMsg, 'bot', false, 'welcome'), 600);
 }
@@ -5692,7 +5734,7 @@ function buildProcessNoteHTML(data) {
     return `
       <div class="report-pn-section">
         <div class="report-pn-title">1. ¿Qué herramienta de IA usaste? · What AI tool did you use?</div>
-        <div class="report-pn-static">Usé Tu Pana de Escritura, un coach de escritura bilingüe integrado en el proceso de redacción de mi ensayo de género mixto. / I used Tu Pana de Escritura, a bilingual writing coach integrated into my mixed-genre essay writing process.</div>
+        <div class="report-pn-static">Usé Tu Pana de Escritura, un coach de escritura bilingüe integrado en el proceso de redacción de mi trabajo escrito. / I used Tu Pana de Escritura, a bilingual writing coach integrated into the writing process for my written work.</div>
       </div>
 
       <div class="report-pn-section">
@@ -5799,7 +5841,7 @@ function generateProcessNoteScaffold(data) {
 Generado el · Generated: ${dateStr}
 
 === 1. ¿Qué herramienta de IA usaste? · What AI tool did you use? ===
-Usé Tu Pana de Escritura, un coach de escritura bilingüe integrado en el proceso de redacción de mi ensayo de género mixto. / I used Tu Pana de Escritura, a bilingual writing coach integrated into my mixed-genre essay writing process.
+Usé Tu Pana de Escritura, un coach de escritura bilingüe integrado en el proceso de redacción de mi trabajo escrito. / I used Tu Pana de Escritura, a bilingual writing coach integrated into the writing process for my written work.
 
 === 2. ¿En qué etapa del proceso usaste la IA? · At what stage did you use AI? ===
 Comencé en la Etapa ${stage} (${stageName}). ${draftSaved ? `Guardé mi primer borrador de ${wordCount} palabras antes de recibir retroalimentación con IA. / I saved my first draft of ${wordCount} words before receiving AI feedback.` : 'Aún no he guardado mi primer borrador. / I have not saved my first draft yet.'}
@@ -6630,8 +6672,12 @@ function openToolkitPanel() {
 function openHelpPanel() {
     document.getElementById('helpModal')?.remove();
 
-    const stageObj = STAGES[state.stage - 1] || STAGES[0];
-    const stageLineHtml = `<span class="show-es">Etapa ${state.stage} — <strong>${escapeHtml(stageObj.es)}</strong></span><span class="lang-sep"> · </span><span class="show-en">Stage ${state.stage} — <strong>${escapeHtml(stageObj.en)}</strong></span>`;
+    // Current-position line in journey vocabulary (IA Sprint Batch 4): milestone
+    // (the journey view) + step, both profile-aware via msLabel/stLabel.
+    const curMs = milestoneForStage(state.stage);
+    const curMsL = msLabel(curMs);
+    const curStL = stLabel(state.stage);
+    const stageLineHtml = `<span class="show-es">Hito ${curMs.n}: ${escapeHtml(curMsL.es)} — Paso ${state.stage}: <strong>${escapeHtml(curStL.es.replace(/\n/g, ' '))}</strong></span><span class="lang-sep"> · </span><span class="show-en">Milestone ${curMs.n}: ${escapeHtml(curMsL.en)} — Step ${state.stage}: <strong>${escapeHtml(curStL.en.replace(/\n/g, ' '))}</strong></span>`;
 
     const STAGE_HELP = [
         { es: 'Escribe un recuerdo personal o un momento de identidad en el idioma que más natural te salga.', en: 'Write a personal memory or identity moment in the language that feels most real.' },
@@ -6646,12 +6692,26 @@ function openHelpPanel() {
         { es: 'Finaliza, haz tu autoevaluación y responde a la perspectiva del coach sobre tu ensayo.', en: 'Finalize, self-assess, and respond to the coach\'s perspective on your essay.' },
     ];
 
-    const stageListHtml = STAGES.map((s, i) => {
-        const h = STAGE_HELP[i] || { es: '', en: '' };
-        const isCurrent = (i + 1) === state.stage;
-        return `<li class="help-stage-item${isCurrent ? ' help-stage-current' : ''}">
-            <span class="help-stage-num">${i + 1}.</span>
-            <span><strong><span class="show-es">${escapeHtml(s.es)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(s.en)}</span></strong><br><span class="show-es" style="color:var(--text-muted)">${escapeHtml(h.es)}</span><span class="lang-sep" style="color:var(--text-muted)"> · </span><span class="show-en" style="color:var(--text-muted)">${escapeHtml(h.en)}</span></span>
+    // Milestone-grouped stage list (IA Sprint Batch 4): the SAME 10 stages, now
+    // grouped under the visible 5-milestone journey vocabulary. msLabel/stLabel
+    // keep both levels profile-aware; per-stage descriptions use the active
+    // profile's task cue (getStageStepOverride) when one exists, else the default
+    // STAGE_HELP text. Pedagogy unchanged: still exactly 10 .help-stage-item rows.
+    const stageListHtml = MILESTONES.map((ms) => {
+        const mL = msLabel(ms);
+        const items = ms.ids.map((id) => {
+            const s = stLabel(id);
+            const step = (typeof getStageStepOverride === 'function') ? getStageStepOverride(id, 0, state.assignmentId) : null;
+            const h = step || STAGE_HELP[id - 1] || { es: '', en: '' };
+            const isCurrent = id === state.stage;
+            return `<li class="help-stage-item${isCurrent ? ' help-stage-current' : ''}">
+            <span class="help-stage-num">${id}.</span>
+            <span><strong><span class="show-es">${escapeHtml(s.es.replace(/\n/g, ' '))}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(s.en.replace(/\n/g, ' '))}</span></strong><br><span class="show-es" style="color:var(--text-muted)">${escapeHtml(h.es)}</span><span class="lang-sep" style="color:var(--text-muted)"> · </span><span class="show-en" style="color:var(--text-muted)">${escapeHtml(h.en)}</span></span>
+        </li>`;
+        }).join('');
+        return `<li class="help-milestone-group" style="list-style:none">
+            <div class="help-milestone-head" style="margin:10px 0 4px;font-size:0.78rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--amber-text)"><span class="show-es">Hito ${ms.n}: ${escapeHtml(mL.es)}</span><span class="lang-sep"> · </span><span class="show-en">Milestone ${ms.n}: ${escapeHtml(mL.en)}</span></div>
+            <ul class="help-stage-sublist" style="list-style:none;margin:0;padding:0">${items}</ul>
         </li>`;
     }).join('');
 
@@ -6709,7 +6769,8 @@ function openHelpPanel() {
             <div class="help-section-body"><span class="show-es">En la Etapa 8 (Pulir Voz), aparece la Bóveda de voz en el chat. Úsala para guardar frases de tu borrador que no quieres perder durante la revisión. Las frases guardadas aparecen en tu Toolkit y en tu reporte.</span><span class="lang-sep"> · </span><span class="show-en">At Stage 8 (Voice Polish), the Voice Vault appears in the chat. Use it to save phrases from your draft that you want to protect during revision. Saved phrases appear in your Toolkit and in your report.</span></div>
         </div>
         <div class="help-section">
-            <div class="help-section-title"><span class="show-es">Las 10 etapas</span><span class="lang-sep"> · </span><span class="show-en">The 10 stages</span></div>
+            <div class="help-section-title"><span class="show-es">Tu camino: 5 hitos, 10 pasos</span><span class="lang-sep"> · </span><span class="show-en">Your journey: 5 milestones, 10 steps</span></div>
+            <div class="help-section-body" style="margin-bottom:6px;"><span class="show-es">El mapa de progreso muestra <strong>5 hitos</strong> — tu vista del camino. Cada hito agrupa algunos de los <strong>10 pasos</strong> — la ruta detallada de escritura. Son el mismo camino: los hitos son el mapa, los pasos son la ruta.</span><span class="lang-sep"> · </span><span class="show-en">The progress map shows <strong>5 milestones</strong> — your journey view. Each milestone groups a few of the <strong>10 steps</strong> — the detailed writing path. They are the same journey: milestones are the map, steps are the path.</span></div>
             <ul class="help-stage-list">${stageListHtml}</ul>
             <div class="help-section-body" style="margin-top:6px;"><span class="show-es">Al terminar la reflexión de la Etapa 10, verás una tarjeta "Proceso completo" con los pasos para copiar tu reporte y entregarlo en Brightspace.</span><span class="lang-sep"> · </span><span class="show-en">When you finish the Stage 10 reflection, a "Journey Complete" card shows the steps to copy your report and submit it in Brightspace.</span></div>
         </div>
@@ -6719,11 +6780,11 @@ function openHelpPanel() {
         </div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">El coach no responde</span><span class="lang-sep"> · </span><span class="show-en">Coach is not responding</span></div>
-            <div class="help-section-body"><span class="show-es">Tu Pana funciona en tres modos:<br><br><strong>Gemini</strong> — coach de IA usando internet. Si no responde, verifica tu conexión a internet. Si el coach falla, aparecerá un botón para cambiar al modo Offline.<br><strong>Offline</strong> — respuestas sin conexión. Funciona sin internet pero más limitado.<br><strong>Ollama</strong> — requiere instalación local.<br><br>Tus textos se guardan automáticamente en este navegador aunque el coach no responda.</span><span class="lang-sep"> · </span><span class="show-en">Tu Pana runs in three modes:<br><br><strong>Gemini</strong> — AI coach using the internet. If it is not responding, check your internet connection. If the coach fails, a button will appear to switch to Offline mode.<br><strong>Offline</strong> — responses without internet. Works without a connection but more limited.<br><strong>Ollama</strong> — requires a local installation.<br><br>Your texts are saved automatically in this browser even if the coach is not responding.</span></div>
+            <div class="help-section-body"><span class="show-es">Tu Pana funciona en tres modos:<br><br><strong>Coach IA</strong> — coach de IA en vivo usando internet. Si no responde, verifica tu conexión a internet. Si el coach falla, aparecerá un botón para cambiar al modo Guía sin IA.<br><strong>Guía sin IA</strong> — orientación integrada, sin IA. Funciona sin internet pero más limitado.<br><strong>Ollama</strong> — requiere instalación local.<br><br>Tus textos se guardan automáticamente en este navegador aunque el coach no responda.</span><span class="lang-sep"> · </span><span class="show-en">Tu Pana runs in three modes:<br><br><strong>Live AI</strong> — live AI coach using the internet. If it is not responding, check your internet connection. If the coach fails, a button will appear to switch to Built-in, no AI mode.<br><strong>Built-in, no AI</strong> — built-in guidance, no AI. Works without a connection but more limited.<br><strong>Ollama</strong> — requires a local installation.<br><br>Your texts are saved automatically in this browser even if the coach is not responding.</span></div>
         </div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">Tu trabajo y tu privacidad</span><span class="lang-sep"> · </span><span class="show-en">Your work and your privacy</span></div>
-            <div class="help-section-body"><span class="show-es">Tu borrador, tus reflexiones y tu Toolkit se guardan en este navegador. Si borras el historial del navegador o usas un dispositivo diferente, no estarán disponibles.<br><br>Cuando usas el coach Gemini, tu mensaje se envía al servicio de IA para generar una respuesta. Tu borrador no se envía automáticamente.<br><br>Tu instructor/a solo ve lo que tú decides exportar, copiar o compartir. Tu Pana no comparte tu trabajo con nadie de forma automática.</span><span class="lang-sep"> · </span><span class="show-en">Your draft, reflections, and Toolkit are saved in this browser. If you clear browser history or use a different device, they won't be available.<br><br>When you use the Gemini coach, your message is sent to the AI service to generate a response. Your draft is not sent automatically.<br><br>Your instructor only sees what you choose to export, copy, or share. Tu Pana does not share your work with anyone automatically.</span></div>
+            <div class="help-section-body"><span class="show-es">Tu borrador, tus reflexiones y tu Toolkit se guardan en este navegador. Si borras el historial del navegador o usas un dispositivo diferente, no estarán disponibles.<br><br>Cuando usas el Coach IA en vivo, tu mensaje se envía al servicio de IA para generar una respuesta. Tu borrador no se envía automáticamente.<br><br>Tu instructor/a solo ve lo que tú decides exportar, copiar o compartir. Tu Pana no comparte tu trabajo con nadie de forma automática.</span><span class="lang-sep"> · </span><span class="show-en">Your draft, reflections, and Toolkit are saved in this browser. If you clear browser history or use a different device, they won't be available.<br><br>When you use the Live AI coach, your message is sent to the AI service to generate a response. Your draft is not sent automatically.<br><br>Your instructor only sees what you choose to export, copy, or share. Tu Pana does not share your work with anyone automatically.</span></div>
         </div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">Preguntas para tu instructor/a</span><span class="lang-sep"> · </span><span class="show-en">Questions for your instructor</span></div>

@@ -200,6 +200,18 @@
         }
         .header-text p { font-size: 0.75rem; color: var(--text-sub); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 3px; }
 
+        /* ── Pathway chip (IA Sprint Batch 1): read-only assignment-mode label ── */
+        .pathway-chip {
+            display: inline-flex; align-items: center;
+            width: fit-content; margin-top: 4px; padding: 1px 9px;
+            border: 1px solid var(--border-mid); border-radius: 999px;
+            background: var(--bg-panel);
+            font-size: 0.66rem; font-weight: 600;
+            letter-spacing: 0.05em; text-transform: uppercase;
+            color: var(--text-sub);
+            white-space: nowrap;
+        }
+
         .header-stage-inline {
             color: var(--amber-text);
             font-weight: 600;
@@ -1213,6 +1225,28 @@
             opacity: 0.75; transition: opacity var(--transition-fast);
             z-index: 2;
         }
+        /* ── Draft "start writing here" cue (IA Sprint Batch 3) ──
+           Anchored inside the draft area, centered above the word-count/autosave row.
+           Visibility is pure CSS: :placeholder-shown is true exactly while the
+           textarea is EMPTY, so the cue tracks typing, stage switches, restored
+           drafts, undo/redo, and imports with no JS, no listeners, and no storage.
+           Also hidden when the area is disabled. pointer-events: none — informational
+           only, never intercepts a tap meant for the textarea. */
+        .draft-start-cue {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px;
+            background: var(--amber-glow);
+            border: 1px dashed var(--amber-text);
+            border-radius: 999px;
+            color: var(--amber-text);
+            font-size: 0.72rem; font-weight: 600;
+            white-space: nowrap; pointer-events: none;
+            z-index: 2;
+        }
+        .draft-textarea:not(:placeholder-shown) ~ .draft-start-cue,
+        .draft-textarea:disabled ~ .draft-start-cue { display: none; }
+
         .autosave-status--saved { color: var(--jade, #5f8a65); }
         .autosave-status--error {
             color: var(--rose, #b3503e);
@@ -5800,6 +5834,8 @@ img, video, embed, object { max-width: 100%; height: auto; }
     .journey-wrap { display: none; }
     /* Banner simplified: subtitle + stage text hidden — stage shown in current-task-bar */
     #headerSub { display: none; }
+    /* Pathway chip stays (only sub-line on phones) — compacted to fit the tight header */
+    .pathway-chip { font-size: 0.58rem; margin-top: 2px; padding: 0 7px; }
     /* Title: single line; ellipsis is a safety net only — intentional short form used instead */
     .header-text h1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     /* Swap full title for intentional "Tu Pana" short form on mobile */

@@ -452,6 +452,15 @@ const cap200BronxBeautifulServiceLearning = {
         8:  [{ es: 'Pule tu estilo académico sin borrar tu voz ni tu posicionalidad.', en: 'Polish your academic style without erasing your voice or positionality.' }],
         9:  [{ es: 'Verifica CBO, datos, estructura IMRDC, reflexión y significado comunitario.', en: 'Check CBO, data, IMRDC structure, reflection, and community significance.' }],
         10: [{ es: 'Documenta tu aprendizaje, tu uso de la IA y tu proceso de revisión.', en: 'Document your learning, your AI use, and your revision process.' }]
+    },
+    // Post-onboarding coach welcome (IA Sprint Batch 1) — resolved by ASSIGNMENT
+    // IDENTITY via getWelcomeOverride(), never by stage-entry presence. Preserves
+    // the pre-sprint CAP 200 wording verbatim; the "Paso 1" label is this profile's
+    // own stageDisplay[1].es, resolved statically (single line — the old runtime
+    // interpolation carried an accidental mid-sentence newline from the display label).
+    welcome: {
+        connected: '¡Bienvenido/a! Completaste Tu Conocimiento y El Laboratorio. Estás en el Paso 1: Punto de partida comunitario de tu Proyecto de Aprendizaje-Servicio CAP 200. Empieza en el panel del borrador: tu CBO, tu tema comunitario, o el momento que te conectó con este proyecto — en tus propias palabras. Tu voz importa.',
+        offline:   '¡Bienvenido/a! Completaste la orientación. Ve al Paso 1: Punto de partida comunitario y empieza a escribir en el panel del borrador — tu CBO, tu tema comunitario, o el momento que te conectó con este proyecto, en tus propias palabras. Tu coach estará listo cuando el instructor conecte la IA.'
     }
 };
 
@@ -463,6 +472,8 @@ const cap200ServiceLearningLayer = {
     id:         'cap200-bronx-beautiful-service-learning',
     name:       'CAP 200 — Bronx Beautiful Service-Learning Project',
     type:       'service_learning_project',
+    // Read-only pathway chip label (IA Sprint Batch 1) — informational only.
+    pathwayLabel: { es: 'CAP 200', en: 'CAP 200' },
     selectable: true,   // appears in the in-app project selector (Batch 4)
     profile:    cap200BronxBeautifulServiceLearning,
     context:    buildServiceLearningContext(cap200BronxBeautifulServiceLearning)
@@ -539,6 +550,14 @@ const researchPaperProfile = {
         9:  [{ es: 'Verifica que cada fuente esté citada y que el formato sea consistente.', en: 'Check that every source is cited and the format is consistent.' }],
         10: [{ es: 'Documenta tu pregunta, tus fuentes, tu argumento y tu revisión.', en: 'Document your question, your sources, your argument, and your revision.' }]
     },
+    // Post-onboarding coach welcome (IA Sprint Batch 1) — resolved by ASSIGNMENT
+    // IDENTITY via getWelcomeOverride(). Fixes the pre-sprint leak where Research
+    // Paper students received the CAP 200 welcome (closeLab used stage-entry
+    // PRESENCE as a CAP detector). Bilingual "ES\nEN" (wrapBilingualHtml format).
+    welcome: {
+        connected: '¡Bienvenido/a! Completaste Tu Conocimiento y El Laboratorio. Estás en el Paso 1: Tema y contexto de tu trabajo de investigación. Empieza en el panel del borrador: tu tema, tu pregunta de investigación, o una fuente o idea que ya tengas — en tus propias palabras. Tu voz importa.\nWelcome! You completed Tu Conocimiento and El Laboratorio. You are at Step 1: Topic & Context of your research paper. Start in the draft panel: your topic, your research question, or one source or idea you already have — in your own words. Your voice matters.',
+        offline:   '¡Bienvenido/a! Completaste la orientación. Ve al Paso 1: Tema y contexto y empieza a escribir en el panel del borrador — tu tema, tu pregunta de investigación, o una idea que ya tengas, en tus propias palabras. Tu coach estará listo cuando el instructor conecte la IA.\nWelcome! You completed the orientation. Go to Step 1: Topic & Context and start writing in the draft panel — your topic, your research question, or an idea you already have, in your own words. Your coach will be ready once the instructor connects the AI.'
+    },
     // ── A.2a: prompt-facing per-stage coachFocus OVERRIDE (research-shaped) ──
     // Consumed ONLY by getCoachFocusOverride() → buildOllamaSystemPrompt()'s
     // per-stage Stage-focus block when this profile is active. Keyed by stage
@@ -570,6 +589,8 @@ const researchPaperLayer = {
     id:         'research-paper',
     name:       'Research Paper — Academic Research Writing',
     type:       'research_paper',
+    // Read-only pathway chip label (IA Sprint Batch 1) — informational only.
+    pathwayLabel: { es: 'Trabajo de investigación', en: 'Research Paper' },
     selectable: false,  // LINK-ONLY: activated by ?assignment=research-paper; not shown in the bare-app selector
     profile:    researchPaperProfile,
     context:
@@ -596,6 +617,8 @@ const ASSIGNMENT_LAYERS = {
     'cap-200-first-draft': {
         id:   'cap-200-first-draft',
         name: 'CAP 200 — Bronx Beautiful Service Learning Project (First Draft)',
+        // Read-only pathway chip label (IA Sprint Batch 1) — informational only.
+        pathwayLabel: { es: 'CAP 200', en: 'CAP 200' },
         // Additive coaching context only. It explicitly defers to the authorship gate and voice rules.
         context:
 `The student is working on the CAP 200 "Bronx Beautiful" Service Learning Project FIRST DRAFT — their first full version of a 5–7 page report. Help them PLAN and ORGANIZE this draft. You never write it for them and never grade it; the student is the author of every word.
@@ -685,6 +708,25 @@ function getCoachFocusOverride(stageId, assignmentId) {
     const p = _profileForAssignment(assignmentId);
     const o = p && p.coachFocus && p.coachFocus[stageId];
     return (typeof o === 'string' && o.trim()) ? o : null;
+}
+// Post-onboarding welcome override → { connected, offline } | null (IA Sprint Batch 1).
+// Resolved by ASSIGNMENT IDENTITY (the active layer's profile), never by the mere
+// presence of a stage-entry override — a profile without `welcome` (and the default
+// flow) falls back to the caller's default bilingual welcome, so no pathway can
+// inherit another pathway's greeting.
+function getWelcomeOverride(assignmentId) {
+    const p = _profileForAssignment(assignmentId);
+    const w = p && p.welcome;
+    return (w && typeof w.connected === 'string' && typeof w.offline === 'string')
+        ? { connected: w.connected, offline: w.offline } : null;
+}
+// Read-only pathway label → { es, en } | null (IA Sprint Batch 1). Null means the
+// default essay pathway (caller supplies its own label). INFORMATIONAL ONLY —
+// consumed by the header chip; never mutates assignment state or selector behavior.
+function getPathwayLabel(assignmentId) {
+    const layer = getAssignmentLayer(assignmentId);
+    const l = layer && layer.pathwayLabel;
+    return (l && l.es && l.en) ? { es: l.es, en: l.en } : null;
 }
 
 // ════════════════════════════════════════════════════════

@@ -37,7 +37,7 @@ const DOCUMENTED_STATIC = new Set([
     'tupana_skills_acquired','tupana_sessions','tupana_coach_mode',
     'tupana_eval_stats','tupana_eval_hint_seen','tupana_progress_collapsed',
     'tupana_fiveq_stage7_opened_once','tupana_spotlight_off',
-    'tupana_assignment_id','tupana_project_chosen',
+    'tupana_assignment_id','tupana_project_chosen','tupana_ai_cue_seen',
 ]);
 const DOCUMENTED_SESSION = new Set([
     'tupana_warn_dismissed','tupana_persist_warn','tupana_voice_challenge_shown',

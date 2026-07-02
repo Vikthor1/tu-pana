@@ -13,7 +13,7 @@
 
 <!-- ── Setup Banner ── -->
 <div class="setup-banner hidden" id="setupBanner">
-    <strong>AI coach not connected.</strong>&nbsp; Switch to Offline mode for built-in stage guidance, or to Gemini for live AI coaching. / <strong>El coach no está conectado.</strong>&nbsp; Usa el modo Offline para orientación por etapa, o Gemini para coaching en vivo.
+    <strong>El coach de IA no está conectado.</strong>&nbsp; Usa «Guía sin IA» para orientación integrada paso a paso, o «Coach IA» para coaching con IA en vivo. / <strong>AI coach not connected.</strong>&nbsp; Use “Built-in, no AI” for built-in step guidance, or “Live AI” for live AI coaching.
 </div>
 
 <!-- ── Header ── -->
@@ -26,6 +26,8 @@
     <div class="header-text">
         <h1 aria-label="Tu Pana de Escritura"><span class="h1-full">Tu Pana de Escritura</span><span class="h1-short">Tu Pana</span></h1>
         <p id="headerSub"><span class="show-es">TU COACH DE ESCRITURA</span><span class="lang-sep">&nbsp;·&nbsp;</span><span class="show-en">YOUR WRITING COACH</span></p>
+        <!-- Read-only pathway label (IA Sprint Batch 1): informational only — no switcher, no mutation. Populated by renderPathwayChip(). -->
+        <span class="pathway-chip" id="pathwayChip" role="status" aria-label="Tu ruta de escritura actual · Your current writing pathway"></span>
     </div>
     <div class="lang-switcher" id="langSwitcher" role="group" aria-label="Idioma · Language">
         <button class="lang-btn" id="langBtnEs" data-lang="es" onclick="setLang('es')" aria-pressed="true" title="Solo español · Spanish only">ES</button>
@@ -152,6 +154,11 @@
             ></textarea>
             <div class="word-count" id="wordCount" aria-live="polite" aria-label="Conteo de palabras · Word count">0 palabras · words</div>
             <div class="autosave-status" id="autosaveStatus" role="status" aria-live="polite"></div>
+            <!-- Draft-anchored "start writing here" cue (IA Sprint Batch 3). Visibility is pure CSS
+                 (:placeholder-shown) — shows only while this stage's draft is empty, so typing, stage
+                 switches, restored drafts, undo/redo, and imports all hide it with no JS and no storage.
+                 aria-hidden: the textarea's own aria-label already says "escribe aquí primero · write here first". -->
+            <div class="draft-start-cue" id="draftStartCue" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px" aria-hidden="true"><path d="M14 50l4-14L44 10l10 10-26 26z"/><path d="M40 14l10 10"/></svg><span class="show-es">Empieza a escribir aquí</span><span class="lang-sep"> · </span><span class="show-en">Start writing here</span></div>
         </div>
 
         <div class="draft-footer">
@@ -219,9 +226,9 @@
                 <span id="toneToggleLabel"><span class="show-es">Suave</span><span class="lang-sep"> · </span><span class="show-en">Gentle</span></span>
             </button>
             <div class="coach-mode-toggle" role="group" aria-label="Modo del coach · Coach mode" id="coachModeToggle">
-                <button class="coach-mode-btn" data-mode="offline" onclick="setCoachMode('offline')" aria-pressed="false" title="Guía sin IA — orientación integrada, sin coach de IA (no necesita IA) · Guided (no AI) — built-in step guidance, no AI coach"><span class="show-es">Guía</span><span class="lang-sep"> · </span><span class="show-en">Guided</span></button>
+                <button class="coach-mode-btn" data-mode="offline" onclick="setCoachMode('offline')" aria-pressed="false" title="Guía sin IA — orientación integrada paso a paso; nada se envía a una IA · Built-in, no AI — built-in step guidance; nothing is sent to an AI"><span class="show-es">Guía sin IA</span><span class="lang-sep"> · </span><span class="show-en">Built-in, no AI</span></button>
                 <button class="coach-mode-btn" data-mode="ollama" onclick="setCoachMode('ollama')" aria-pressed="false" title="Local AI · Ollama — requires Ollama running locally / Ollama local en tu máquina" style="display:none">Ollama</button>
-                <button class="coach-mode-btn active" data-mode="gemini" onclick="setCoachMode('gemini')" aria-pressed="true" title="Coach de IA — responde a tus mensajes a través de un proxy seguro · AI Coach — responds to your messages via a secure proxy"><span class="show-es">Coach IA</span><span class="lang-sep"> · </span><span class="show-en">AI Coach</span></button>
+                <button class="coach-mode-btn active" data-mode="gemini" onclick="setCoachMode('gemini')" aria-pressed="true" title="Coach IA en vivo — tus mensajes se envían a la IA a través de un proxy seguro · Live AI coach — your messages are sent to the AI via a secure proxy"><span class="show-es">Coach IA</span><span class="lang-sep"> · </span><span class="show-en">Live AI</span></button>
             </div>
         </div>
 

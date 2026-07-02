@@ -483,13 +483,14 @@ const cap200BronxBeautifulServiceLearning = {
         10: [{ es: 'Documenta tu aprendizaje, tu uso de la IA y tu proceso de revisión.', en: 'Document your learning, your AI use, and your revision process.' }]
     },
     // Post-onboarding coach welcome (IA Sprint Batch 1) — resolved by ASSIGNMENT
-    // IDENTITY via getWelcomeOverride(), never by stage-entry presence. Preserves
-    // the pre-sprint CAP 200 wording verbatim; the "Paso 1" label is this profile's
-    // own stageDisplay[1].es, resolved statically (single line — the old runtime
-    // interpolation carried an accidental mid-sentence newline from the display label).
+    // IDENTITY via getWelcomeOverride(), never by stage-entry presence. Spanish
+    // wording preserved verbatim; the "Paso 1" label is this profile's own
+    // stageDisplay[1].es, resolved statically. Bilingual "ES\nEN" (wrapBilingualHtml
+    // format) for parity with the default and research welcomes — the English twin
+    // mirrors this profile's stageDisplay[1].en vocabulary (Context-Collapse sprint).
     welcome: {
-        connected: '¡Bienvenido/a! Completaste Tu Conocimiento y El Laboratorio. Estás en el Paso 1: Punto de partida comunitario de tu Proyecto de Aprendizaje-Servicio CAP 200. Empieza en el panel del borrador: tu CBO, tu tema comunitario, o el momento que te conectó con este proyecto — en tus propias palabras. Tu voz importa.',
-        offline:   '¡Bienvenido/a! Completaste la orientación. Ve al Paso 1: Punto de partida comunitario y empieza a escribir en el panel del borrador — tu CBO, tu tema comunitario, o el momento que te conectó con este proyecto, en tus propias palabras. Tu coach estará listo cuando el instructor conecte la IA.'
+        connected: '¡Bienvenido/a! Completaste Tu Conocimiento y El Laboratorio. Estás en el Paso 1: Punto de partida comunitario de tu Proyecto de Aprendizaje-Servicio CAP 200. Empieza en el panel del borrador: tu CBO, tu tema comunitario, o el momento que te conectó con este proyecto — en tus propias palabras. Tu voz importa.\nWelcome! You completed Tu Conocimiento and El Laboratorio. You are at Step 1: Community Starting Point of your CAP 200 Service-Learning Project. Start in the draft panel: your CBO, your community issue, or the moment that connected you to this project — in your own words. Your voice matters.',
+        offline:   '¡Bienvenido/a! Completaste la orientación. Ve al Paso 1: Punto de partida comunitario y empieza a escribir en el panel del borrador — tu CBO, tu tema comunitario, o el momento que te conectó con este proyecto, en tus propias palabras. Tu coach estará listo cuando el instructor conecte la IA.\nWelcome! You completed the orientation. Go to Step 1: Community Starting Point and start writing in the draft panel — your CBO, your community issue, or the moment that connected you to this project, in your own words. Your coach will be ready once the instructor connects the AI.'
     }
 };
 

@@ -3244,6 +3244,29 @@
             color: var(--jade-text);
             margin-bottom: 6px;
         }
+        /* Context-Collapse sprint D: help sections are native <details> disclosures —
+           closed by default the panel scans as a title list; no storage, no JS state. */
+        details.help-section { margin-bottom: 12px; }
+        details.help-section > summary.help-section-title {
+            list-style: none;
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 0;
+            padding: 3px 0;
+        }
+        details.help-section[open] > summary.help-section-title { margin-bottom: 6px; }
+        details.help-section > summary.help-section-title::-webkit-details-marker { display: none; }
+        details.help-section > summary.help-section-title::marker { display: none; }
+        details.help-section > summary.help-section-title:hover { color: var(--amber); }
+        details.help-section > summary.help-section-title:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+        .help-sum-arrow {
+            display: inline-block;
+            margin-left: 6px;
+            font-size: var(--text-micro);
+            color: var(--text-muted);
+            transition: transform var(--transition-fast);
+        }
+        details.help-section[open] > summary .help-sum-arrow { transform: rotate(180deg); }
         .help-section-body {
             font-size: var(--text-emph); color: var(--text-secondary);
             line-height: 1.55;
@@ -3901,6 +3924,10 @@
             gap: 4px;
             z-index: 50;
             animation: triageIn 0.2s ease;
+            /* Context-Collapse sprint C: never exceed a short viewport (e.g. phone
+               with keyboard up) — the open menu scrolls instead of overflowing. */
+            max-height: min(420px, 70svh);
+            overflow-y: auto;
         }
         .stuck-triage.on { display: flex; }
         @keyframes triageIn {
@@ -3915,16 +3942,16 @@
             border-bottom: 1px solid var(--border);
             margin-bottom: 4px;
         }
-        /* De-overwhelm B3: outcome group headers — the menu scans as two small
-           choices (get help / change the pace) instead of five equal rows. */
+        /* Intent group headers — the menu scans as three small choices
+           (writing help / pace / instructor) instead of five equal rows. */
         .stuck-group-label {
             font-size: var(--text-micro); font-weight: 700;
             color: var(--text-sub); letter-spacing: 0.05em;
             text-transform: uppercase;
             padding: 7px 10px 2px;
         }
-        /* ADHD Nav B6: a hairline + breathing room where the second group starts —
-           the two outcome groups read as clearly separate zones (same buttons,
+        /* ADHD Nav B6: a hairline + breathing room where each new group starts —
+           the intent groups read as clearly separate zones (same buttons,
            same handlers; presentation only). */
         .stuck-option + .stuck-group-label {
             border-top: 1px solid var(--border);
@@ -6023,6 +6050,7 @@ img, video, embed, object { max-width: 100%; height: auto; }
     .theme-toggle     { width: 44px; height: 44px; }
     .reset-btn        { width: 44px; height: 44px; }
     .help-btn         { width: 44px; height: 44px; }
+    .stuck-btn        { min-height: 44px; padding: 10px 16px; }
     .capstone-rating-btn { min-height: 40px; padding: 8px 12px; }
 
     /* ── Chat input: 16 px minimum prevents iOS auto-zoom on focus ── */

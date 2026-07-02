@@ -6794,50 +6794,53 @@ function openHelpPanel() {
             </button>
         </div>
         <div class="help-current-stage">${stageLineHtml}</div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">¿Qué es Tu Pana?</span><span class="lang-sep"> · </span><span class="show-en">What is Tu Pana?</span></div>
+        <!-- Context-Collapse sprint D: help sections are native disclosures (closed
+             by default; intro + privacy ship open) so the panel scans as a list of
+             titles first — no storage, no custom handlers, keyboard-native. -->
+        <details class="help-section" open>
+            <summary class="help-section-title"><span class="show-es">¿Qué es Tu Pana?</span><span class="lang-sep"> · </span><span class="show-en">What is Tu Pana?</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">Tu Pana de Escritura es tu coach de escritura. Te guía etapa por etapa en tu trabajo de escritura usando IA como herramienta de apoyo — tú tomas las decisiones.</span><span class="lang-sep"> · </span><span class="show-en">Tu Pana de Escritura is your writing coach. It guides you stage by stage through your writing using AI as a support tool — you make the decisions.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">¿Qué pasa al inicio?</span><span class="lang-sep"> · </span><span class="show-en">What happens at the start?</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">¿Qué pasa al inicio?</span><span class="lang-sep"> · </span><span class="show-en">What happens at the start?</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">Antes de llegar al coach, pasas por una introducción breve:<br><br><strong>Tu Conocimiento</strong> — Identificas los recursos culturales que traes: tu comunidad, idioma, historia y experiencias. Reclamas tus activos y escribes una oración sobre lo que sabes.<br><br><strong>El Laboratorio</strong> — Practicas evaluar una respuesta de IA real usando cinco preguntas. Esto te prepara para usar el coach de manera crítica.<br><br>Después de eso, el coach está listo para guiarte etapa por etapa.</span><span class="lang-sep"> · </span><span class="show-en">Before reaching the coach, you go through a brief introduction:<br><br><strong>Tu Conocimiento</strong> — You identify the cultural resources you bring: your community, language, history, and experiences. You claim your assets and write a sentence about what you know.<br><br><strong>El Laboratorio</strong> — You practice evaluating a real AI response using five questions. This prepares you to use the coach critically.<br><br>After that, the coach is ready to guide you stage by stage.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">¿Cómo envío un mensaje?</span><span class="lang-sep"> · </span><span class="show-en">How do I send a message?</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">¿Cómo envío un mensaje?</span><span class="lang-sep"> · </span><span class="show-en">How do I send a message?</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">Escribe tu pregunta o texto en el cuadro de chat y presiona Enviar (o Enter). El coach responderá en unos segundos.</span><span class="lang-sep"> · </span><span class="show-en">Type your question or text in the chat box and press Send (or Enter). The coach will reply in a few seconds.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">Idioma y modos de lengua</span><span class="lang-sep"> · </span><span class="show-en">Language and language modes</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">Idioma y modos de lengua</span><span class="lang-sep"> · </span><span class="show-en">Language and language modes</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">Puedes escribir en español, inglés o los dos — tu idioma es válido aquí.<br><br>Usa los botones <strong>Español · English · ES-EN</strong> para cambiar el idioma de la interfaz. El modo ES-EN muestra el texto en ambos idiomas.<br><br>Tu Pana apoya completamente el español y el inglés. Si te sientes más cómodo/a usando otro idioma que puedas escribir con tu teclado, puedes intentarlo con el Coach IA; cuando sea posible, el coach responderá en ese idioma. La interfaz y la Guía sin IA están disponibles solo en español e inglés.<br><br>Nota: la narración de audio está disponible actualmente solo en español.</span><span class="lang-sep"> · </span><span class="show-en">You can write in Spanish, English, or both — your language is valid here.<br><br>Use the <strong>Español · English · ES-EN</strong> buttons to change the interface language. ES-EN mode shows text in both languages.<br><br>Tu Pana fully supports Spanish and English. If you feel more comfortable using another language that you can type with your keyboard, you may try it with the Live AI coach; when possible, the coach will respond in that language. The interface and the Built-in, no AI guide are available in Spanish and English only.<br><br>Note: audio narration is currently available in Spanish only.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">Narración de audio</span><span class="lang-sep"> · </span><span class="show-en">Audio narration</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">Narración de audio</span><span class="lang-sep"> · </span><span class="show-en">Audio narration</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">Durante la introducción (Tu Conocimiento y El Laboratorio), verás botones <strong>Escuchar</strong>. Haz clic para escuchar una narración grabada. Haz clic de nuevo para detenerla. El audio solo aparece cuando el idioma está en Español.</span><span class="lang-sep"> · </span><span class="show-en">During the introduction (Tu Conocimiento and El Laboratorio), you will see <strong>Escuchar</strong> (Listen) buttons. Click to hear a recorded narration. Click again to stop. Audio only appears when the language is set to Español.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">¿Cómo avanzo de etapa?</span><span class="lang-sep"> · </span><span class="show-en">How do I move to the next stage?</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">¿Cómo avanzo de etapa?</span><span class="lang-sep"> · </span><span class="show-en">How do I move to the next stage?</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">Usa el botón <strong>Siguiente etapa</strong> en el área de tarea cuando estés listo/a. En móvil, usa el selector de etapas en la barra superior.</span><span class="lang-sep"> · </span><span class="show-en">Use the <strong>Next stage</strong> button in the task area when you're ready. On mobile, use the stage selector in the top bar.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">Moverte entre etapas</span><span class="lang-sep"> · </span><span class="show-en">Moving between stages</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">Moverte entre etapas</span><span class="lang-sep"> · </span><span class="show-en">Moving between stages</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">Puedes regresar a etapas anteriores en cualquier momento para seguir desarrollando tus ideas. Cuando avances otra vez, Tu Pana puede preguntarte si quieres traer tu trabajo anterior a la próxima etapa. Elige esta opción cuando sientas que tu escritura en la etapa anterior ya está lista para ayudarte a construir la siguiente parte de tu borrador.<br><br>No tienes que importarlo todo de inmediato. Puedes revisar una etapa primero, volver a ella más tarde y traerla hacia adelante cuando esté lista.</span><span class="lang-sep"> · </span><span class="show-en">You can go back to earlier stages at any time to keep developing your ideas. When you move forward again, Tu Pana may ask whether you want to bring your previous work into the next stage. Choose this option when you feel that your writing in the earlier stage is ready to help you build the next part of your draft.<br><br>You do not have to import everything right away. You can revise a stage first, return to it later, and bring it forward when it feels ready.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">¿Qué es Mi Toolkit?</span><span class="lang-sep"> · </span><span class="show-en">What is My Toolkit?</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">¿Qué es Mi Toolkit?</span><span class="lang-sep"> · </span><span class="show-en">What is My Toolkit?</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">Mi Toolkit guarda lo que traes y lo que practicas: los activos culturales que reclamaste durante la introducción, las habilidades de escritura que desarrollas en cada etapa, tus evaluaciones críticas del coach, y las frases que proteges en la Bóveda de voz.</span><span class="lang-sep"> · </span><span class="show-en">My Toolkit saves what you bring and what you practice: the cultural assets you claimed during onboarding, the writing skills you develop at each stage, your critical evaluations of the coach, and the phrases you protect in your Voice Vault.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">Bóveda de voz</span><span class="lang-sep"> · </span><span class="show-en">Voice Vault</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">Bóveda de voz</span><span class="lang-sep"> · </span><span class="show-en">Voice Vault</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">En la Etapa 8 (Pulir Voz), aparece la Bóveda de voz en el chat. Úsala para guardar frases de tu borrador que no quieres perder durante la revisión. Las frases guardadas aparecen en tu Toolkit y en tu reporte.</span><span class="lang-sep"> · </span><span class="show-en">At Stage 8 (Voice Polish), the Voice Vault appears in the chat. Use it to save phrases from your draft that you want to protect during revision. Saved phrases appear in your Toolkit and in your report.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">Tu camino: 5 hitos, 10 pasos</span><span class="lang-sep"> · </span><span class="show-en">Your journey: 5 milestones, 10 steps</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">Tu camino: 5 hitos, 10 pasos</span><span class="lang-sep"> · </span><span class="show-en">Your journey: 5 milestones, 10 steps</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body" style="margin-bottom:6px;"><span class="show-es">El mapa de progreso muestra <strong>5 hitos</strong> — tu vista del camino. Cada hito agrupa algunos de los <strong>10 pasos</strong> — la ruta detallada de escritura. Son el mismo camino: los hitos son el mapa, los pasos son la ruta.</span><span class="lang-sep"> · </span><span class="show-en">The progress map shows <strong>5 milestones</strong> — your journey view. Each milestone groups a few of the <strong>10 steps</strong> — the detailed writing path. They are the same journey: milestones are the map, steps are the path.</span></div>
             <ul class="help-stage-list">${stageListHtml}</ul>
             <div class="help-section-body" style="margin-top:6px;"><span class="show-es">Al terminar la reflexión de la Etapa 10, verás una tarjeta "Proceso completo" con los pasos para copiar tu reporte y entregarlo en Brightspace.</span><span class="lang-sep"> · </span><span class="show-en">When you finish the Stage 10 reflection, a "Journey Complete" card shows the steps to copy your report and submit it in Brightspace.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">Evaluar el coach</span><span class="lang-sep"> · </span><span class="show-en">Evaluate the coach</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">Evaluar el coach</span><span class="lang-sep"> · </span><span class="show-en">Evaluate the coach</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <!-- ADHD Nav B4: same Five-Questions content, scannable chip-per-question
                  layout instead of a single text wall (no AI-literacy language removed) -->
             <div class="help-section-body"><span class="show-es">Cada respuesta del coach tiene un botón <strong>Evaluar</strong>. Úsalo para revisar lo que dijo el coach con cinco preguntas:</span><span class="lang-sep"> · </span><span class="show-en">Each coach response has an <strong>Evaluar · Evaluate</strong> button. Use it to review what the coach said using five questions:</span></div>
@@ -6849,19 +6852,19 @@ function openHelpPanel() {
                 <li><span class="fiveq-chip"><span class="show-es">Pensamiento</span><span class="lang-sep"> · </span><span class="show-en">Thinking</span></span><span class="show-es">¿Profundiza la conexión con el tema más amplio?</span><span class="lang-sep"> · </span><span class="show-en">Does it deepen the connection to the larger issue?</span></li>
             </ul>
             <div class="help-section-body"><span class="show-es">No tienes que aceptar lo que dice el coach. Tu criterio es parte del trabajo.</span><span class="lang-sep"> · </span><span class="show-en">You do not have to accept what the coach says. Your judgment is part of the work.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">El coach no responde</span><span class="lang-sep"> · </span><span class="show-en">Coach is not responding</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">El coach no responde</span><span class="lang-sep"> · </span><span class="show-en">Coach is not responding</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">Tu Pana funciona en tres modos:<br><br><strong>Coach IA</strong> — coach de IA en vivo usando internet. Si no responde, verifica tu conexión a internet. Si el coach falla, aparecerá un botón para cambiar al modo Guía sin IA.<br><strong>Guía sin IA</strong> — orientación integrada, sin IA. Funciona sin internet pero más limitado.<br><strong>Ollama</strong> — requiere instalación local.<br><br>Tus textos se guardan automáticamente en este navegador aunque el coach no responda.</span><span class="lang-sep"> · </span><span class="show-en">Tu Pana runs in three modes:<br><br><strong>Live AI</strong> — live AI coach using the internet. If it is not responding, check your internet connection. If the coach fails, a button will appear to switch to Built-in, no AI mode.<br><strong>Built-in, no AI</strong> — built-in guidance, no AI. Works without a connection but more limited.<br><strong>Ollama</strong> — requires a local installation.<br><br>Your texts are saved automatically in this browser even if the coach is not responding.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">Tu trabajo y tu privacidad</span><span class="lang-sep"> · </span><span class="show-en">Your work and your privacy</span></div>
+        </details>
+        <details class="help-section" open>
+            <summary class="help-section-title"><span class="show-es">Tu trabajo y tu privacidad</span><span class="lang-sep"> · </span><span class="show-en">Your work and your privacy</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">Tu borrador, tus reflexiones y tu Toolkit se guardan en este navegador. Si borras el historial del navegador o usas un dispositivo diferente, no estarán disponibles.<br><br>Cuando usas el Coach IA en vivo, tu mensaje se envía al servicio de IA para generar una respuesta. Tu borrador no se envía automáticamente.<br><br>Tu instructor/a solo ve lo que tú decides exportar, copiar o compartir. Tu Pana no comparte tu trabajo con nadie de forma automática.</span><span class="lang-sep"> · </span><span class="show-en">Your draft, reflections, and Toolkit are saved in this browser. If you clear browser history or use a different device, they won't be available.<br><br>When you use the Live AI coach, your message is sent to the AI service to generate a response. Your draft is not sent automatically.<br><br>Your instructor only sees what you choose to export, copy, or share. Tu Pana does not share your work with anyone automatically.</span></div>
-        </div>
-        <div class="help-section">
-            <div class="help-section-title"><span class="show-es">Preguntas para tu instructor/a</span><span class="lang-sep"> · </span><span class="show-en">Questions for your instructor</span></div>
+        </details>
+        <details class="help-section">
+            <summary class="help-section-title"><span class="show-es">Preguntas para tu instructor/a</span><span class="lang-sep"> · </span><span class="show-en">Questions for your instructor</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
             <div class="help-section-body"><span class="show-es">Si tienes preguntas sobre la tarea, el tema o las expectativas del curso, habla con tu instructor/a — el coach no puede responder esas preguntas.</span><span class="lang-sep"> · </span><span class="show-en">If you have questions about the assignment, topic, or course expectations, talk to your instructor — the coach cannot answer those questions.</span></div>
-        </div>
+        </details>
     </div>`;
 
     const closeHelp = () => { overlay.remove(); document.removeEventListener('keydown', onEscHelp); };

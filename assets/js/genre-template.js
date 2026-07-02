@@ -440,14 +440,43 @@ const cap200BronxBeautifulServiceLearning = {
         9:  'Paso 9: Lista de revisión final. Confirma el contexto de tu CBO, tu propuesta/servicio/datos, la estructura IMRDC, tu reflexión, tus revisiones y el significado comunitario.\nStep 9: Final Readiness Checklist. Confirm your CBO context, your proposal/service/data, the IMRDC structure, your reflection, your revisions, and the public/community significance.',
         10: 'Paso 10: Reflexión del proceso. Documenta lo que aprendiste, cómo usaste la IA, cómo revisaste, y qué entiendes ahora sobre el aprendizaje-servicio.\nStep 10: Process Reflection. Document what you learned, how you used AI, how you revised, and what you now understand about service-learning.'
     },
-    // One concise task-bar cue per stage (clamped by the consumer for any sub-step index).
+    // Task-bar cues per stage. ADHD Navigation Sprint (P1): stages 1–6 carry the
+    // full 3 sub-step cues so the 3 dots the UI already renders show honest,
+    // changing guidance (first cue per stage preserved verbatim; word-count
+    // auto-advance drives movement — stages 1–6 only, no new logic). Stages 7–10
+    // keep one cue: the step index never advances there (no auto-advance past
+    // stage 6), so extra cues would be unreachable dead copy.
     stageSteps: {
-        1:  [{ es: 'Nombra tu CBO, tu tema comunitario, o el momento que te conectó.', en: 'Name your CBO, your community issue, or the moment that connected you.' }],
-        2:  [{ es: 'Conecta tu proyecto con un problema más amplio y una idea del curso.', en: 'Connect your project to a larger issue and a course concept.' }],
-        3:  [{ es: 'Aclara CBO, servicio, cronograma y qué falta para la aprobación.', en: 'Clarify CBO, service, timeline, and what is left for approval.' }],
-        4:  [{ es: 'Planea cómo reunirás evidencia real (horas, entrevistas, encuestas).', en: 'Plan how you will gather real evidence (hours, interviews, surveys).' }],
-        5:  [{ es: 'Organiza el reporte: introducción, metodología, resultados, discusión, conclusión.', en: 'Organize the report: introduction, methodology, results, discussion, conclusion.' }],
-        6:  [{ es: '⭐ Escribe y guarda tu primer borrador sin ayuda. Este borrador es tuyo.', en: '⭐ Write and save your unassisted first draft. This draft is yours.' }],
+        1:  [
+            { es: 'Nombra tu CBO, tu tema comunitario, o el momento que te conectó.', en: 'Name your CBO, your community issue, or the moment that connected you.' },
+            { es: 'Escribe libremente 3–5 oraciones sobre ese punto de partida.', en: 'Freewrite 3–5 sentences about that starting point.' },
+            { es: '¿Qué detalle te importa más? Anótalo para tu reporte.', en: 'Which detail matters most to you? Note it for your report.' }
+        ],
+        2:  [
+            { es: 'Conecta tu proyecto con un problema más amplio y una idea del curso.', en: 'Connect your project to a larger issue and a course concept.' },
+            { es: 'Nombra el problema y la idea del curso en 1–2 oraciones.', en: 'Name the issue and the course concept in 1–2 sentences.' },
+            { es: 'Escribe la oración puente entre tu servicio y ese problema.', en: 'Write the bridge sentence between your service and that issue.' }
+        ],
+        3:  [
+            { es: 'Aclara CBO, servicio, cronograma y qué falta para la aprobación.', en: 'Clarify CBO, service, timeline, and what is left for approval.' },
+            { es: 'Escribe tu cronograma en 2–3 líneas.', en: 'Write your timeline in 2–3 lines.' },
+            { es: 'Anota qué falta para la aprobación de tu instructor/a.', en: 'Note what is still needed for your instructor\'s approval.' }
+        ],
+        4:  [
+            { es: 'Planea cómo reunirás evidencia real (horas, entrevistas, encuestas).', en: 'Plan how you will gather real evidence (hours, interviews, surveys).' },
+            { es: 'Elige 2–3 tipos de evidencia para tu proyecto.', en: 'Choose 2–3 evidence types for your project.' },
+            { es: 'Escribe 1–2 preguntas que tus datos deben responder.', en: 'Write 1–2 questions your data must answer.' }
+        ],
+        5:  [
+            { es: 'Organiza el reporte: introducción, metodología, resultados, discusión, conclusión.', en: 'Organize the report: introduction, methodology, results, discussion, conclusion.' },
+            { es: 'Anota 1–2 puntos clave por sección.', en: 'Note 1–2 key points per section.' },
+            { es: 'Comparte tu esquema con el coach y pide retroalimentación concreta.', en: 'Share your outline with the coach and ask for specific feedback.' }
+        ],
+        6:  [
+            { es: '⭐ Escribe y guarda tu primer borrador sin ayuda. Este borrador es tuyo.', en: '⭐ Write and save your unassisted first draft. This draft is yours.' },
+            { es: 'Sigue escribiendo. El coach espera hasta que guardes.', en: 'Keep writing. The coach waits until you save.' },
+            { es: 'Cuando termines, guarda tu borrador para desbloquear la revisión.', en: 'When done, save your draft to unlock revision.' }
+        ],
         7:  [{ es: 'Mejora tu análisis y la interpretación de tus datos con evidencia.', en: 'Strengthen your analysis and data interpretation with evidence.' }],
         8:  [{ es: 'Pule tu estilo académico sin borrar tu voz ni tu posicionalidad.', en: 'Polish your academic style without erasing your voice or positionality.' }],
         9:  [{ es: 'Verifica CBO, datos, estructura IMRDC, reflexión y significado comunitario.', en: 'Check CBO, data, IMRDC structure, reflection, and community significance.' }],
@@ -537,14 +566,42 @@ const researchPaperProfile = {
         9:  'Paso 9: Citas, uso de fuentes y pulido final. Revisa que cada cita, paráfrasis y resumen tenga su fuente, y que tu formato de citas sea consistente. Yo señalo qué revisar — no genero citas ni verifico fuentes por ti.\nStep 9: Citations, Source Use & Final Polish. Check that every quotation, paraphrase, and summary is credited, and that your citation format is consistent. I point out what to check — I do not generate citations or verify sources for you.',
         10: 'Paso 10: Reporte del proceso de investigación. Documenta cómo desarrollaste tu pregunta, cómo encontraste y evaluaste tus fuentes, cómo formaste tu argumento, y cómo revisaste — con tus propias palabras.\nStep 10: Research Process Report. Document how you developed your question, how you found and evaluated your sources, how you formed your argument, and how you revised — in your own words.'
     },
-    // One concise task-bar cue per stage (clamped by the consumer for any sub-step index).
+    // Task-bar cues per stage. ADHD Navigation Sprint (P1): stages 1–6 carry the
+    // full 3 sub-step cues (first cue per stage preserved verbatim) so the 3 dots
+    // show honest, changing guidance; movement comes from the existing word-count
+    // auto-advance only. Stages 7–10 keep one cue: the step index never advances
+    // there, so extra cues would be unreachable dead copy.
     stageSteps: {
-        1:  [{ es: 'Nombra tu tema, la extensión y el tipo de fuentes que pide la tarea.', en: 'Name your topic, the length, and the source types the assignment asks for.' }],
-        2:  [{ es: 'Convierte tu tema en una pregunta enfocada y discutible.', en: 'Turn your topic into a focused, arguable question.' }],
-        3:  [{ es: 'Planea dónde buscar y qué tipos de fuentes necesitas.', en: 'Plan where to search and what source types you need.' }],
-        4:  [{ es: 'Evalúa cada fuente: autor, fecha, propósito, credibilidad, relevancia.', en: 'Evaluate each source: author, date, purpose, credibility, relevance.' }],
-        5:  [{ es: 'Toma notas con tus palabras; separa cita, paráfrasis y resumen.', en: 'Take notes in your words; separate quotation, paraphrase, and summary.' }],
-        6:  [{ es: '⭐ Escribe y guarda tu primer borrador sin ayuda. Este borrador es tuyo.', en: '⭐ Write and save your unassisted first draft. This draft is yours.' }],
+        1:  [
+            { es: 'Nombra tu tema, la extensión y el tipo de fuentes que pide la tarea.', en: 'Name your topic, the length, and the source types the assignment asks for.' },
+            { es: 'Escribe 3–5 oraciones: ¿por qué te importa este tema?', en: 'Write 3–5 sentences: why does this topic matter to you?' },
+            { es: 'Anota la pregunta o el problema que más te interesa.', en: 'Note the question or problem that interests you most.' }
+        ],
+        2:  [
+            { es: 'Convierte tu tema en una pregunta enfocada y discutible.', en: 'Turn your topic into a focused, arguable question.' },
+            { es: 'Escribe 2–3 preguntas posibles; luego elige una.', en: 'Write 2–3 possible questions; then choose one.' },
+            { es: 'Afina tu pregunta: ¿qué evidencia podría responderla?', en: 'Sharpen your question: what evidence could answer it?' }
+        ],
+        3:  [
+            { es: 'Planea dónde buscar y qué tipos de fuentes necesitas.', en: 'Plan where to search and what source types you need.' },
+            { es: 'Anota 3–5 términos de búsqueda con tus propias palabras.', en: 'Note 3–5 search terms in your own words.' },
+            { es: 'Nombra dónde buscarás cada tipo de fuente.', en: 'Name where you will look for each source type.' }
+        ],
+        4:  [
+            { es: 'Evalúa cada fuente: autor, fecha, propósito, credibilidad, relevancia.', en: 'Evaluate each source: author, date, purpose, credibility, relevance.' },
+            { es: 'Empieza con una fuente: anota autor, fecha y propósito.', en: 'Start with one source: note its author, date, and purpose.' },
+            { es: 'Decide si entra en tu trabajo — tú juzgas la fuente.', en: 'Decide if it belongs in your paper — you judge the source.' }
+        ],
+        5:  [
+            { es: 'Toma notas con tus palabras; separa cita, paráfrasis y resumen.', en: 'Take notes in your words; separate quotation, paraphrase, and summary.' },
+            { es: 'Escribe 2–3 notas con tus propias palabras.', en: 'Write 2–3 notes in your own words.' },
+            { es: 'Anota un patrón o una tensión entre tus fuentes.', en: 'Note one pattern or tension across your sources.' }
+        ],
+        6:  [
+            { es: '⭐ Escribe y guarda tu primer borrador sin ayuda. Este borrador es tuyo.', en: '⭐ Write and save your unassisted first draft. This draft is yours.' },
+            { es: 'Sigue escribiendo. El coach espera hasta que guardes.', en: 'Keep writing. The coach waits until you save.' },
+            { es: 'Cuando termines, guarda tu borrador para desbloquear la revisión.', en: 'When done, save your draft to unlock revision.' }
+        ],
         7:  [{ es: 'Aclara tu tesis y ordena tu argumento con evidencia.', en: 'Clarify your thesis and order your argument with evidence.' }],
         8:  [{ es: 'Pule tu estilo académico sin borrar tu voz ni tu perspectiva.', en: 'Polish your academic style without erasing your voice or perspective.' }],
         9:  [{ es: 'Verifica que cada fuente esté citada y que el formato sea consistente.', en: 'Check that every source is cited and the format is consistent.' }],

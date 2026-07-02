@@ -1124,6 +1124,13 @@
             color: var(--text-muted);
             opacity: 0.45;
         }
+        /* ADHD Nav B2: upcoming steps stay visible for orientation but read as
+           doors not yet open — dashed outline, slightly receded. The active node
+           and the Stage-6 authorship gate keep their solid emphasis untouched. */
+        .stage-node:not(.active):not([data-id="6"]) .stage-circle--upcoming {
+            border-style: dashed;
+            opacity: 0.8;
+        }
         @keyframes stagePulse {
             0%,100% { box-shadow: 0 0 0 3px var(--jade-glow), 0 0 10px var(--jade-glow); }
             50%      { box-shadow: 0 0 0 6px var(--jade-glow), 0 0 20px var(--jade-glow); }
@@ -3912,9 +3919,17 @@
            choices (get help / change the pace) instead of five equal rows. */
         .stuck-group-label {
             font-size: var(--text-micro); font-weight: 700;
-            color: var(--text-muted); letter-spacing: 0.05em;
+            color: var(--text-sub); letter-spacing: 0.05em;
             text-transform: uppercase;
             padding: 7px 10px 2px;
+        }
+        /* ADHD Nav B6: a hairline + breathing room where the second group starts —
+           the two outcome groups read as clearly separate zones (same buttons,
+           same handlers; presentation only). */
+        .stuck-option + .stuck-group-label {
+            border-top: 1px solid var(--border);
+            margin-top: 6px;
+            padding-top: 9px;
         }
         .stuck-option {
             display: flex; align-items: center; gap: 10px;
@@ -4689,6 +4704,8 @@
         }
         .ctb-dot.active  { background: var(--jade); transform: scale(1.35); }
         .ctb-dot.done    { background: var(--success); }
+        /* ADHD Nav B2: future dots recede — the active dot is the one open door */
+        .ctb-dot:not(.active):not(.done) { opacity: 0.55; }
         /* B7: concrete next-step line in the draft-protected ceremony */
         .modal-next-hint {
             font-size: var(--text-label); color: var(--text-muted);
@@ -4704,6 +4721,13 @@
             margin: 12px 0 4px;
         }
         .report-group-label.report-group-danger { color: var(--rose); }
+        /* ADHD Nav B9: the destructive group also separates with a hairline —
+           same zone grammar as the stuck menu; danger reads as its own space */
+        .report-group-label.report-group-danger {
+            border-top: 1px solid var(--border);
+            margin-top: 16px;
+            padding-top: 10px;
+        }
 
         /* B5: live-AI attribution chip on freshly rendered coach replies —
            supports process reporting; restored messages carry no chip (documented). */
@@ -4738,6 +4762,10 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            /* ADHD Nav B2: quiet jade threshold — links the current cue to the
+               active dot so the task reads as the one open door (display-only) */
+            padding-left: 10px;
+            border-left: 2px solid var(--jade);
         }
         .ctb-es  { color: var(--text-primary); font-weight: 600; }
         .ctb-sep { color: var(--border-hi); margin: 0 3px; }
@@ -4748,7 +4776,9 @@
             .current-task-bar { padding: 0 14px; }
             .ctb-sep, .ctb-en { display: none; }
             .ctb-stage { font-size: var(--text-micro); }
-            .ctb-instruction { font-size: var(--text-ui); }
+            /* B2 threshold dropped on mobile: the narrow cue column needs every
+               pixel and the jade active dot sits directly beside the text */
+            .ctb-instruction { font-size: var(--text-ui); padding-left: 0; border-left: none; }
         }
         .ctb-toolkit-col {
             display: flex; align-items: center;
@@ -5449,6 +5479,49 @@
             }
         }
 
+        /* ═══ ADHD Nav B5: focus states quiet the journey rail too ═══
+           The map stays visible for orientation but recedes while the student
+           is writing (draft focus) or simplified the screen (focus mode).
+           Hover or keyboard focus restores it instantly — nothing is hidden,
+           disabled, or removed; Help, Save/Export, and "Estoy atascado" keep
+           their normal presentation and remain operable throughout. */
+        body.draft-focus-active .journey-wrap,
+        body:has(.workspace.focus-mode) .journey-wrap {
+            opacity: 0.55;
+            transition: opacity 260ms ease;
+        }
+        body.draft-focus-active .journey-wrap:hover,
+        body.draft-focus-active .journey-wrap:focus-within,
+        body:has(.workspace.focus-mode) .journey-wrap:hover,
+        body:has(.workspace.focus-mode) .journey-wrap:focus-within {
+            opacity: 1;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            body.draft-focus-active .journey-wrap,
+            body:has(.workspace.focus-mode) .journey-wrap { transition: none; }
+        }
+
+        /* ═══ ADHD Nav B3: shared "orientation layer" tag ═══
+           The Five Questions strip, in-chat eval card, and Voice Vault are
+           TRAINING/ORIENTATION supports, not writing steps. One shared quiet
+           micro-tag ("Apoyo · Support") marks them as the same secondary layer
+           across all pathways so they stop competing with the current task.
+           Display-only; no content removed; language-mode-aware via show-es/en. */
+        .orient-tag {
+            margin-left: auto;
+            flex-shrink: 0;
+            font-size: var(--text-micro); font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.06em; text-transform: uppercase;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            padding: 1px 7px;
+            opacity: 0.9;
+        }
+        /* ≤480px: the surfaces' existing borders carry the separation; the tag
+           would crowd the summary rows */
+        @media (max-width: 480px) { .orient-tag { display: none; } }
+
         /* ── Five Questions Reference Strip ── */
         .five-q-strip {
             border-bottom: 1px solid var(--border);
@@ -5554,6 +5627,27 @@
             color: var(--text-sub);
             line-height: 1.5;
         }
+        /* ADHD Nav B4: Five Questions in Help — scannable chip + one-line question
+           (same AI-literacy content, list presentation instead of a text wall) */
+        .help-fiveq-list {
+            list-style: none; margin: 8px 0; padding: 0;
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .help-fiveq-list li {
+            font-size: var(--text-label); color: var(--text-sub); line-height: 1.5;
+        }
+        .fiveq-chip {
+            display: inline-block;
+            font-size: var(--text-micro); font-weight: 700;
+            color: var(--amber-text);
+            background: var(--bg-raised);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            padding: 1px 8px;
+            margin-right: 6px;
+            letter-spacing: 0.03em;
+        }
+
         /* Stage-level eval trigger — injected at bottom of five-q-body (Stage 7+) */
         .five-q-eval-action {
             display: block;
@@ -5644,6 +5738,32 @@
             html[data-lang="both"] .ctb-sep,
             html[data-lang="both"] .ctb-en { display: inline !important; }
         }
+
+        /* ═══ ADHD Nav B7: bilingual prose density (bilingual mode only) ═══
+           Long dual-language guidance prose no longer interleaves on one line:
+           Spanish leads, English follows as a quieter twin on its own line
+           (same grammar the Five-Questions strip already uses). Both languages
+           stay complete and visible; ES-only / EN-only modes are untouched.
+           Privacy and Google Gemini disclosures are deliberately NOT quieted —
+           this applies only to help/export/draft guidance prose. */
+        html[data-lang="both"] .help-section-body > .show-en,
+        html[data-lang="both"] .packet-note > .show-en,
+        html[data-lang="both"] .report-export-hint > .show-en,
+        html[data-lang="both"] .draft-footer-note > .show-en {
+            display: block;
+            margin-top: 3px;
+            font-size: 0.95em;
+        }
+        /* Only the non-privacy export/draft notes also soften ink; Help bodies
+           keep their full contrast (they include mode/privacy guidance). */
+        html[data-lang="both"] .packet-note > .show-en,
+        html[data-lang="both"] .report-export-hint > .show-en,
+        html[data-lang="both"] .draft-footer-note > .show-en {
+            color: var(--text-muted);
+        }
+        html[data-lang="both"] .help-section-body > .lang-sep,
+        html[data-lang="both"] .packet-note > .lang-sep,
+        html[data-lang="both"] .report-export-hint > .lang-sep { display: none; }
 
         /* ── Language switcher ── */
         .lang-switcher {

@@ -224,7 +224,7 @@ const STAGE_TRANSITIONS = {
 const STAGE_STEPS = {
     1:  [
         { es: 'Elige un momento específico de tu vida.',          en: 'Choose one specific moment from your life.' },
-        { es: 'Escribe libremente. La gramática puede esperar.',   en: 'Write freely. Grammar can wait.' },
+        { es: 'Escribe libremente 3–5 oraciones. La gramática puede esperar.',   en: 'Write 3–5 sentences freely. Grammar can wait.' },
         { es: '¿Qué detalle de lo que escribiste te sorprende más?', en: 'What detail in what you wrote surprises you most?' }
     ],
     2:  [

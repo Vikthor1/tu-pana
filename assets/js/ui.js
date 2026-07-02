@@ -314,6 +314,7 @@ function injectVoiceVaultPanel() {
             <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5L2.5 4v4.5C2.5 11.7 5 14.2 8 15c3-0.8 5.5-3.3 5.5-6.5V4L8 1.5z"/><path d="M5.5 8.5l2 2 3-3"/></svg>
             <span class="show-es">Bóveda de voz</span><span class="lang-sep"> · </span><span class="show-en">Voice Vault</span>
             <span class="vault-count-badge empty" id="vaultCountBadge">0</span>
+            <span class="orient-tag" aria-hidden="true"><span class="show-es">Apoyo</span><span class="lang-sep"> · </span><span class="show-en">Support</span></span>
             <span class="vault-toggle-arrow" aria-hidden="true">▾</span>
         </summary>
         <div class="voice-vault-body">
@@ -4374,6 +4375,7 @@ function injectEvalCard() {
     hdr.className = 'eval-card-header';
     hdr.innerHTML = `
         <span class="eval-card-title">${getIcon('critical-lens', 16)} Evalúa esta respuesta · Evaluate this response</span>
+        <span class="orient-tag" aria-hidden="true"><span class="show-es">Apoyo</span><span class="lang-sep"> · </span><span class="show-en">Support</span></span>
         <span class="eval-card-toggle">▾</span>`;
     hdr.addEventListener('click', () => card.classList.toggle('collapsed'));
     // Card starts open; student manually collapses it. No auto-collapse for accessibility.
@@ -6836,7 +6838,17 @@ function openHelpPanel() {
         </div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">Evaluar el coach</span><span class="lang-sep"> · </span><span class="show-en">Evaluate the coach</span></div>
-            <div class="help-section-body"><span class="show-es">Cada respuesta del coach tiene un botón <strong>Evaluar</strong>. Úsalo para revisar lo que dijo el coach con cinco preguntas:<br><br><strong>Conocimiento</strong> — ¿El coach respetó lo que sabes desde tu comunidad?<br><strong>Precisión</strong> — ¿Hay afirmaciones que necesitan una fuente real?<br><strong>Voz</strong> — ¿La respuesta todavía suena como tú?<br><strong>Especificidad</strong> — ¿Hay detalles concretos o se queda abstracto?<br><strong>Pensamiento</strong> — ¿Profundiza la conexión con el tema más amplio?<br><br>No tienes que aceptar lo que dice el coach. Tu criterio es parte del trabajo.</span><span class="lang-sep"> · </span><span class="show-en">Each coach response has an <strong>Evaluar · Evaluate</strong> button. Use it to review what the coach said using five questions:<br><br><strong>Knowledge</strong> — Did the coach respect what you know from your community?<br><strong>Accuracy</strong> — Are there claims that need a real source?<br><strong>Voice</strong> — Does this still sound like you?<br><strong>Specificity</strong> — Are there concrete details, or does it stay abstract?<br><strong>Thinking</strong> — Does it deepen the connection to the larger issue?<br><br>You do not have to accept what the coach says. Your judgment is part of the work.</span></div>
+            <!-- ADHD Nav B4: same Five-Questions content, scannable chip-per-question
+                 layout instead of a single text wall (no AI-literacy language removed) -->
+            <div class="help-section-body"><span class="show-es">Cada respuesta del coach tiene un botón <strong>Evaluar</strong>. Úsalo para revisar lo que dijo el coach con cinco preguntas:</span><span class="lang-sep"> · </span><span class="show-en">Each coach response has an <strong>Evaluar · Evaluate</strong> button. Use it to review what the coach said using five questions:</span></div>
+            <ul class="help-fiveq-list">
+                <li><span class="fiveq-chip"><span class="show-es">Conocimiento</span><span class="lang-sep"> · </span><span class="show-en">Knowledge</span></span><span class="show-es">¿El coach respetó lo que sabes desde tu comunidad?</span><span class="lang-sep"> · </span><span class="show-en">Did the coach respect what you know from your community?</span></li>
+                <li><span class="fiveq-chip"><span class="show-es">Precisión</span><span class="lang-sep"> · </span><span class="show-en">Accuracy</span></span><span class="show-es">¿Hay afirmaciones que necesitan una fuente real?</span><span class="lang-sep"> · </span><span class="show-en">Are there claims that need a real source?</span></li>
+                <li><span class="fiveq-chip"><span class="show-es">Voz</span><span class="lang-sep"> · </span><span class="show-en">Voice</span></span><span class="show-es">¿La respuesta todavía suena como tú?</span><span class="lang-sep"> · </span><span class="show-en">Does this still sound like you?</span></li>
+                <li><span class="fiveq-chip"><span class="show-es">Especificidad</span><span class="lang-sep"> · </span><span class="show-en">Specificity</span></span><span class="show-es">¿Hay detalles concretos o se queda abstracto?</span><span class="lang-sep"> · </span><span class="show-en">Are there concrete details, or does it stay abstract?</span></li>
+                <li><span class="fiveq-chip"><span class="show-es">Pensamiento</span><span class="lang-sep"> · </span><span class="show-en">Thinking</span></span><span class="show-es">¿Profundiza la conexión con el tema más amplio?</span><span class="lang-sep"> · </span><span class="show-en">Does it deepen the connection to the larger issue?</span></li>
+            </ul>
+            <div class="help-section-body"><span class="show-es">No tienes que aceptar lo que dice el coach. Tu criterio es parte del trabajo.</span><span class="lang-sep"> · </span><span class="show-en">You do not have to accept what the coach says. Your judgment is part of the work.</span></div>
         </div>
         <div class="help-section">
             <div class="help-section-title"><span class="show-es">El coach no responde</span><span class="lang-sep"> · </span><span class="show-en">Coach is not responding</span></div>

@@ -877,6 +877,14 @@ function updateCurrentTaskBar() {
             else if (i === step) dot.classList.add('active');
             ctbDots.appendChild(dot);
         }
+        // De-overwhelm B4: tiny "1/3" count from the SAME step/total the dots use —
+        // display-only orientation (no new state, no gating, no grading language).
+        if (total > 1) {
+            const count = document.createElement('span');
+            count.className = 'ctb-dot-count';
+            count.textContent = `${Math.min(step, total)}/${total}`;
+            ctbDots.appendChild(count);
+        }
     }
 }
 
@@ -2704,6 +2712,24 @@ async function initDL() {
 // and changes no provider, payload, or default-mode behavior. Persistent flag
 // tupana_ai_cue_seen (additive key); a per-load guard keeps it once-per-session
 // even if storage is unavailable.
+// De-overwhelm B5: render-time AI-attribution chip on LIVE coach replies only.
+// Display-only — reads state.coachMode at the moment the reply renders; NOTHING is
+// persisted (no chatlog field, no storage), so replies restored after a reload carry
+// no chip. That live-only limitation is deliberate: persistent per-message
+// attribution needs a chatlog schema change and separate approval.
+function _appendLiveModeChip(msgId) {
+    try {
+        const bubble = D.chatMessages.querySelector(`.msg[data-msg-id="${msgId}"] .msg-bubble`);
+        if (!bubble || bubble.querySelector('.msg-mode-chip')) return;
+        const chip = document.createElement('span');
+        chip.className = 'msg-mode-chip';
+        chip.innerHTML = state.coachMode === 'gemini'
+            ? '<span class="show-es">Coach IA</span><span class="lang-sep"> · </span><span class="show-en">Live AI</span>'
+            : '<span class="show-es">IA local</span><span class="lang-sep"> · </span><span class="show-en">Local AI</span>';
+        bubble.appendChild(chip);
+    } catch(e) {}
+}
+
 let _aiCueShownThisLoad = false;
 function maybeShowFirstAiSendCue() {
     if (_aiCueShownThisLoad) return;
@@ -2733,7 +2759,7 @@ async function sendMsg(text) {
     if (state.coachMode === 'ollama') {
         try {
             const reply = await generateCoachResponse({ prompt: text });
-            if (reply) addMsg(reply, 'bot');
+            if (reply) { const _mid = addMsg(reply, 'bot'); _appendLiveModeChip(_mid); }
         } catch(err) {
             console.error('ollama:', err);
             addMsg(getOllamaFriendlyError(err), 'bot');
@@ -2762,7 +2788,7 @@ async function sendMsg(text) {
                 '\n\nStudent message:\n' + text +
                 '\n\nRespond as Tu Pana de Escritura following the stage-specific rules and the language rule above.';
             const reply = await generateCoachResponse({ prompt: geminiPrompt, stageId: getStageId(state.stage) });
-            if (reply) addMsg(reply, 'bot');
+            if (reply) { const _mid = addMsg(reply, 'bot'); _appendLiveModeChip(_mid); }
         } catch(err) {
             console.error('[Tu Pana] Coach error', {
                 category:  err?.category  ?? '(missing)',

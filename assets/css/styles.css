@@ -1585,6 +1585,11 @@
             padding: 0 22px 12px;
             display: flex; flex-direction: column; gap: 8px;
         }
+        /* B4: warm framing line above the progress artifacts */
+        .cp-warm-line {
+            font-size: var(--text-caption); color: var(--text-muted);
+            font-style: italic; letter-spacing: 0.02em;
+        }
         .chat-progress.collapsed .chat-progress-body {
             grid-template-rows: 0fr;
             opacity: 0;
@@ -1933,10 +1938,13 @@
             padding: 0 4px; margin-left: 6px;
         }
         /* Compact welcome/greeting strip — quieter than a full bot bubble */
+        /* De-overwhelm B2: orientation strips read one step quieter than coach
+           replies — guidance present but never competing with the conversation.
+           Content unchanged; CSS-only. */
         .welcome-strip {
             display: flex; align-items: flex-start; gap: 8px;
             padding: 7px 16px 7px 14px; margin: 2px 0;
-            font-size: var(--text-ui); color: var(--text-sub);
+            font-size: var(--text-note); color: var(--text-sub);
             border-left: 2px solid var(--border);
             white-space: pre-line; line-height: 1.45;
         }
@@ -2020,7 +2028,8 @@
             cursor: not-allowed; transform: none;
             box-shadow: none; opacity: 0.4;
         }
-        .input-hint { font-size: var(--text-caption); color: var(--text-muted); text-align: center; margin-top: 8px; letter-spacing: 0.03em; }
+        /* B2: keyboard hint is reference info, not a task — quietest text step. */
+        .input-hint { font-size: var(--text-micro); color: var(--text-muted); text-align: center; margin-top: 8px; letter-spacing: 0.03em; opacity: 0.85; }
 
         /* ── Stage Tooltip ── */
         .tooltip {
@@ -3899,6 +3908,14 @@
             border-bottom: 1px solid var(--border);
             margin-bottom: 4px;
         }
+        /* De-overwhelm B3: outcome group headers — the menu scans as two small
+           choices (get help / change the pace) instead of five equal rows. */
+        .stuck-group-label {
+            font-size: var(--text-micro); font-weight: 700;
+            color: var(--text-muted); letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 7px 10px 2px;
+        }
         .stuck-option {
             display: flex; align-items: center; gap: 10px;
             padding: 9px 12px;
@@ -4642,7 +4659,7 @@
             flex-shrink: 0;
             display: flex;
             align-items: stretch;
-            min-height: 42px;
+            min-height: 46px;   /* B1: room for the dominant task line */
         }
         .ctb-stage-col {
             display: flex;
@@ -4672,6 +4689,35 @@
         }
         .ctb-dot.active  { background: var(--jade); transform: scale(1.35); }
         .ctb-dot.done    { background: var(--success); }
+        /* B7: concrete next-step line in the draft-protected ceremony */
+        .modal-next-hint {
+            font-size: var(--text-label); color: var(--text-muted);
+            line-height: 1.5; margin-bottom: 12px; text-align: left;
+        }
+
+        /* B6: purpose group headers inside the export panel's "Other options" —
+           backup/data vs report-only vs destructive read as separate small zones. */
+        .report-group-label {
+            font-size: var(--text-micro); font-weight: 700;
+            color: var(--text-muted); letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin: 12px 0 4px;
+        }
+        .report-group-label.report-group-danger { color: var(--rose); }
+
+        /* B5: live-AI attribution chip on freshly rendered coach replies —
+           supports process reporting; restored messages carry no chip (documented). */
+        .msg-mode-chip {
+            display: block; margin-top: 6px;
+            font-size: var(--text-micro); color: var(--text-muted);
+            letter-spacing: 0.04em; text-transform: uppercase;
+        }
+
+        /* B4: quiet numeric echo of the dots — orientation, not a grade */
+        .ctb-dot-count {
+            font-size: var(--text-micro); color: var(--text-muted);
+            margin-left: 4px; font-variant-numeric: tabular-nums;
+        }
         .ctb-task-col {
             display: flex;
             align-items: center;
@@ -4680,25 +4726,29 @@
             padding: 8px 0 8px 14px;
             min-width: 0;
         }
+        /* De-overwhelm B1: the current TASK is the student's one clear next move —
+           it carries the visual weight; the stage chrome around it stays secondary.
+           Task text arrives via getStageStepOverride, so this emphasis is pathway-
+           aware for Default / CAP 200 / Research automatically. */
         .ctb-instruction {
             flex: 1;
-            font-size: var(--text-ui);
+            font-size: var(--text-body);
             line-height: 1.35;
             min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        .ctb-es  { color: var(--text-primary); font-weight: 500; }
+        .ctb-es  { color: var(--text-primary); font-weight: 600; }
         .ctb-sep { color: var(--border-hi); margin: 0 3px; }
-        .ctb-en  { color: var(--text-muted); font-size: var(--text-label); }
+        .ctb-en  { color: var(--text-sub); font-size: var(--text-note); }
         /* "de 5 / of 5" — hidden on desktop where the journey map shows progress */
         .ctb-of-total { display: none; }
         @media (max-width: 640px) {
             .current-task-bar { padding: 0 14px; }
             .ctb-sep, .ctb-en { display: none; }
             .ctb-stage { font-size: var(--text-micro); }
-            .ctb-instruction { font-size: var(--text-note); }
+            .ctb-instruction { font-size: var(--text-ui); }
         }
         .ctb-toolkit-col {
             display: flex; align-items: center;

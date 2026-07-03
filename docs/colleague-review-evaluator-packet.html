@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu Pana de Escritura — Colleague Review &amp; Evaluator Packet</title>
+<style>
+  /* ── Variables (shared visual system with the Tier 4 packet) ── */
+  :root {
+    --bg:          #f7f4ef;
+    --surface:     #ffffff;
+    --surface-alt: #f2ede6;
+    --ink:         #1e1a14;
+    --ink-mid:     #4a4238;
+    --ink-muted:   #7a7063;
+    --jade:        #2d7a5f;
+    --jade-light:  #e6f2ec;
+    --jade-mid:    #4a9e7d;
+    --gold:        #c8882a;
+    --gold-light:  #fdf3e3;
+    --clay:        #c4614a;
+    --clay-light:  #fdecea;
+    --border:      #ddd8cf;
+    --border-mid:  #c8c1b4;
+    --radius:      10px;
+    --radius-sm:   6px;
+    --shadow:      0 2px 8px rgba(30,26,20,0.07);
+    --max-w:       780px;
+    --font:        Georgia, 'Times New Roman', serif;
+    --font-ui:     system-ui, -apple-system, sans-serif;
+  }
+
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.7; }
+  h1, h2, h3, h4 { font-family: var(--font); line-height: 1.25; color: var(--ink); }
+  p { margin-bottom: 0.85em; }
+  p:last-child { margin-bottom: 0; }
+  ul, ol { padding-left: 1.4em; }
+  li { margin-bottom: 0.35em; }
+  a { color: var(--jade); }
+
+  /* ── Layout ── */
+  .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+  section { padding: 44px 0 0; }
+
+  /* ── Hero ── */
+  .hero { background: var(--ink); color: #f7f4ef; padding: 52px 24px 44px; text-align: center; }
+  .hero-eyebrow {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--jade-mid); margin-bottom: 14px;
+  }
+  .hero h1 { color: #f7f4ef; font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 14px; }
+  .hero-sub { color: #c8c1b4; font-size: 1.02rem; max-width: 620px; margin: 0 auto 26px; font-style: italic; }
+  .focus-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .focus-chip {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 20px; padding: 5px 14px;
+    font-family: var(--font-ui); font-size: 12px; letter-spacing: 0.04em; color: #e0dbd0;
+  }
+  .hero-instruction { color: #c8c1b4; font-size: 0.92rem; margin: 18px auto 0; max-width: 540px; font-style: italic; }
+  .hero-app-url { font-family: var(--font-ui); font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 10px; letter-spacing: 0.02em; }
+  .hero-app-url a { color: rgba(255,255,255,0.55); text-decoration: underline; }
+
+  /* ── Buttons ── */
+  .feedback-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+  .feedback-button {
+    display: inline-block; background: var(--jade); color: #fff;
+    font-family: var(--font-ui); font-size: 14px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 13px 28px; border-radius: 30px; text-decoration: none;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 8px rgba(45,122,95,0.25);
+    -webkit-font-smoothing: antialiased;
+  }
+  .feedback-button:hover { background: var(--jade-mid); box-shadow: 0 4px 14px rgba(45,122,95,0.35); color: #fff; }
+  .feedback-button:focus { outline: 3px solid var(--jade-mid); outline-offset: 3px; }
+  .feedback-button--primary {
+    background: var(--jade); border: 2px solid rgba(255,255,255,0.18);
+    box-shadow: 0 3px 12px rgba(45,122,95,0.55), 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .feedback-button--primary:hover { background: var(--jade-mid); box-shadow: 0 5px 20px rgba(45,122,95,0.65), 0 2px 6px rgba(0,0,0,0.2); }
+  .feedback-button--secondary {
+    background: #f7f4ef; color: var(--ink); border: 2px solid rgba(30,26,20,0.12);
+    box-shadow: 0 2px 8px rgba(30,26,20,0.22), 0 1px 2px rgba(0,0,0,0.12);
+  }
+  .feedback-button--secondary:hover { background: #fff; color: var(--ink); box-shadow: 0 4px 14px rgba(30,26,20,0.28); }
+
+  /* ── Quick nav ── */
+  .quick-nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; position: sticky; top: 0; z-index: 20;
+    box-shadow: 0 1px 4px rgba(30,26,20,0.06);
+  }
+  .quick-nav-inner { max-width: var(--max-w); margin: 0 auto; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .quick-nav-label {
+    font-family: var(--font-ui); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted);
+    margin-right: 4px; white-space: nowrap;
+  }
+  .quick-nav-btn {
+    font-family: var(--font-ui); font-size: 11px; font-weight: 600; color: var(--jade);
+    text-decoration: none; padding: 4px 11px; border: 1px solid var(--jade-light);
+    border-radius: 20px; background: var(--jade-light); white-space: nowrap;
+    transition: background 0.12s, color 0.12s;
+  }
+  .quick-nav-btn:hover { background: var(--jade); color: #fff; border-color: var(--jade); }
+
+  /* ── Section header ── */
+  .section-label {
+    font-family: var(--font-ui); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.13em; text-transform: uppercase; color: var(--jade); margin-bottom: 8px;
+  }
+  .section-title { font-size: 1.45rem; margin-bottom: 6px; }
+  .section-sub { color: var(--ink-muted); font-size: 0.95rem; margin-bottom: 24px; font-style: italic; }
+  hr.section-rule { border: none; border-top: 1px solid var(--border); margin: 40px 0 0; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px 28px; box-shadow: var(--shadow); margin-bottom: 16px;
+  }
+
+  /* ── Callouts ── */
+  .callout { border-radius: var(--radius); padding: 18px 22px; margin-bottom: 16px; font-size: 0.95rem; }
+  .callout--jade { background: var(--jade-light); border-left: 4px solid var(--jade); color: var(--ink-mid); }
+  .callout--gold { background: var(--gold-light); border-left: 4px solid var(--gold); color: var(--ink-mid); }
+  .callout--clay { background: var(--clay-light); border-left: 4px solid var(--clay); color: var(--ink-mid); }
+  .callout-title {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .callout--jade .callout-title { color: var(--jade); }
+  .callout--gold .callout-title { color: var(--gold); }
+  .callout--clay .callout-title { color: var(--clay); }
+
+  /* ── Path / genre grid ── */
+  .path-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .path-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--shadow); }
+  .path-card--jade { border-top: 4px solid var(--jade); }
+  .path-card--gold { border-top: 4px solid var(--gold); }
+  .path-card--clay { border-top: 4px solid var(--clay); }
+  .path-card--ink  { border-top: 4px solid var(--ink-mid); }
+  .path-card h3 { font-size: 1.08rem; margin-bottom: 2px; }
+  .path-es {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.03em; color: var(--ink-muted); display: block; margin-bottom: 10px;
+  }
+  .path-card p { font-size: 0.92rem; color: var(--ink-mid); }
+  .path-link { font-family: var(--font-ui); font-size: 11.5px; display: inline-block; margin-top: 10px; word-break: break-all; }
+
+  /* ── Context cards ── */
+  .context-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .context-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); }
+  .context-num {
+    font-family: var(--font-ui); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--jade); display: block; margin-bottom: 5px;
+  }
+  .context-card h3 { font-size: 0.98rem; margin-bottom: 6px; }
+  .context-card p { font-size: 0.87rem; color: var(--ink-mid); }
+
+  /* ── Review link panel ── */
+  .review-link-panel {
+    background: var(--surface); border: 1px solid var(--border); border-top: 4px solid var(--jade);
+    border-radius: var(--radius); padding: 26px 28px; box-shadow: var(--shadow);
+    text-align: center; margin-bottom: 16px;
+  }
+  .review-link-panel .big-link {
+    display: inline-block; font-family: var(--font-ui); font-size: clamp(0.85rem, 2.6vw, 1.05rem);
+    font-weight: 700; color: var(--jade); word-break: break-all;
+    background: var(--jade-light); border: 1px solid #b2d8c6; border-radius: var(--radius-sm);
+    padding: 10px 16px; margin: 10px 0 12px; text-decoration: none;
+  }
+  .review-link-panel .big-link:hover { background: #d8ebe1; }
+  .dont-share {
+    font-family: var(--font-ui); font-size: 12.5px; font-weight: 700; color: var(--clay);
+    letter-spacing: 0.02em;
+  }
+  .alias-note { font-family: var(--font-ui); font-size: 11px; color: var(--ink-muted); margin-top: 12px; }
+
+  /* ── Steps ── */
+  .steps { counter-reset: step; list-style: none; padding-left: 0; }
+  .steps li {
+    counter-increment: step; position: relative; padding: 12px 0 12px 46px;
+    border-bottom: 1px solid var(--border); font-size: 0.95rem; color: var(--ink-mid);
+  }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before {
+    content: counter(step); position: absolute; left: 0; top: 12px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--jade-light); color: var(--jade);
+    font-family: var(--font-ui); font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── Checklist ── */
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li {
+    position: relative; padding: 7px 0 7px 28px;
+    border-bottom: 1px solid var(--border); font-size: 0.93rem; color: var(--ink-mid);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before { content: "□"; position: absolute; left: 0; color: var(--border-mid); font-size: 1rem; top: 7px; }
+  .check-group { margin-bottom: 20px; }
+  .check-group:last-child { margin-bottom: 0; }
+  .check-group-title {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px;
+  }
+
+  /* ── Category chips ── */
+  .cat-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .cat-chip {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    background: var(--surface-alt); border: 1px solid var(--border-mid);
+    border-radius: 20px; padding: 5px 13px; color: var(--ink-mid);
+  }
+
+  /* ── Direct-links table ── */
+  .stage-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 12px; }
+  .stage-table th {
+    font-family: var(--font-ui); font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-muted); text-align: left;
+    padding: 7px 10px; border-bottom: 2px solid var(--border-mid);
+  }
+  .stage-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--ink-mid); vertical-align: top; }
+  .stage-table tr:last-child td { border-bottom: none; }
+  .stage-table td a { font-family: var(--font-ui); font-size: 12px; word-break: break-all; }
+  .stage-name-es { color: var(--ink); font-weight: bold; display: block; }
+  .stage-name-en { color: var(--ink-muted); font-size: 0.83rem; }
+
+  /* ── Footer ── */
+  .doc-footer {
+    margin-top: 52px; background: var(--surface-alt); border-top: 1px solid var(--border);
+    padding: 26px 24px 34px; text-align: center;
+    font-family: var(--font-ui); font-size: 12px; color: var(--ink-muted);
+  }
+  .doc-footer .foot-guard { color: var(--clay); font-weight: 700; margin-bottom: 6px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .path-grid, .context-grid { grid-template-columns: 1fr; }
+    .card, .review-link-panel { padding: 20px 18px; }
+    .quick-nav { overflow-x: auto; }
+    .quick-nav-inner { flex-wrap: nowrap; }
+    .quick-nav-btn { flex: 0 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════ HERO ════════ -->
+<div class="hero" id="hero">
+  <div class="hero-eyebrow">Colleague Review · Evaluator Packet</div>
+  <h1>Tu Pana de Escritura</h1>
+  <p class="hero-sub">Tu Pana de Escritura is a bilingual Writing Across the Curriculum / Writing in the Disciplines studio for first-generation and multilingual students. It supports students as they develop research-grade writing across genres while using AI critically, transparently, and with their own voice and community knowledge at the center.</p>
+  <div class="focus-row">
+    <span class="focus-chip">Autobiographical Mixed-Genre Essay</span>
+    <span class="focus-chip">Service-Learning Report</span>
+    <span class="focus-chip">Research Paper</span>
+    <span class="focus-chip">STEM Lab Report</span>
+  </div>
+  <div class="feedback-actions">
+    <a class="feedback-button feedback-button--primary" href="https://vikthor1.github.io/tu-pana/?review=colleague" target="_blank" rel="noopener">Open Tu Pana in Review Mode</a>
+  </div>
+  <p class="hero-instruction">Colleagues &amp; evaluators only — this link opens a pathway selector so you can compare all four genre journeys.<br><em>Solo para colegas y evaluadores — este enlace abre un selector para comparar los cuatro caminos de escritura.</em></p>
+  <p class="hero-app-url">Review link: <a href="https://vikthor1.github.io/tu-pana/?review=colleague" target="_blank" rel="noopener">https://vikthor1.github.io/tu-pana/?review=colleague</a></p>
+</div>
+
+<!-- ════════ QUICK NAV ════════ -->
+<nav class="quick-nav" aria-label="Packet sections">
+  <div class="quick-nav-inner">
+    <span class="quick-nav-label">Jump to</span>
+    <a class="quick-nav-btn" href="#guardrail">Guardrail</a>
+    <a class="quick-nav-btn" href="#contexts">Reviewer Contexts</a>
+    <a class="quick-nav-btn" href="#enter-review">Enter Review Mode</a>
+    <a class="quick-nav-btn" href="#pathways">Four Pathways</a>
+    <a class="quick-nav-btn" href="#tasks">Review Tasks</a>
+    <a class="quick-nav-btn" href="#checklist">Checklist</a>
+    <a class="quick-nav-btn" href="#feedback">Feedback</a>
+    <a class="quick-nav-btn" href="#open-items">Open Items</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ════════ GUARDRAIL ════════ -->
+<section id="guardrail">
+  <div class="callout callout--clay">
+    <div class="callout-title">Read first — colleague-only guardrail</div>
+    <p><strong>During Pilot 2, students access Tu Pana layers only through assignment-specific links. Students do not choose among genres inside the app. The review selector is for colleagues/evaluators only and must not be shared with students.</strong></p>
+    <p style="margin-top:6px; font-size:0.88rem;">Student pilots use individualized links provided by their instructor. Please never post the review link in Brightspace or anywhere students can reach it.</p>
+  </div>
+</section>
+
+<!-- ════════ REVIEWER CONTEXTS ════════ -->
+<section id="contexts">
+  <div class="section-label">How this review fits</div>
+  <h2 class="section-title">Three reviewer contexts</h2>
+  <p class="section-sub">One app, three ways of encountering it — you are in the second and third.</p>
+  <div class="context-grid">
+    <div class="context-card">
+      <span class="context-num">1 · Student-pilot mode</span>
+      <h3>Students</h3>
+      <p>Real students use independent, assignment-specific URLs given by their instructor. Their link <em>is</em> their pathway — no genre choice inside the app.</p>
+    </div>
+    <div class="context-card">
+      <span class="context-num">2 · Colleague review mode</span>
+      <h3>Faculty &amp; staff reviewers</h3>
+      <p>You use the dedicated review link on this page, which opens a pathway selector so you can compare all four genre journeys side by side.</p>
+    </div>
+    <div class="context-card">
+      <span class="context-num">3 · Evaluator feedback mode</span>
+      <h3>Structured notes</h3>
+      <p>You share observations on UX, pedagogy, bilingual access, genre fit, AI transparency, mobile usability, and pilot readiness using the checklist below.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ════════ ENTER REVIEW MODE ════════ -->
+<section id="enter-review">
+  <div class="section-label">Getting in</div>
+  <h2 class="section-title">How to enter review mode</h2>
+  <p class="section-sub">One link opens the pathway selector; direct links jump straight into a pathway.</p>
+
+  <div class="review-link-panel">
+    <div class="callout-title" style="color: var(--jade);">Canonical colleague / evaluator link</div>
+    <a class="big-link" href="https://vikthor1.github.io/tu-pana/?review=colleague" target="_blank" rel="noopener">https://vikthor1.github.io/tu-pana/?review=colleague</a>
+    <div class="dont-share">Do not share this link with students during Pilot 2. · No compartas este enlace con estudiantes durante Pilot 2.</div>
+    <p style="font-size:0.9rem; margin-top:14px;">You will see a <strong>“Modo de revisión · Review mode”</strong> selector and badge. Choosing a pathway opens it exactly as a student would experience it — plus the visible review badge.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:1.05rem; margin-bottom:10px;">Direct pathway review links</h3>
+    <table class="stage-table">
+      <tr><th>Pathway</th><th>Direct review link</th></tr>
+      <tr>
+        <td><span class="stage-name-es">Ensayo autobiográfico de género mixto</span><span class="stage-name-en">Autobiographical Mixed-Genre Essay</span></td>
+        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=generic" target="_blank" rel="noopener">…/tu-pana/?review=colleague&amp;assignment=generic</a></td>
+      </tr>
+      <tr>
+        <td><span class="stage-name-es">Informe de aprendizaje-servicio</span><span class="stage-name-en">Service-Learning Report</span></td>
+        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=cap200-bronx-beautiful-service-learning" target="_blank" rel="noopener">…/tu-pana/?review=colleague&amp;assignment=cap200-bronx-beautiful-service-learning</a></td>
+      </tr>
+      <tr>
+        <td><span class="stage-name-es">Trabajo de investigación</span><span class="stage-name-en">Research Paper</span></td>
+        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=research-paper" target="_blank" rel="noopener">…/tu-pana/?review=colleague&amp;assignment=research-paper</a></td>
+      </tr>
+      <tr>
+        <td><span class="stage-name-es">Informe de laboratorio STEM</span><span class="stage-name-en">STEM Lab Report</span></td>
+        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=stem-lab-report" target="_blank" rel="noopener">…/tu-pana/?review=colleague&amp;assignment=stem-lab-report</a></td>
+      </tr>
+    </table>
+    <p class="alias-note">Testing note: <code>?review=true</code> works as an alias of the review flag; the published colleague link is <code>?review=colleague</code>. Review mode lives only in the URL and is never saved. Your progress is stored only in your own browser — use a private window if you want a fresh first-run experience per pathway.</p>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ════════ FOUR PATHWAYS ════════ -->
+<section id="pathways">
+  <div class="section-label">What you are comparing</div>
+  <h2 class="section-title">The four genre pathways</h2>
+  <p class="section-sub">One 10-step writing journey — with an unassisted first-draft authorship gate, voice protection, process evidence, and AI-use transparency — carries all four genres.</p>
+  <div class="path-grid">
+    <div class="path-card path-card--jade">
+      <h3>Autobiographical Mixed-Genre Essay</h3>
+      <span class="path-es">Ensayo autobiográfico de género mixto</span>
+      <p>Personal, reflective, analytical writing that connects lived experience, course concepts, and community knowledge. Tu Pana’s base pathway.</p>
+    </div>
+    <div class="path-card path-card--gold">
+      <h3>Service-Learning Report</h3>
+      <span class="path-es">Informe de aprendizaje-servicio</span>
+      <p>Community-engaged writing that connects field experience, observation, reflection, evidence, and public-facing analysis. (Currently profiled for CAP 200 “Bronx Beautiful”; the engine underneath is course-agnostic.)</p>
+    </div>
+    <div class="path-card path-card--clay">
+      <h3>Research Paper</h3>
+      <span class="path-es">Trabajo de investigación</span>
+      <p>Source-based academic writing that develops a research question, evidence, argument, structure, citation, and revision process. The coach never invents, retrieves, or verifies sources or citations.</p>
+    </div>
+    <div class="path-card path-card--ink">
+      <h3>STEM Lab Report</h3>
+      <span class="path-es">Informe de laboratorio STEM</span>
+      <p>Scientific writing (fuller name: <em>STEM Lab Report &amp; Scientific Explanation</em>) that supports lab context, method, observation/data, results, Claim–Evidence–Reasoning, limitations, and AI-use reflection. The coach never fabricates data, solves the science, verifies scientific correctness, or grades.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ════════ REVIEW TASKS ════════ -->
+<section id="tasks">
+  <div class="section-label">What to do</div>
+  <h2 class="section-title">Review tasks</h2>
+  <p class="section-sub">About 25–30 minutes total, or review just the pathway closest to your discipline.</p>
+  <div class="card">
+    <ol class="steps">
+      <li><strong>Try each pathway for 5–7 minutes.</strong> Start where a student starts: write a few honest sentences in the draft panel, walk a few steps of the journey.</li>
+      <li><strong>Open the support tools.</strong> Look at Help, the Five Questions, and “Estoy atascado · I’m stuck.”</li>
+      <li><strong>Test the coach’s boundaries.</strong> Try one thing a shortcut-seeking student would try (e.g., “write it for me”) and watch how the coach responds.</li>
+      <li><strong>Look at the finish.</strong> Open the finish/export flow and skim the process report a student would submit.</li>
+      <li><strong>Compare across pathways.</strong> Genre clarity, support, bilingual access, AI transparency, and finish/export logic.</li>
+    </ol>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ════════ CHECKLIST ════════ -->
+<section id="checklist">
+  <div class="section-label">What to notice</div>
+  <h2 class="section-title">Evaluation checklist</h2>
+  <p class="section-sub">Ten questions — jot quick notes as you go.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li>Is the writing task clear within the first 60 seconds?</li>
+      <li>Does each pathway feel distinct but part of one coherent Tu Pana system?</li>
+      <li>Does the draft area remain central?</li>
+      <li>Do Help, Five Questions, and “I’m stuck” support without overwhelming?</li>
+      <li>Does bilingual support feel empowering rather than heavy?</li>
+      <li>Is AI presented as coaching, not authorship replacement?</li>
+      <li>Does finish/export make sense across all pathways?</li>
+      <li>Does STEM support scientific writing without checking, solving, grading, or fabricating science?</li>
+      <li>What would confuse a real student under deadline pressure?</li>
+      <li>What would help an instructor trust this enough to pilot?</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="check-group-title">Tag each note with one of</div>
+    <div class="cat-row">
+      <span class="cat-chip">Must fix before student use</span>
+      <span class="cat-chip">Confusing but not blocking</span>
+      <span class="cat-chip">Nice to have</span>
+      <span class="cat-chip">Future idea</span>
+      <span class="cat-chip">Intentional design worth preserving</span>
+      <span class="cat-chip">Pilot-readiness concern</span>
+      <span class="cat-chip">Instructor trust concern</span>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ════════ FEEDBACK ════════ -->
+<section id="feedback">
+  <div class="section-label">Sharing what you found</div>
+  <h2 class="section-title">Feedback</h2>
+  <p class="section-sub">Notes in any format are welcome — per-pathway headings help.</p>
+
+  <div class="callout callout--jade">
+    <div class="callout-title">Feedback form coming next</div>
+    <p>A revised, shorter colleague feedback form is being developed for Tu Pana as a Writing Studio. It will be succinct and aligned with adoption-oriented review questions: <strong>classroom fit, genre clarity, student usability, bilingual access, AI transparency, instructor trust, and pilot readiness.</strong></p>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <div class="check-group-title" style="color: var(--ink-muted);">Temporary placeholder</div>
+    <p style="font-size:0.92rem;">Placeholder form — a revised, shorter colleague feedback form will replace this link before broader faculty review. The form below comes from an earlier pilot packet and is longer than what this review needs; feel free to answer selectively, or simply email your notes instead.</p>
+    <div class="feedback-actions" style="margin-top:16px;">
+      <a class="feedback-button feedback-button--secondary" href="https://docs.google.com/forms/d/e/1FAIpQLSekug6vC14PvRUMe5_MOxqbHEfXDZ2SS5QTBFFAVTqFAr59CQ/viewform" target="_blank" rel="noopener">Open the temporary feedback form</a>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ════════ OPEN ITEMS ════════ -->
+<section id="open-items">
+  <div class="section-label">Already known</div>
+  <h2 class="section-title">Known open items — don’t re-report these</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Stage 7 Flash truncation</strong> — long AI replies can cut off mid-sentence at the revision stage; known, separate issue with standing in-app guidance.</li>
+      <li><strong>Keyboard/focus refinements</strong> — stuck-menu keyboard completeness and help-panel return-focus remain future polish.</li>
+      <li><strong>Optional localization cleanup</strong> — a few bilingual surfaces are not yet language-gated (both languages always visible); known, not pilot-blocking.</li>
+      <li><strong>Spanish STEM microcopy</strong> — still needs a founder read-through before broad student use of the STEM pathway.</li>
+    </ul>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<!-- ════════ FOOTER ════════ -->
+<footer class="doc-footer">
+  <div class="foot-guard">Colleagues &amp; evaluators only — please do not share the review link with students during Pilot 2.</div>
+  <div>Tu Pana de Escritura · CUNY Hostos Community College · This packet describes review affordances only; it changes nothing about how pilot students access the app.</div>
+</footer>
+
+</body>
+</html>

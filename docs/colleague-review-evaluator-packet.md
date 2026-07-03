@@ -1,15 +1,15 @@
-# Tu Pana de Escritura — Colleague Review & Evaluator Packet
+# Tu Pana Writing Studio (Tu Pana de Escritura) — Colleague Review & Evaluator Packet
 
 **Audience:** faculty and staff colleagues reviewing Tu Pana as evaluators.
 **Not for students.** See the guardrail below before sharing anything from this packet.
 **Last updated:** 2026-07-03 · Product state: colleague review mode + four genre pathways live.
-**Faculty-facing version:** the polished webpage packet at `docs/colleague-review-evaluator-packet.html` is the version to share with colleagues; this Markdown file is its working companion. The HTML page also includes three anonymized early student comments from classroom use (presented as signals, not formal assessment results).
+**Faculty-facing version:** the polished webpage packet at `docs/colleague-review-evaluator-packet.html` is the version to share with colleagues; this Markdown file is its working companion. The HTML page also includes a short "From Pilot 1 to Pilot 2" section (preliminary classroom design learning — explicitly not formal assessment results) and three anonymized early student comments from classroom use (presented as signals, not statistics).
 
 ---
 
 ## 1. What Tu Pana is now
 
-Tu Pana de Escritura is a bilingual writing studio where students do the writing — and the AI never writes it for them. It is a Writing Across the Curriculum / Writing in the Disciplines studio for first-generation and multilingual students. It supports students as they develop research-grade writing across genres while using AI critically, transparently, and with their own voice and community knowledge at the center.
+**Tu Pana Writing Studio** — *Tu Pana de Escritura* in its bilingual, student-facing identity — is a bilingual writing studio where students do the writing — and the AI never writes it for them. The faculty/admin-facing name is Tu Pana Writing Studio; Tu Pana de Escritura remains the student-facing bilingual identity (display naming only — no app URLs, routes, or internal identifiers change). It is a Writing Across the Curriculum / Writing in the Disciplines studio for first-generation and multilingual students. It supports students as they develop research-grade writing across genres while using AI critically, transparently, and with their own voice and community knowledge at the center.
 
 It is no longer a single-assignment scaffold. One 10-step writing journey — with an unassisted first-draft authorship gate, voice protection, process evidence, and AI-use transparency — now carries four genre pathways. The AI coach gives feedback, structure, and reflection prompts; it never writes the student's work, never fabricates sources or data, and never grades.
 
@@ -87,4 +87,4 @@ Send notes to Dr. Víctor M. Torres-Vélez, Associate Professor, Eugenio María 
 
 ---
 
-*Tu Pana de Escritura · CUNY Hostos Community College · This packet describes review affordances only; it changes nothing about how pilot students access the app.*
+*Tu Pana Writing Studio · Tu Pana de Escritura · CUNY Hostos Community College · This packet describes review affordances only; it changes nothing about how pilot students access the app.*

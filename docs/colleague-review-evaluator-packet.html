@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tu Pana de Escritura — Colleague Review &amp; Evaluator Packet</title>
+<title>Tu Pana Writing Studio — Colleague Review &amp; Evaluator Packet</title>
 <style>
   /* ── Variables (shared visual system with the Tier 4 packet) ── */
   :root {
@@ -51,7 +51,11 @@
     font-family: var(--font-ui); font-size: 12px; font-weight: 600;
     letter-spacing: 0.12em; text-transform: uppercase; color: var(--jade-mid); margin-bottom: 14px;
   }
-  .hero h1 { color: #f7f4ef; font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 14px; }
+  .hero h1 { color: #f7f4ef; font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 6px; }
+  .hero-esname {
+    font-family: var(--font); font-style: italic; font-size: clamp(1rem, 2.4vw, 1.18rem);
+    color: var(--gold); letter-spacing: 0.04em; margin: 0 auto 14px;
+  }
   .hero-tagline { color: #f7f4ef; font-size: clamp(1.05rem, 2.8vw, 1.28rem); max-width: 640px; margin: 0 auto 12px; line-height: 1.5; }
   .hero-sub { color: #c8c1b4; font-size: 1.02rem; max-width: 620px; margin: 0 auto 26px; font-style: italic; }
   .hero-provenance {
@@ -259,6 +263,20 @@
   .foot-share-btn:hover { background: var(--surface); }
   .foot-share-btn:focus { outline: 2px solid var(--jade); outline-offset: 2px; }
 
+  /* ── Founder card ── */
+  .founder-card {
+    display: flex; gap: 22px; align-items: flex-start; text-align: left;
+    margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--border);
+  }
+  .founder-photo {
+    width: 108px; height: 108px; border-radius: 50%; object-fit: cover;
+    border: 3px solid var(--jade-light); box-shadow: var(--shadow); flex: 0 0 auto;
+  }
+  .founder-card p { font-size: 0.92rem; color: var(--ink-mid); }
+  @media (max-width: 700px) {
+    .founder-card { flex-direction: column; align-items: center; text-align: center; }
+  }
+
   /* ── Contact block ── */
   .contact-block {
     margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border);
@@ -288,6 +306,8 @@
     border-radius: var(--radius); padding: 18px 22px; box-shadow: var(--shadow); margin: 0 0 12px;
   }
   .quote-card blockquote { font-size: 0.98rem; color: var(--ink-mid); font-style: italic; }
+  .pub-list { font-size: 0.9rem; color: var(--ink-mid); margin-top: 8px; }
+  .pub-list li { margin-bottom: 0.55em; }
   .quote-note {
     font-family: var(--font-ui); font-size: 12.5px; color: var(--ink-muted);
     margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
@@ -405,7 +425,8 @@
     <path class="tp-av-steam s2" d="M211 109 C204 98,218 92,211 80"/>
     <path class="tp-av-steam s3" d="M223 108 C216 98,230 93,223 82"/>
   </svg>
-  <h1>Tu Pana de Escritura</h1>
+  <h1>Tu Pana Writing Studio</h1>
+  <p class="hero-esname" lang="es">Tu Pana de Escritura</p>
   <p class="hero-tagline">A bilingual writing studio where students do the writing — and the AI never writes it for them.</p>
   <p class="hero-sub">Tu Pana coaches structure, evidence, revision, and reflection across four college genres — in English and Spanish — while keeping each student’s own voice, effort, and community knowledge at the center, and documenting how AI was used at every step.</p>
   <div class="focus-row">
@@ -432,6 +453,8 @@
     <a class="quick-nav-btn" href="#problem">The Problem</a>
     <a class="quick-nav-btn" href="#why-now">Why Now</a>
     <a class="quick-nav-btn" href="#different">What’s Different</a>
+    <a class="quick-nav-btn" href="#origin">Origin</a>
+    <a class="quick-nav-btn" href="#pilot-evidence">Pilot 1 → 2</a>
     <a class="quick-nav-btn" href="#student-voices">Student Signals</a>
     <a class="quick-nav-btn" href="#enter-review">Enter Review Mode</a>
     <a class="quick-nav-btn" href="#pathways">Four Pathways</a>
@@ -528,9 +551,51 @@
 
 <hr class="section-rule">
 
+<!-- ════════ ORIGIN / PROVENANCE ════════ -->
+<section id="origin">
+  <div class="section-label"><span class="section-num">04</span> · Where this came from</div>
+  <h2 class="section-title">Built from teaching at an HSI</h2>
+  <p class="section-sub">Classroom provenance — who this was designed with, and what the name means.</p>
+  <div class="card">
+    <p>Tu Pana Writing Studio began in classroom teaching, not in a software lab. It grew out of Dr. Víctor M. Torres-Vélez’s teaching at Eugenio María de Hostos Community College (CUNY) in the South Bronx — a Hispanic-Serving Institution — and it was designed with the students in those classrooms in mind: first-generation, multilingual, Caribbean, Puerto Rican, Latinx, Spanish-speaking, and Central American writers whose voices, languages, and community knowledge are treated as assets to build on, not deficits to correct.</p>
+    <p>The name carries the design philosophy. In Caribbean and Latin American Spanish, a <em lang="es">pana</em> is a trusted friend — the companion who sits beside you and helps you get through. <em lang="es">Tu Pana de Escritura</em> is meant to be exactly that: a writing companion, not a ghost-writer — a peer guide that keeps the student doing the writing, supports them across both of their languages, and never replaces their voice with its own.</p>
+  </div>
+  <div class="card">
+    <h3 style="font-size:1.08rem; margin-bottom:8px;">Research and teaching foundation</h3>
+    <p style="font-size:0.95rem;">Tu Pana Writing Studio is informed by Dr. Torres-Vélez’s scholarship and teaching on Latinx and Caribbean studies, anthropology, multilingual pedagogy, language, writing, environmental justice, and educational equity. The studio translates that work into a practical writing environment for the AI era. Selected work behind that foundation:</p>
+    <ul class="pub-list">
+      <li>García-Barroso, L., &amp; Torres-Vélez, V. M. (2023). “A Shifting Language-scape: Multiliteracies and Language Policies for Non-traditional Students in the Hispanic Bronx.” <em>European Journal of Language Policy, 15</em>(2), 299–323.</li>
+      <li>Torres-Vélez, V. M. (2023). “Beyond the Pen: Of Arrivals, Tricky Encounters and Activism in Vieques, PR.” In <em>Social Activism — New Challenges in a (Dis)Connected World</em>. IntechOpen.</li>
+      <li>Torres-Vélez, V. M. (2021). “Dolor y Rabia: The Passionate Politics of Women’s Activism in Vieques, Puerto Rico.” <em>Latino Studies</em>.</li>
+      <li>Torres-Vélez, V. M. (2018). “Reification, Biomedicine, and Bombs: Women’s Politicization in Vieques’ Social Movement.” In <em>Disability Studies and the Environmental Humanities: Toward an Eco-Crip Theory</em>. University of Nebraska Press.</li>
+    </ul>
+    <p style="font-size:0.85rem; color:var(--ink-muted); margin-top:10px;">Listed as intellectual and pedagogical foundations of the studio’s design — not as evaluations of the app itself.</p>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ════════ PILOT 1 → PILOT 2 ════════ -->
+<section id="pilot-evidence">
+  <div class="section-label"><span class="section-num">05</span> · Early classroom evidence</div>
+  <h2 class="section-title">From Pilot 1 to Pilot 2</h2>
+  <p class="section-sub">Preliminary design learning from a first classroom pilot — not formal assessment results.</p>
+  <div class="card">
+    <p>Pilot 2 is not starting from scratch. An initial classroom pilot at Hostos earlier this summer — documented in an internal, anonymized evaluation drawing on student surveys, in-app process reports, submitted essays, and structured tester feedback — helped identify where the studio’s design was already resonating with students and where it needed refinement.</p>
+    <p>The strongest early signal was not simply that students found the tool useful. It was that students experienced the coach as respectful of their voice and language practices — including bilingual and code-switching writing. The same pilot was just as valuable for what it exposed: moments where AI coaching could drift toward supplying language instead of protecting the student’s own, and navigation friction that got in the way of the pedagogy.</p>
+    <p>Those findings shaped the version now in Pilot 2: stronger authorship gates, clearer process evidence, more careful bilingual support, genre-specific pathways, and a firmer emphasis on AI as coaching rather than replacement writing.</p>
+  </div>
+  <div class="callout callout--gold">
+    <div class="callout-title">How to read this</div>
+    <p>These are preliminary classroom observations from a small first pilot, shared to show how the studio learns and improves between pilots. They are not published research, formal assessment results, or proof of outcomes.</p>
+  </div>
+</section>
+
+<hr class="section-rule">
+
 <!-- ════════ STUDENT SIGNALS ════════ -->
 <section id="student-voices">
-  <div class="section-label"><span class="section-num">04</span> · Early signals</div>
+  <div class="section-label"><span class="section-num">06</span> · Early signals</div>
   <h2 class="section-title">What students noticed in early use</h2>
   <p class="section-sub">Anonymized comments from classroom use — signals, not statistics.</p>
   <figure class="quote-card">
@@ -549,7 +614,7 @@
 
 <!-- ════════ ENTER REVIEW MODE ════════ -->
 <section id="enter-review">
-  <div class="section-label"><span class="section-num">05</span> · Getting in</div>
+  <div class="section-label"><span class="section-num">07</span> · Getting in</div>
   <h2 class="section-title">How to enter review mode</h2>
   <p class="section-sub">One link opens the pathway selector; direct links jump straight into a pathway.</p>
 
@@ -599,7 +664,7 @@
 
 <!-- ════════ FOUR PATHWAYS ════════ -->
 <section id="pathways">
-  <div class="section-label"><span class="section-num">06</span> · What you are comparing</div>
+  <div class="section-label"><span class="section-num">08</span> · What you are comparing</div>
   <h2 class="section-title">The four genre pathways</h2>
   <p class="section-sub">One 10-step writing journey — with an unassisted first-draft authorship gate, voice protection, process evidence, and AI-use transparency — carries all four genres.</p>
   <div class="path-grid">
@@ -630,7 +695,7 @@
 
 <!-- ════════ REVIEW TASKS ════════ -->
 <section id="tasks">
-  <div class="section-label"><span class="section-num">07</span> · What to do</div>
+  <div class="section-label"><span class="section-num">09</span> · What to do</div>
   <h2 class="section-title">Review tasks</h2>
   <p class="section-sub">About 25–30 minutes total, or review just the pathway closest to your discipline.</p>
   <div class="card">
@@ -648,7 +713,7 @@
 
 <!-- ════════ CHECKLIST ════════ -->
 <section id="checklist">
-  <div class="section-label"><span class="section-num">08</span> · What to notice</div>
+  <div class="section-label"><span class="section-num">10</span> · What to notice</div>
   <h2 class="section-title">Evaluation checklist</h2>
   <p class="section-sub">Ten questions — jot quick notes as you go.</p>
   <div class="card">
@@ -689,7 +754,7 @@
 
   <div class="callout callout--jade">
     <div class="callout-title">Feedback form coming next</div>
-    <p>A revised, shorter colleague feedback form is being developed for Tu Pana as a Writing Studio. It will be succinct and aligned with adoption-oriented review questions: <strong>classroom fit, genre clarity, student usability, bilingual access, AI transparency, instructor trust, and pilot readiness.</strong></p>
+    <p>A revised, shorter colleague feedback form is being developed for Tu Pana Writing Studio. It will be succinct and aligned with adoption-oriented review questions: <strong>classroom fit, genre clarity, student usability, bilingual access, AI transparency, instructor trust, and pilot readiness.</strong></p>
   </div>
 
   <div class="card" style="text-align:center;">
@@ -721,12 +786,19 @@
 
 <!-- ════════ ADOPTION ════════ -->
 <section id="adopt">
-  <div class="section-label"><span class="section-num">09</span> · Beyond this review</div>
+  <div class="section-label"><span class="section-num">11</span> · Beyond this review</div>
   <h2 class="section-title">If this fits your course or program</h2>
   <div class="card card--cta">
     <p>Tu Pana is growing deliberately — assignment by assignment, pilot by pilot, with process evidence at every step. If you teach or oversee a writing-intensive course in any discipline and can imagine one assignment that would benefit from a guided, genre-aware pathway like the four above, a conversation costs nothing.</p>
     <p>Pilots stay small and guarded: your students would receive instructor-issued, assignment-specific links — never the review selector — and you would see the process evidence their work generates.</p>
     <p style="margin-top:14px;"><strong>Interested?</strong> Reach out with your course, the assignment you have in mind, or simply your questions — or include a note with your reviewer feedback.</p>
+    <div class="founder-card">
+      <img class="founder-photo" src="assets/torres-velez-headshot.jpg" alt="Portrait of Dr. Víctor M. Torres-Vélez" width="600" height="749">
+      <div>
+        <div class="check-group-title">About the founder</div>
+        <p>Dr. Víctor M. Torres-Vélez is Associate Professor at Eugenio María de Hostos Community College, CUNY. His teaching and scholarship focus on Latinx and Caribbean studies, anthropology, multilingual pedagogy, writing, language, and educational equity. Tu Pana Writing Studio grew out of his classroom work with first-generation, multilingual, Caribbean, Puerto Rican, Latinx, Spanish-speaking, and Central American students at a Hispanic-Serving Institution.</p>
+      </div>
+    </div>
     <div class="contact-block">
       <div class="contact-name">Dr. Víctor M. Torres-Vélez</div>
       <div class="contact-role">Associate Professor · Eugenio María de Hostos Community College, CUNY</div>
@@ -743,7 +815,7 @@
 <!-- ════════ FOOTER ════════ -->
 <footer class="doc-footer">
   <div class="foot-guard">Colleagues &amp; evaluators only — please do not share the review link with students during Pilot 2.</div>
-  <div>Tu Pana de Escritura · CUNY Hostos Community College · This packet describes review affordances only; it changes nothing about how pilot students access the app.</div>
+  <div>Tu Pana Writing Studio · <em lang="es">Tu Pana de Escritura</em> · CUNY Hostos Community College · This packet describes review affordances only; it changes nothing about how pilot students access the app.</div>
   <div class="foot-share copy-scope">
     <button type="button" class="foot-share-btn copy-btn" data-copy="https://vikthor1.github.io/tu-pana/docs/colleague-review-evaluator-packet.html" data-msg="Packet link copied · Enlace del paquete copiado">Copy packet link — share this page with a colleague</button>
     <div class="copy-status" role="status" aria-live="polite"></div>

@@ -16,6 +16,7 @@
     --jade:        #2d7a5f;
     --jade-light:  #e6f2ec;
     --jade-mid:    #4a9e7d;
+    --jade-deep:   #256a52;
     --gold:        #c8882a;
     --gold-light:  #fdf3e3;
     --clay:        #c4614a;
@@ -51,7 +52,12 @@
     letter-spacing: 0.12em; text-transform: uppercase; color: var(--jade-mid); margin-bottom: 14px;
   }
   .hero h1 { color: #f7f4ef; font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 14px; }
+  .hero-tagline { color: #f7f4ef; font-size: clamp(1.05rem, 2.8vw, 1.28rem); max-width: 640px; margin: 0 auto 12px; line-height: 1.5; }
   .hero-sub { color: #c8c1b4; font-size: 1.02rem; max-width: 620px; margin: 0 auto 26px; font-style: italic; }
+  .hero-provenance {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.05em; color: var(--gold); margin-top: 16px;
+  }
   .focus-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
   .focus-chip {
     background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
@@ -61,6 +67,55 @@
   .hero-instruction { color: #c8c1b4; font-size: 0.92rem; margin: 18px auto 0; max-width: 540px; font-style: italic; }
   .hero-app-url { font-family: var(--font-ui); font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 10px; letter-spacing: 0.02em; }
   .hero-app-url a { color: rgba(255,255,255,0.55); text-decoration: underline; }
+
+  /* ── Avatar icon (ported from the Tier 4 packet — shared mascot) ── */
+  .hero-avatar { margin: 0 auto 20px; display: block; width: 110px; height: 92px; }
+  .tp-av-bg      { fill: #f4dfbd; opacity: 0.82; }
+  .tp-av-glow    { fill: #f0c783; opacity: 0.18; transform-origin: 120px 110px; animation: tpAvGlow 4.2s ease-in-out infinite; }
+  .tp-av-laptop  { fill: #5f8a65; stroke: #315642; stroke-width: 4; stroke-linejoin: round; }
+  .tp-av-screen  { fill: #fffaf0; stroke: #315642; stroke-width: 3.5; stroke-linejoin: round; }
+  .tp-av-screen-inner { fill: #f7ecd8; opacity: 0.68; }
+  .tp-av-base    { fill: #e8ddc8; stroke: #315642; stroke-width: 3.5; stroke-linejoin: round; }
+  .tp-av-trackpad { fill: #fffaf0; stroke: rgba(49,86,66,0.5); stroke-width: 2; }
+  .tp-av-key     { fill: rgba(49,86,66,0.38); }
+  .tp-av-line    { fill: none; stroke: #c68642; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 76; stroke-dashoffset: 76; animation: tpAvLine 4.8s ease-in-out infinite; }
+  .tp-av-line.l2 { stroke-dasharray: 62; stroke-dashoffset: 62; animation-delay: 0.42s; }
+  .tp-av-line.l3 { stroke-dasharray: 48; stroke-dashoffset: 48; animation-delay: 0.84s; }
+  .tp-av-cursor  { fill: #315642; animation: tpAvCursor 1s steps(1,end) infinite; }
+  .tp-av-spark   { fill: #d79638; opacity: 0.78; transform-origin: center; animation: tpAvSpark 2.8s ease-in-out infinite; }
+  .tp-av-cup     { fill: #fff7ea; stroke: #315642; stroke-width: 3.5; stroke-linejoin: round; }
+  .tp-av-coffee  { fill: #6b4329; opacity: 0.9; }
+  .tp-av-handle  { fill: none; stroke: #315642; stroke-width: 3.5; stroke-linecap: round; }
+  .tp-av-saucer  { fill: #eadfce; stroke: #315642; stroke-width: 3; }
+  .tp-av-steam   { fill: none; stroke: #8a6b4d; stroke-width: 3.2; stroke-linecap: round; opacity: 0.62; animation: tpAvSteam 3.4s ease-in-out infinite; }
+  .tp-av-steam.s2 { animation-delay: 0.45s; }
+  .tp-av-steam.s3 { animation-delay: 0.9s; }
+  @keyframes tpAvGlow {
+    0%,100% { transform: scale(0.96); opacity: 0.14; }
+    50%     { transform: scale(1.05); opacity: 0.28; }
+  }
+  @keyframes tpAvLine {
+    0%,18%  { stroke-dashoffset: 76; }
+    45%,78% { stroke-dashoffset: 0; }
+    100%    { stroke-dashoffset: 76; }
+  }
+  @keyframes tpAvCursor {
+    0%,48%   { opacity: 1; }
+    49%,100% { opacity: 0; }
+  }
+  @keyframes tpAvSteam {
+    0%   { transform: translateY(8px) scale(0.92); opacity: 0; }
+    35%  { opacity: 0.55; }
+    70%  { opacity: 0.4; }
+    100% { transform: translateY(-14px) scale(1.08); opacity: 0; }
+  }
+  @keyframes tpAvSpark {
+    0%,100% { transform: scale(0.9) rotate(0deg); opacity: 0.4; }
+    50%     { transform: scale(1.12) rotate(8deg); opacity: 0.9; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tp-av-glow, .tp-av-line, .tp-av-cursor, .tp-av-steam, .tp-av-spark { animation: none; }
+  }
 
   /* ── Buttons ── */
   .feedback-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
@@ -98,7 +153,7 @@
     margin-right: 4px; white-space: nowrap;
   }
   .quick-nav-btn {
-    font-family: var(--font-ui); font-size: 11px; font-weight: 600; color: var(--jade);
+    font-family: var(--font-ui); font-size: 11px; font-weight: 600; color: var(--jade-deep);
     text-decoration: none; padding: 4px 11px; border: 1px solid var(--jade-light);
     border-radius: 20px; background: var(--jade-light); white-space: nowrap;
     transition: background 0.12s, color 0.12s;
@@ -240,7 +295,11 @@
   @media (max-width: 700px) {
     .path-grid, .context-grid { grid-template-columns: 1fr; }
     .card, .review-link-panel { padding: 20px 18px; }
-    .quick-nav { overflow-x: auto; }
+    .quick-nav {
+      overflow-x: auto;
+      -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 34px), transparent);
+      mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 34px), transparent);
+    }
     .quick-nav-inner { flex-wrap: nowrap; }
     .quick-nav-btn { flex: 0 0 auto; }
   }
@@ -251,8 +310,37 @@
 <!-- ════════ HERO ════════ -->
 <div class="hero" id="hero">
   <div class="hero-eyebrow">Colleague Review · Evaluator Packet</div>
+  <svg class="hero-avatar" viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tu Pana — laptop writing companion with coffee">
+    <circle class="tp-av-bg" cx="120" cy="110" r="96"/>
+    <circle class="tp-av-glow" cx="120" cy="110" r="76"/>
+    <ellipse fill="rgba(49,86,66,0.14)" cx="130" cy="178" rx="94" ry="15"/>
+    <path class="tp-av-laptop" d="M49 51H158C164 51,169 56,169 62V139H38V62C38 56,43 51,49 51Z"/>
+    <rect class="tp-av-screen" x="52" y="65" width="103" height="61" rx="8"/>
+    <rect class="tp-av-screen-inner" x="62" y="76" width="83" height="39" rx="6"/>
+    <path class="tp-av-line" d="M70 86 H130"/>
+    <path class="tp-av-line l2" d="M70 98 H122"/>
+    <path class="tp-av-line l3" d="M70 110 H111"/>
+    <rect class="tp-av-cursor" x="133" y="82" width="4" height="12" rx="1"/>
+    <path class="tp-av-base" d="M28 139H179L196 163C198 166,195 170,190 170H17C12 170,10 166,13 163Z"/>
+    <rect class="tp-av-trackpad" x="80" y="150" width="44" height="10" rx="4"/>
+    <rect class="tp-av-key" x="43" y="149" width="8" height="5" rx="2"/>
+    <rect class="tp-av-key" x="56" y="149" width="8" height="5" rx="2"/>
+    <rect class="tp-av-key" x="69" y="149" width="8" height="5" rx="2"/>
+    <rect class="tp-av-key" x="132" y="149" width="8" height="5" rx="2"/>
+    <rect class="tp-av-key" x="145" y="149" width="8" height="5" rx="2"/>
+    <rect class="tp-av-key" x="158" y="149" width="8" height="5" rx="2"/>
+    <path class="tp-av-spark" d="M181 45L185 54L194 58L185 62L181 71L177 62L168 58L177 54Z"/>
+    <ellipse class="tp-av-saucer" cx="211" cy="165" rx="30" ry="8"/>
+    <path class="tp-av-cup" d="M188 121H229L224 158C222 166,195 166,193 158Z"/>
+    <ellipse class="tp-av-coffee" cx="208.5" cy="122" rx="19" ry="5"/>
+    <path class="tp-av-handle" d="M229 132C243 132,243 153,227 153"/>
+    <path class="tp-av-steam" d="M199 108 C192 98,206 93,199 82"/>
+    <path class="tp-av-steam s2" d="M211 109 C204 98,218 92,211 80"/>
+    <path class="tp-av-steam s3" d="M223 108 C216 98,230 93,223 82"/>
+  </svg>
   <h1>Tu Pana de Escritura</h1>
-  <p class="hero-sub">Tu Pana de Escritura is a bilingual Writing Across the Curriculum / Writing in the Disciplines studio for first-generation and multilingual students. It supports students as they develop research-grade writing across genres while using AI critically, transparently, and with their own voice and community knowledge at the center.</p>
+  <p class="hero-tagline">A bilingual writing studio where students do the writing — and the AI never writes it for them.</p>
+  <p class="hero-sub">Tu Pana coaches structure, evidence, revision, and reflection across four college genres — in English and Spanish — while keeping each student’s own voice, effort, and community knowledge at the center, and documenting how AI was used at every step.</p>
   <div class="focus-row">
     <span class="focus-chip">Autobiographical Mixed-Genre Essay</span>
     <span class="focus-chip">Service-Learning Report</span>
@@ -263,6 +351,7 @@
     <a class="feedback-button feedback-button--primary" href="https://vikthor1.github.io/tu-pana/?review=colleague" target="_blank" rel="noopener">Open Tu Pana in Review Mode</a>
   </div>
   <p class="hero-instruction">Colleagues &amp; evaluators only — this link opens a pathway selector so you can compare all four genre journeys.<br><em>Solo para colegas y evaluadores — este enlace abre un selector para comparar los cuatro caminos de escritura.</em></p>
+  <p class="hero-provenance">Faculty-built at CUNY Hostos Community College · now in its second classroom pilot</p>
   <p class="hero-app-url">Review link: <a href="https://vikthor1.github.io/tu-pana/?review=colleague" target="_blank" rel="noopener">https://vikthor1.github.io/tu-pana/?review=colleague</a></p>
 </div>
 
@@ -271,13 +360,16 @@
   <div class="quick-nav-inner">
     <span class="quick-nav-label">Jump to</span>
     <a class="quick-nav-btn" href="#guardrail">Guardrail</a>
-    <a class="quick-nav-btn" href="#contexts">Reviewer Contexts</a>
+    <a class="quick-nav-btn" href="#problem">The Problem</a>
+    <a class="quick-nav-btn" href="#why-now">Why Now</a>
+    <a class="quick-nav-btn" href="#different">What’s Different</a>
     <a class="quick-nav-btn" href="#enter-review">Enter Review Mode</a>
     <a class="quick-nav-btn" href="#pathways">Four Pathways</a>
     <a class="quick-nav-btn" href="#tasks">Review Tasks</a>
     <a class="quick-nav-btn" href="#checklist">Checklist</a>
     <a class="quick-nav-btn" href="#feedback">Feedback</a>
     <a class="quick-nav-btn" href="#open-items">Open Items</a>
+    <a class="quick-nav-btn" href="#adopt">Adoption</a>
   </div>
 </nav>
 
@@ -292,26 +384,66 @@
   </div>
 </section>
 
-<!-- ════════ REVIEWER CONTEXTS ════════ -->
-<section id="contexts">
-  <div class="section-label">How this review fits</div>
-  <h2 class="section-title">Three reviewer contexts</h2>
-  <p class="section-sub">One app, three ways of encountering it — you are in the second and third.</p>
+<!-- ════════ THE PROBLEM ════════ -->
+<section id="problem">
+  <div class="section-label">The problem</div>
+  <h2 class="section-title">What Tu Pana solves</h2>
+  <p class="section-sub">The question AI has put in front of every writing-intensive course: did the student do the thinking?</p>
+  <div class="card">
+    <p>Generative AI has put writing faculty in an impossible position. Ban it, and student use moves underground while rule-followers lose a tool their peers quietly use. Allow it, and submitted work becomes unverifiable. Rely on detectors, and you get confidence scores that cannot be defended — with multilingual writers running the greatest risk of being wrongly flagged. None of these answers the question that actually matters: <em>did the student do the thinking and the writing?</em></p>
+    <p>The stakes are highest for first-generation and multilingual students. They arrive with knowledge and voice their institutions need, but with the least access to the private tutoring and insider know-how that make academic writing feel navigable — which makes an AI ghost-writer most tempting exactly where it does the most damage. These students need support that builds their writing rather than replacing it, in a form their instructors can actually trust.</p>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ════════ WHY NOW ════════ -->
+<section id="why-now">
+  <div class="section-label">Why this matters now</div>
+  <h2 class="section-title">Built for the moment universities are in</h2>
+  <p class="section-sub">Higher education is converging on disclosure, authorship, and AI literacy. Tu Pana is built from those principles — not retrofitted to them.</p>
   <div class="context-grid">
     <div class="context-card">
-      <span class="context-num">1 · Student-pilot mode</span>
-      <h3>Students</h3>
-      <p>Real students use independent, assignment-specific URLs given by their instructor. Their link <em>is</em> their pathway — no genre choice inside the app.</p>
+      <span class="context-num">Disclosure</span>
+      <h3>AI use documented, not suspected</h3>
+      <p>Students finish with a process report showing how AI was used along the way — what was asked, what feedback was accepted or questioned. Disclosure becomes evidence, not an honor pledge.</p>
     </div>
     <div class="context-card">
-      <span class="context-num">2 · Colleague review mode</span>
-      <h3>Faculty &amp; staff reviewers</h3>
-      <p>You use the dedicated review link on this page, which opens a pathway selector so you can compare all four genre journeys side by side.</p>
+      <span class="context-num">Authorship</span>
+      <h3>The first draft is the student’s alone</h3>
+      <p>An unassisted first-draft gate means AI coaching begins only after the student has written. Authorship isn’t policed after the fact — it’s structured in from the start.</p>
     </div>
     <div class="context-card">
-      <span class="context-num">3 · Evaluator feedback mode</span>
-      <h3>Structured notes</h3>
-      <p>You share observations on UX, pedagogy, bilingual access, genre fit, AI transparency, mobile usability, and pilot readiness using the checklist below.</p>
+      <span class="context-num">AI literacy</span>
+      <h3>Critical use is the curriculum</h3>
+      <p>Students practice questioning, accepting, and rejecting AI feedback — with their reasoning captured — so they learn to use AI without being used by it.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ════════ WHAT MAKES IT DIFFERENT ════════ -->
+<section id="different">
+  <div class="section-label">What makes it different</div>
+  <h2 class="section-title">Not a chatbot, not a detector</h2>
+  <p class="section-sub">Where Tu Pana departs from generic AI assistants, AI detectors, and syllabus-wrapped ChatGPT.</p>
+  <div class="path-grid">
+    <div class="path-card path-card--jade">
+      <h3>Coaching with hard boundaries</h3>
+      <p>The coach questions, structures, and gives feedback — and never writes the student’s text, never fabricates sources or data, and never grades. These are enforced design boundaries, not polite suggestions to the model.</p>
+    </div>
+    <div class="path-card path-card--gold">
+      <h3>Process evidence, not detection</h3>
+      <p>Instead of guessing after submission whether AI wrote a paper, Tu Pana records the writing process itself — drafting, revision decisions, AI interactions — as evidence the student submits with the work.</p>
+    </div>
+    <div class="path-card path-card--clay">
+      <h3>Bilingual and voice-centered</h3>
+      <p>English/Spanish support runs through the whole journey, and the coach is designed to strengthen how the student already sounds — not flatten them into a generic academic register.</p>
+    </div>
+    <div class="path-card path-card--ink">
+      <h3>One journey, four disciplines</h3>
+      <p>A single 10-step writing process carries genre-aware pathways for the humanities, community-engaged courses, research writing, and STEM — one coherent tool a program can adopt across the curriculum.</p>
     </div>
   </div>
 </section>
@@ -323,6 +455,11 @@
   <div class="section-label">Getting in</div>
   <h2 class="section-title">How to enter review mode</h2>
   <p class="section-sub">One link opens the pathway selector; direct links jump straight into a pathway.</p>
+
+  <div class="callout callout--jade">
+    <div class="callout-title">How this review fits</div>
+    <p>Pilot 2 students use independent, assignment-specific links — a student’s link <em>is</em> their pathway, with no genre choice inside the app. As a colleague or evaluator you use the review link below instead: it opens a pathway selector (with a visible review badge) so you can compare all four journeys, then share what you noticed via the checklist further down.</p>
+  </div>
 
   <div class="review-link-panel">
     <div class="callout-title" style="color: var(--jade);">Canonical colleague / evaluator link</div>
@@ -475,6 +612,19 @@
       <li><strong>Optional localization cleanup</strong> — a few bilingual surfaces are not yet language-gated (both languages always visible); known, not pilot-blocking.</li>
       <li><strong>Spanish STEM microcopy</strong> — still needs a founder read-through before broad student use of the STEM pathway.</li>
     </ul>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ════════ ADOPTION ════════ -->
+<section id="adopt">
+  <div class="section-label">Beyond this review</div>
+  <h2 class="section-title">If this fits your course or program</h2>
+  <div class="card">
+    <p>Tu Pana is growing deliberately — assignment by assignment, pilot by pilot, with process evidence at every step. If you teach or oversee a writing-intensive course in any discipline and can imagine one assignment that would benefit from a guided, genre-aware pathway like the four above, a conversation costs nothing.</p>
+    <p>Pilots stay small and guarded: your students would receive instructor-issued, assignment-specific links — never the review selector — and you would see the process evidence their work generates.</p>
+    <p style="margin-top:14px;"><strong>Interested?</strong> Reach out to Dr. Víctor Torres-Vélez (CUNY Hostos Community College) with your course, the assignment you have in mind, or simply your questions — or include a note with your reviewer feedback.</p>
   </div>
 </section>
 

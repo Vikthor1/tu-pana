@@ -307,7 +307,16 @@
   }
   .quote-card blockquote { font-size: 0.98rem; color: var(--ink-mid); font-style: italic; }
   .pub-list { font-size: 0.9rem; color: var(--ink-mid); margin-top: 8px; }
-  .pub-list li { margin-bottom: 0.55em; }
+  .pub-list li { margin-bottom: 0.8em; }
+  .pub-list details { margin-top: 4px; }
+  .pub-list summary {
+    cursor: pointer; font-family: var(--font-ui); font-size: 11.5px; font-weight: 600;
+    color: var(--jade-deep);
+  }
+  .pub-list details p {
+    font-size: 0.85rem; color: var(--ink-mid); margin: 6px 0 0;
+    padding: 8px 12px; background: var(--surface-alt); border-radius: var(--radius-sm);
+  }
   .quote-note {
     font-family: var(--font-ui); font-size: 12.5px; color: var(--ink-muted);
     margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
@@ -367,6 +376,21 @@
   .stage-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--ink-mid); vertical-align: top; }
   .stage-table tr:last-child td { border-bottom: none; }
   .stage-table td a { font-family: var(--font-ui); font-size: 12px; word-break: break-all; }
+  .stage-link-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  a.stage-open-btn {
+    font-family: var(--font-ui); font-size: 11.5px; font-weight: 700; color: var(--jade-deep);
+    text-decoration: none; padding: 5px 14px; border: 1px solid #b2d8c6; border-radius: 20px;
+    background: var(--jade-light); white-space: nowrap; word-break: normal;
+    transition: background 0.12s, color 0.12s;
+  }
+  a.stage-open-btn:hover { background: var(--jade); color: #fff; }
+  .stage-copy-btn {
+    font-family: var(--font-ui); font-size: 11.5px; font-weight: 600; color: var(--ink-mid);
+    background: none; border: 1px solid var(--border-mid); border-radius: 20px; padding: 5px 14px;
+    cursor: pointer; white-space: nowrap; transition: background 0.12s;
+  }
+  .stage-copy-btn:hover { background: var(--surface-alt); }
+  a.stage-open-btn:focus, .stage-copy-btn:focus { outline: 2px solid var(--jade); outline-offset: 2px; }
   .stage-name-es { color: var(--ink); font-weight: bold; display: block; }
   .stage-name-en { color: var(--ink-muted); font-size: 0.83rem; }
 
@@ -562,14 +586,32 @@
   </div>
   <div class="card">
     <h3 style="font-size:1.08rem; margin-bottom:8px;">Research and teaching foundation</h3>
-    <p style="font-size:0.95rem;">Tu Pana Writing Studio is informed by Dr. Torres-Vélez’s scholarship and teaching on Latinx and Caribbean studies, anthropology, multilingual pedagogy, language, writing, environmental justice, and educational equity. The studio translates that work into a practical writing environment for the AI era. Selected work behind that foundation:</p>
+    <p style="font-size:0.95rem;">Tu Pana Writing Studio is informed by Dr. Torres-Vélez’s scholarship and teaching on multilingual and multiliteracies pedagogy, open education, writing, and educational equity — much of it written from, and about, the same Hostos classrooms the studio grew out of. The studio translates that work into a practical writing environment for the AI era.</p>
+    <div class="check-group-title" style="margin-top:14px;">Research</div>
     <ul class="pub-list">
-      <li>García-Barroso, L., &amp; Torres-Vélez, V. M. (2023). “A Shifting Language-scape: Multiliteracies and Language Policies for Non-traditional Students in the Hispanic Bronx.” <em>European Journal of Language Policy, 15</em>(2), 299–323.</li>
-      <li>Torres-Vélez, V. M. (2023). “Beyond the Pen: Of Arrivals, Tricky Encounters and Activism in Vieques, PR.” In <em>Social Activism — New Challenges in a (Dis)Connected World</em>. IntechOpen.</li>
-      <li>Torres-Vélez, V. M. (2021). “Dolor y Rabia: The Passionate Politics of Women’s Activism in Vieques, Puerto Rico.” <em>Latino Studies</em>.</li>
-      <li>Torres-Vélez, V. M. (2018). “Reification, Biomedicine, and Bombs: Women’s Politicization in Vieques’ Social Movement.” In <em>Disability Studies and the Environmental Humanities: Toward an Eco-Crip Theory</em>. University of Nebraska Press.</li>
+      <li>García-Barroso, L., &amp; Torres-Vélez, V. M. (2023). “A shifting language-scape: Multiliteracies and language policies for non-traditional students in the Hispanic Bronx.” <em>European Journal of Language Policy, 15</em>(2), 299–323.
+        <details><summary>Abstract</summary><p>By engaging the literature of transnationalism and Latinx studies with that of multiliteracies, this article contends that the cultural and linguistic complexities experienced by Spanish-speaking populations in global cities can be better addressed by a multiliteracies framework. We argue that using multiliteracies to teach adult learners can challenge negative linguistic and cultural stereotypes in the classroom. We conducted a qualitative study with at-risk adult learners. Using a TV show, we developed a series of pedagogical interventions and exercises to encourage cultural and linguistic pride to mitigate pervasive negative stereotypes around Latinx in the US. We contend that the development of language policies needs to engage the linguistic and cultural complexities experienced by Spanish-speaking people within the diasporic communities of global cities. The study was conducted at Hostos Community College in the Bronx, NY. The study shows that our pedagogical interventions mitigate negative linguistic and cultural stereotypes.</p></details>
+      </li>
+      <li>García-Barroso, L., &amp; Torres-Vélez, V. M. (under review, 2026). “Teaching what travels: COIL-to-OER in a Latinx-serving community college.” <em>Open Education Studies</em>.
+        <details><summary>Abstract</summary><p>Pedagogical innovation in under-resourced institutions faces a structural paradox: the teaching practices most urgently needed by historically marginalized students are precisely those least likely to travel beyond the classrooms in which they are built. This article examines one attempt to disrupt that paradox at Hostos Community College in the South Bronx, where a Collaborative Online International Learning (COIL) module engaged Latinx students in comparative inquiry into structural violence and migration — a practice then converted into a CC&nbsp;BY&nbsp;4.0 openly licensed instructional package. Drawing on multiliteracies pedagogy, culturally sustaining pedagogy, and a social justice-aligned conception of open education, the article argues that OER development is most meaningful when it functions as political practice: the deliberate circulation of pedagogical commitments across institutional boundaries.</p></details>
+      </li>
+      <li>Torres-Vélez, V. M., with L. García-Barroso (manuscript, 2026). “Beyond Deficit Materials: Designing Open Educational Resources for Heritage Language Education.”
+        <details><summary>Abstract</summary><p>Heritage language education has moved decisively away from deficit models toward asset-based approaches that treat learners’ linguistic repertoires, cultural knowledge, and lived experience as resources for instruction — but instructional materials have not kept pace. This article argues that Open Educational Resources are not merely a cheaper alternative to commercial materials but a means of <em>enacting</em> anti-deficit, asset-based heritage language pedagogy, and advances a five-principle design framework: linguistic legitimacy, cultural and community relevance, adaptability, student voice and authorship, and open reuse.</p></details>
+      </li>
     </ul>
-    <p style="font-size:0.85rem; color:var(--ink-muted); margin-top:10px;">Listed as intellectual and pedagogical foundations of the studio’s design — not as evaluations of the app itself.</p>
+    <div class="check-group-title" style="margin-top:14px;">Teaching essays — Hostos Center for Teaching &amp; Learning</div>
+    <ul class="pub-list">
+      <li>Torres-Vélez, V. M. (forthcoming, Fall 2026). “What If the Problem Was Never the Student? AI, Writing, and the Limits of Deficit Pedagogy.” <em>The Hostos CTL Newsletter</em>.
+        <details><summary>About this essay</summary><p>A first-person essay tracing the deficit-model writing support the author encountered as a first-generation bilingual graduate student — and that his Hostos students still describe — to the design philosophy behind Tu Pana de Escritura: the studio’s pedagogical rationale, grounded in Freire, translingual and linguistic justice scholarship, and process-writing research, in the founder’s own voice.</p></details>
+      </li>
+      <li>Torres-Vélez, V. M. (forthcoming). “Co-Evolving Minds: The Role of AI in Shaping Our Future.” <em>Touchstone</em> (Teaching Tips), Hostos CTL.
+        <details><summary>About this essay</summary><p>A short Teaching Tips reflection on AI and teaching — framing human–AI co-evolution for the classroom.</p></details>
+      </li>
+      <li>Torres-Vélez, V. M. (2022). “Amidst the Pandemic: On Becoming a Shaman of Zeros-and-Ones at Hostos.” <em>Touchstone, 11</em>(1), 21–23. Hostos CTL.
+        <details><summary>About this essay</summary><p>A faculty reflection on pandemic-era teaching and the shift to technology-mediated instruction at Hostos.</p></details>
+      </li>
+    </ul>
+    <p style="font-size:0.85rem; color:var(--ink-muted); margin-top:10px;">Listed as the studio’s intellectual and pedagogical foundations — not as formal evaluations of the app itself.</p>
   </div>
 </section>
 
@@ -635,27 +677,40 @@
     <p style="font-size:0.9rem; margin-top:14px;">You will see a <strong>“Modo de revisión · Review mode”</strong> selector and badge. Choosing a pathway opens it exactly as a student would experience it — plus the visible review badge.</p>
   </div>
 
-  <div class="card">
+  <div class="card copy-scope">
     <h3 style="font-size:1.05rem; margin-bottom:10px;">Direct pathway review links</h3>
     <table class="stage-table">
       <tr><th>Pathway</th><th>Direct review link</th></tr>
       <tr>
         <td><span class="stage-name-es">Ensayo autobiográfico de género mixto</span><span class="stage-name-en">Autobiographical Mixed-Genre Essay</span></td>
-        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=generic" target="_blank" rel="noopener">?review=colleague&amp;assignment=generic</a></td>
+        <td><div class="stage-link-btns">
+          <a class="stage-open-btn" href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=generic" target="_blank" rel="noopener" aria-label="Open the Autobiographical Mixed-Genre Essay pathway in review mode">Open</a>
+          <button type="button" class="stage-copy-btn copy-btn" data-copy="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=generic" data-msg="Essay pathway review link copied · Enlace copiado" aria-label="Copy the Autobiographical Mixed-Genre Essay review link">Copy link</button>
+        </div></td>
       </tr>
       <tr>
         <td><span class="stage-name-es">Informe de aprendizaje-servicio</span><span class="stage-name-en">Service-Learning Report</span></td>
-        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=cap200-bronx-beautiful-service-learning" target="_blank" rel="noopener">?review=colleague&amp;assignment=cap200-bronx-beautiful-service-learning</a></td>
+        <td><div class="stage-link-btns">
+          <a class="stage-open-btn" href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=cap200-bronx-beautiful-service-learning" target="_blank" rel="noopener" aria-label="Open the Service-Learning Report pathway in review mode">Open</a>
+          <button type="button" class="stage-copy-btn copy-btn" data-copy="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=cap200-bronx-beautiful-service-learning" data-msg="Service-Learning pathway review link copied · Enlace copiado" aria-label="Copy the Service-Learning Report review link">Copy link</button>
+        </div></td>
       </tr>
       <tr>
         <td><span class="stage-name-es">Trabajo de investigación</span><span class="stage-name-en">Research Paper</span></td>
-        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=research-paper" target="_blank" rel="noopener">?review=colleague&amp;assignment=research-paper</a></td>
+        <td><div class="stage-link-btns">
+          <a class="stage-open-btn" href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=research-paper" target="_blank" rel="noopener" aria-label="Open the Research Paper pathway in review mode">Open</a>
+          <button type="button" class="stage-copy-btn copy-btn" data-copy="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=research-paper" data-msg="Research Paper pathway review link copied · Enlace copiado" aria-label="Copy the Research Paper review link">Copy link</button>
+        </div></td>
       </tr>
       <tr>
         <td><span class="stage-name-es">Informe de laboratorio STEM</span><span class="stage-name-en">STEM Lab Report</span></td>
-        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=stem-lab-report" target="_blank" rel="noopener">?review=colleague&amp;assignment=stem-lab-report</a></td>
+        <td><div class="stage-link-btns">
+          <a class="stage-open-btn" href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=stem-lab-report" target="_blank" rel="noopener" aria-label="Open the STEM Lab Report pathway in review mode">Open</a>
+          <button type="button" class="stage-copy-btn copy-btn" data-copy="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=stem-lab-report" data-msg="STEM Lab Report pathway review link copied · Enlace copiado" aria-label="Copy the STEM Lab Report review link">Copy link</button>
+        </div></td>
       </tr>
     </table>
+    <div class="copy-status" role="status" aria-live="polite" style="margin-top:8px;"></div>
     <p class="alias-note">Testing note: <code>?review=true</code> works as an alias of the review flag; the published colleague link is <code>?review=colleague</code>. Review mode lives only in the URL and is never saved. Your progress is stored only in your own browser — use a private window if you want a fresh first-run experience per pathway.</p>
   </div>
 </section>

@@ -3598,14 +3598,56 @@ function handleManiKey(e) {
 }
 
 // ════════════════════════════════════════════════════════
+//  REVIEW MODE (colleague/evaluator) — URL-scoped ONLY, never persisted.
+//  ?review=colleague (canonical, published) or ?review=true (alias) marks the
+//  session as a faculty/staff review session: a review-only pathway selector
+//  (link hub over the existing ?assignment= boot path) plus a visible badge.
+//  Normal student flow — bare links, assignment-specific links, the Stage B
+//  first-run chooser — is untouched when the parameter is absent.
+// ════════════════════════════════════════════════════════
+function isReviewMode() {
+    try {
+        const params = new URLSearchParams(location.search);
+        const v = params.get('review');
+        return v === 'colleague' || v === 'true';
+    } catch (e) { return false; }
+}
+
+// Visible review-mode badge — informational only (role=status, no pointer
+// events, nothing stored). Rendered once at boot when isReviewMode().
+function renderReviewBadge() {
+    if (document.getElementById('reviewModeBadge')) return;
+    const b = document.createElement('div');
+    b.id = 'reviewModeBadge';
+    b.setAttribute('role', 'status');
+    b.setAttribute('aria-label', 'Modo de revisión para colegas · Colleague review mode');
+    b.style.cssText = `
+        position:fixed; left:12px; bottom:12px; z-index:950;
+        pointer-events:none;
+        background: var(--amber, #b8860b); color:#fff;
+        font-family:'Source Sans 3',system-ui,sans-serif;
+        font-size:0.72rem; font-weight:700; letter-spacing:0.04em;
+        padding:5px 12px; border-radius:999px;
+        box-shadow: var(--shadow-md, 0 2px 8px rgba(0,0,0,0.25));
+    `;
+    b.textContent = 'Modo de revisión · Review mode';
+    document.body.appendChild(b);
+}
+
+// ════════════════════════════════════════════════════════
 //  PROJECT SELECTOR (Stage B) — minimal genre/profile chooser
 //  Regular-link access to a service-learning profile. Subtractive by design:
 //  one short question + compact option cards, then it chains into the normal
 //  landing → onboarding flow. Shown once on first run when no profile is active;
 //  a deep link (?assignment=…) or a prior choice skips it (gated in app.js).
 //  Bilingual labels (shown before the language step, so both are always visible).
+//  REVIEW VARIANT: showProjectSelector(true) renders the colleague/evaluator
+//  selector instead — getReviewProfiles() cards (incl. link-only layers) that
+//  NAVIGATE to ?review=colleague&assignment=<id>, applying state through the
+//  existing boot path. It mutates nothing and persists nothing itself. The
+//  no-argument student call sites keep the original behavior byte-for-byte.
 // ════════════════════════════════════════════════════════
-function showProjectSelector() {
+function showProjectSelector(review) {
     const overlay = document.createElement('div');
     overlay.id = 'projectSelector';
     overlay.style.cssText = `
@@ -3617,7 +3659,9 @@ function showProjectSelector() {
         padding: 40px 24px; overflow-y:auto;
     `;
 
-    const profiles = (typeof getSelectableProfiles === 'function') ? getSelectableProfiles() : [];
+    const profiles = review
+        ? ((typeof getReviewProfiles === 'function') ? getReviewProfiles() : [])
+        : ((typeof getSelectableProfiles === 'function') ? getSelectableProfiles() : []);
     const card = (id, labelEs, labelEn, descEs, descEn) => `
         <button class="project-option" data-assign="${id}" style="
             display:block; width:100%; text-align:left; cursor:pointer;
@@ -3629,10 +3673,21 @@ function showProjectSelector() {
             <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.8rem; color:var(--text-sub); line-height:1.4;">${descEs} · ${descEn}</div>
         </button>`;
 
-    let cards = card('__default__',
-        'Ensayo personal', 'Personal Essay',
-        'Tu ensayo autobiográfico con Tu Pana.', 'Your Tu Pana autobiographical essay.');
+    let cards = review
+        ? card('__default__',
+            'Ensayo autobiográfico de género mixto', 'Autobiographical Mixed-Genre Essay',
+            'El camino base de Tu Pana: memoria, análisis y conocimiento comunitario.', 'Tu Pana’s base pathway: memory, analysis, and community knowledge.')
+        : card('__default__',
+            'Ensayo personal', 'Personal Essay',
+            'Tu ensayo autobiográfico con Tu Pana.', 'Your Tu Pana autobiographical essay.');
     profiles.forEach(p => { cards += card(p.assignmentId, p.labelEs, p.labelEn, p.descEs, p.descEn); });
+
+    const heading = review
+        ? `<div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.2rem; font-weight:700; color:var(--text-primary); margin-bottom:4px;">Modo de revisión · Review mode</div>
+           <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.85rem; color:var(--text-sub); margin-bottom:10px;">Compara los caminos de escritura · Compare writing pathways</div>
+           <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.78rem; color:var(--text-sub); line-height:1.45; margin-bottom:18px; border-left:3px solid var(--amber, #b8860b); padding-left:10px;">Solo para colegas/evaluadores. No compartas este enlace con estudiantes durante Pilot 2.<br>For colleagues/evaluators only. Do not share this link with students during Pilot 2.</div>`
+        : `<div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.2rem; font-weight:700; color:var(--text-primary); margin-bottom:4px;">Elige tu proyecto · Choose your project</div>
+           <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.85rem; color:var(--text-sub); margin-bottom:22px;">¿En qué vas a trabajar? · What are you working on?</div>`;
 
     overlay.innerHTML = `
         <div style="
@@ -3643,8 +3698,7 @@ function showProjectSelector() {
             padding: 34px 34px 28px;
             box-shadow: var(--shadow-lg);
         ">
-            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.2rem; font-weight:700; color:var(--text-primary); margin-bottom:4px;">Elige tu proyecto · Choose your project</div>
-            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.85rem; color:var(--text-sub); margin-bottom:22px;">¿En qué vas a trabajar? · What are you working on?</div>
+            ${heading}
             ${cards}
         </div>`;
     document.body.appendChild(overlay);
@@ -3656,6 +3710,13 @@ function showProjectSelector() {
             if (_picked) return;          // guard against double-tap (iOS Safari)
             _picked = true;
             const id = btn.getAttribute('data-assign');
+            if (review) {
+                // Link hub: navigate into the existing ?assignment= boot path.
+                // No chooseProject, no state application here; review stays URL-scoped.
+                const assign = (id === '__default__') ? 'generic' : id;
+                location.href = location.pathname + '?review=colleague&assignment=' + encodeURIComponent(assign);
+                return;
+            }
             chooseProject(id === '__default__' ? null : id);
             overlay.style.opacity = '0';
             setTimeout(() => { overlay.remove(); showLandingMoment(); }, 450);

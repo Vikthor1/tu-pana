@@ -55,6 +55,8 @@
 !cap200_labels_test.mjs
 # ── Allow STEM lab-report genre-layer regression test ─────
 !stem_lab_report_test.mjs
+# ── Allow colleague review-mode regression test ───────────
+!review_mode_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

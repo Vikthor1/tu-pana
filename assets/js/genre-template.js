@@ -857,6 +857,9 @@ function getAssignmentLayer(id) {
 // student-facing copy only — never the full assignment context. Future profiles
 // flagged `selectable: true` with student labels appear automatically, so the
 // selector never needs a redesign to add a course. No DOM.
+// STUDENT-FACING ONLY: this list is the Pilot 2 first-run chooser and must keep
+// excluding link-only layers (selectable:false — research-paper, stem-lab-report).
+// The colleague/evaluator review selector uses getReviewProfiles() below instead.
 function getSelectableProfiles() {
     return Object.keys(ASSIGNMENT_LAYERS)
         .map(id => ASSIGNMENT_LAYERS[id])
@@ -868,6 +871,40 @@ function getSelectableProfiles() {
             descEs:  l.profile.studentDescEs  || '',
             descEn:  l.profile.studentDescEn  || ''
         }));
+}
+
+// ════════════════════════════════════════════════════════
+//  REVIEW-MODE PROFILE LIST — colleague/evaluator only.
+//  Includes link-only layers for side-by-side genre comparison WITHOUT changing
+//  selectable:false or the normal student Pilot 2 assignment-link flow. Consumed
+//  ONLY by the ?review=colleague selector (ui.js); never by the student first-run
+//  chooser. Labels here are succinct REVIEW display titles (genre names, not
+//  course/internal names) — internal ids, storage keys, and student URLs unchanged.
+// ════════════════════════════════════════════════════════
+const REVIEW_PROFILE_ORDER = [
+    'cap200-bronx-beautiful-service-learning',
+    'research-paper',
+    'stem-lab-report'
+];
+const REVIEW_PROFILE_LABELS = {
+    'cap200-bronx-beautiful-service-learning': { labelEn: 'Service-Learning Report', labelEs: 'Informe de aprendizaje-servicio' },
+    'research-paper':  { labelEn: 'Research Paper',  labelEs: 'Trabajo de investigación' },
+    'stem-lab-report': { labelEn: 'STEM Lab Report', labelEs: 'Informe de laboratorio STEM' }
+};
+function getReviewProfiles() {
+    return REVIEW_PROFILE_ORDER
+        .map(id => ASSIGNMENT_LAYERS[id])
+        .filter(l => l && l.profile)
+        .map(l => {
+            const reviewLabel = REVIEW_PROFILE_LABELS[l.id] || {};
+            return {
+                assignmentId: l.id,
+                labelEs: reviewLabel.labelEs || l.profile.studentLabelEs || l.name,
+                labelEn: reviewLabel.labelEn || l.profile.studentLabelEn || l.name,
+                descEs:  l.profile.studentDescEs  || '',
+                descEn:  l.profile.studentDescEn  || ''
+            };
+        });
 }
 
 // ════════════════════════════════════════════════════════

@@ -121,12 +121,30 @@ try {
     }
 } catch(e) {}
 
+// Colleague/evaluator review mode (URL-scoped only — ?review=colleague, alias
+// ?review=true; NEVER persisted). Badge always renders in review mode. With no
+// ?assignment= param the review selector opens (a link hub that navigates into
+// the existing ?assignment= boot path), regardless of onboarding state; with an
+// assignment param the pathway loads normally and only the badge is added.
+// Absent the parameter this block is a no-op and student flow is untouched.
+const _reviewMode = (typeof isReviewMode === 'function') && isReviewMode();
+if (_reviewMode) {
+    try { renderReviewBadge(); } catch(e) {}
+}
+
 // Onboarding sequence: Tu Conocimiento → El Laboratorio (each runs once)
 try {
     const maniDone = localStorage.getItem('tupana_mani_done') === 'true';
     const labDone  = localStorage.getItem('tupana_lab_done')  === 'true';
 
-    if (!maniDone) {
+    const _reviewSelector = _reviewMode
+        && !(new URLSearchParams(location.search).get('assignment'))
+        && typeof showProjectSelector === 'function';
+    if (_reviewSelector) {
+        // Review hub: show the colleague selector instead of the normal
+        // onboarding dispatch; card clicks navigate away, so nothing else runs.
+        setTimeout(() => showProjectSelector(true), 400);
+    } else if (!maniDone) {
         // First-ever visit. If no profile is active yet (regular link, no prior
         // choice, no ?assignment= deep link), show the minimal project selector
         // first; it chains into the landing quote. A deep link or prior choice

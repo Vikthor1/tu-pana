@@ -1674,6 +1674,10 @@
             min-height: 0;
             transition: opacity var(--transition-slow);
             position: relative;
+            /* Size container so panel-clipped overlays (stuck triage) can cap
+               their height against the panel itself via cqh — viewport units
+               alone cannot know where the panel's overflow clip begins. */
+            container-type: size;
         }
         .chat-panel::before {
             content: '';
@@ -3927,6 +3931,12 @@
             /* Context-Collapse sprint C: never exceed a short viewport (e.g. phone
                with keyboard up) — the open menu scrolls instead of overflowing. */
             max-height: min(420px, 70svh);
+            /* Short-desktop occlusion fix: also fit inside the chat panel
+               (100cqh = panel height; 160px reserves the input row/hint and
+               anchor gap below the menu at every breakpoint), so top options
+               never clip under the journey/task band or mobile header.
+               Browsers without cqh keep the line above. */
+            max-height: min(420px, 70svh, calc(100cqh - 160px));
             overflow-y: auto;
         }
         .stuck-triage.on { display: flex; }

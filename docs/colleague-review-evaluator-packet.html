@@ -277,7 +277,18 @@
     font-family: var(--font-ui); font-size: 12.5px; font-weight: 700; color: var(--clay);
     letter-spacing: 0.02em;
   }
-  .alias-note { font-family: var(--font-ui); font-size: 11px; color: var(--ink-muted); margin-top: 12px; }
+  .alias-note {
+    font-family: var(--font-ui); font-size: 11px; color: var(--ink-muted); margin-top: 12px;
+    border-left: 2px solid var(--border-mid); padding-left: 12px; line-height: 1.6; text-align: left;
+  }
+  .panel-next-link {
+    display: inline-block; margin-top: 12px;
+    font-family: var(--font-ui); font-size: 12.5px; font-weight: 600; color: var(--ink-mid);
+    text-decoration: none; border: 1px solid var(--border-mid); border-radius: 20px; padding: 6px 16px;
+    transition: background 0.12s;
+  }
+  .panel-next-link:hover { background: var(--surface-alt); }
+  .panel-next-link:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
 
   /* ── Copy-link controls ── */
   button.feedback-button { cursor: pointer; }
@@ -407,12 +418,12 @@
     border-bottom: 1px solid var(--border); font-size: 0.93rem; color: var(--ink-mid);
   }
   .checklist li:last-child { border-bottom: none; }
-  .checklist li::before { content: "□"; position: absolute; left: 0; color: var(--border-mid); font-size: 1rem; top: 7px; }
+  .checklist li::before { content: "□"; position: absolute; left: 0; color: var(--jade-mid); font-size: 1rem; top: 7px; }
   .check-group { margin-bottom: 20px; }
   .check-group:last-child { margin-bottom: 0; }
   .check-group-title {
     font-family: var(--font-ui); font-size: 12px; font-weight: 700;
-    letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: #8a5c14; margin-bottom: 6px;
   }
 
   /* ── Category chips ── */
@@ -424,14 +435,22 @@
   }
 
   /* ── Direct-links table ── */
-  .stage-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 12px; }
+  .stage-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; font-size: 0.88rem; margin-top: 4px; }
   .stage-table th {
     font-family: var(--font-ui); font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em;
     text-transform: uppercase; color: var(--ink-muted); text-align: left;
-    padding: 7px 10px; border-bottom: 2px solid var(--border-mid);
+    padding: 0 12px;
   }
-  .stage-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--ink-mid); vertical-align: top; }
-  .stage-table tr:last-child td { border-bottom: none; }
+  .stage-table td {
+    padding: 13px 12px; color: var(--ink-mid); vertical-align: middle;
+    background: #fbf9f5; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .stage-table td:first-child { border-left: 4px solid var(--jade); border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+  .stage-table td:last-child { border-right: 1px solid var(--border); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .stage-table tr:nth-child(3) td:first-child { border-left-color: var(--gold); }
+  .stage-table tr:nth-child(4) td:first-child { border-left-color: var(--clay); }
+  .stage-table tr:nth-child(5) td:first-child { border-left-color: var(--ink-mid); }
+  .stage-table tr:hover td { background: #ffffff; }
   .stage-table td a { font-family: var(--font-ui); font-size: 12px; word-break: break-all; }
   .stage-link-btns { display: flex; gap: 8px; flex-wrap: wrap; }
   a.stage-open-btn {
@@ -451,6 +470,43 @@
   a.stage-open-btn:active, .stage-copy-btn:active, .foot-share-btn:active { transform: translateY(1px); }
   .stage-name-es { color: var(--ink); font-weight: bold; display: block; }
   .stage-name-en { color: var(--ink-muted); font-size: 0.83rem; }
+
+  /* ── Review-kit polish ── */
+  #enter-review .section-title, #feedback .section-title, #adopt .section-title { font-size: 1.6rem; }
+  .informs-line {
+    display: block; font-family: var(--font-ui); font-size: 11.5px; font-weight: 600;
+    color: var(--jade-deep); margin-top: 5px; letter-spacing: 0.01em;
+  }
+  .pub-list li { margin-bottom: 1.1em; }
+  .meta-note {
+    font-family: var(--font-ui); font-size: 11px; color: var(--ink-muted);
+    border-left: 2px solid var(--border-mid); padding-left: 12px; margin-top: 14px; line-height: 1.6;
+  }
+  .pilot-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 12px 0 20px; }
+  .pilot-card {
+    background: var(--surface-alt); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 16px;
+  }
+  .pilot-card h4 { font-family: var(--font); font-size: 0.94rem; margin-bottom: 5px; }
+  .pilot-card p { font-size: 0.84rem; color: var(--ink-mid); margin: 0; }
+  @media (max-width: 700px) { .pilot-grid { grid-template-columns: 1fr; } }
+  .journey-strip {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 18px 20px 14px; margin-bottom: 18px; text-align: center;
+  }
+  .journey-milestones { display: flex; justify-content: center; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+  .journey-node { display: inline-flex; flex-direction: column; max-width: 180px; }
+  .journey-node strong { font-family: var(--font-ui); font-size: 12.5px; color: var(--ink); }
+  .journey-node > span { font-family: var(--font-ui); font-size: 11px; color: var(--ink-muted); }
+  .journey-arrow { color: var(--border-mid); font-family: var(--font-ui); padding-top: 1px; }
+  .journey-dots { display: flex; justify-content: center; gap: 7px; margin-top: 13px; }
+  .journey-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--jade-light); border: 1px solid var(--jade-mid); }
+  .journey-dots i:first-child { background: var(--jade); border-color: var(--jade); }
+  .journey-dots i:last-child { background: var(--gold); border-color: var(--gold); }
+  .journey-dots-label {
+    font-family: var(--font-ui); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-muted); margin-top: 7px;
+  }
 
   /* ── Footer ── */
   .doc-footer {
@@ -663,32 +719,38 @@
   </div>
   <div class="card">
     <h3 style="font-size:1.08rem; margin-bottom:8px;">Research and teaching foundation</h3>
-    <p style="font-size:0.95rem;">Tu Pana Writing Studio is informed by Dr. Torres-Vélez’s scholarship and teaching on multilingual and multiliteracies pedagogy, open education, writing, and educational equity — much of it written from, and about, the same Hostos classrooms the studio grew out of. The studio translates that work into a practical writing environment for the AI era.</p>
+    <p style="font-size:0.95rem;">Tu Pana Writing Studio is informed by Dr. Torres-Vélez’s scholarship and teaching on multilingual pedagogy, open education, writing, and educational equity — much of it written from the same Hostos classrooms the studio grew out of, and translated here into a practical writing environment for the AI era.</p>
     <div class="check-group-title" style="margin-top:14px;">Research</div>
     <ul class="pub-list">
       <li>García-Barroso, L., &amp; Torres-Vélez, V. M. (2023). “A shifting language-scape: Multiliteracies and language policies for non-traditional students in the Hispanic Bronx.” <em>European Journal of Language Policy, 15</em>(2), 299–323.
+        <span class="informs-line">↳ Informs: Asset-based, multiliteracies support for bilingual writing.</span>
         <details><summary>Abstract</summary><p>By engaging the literature of transnationalism and Latinx studies with that of multiliteracies, this article contends that the cultural and linguistic complexities experienced by Spanish-speaking populations in global cities can be better addressed by a multiliteracies framework. We argue that using multiliteracies to teach adult learners can challenge negative linguistic and cultural stereotypes in the classroom. We conducted a qualitative study with at-risk adult learners. Using a TV show, we developed a series of pedagogical interventions and exercises to encourage cultural and linguistic pride to mitigate pervasive negative stereotypes around Latinx in the US. We contend that the development of language policies needs to engage the linguistic and cultural complexities experienced by Spanish-speaking people within the diasporic communities of global cities. The study was conducted at Hostos Community College in the Bronx, NY. The study shows that our pedagogical interventions mitigate negative linguistic and cultural stereotypes.</p></details>
       </li>
       <li>García-Barroso, L., &amp; Torres-Vélez, V. M. (under review, 2026). “Teaching what travels: COIL-to-OER in a Latinx-serving community college.” <em>Open Education Studies</em>.
+        <span class="informs-line">↳ Informs: Portable, openly shared pedagogy for under-resourced classrooms.</span>
         <details><summary>Abstract</summary><p>Pedagogical innovation in under-resourced institutions faces a structural paradox: the teaching practices most urgently needed by historically marginalized students are precisely those least likely to travel beyond the classrooms in which they are built. This article examines one attempt to disrupt that paradox at Hostos Community College in the South Bronx, where a Collaborative Online International Learning (COIL) module engaged Latinx students in comparative inquiry into structural violence and migration — a practice then converted into a CC&nbsp;BY&nbsp;4.0 openly licensed instructional package. Drawing on multiliteracies pedagogy, culturally sustaining pedagogy, and a social justice-aligned conception of open education, the article argues that OER development is most meaningful when it functions as political practice: the deliberate circulation of pedagogical commitments across institutional boundaries.</p></details>
       </li>
       <li>Torres-Vélez, V. M., with L. García-Barroso (manuscript, 2026). “Beyond Deficit Materials: Designing Open Educational Resources for Heritage Language Education.”
+        <span class="informs-line">↳ Informs: Anti-deficit design for voice protection and student authorship.</span>
         <details><summary>Abstract</summary><p>Heritage language education has moved decisively away from deficit models toward asset-based approaches that treat learners’ linguistic repertoires, cultural knowledge, and lived experience as resources for instruction — but instructional materials have not kept pace. This article argues that Open Educational Resources are not merely a cheaper alternative to commercial materials but a means of <em>enacting</em> anti-deficit, asset-based heritage language pedagogy, and advances a five-principle design framework: linguistic legitimacy, cultural and community relevance, adaptability, student voice and authorship, and open reuse.</p></details>
       </li>
     </ul>
     <div class="check-group-title" style="margin-top:14px;">Teaching essays — Hostos Center for Teaching &amp; Learning</div>
     <ul class="pub-list">
       <li>Torres-Vélez, V. M. (forthcoming, Fall 2026). “What If the Problem Was Never the Student? AI, Writing, and the Limits of Deficit Pedagogy.” <em>The Hostos CTL Newsletter</em>.
+        <span class="informs-line">↳ Informs: The studio’s pedagogical rationale, in the founder’s own voice.</span>
         <details><summary>About this essay</summary><p>A first-person essay tracing the deficit-model writing support the author encountered as a first-generation bilingual graduate student — and that his Hostos students still describe — to the design philosophy behind Tu Pana de Escritura: the studio’s pedagogical rationale, grounded in Freire, translingual and linguistic justice scholarship, and process-writing research, in the founder’s own voice.</p></details>
       </li>
       <li>Torres-Vélez, V. M. (2025, March). “Co-Evolving Minds: The Role of AI in Shaping Our Future.” <em>Touchstone</em> (Teaching Tips), Hostos CTL.
+        <span class="informs-line">↳ Informs: AI coaching as support for learning, not replacement.</span>
         <details><summary>About this essay</summary><p>A short Teaching Tips reflection on AI and teaching — framing human–AI co-evolution for the classroom.</p></details>
       </li>
       <li>Torres-Vélez, V. M. (2022). “Amidst the Pandemic: On Becoming a Shaman of Zeros-and-Ones at Hostos.” <em>Touchstone, 11</em>(1), 21–23. Hostos CTL.
+        <span class="informs-line">↳ Informs: Hostos-rooted technology-mediated teaching practice.</span>
         <details><summary>About this essay</summary><p>A faculty reflection on pandemic-era teaching and the shift to technology-mediated instruction at Hostos.</p></details>
       </li>
     </ul>
-    <p style="font-size:0.85rem; color:var(--ink-muted); margin-top:10px;">Listed as the studio’s intellectual and pedagogical foundations — not as formal evaluations of the app itself.</p>
+    <p class="meta-note">Listed as the studio’s intellectual and pedagogical foundations — not as formal evaluations of the app itself.</p>
   </div>
 </section>
 
@@ -700,7 +762,7 @@
   <h2 class="section-title">From Pilot 1 to Pilot 2</h2>
   <p class="section-sub">Preliminary design learning from a first classroom pilot — not formal assessment results.</p>
   <div class="card">
-    <p>Pilot 2 is not starting from scratch. An initial classroom pilot at Hostos earlier this summer — documented in an internal, anonymized evaluation drawing on student surveys, in-app process reports, submitted essays, and structured tester feedback — helped identify where the studio’s design was already resonating with students and where it needed refinement.</p>
+    <p>Pilot 2 is not starting from scratch. An initial classroom pilot at Hostos earlier this summer — documented in an internal, anonymized evaluation of student surveys, in-app process reports, submitted essays, and structured tester feedback — showed where the design was resonating with students and where it needed refinement.</p>
     <p>The strongest early signal was not simply that students found the tool useful. It was that students experienced the coach as respectful of their voice and language practices — including bilingual and code-switching writing. The same pilot was just as valuable for what it exposed: moments where AI coaching could drift toward supplying language instead of protecting the student’s own, and navigation friction that got in the way of the pedagogy.</p>
     <p>Those findings shaped the version now in Pilot 2: stronger authorship gates, clearer process evidence, more careful bilingual support, genre-specific pathways, and a firmer emphasis on AI as coaching rather than replacement writing.</p>
   </div>
@@ -750,7 +812,7 @@
 
   <div class="callout callout--jade">
     <div class="callout-title">How this review fits</div>
-    <p>Pilot 2 students use independent, assignment-specific links — a student’s link <em>is</em> their pathway, with no genre choice inside the app. As a colleague or evaluator you use the review link below instead: it opens a pathway selector (with a visible review badge) so you can compare all four journeys, then share what you noticed via the checklist further down.</p>
+    <p>Pilot 2 students use independent, assignment-specific links — a student’s link <em>is</em> their pathway, with no genre choice inside the app. As a colleague or evaluator you use the review link below instead: it opens a pathway selector with a visible review badge, so you can compare all four journeys and share what you notice further down.</p>
   </div>
 
   <div class="review-link-panel copy-scope">
@@ -763,6 +825,7 @@
     <div class="copy-status" role="status" aria-live="polite"></div>
     <div class="dont-share">Do not share this link with students during Pilot 2. · No compartas este enlace con estudiantes durante Pilot 2.</div>
     <p style="font-size:0.9rem; margin-top:14px;">You will see a <strong>“Modo de revisión · Review mode”</strong> selector and badge. Choosing a pathway opens it exactly as a student would experience it — plus the visible review badge.</p>
+    <a class="panel-next-link" href="#feedback">Then: share your feedback below ↓</a>
   </div>
 
   <div class="card copy-scope">
@@ -811,6 +874,17 @@
   <div class="section-label"><span class="section-num">08</span> · What you are comparing</div>
   <h2 class="section-title">The four genre pathways</h2>
   <p class="section-sub">One 10-step writing journey — with an unassisted first-draft authorship gate, voice protection, process evidence, and AI-use transparency — carries all four genres.</p>
+  <div class="journey-strip" aria-label="The 10-step journey at a glance">
+    <div class="journey-milestones">
+      <span class="journey-node"><strong>Student writes first</strong><span>unassisted first draft</span></span>
+      <span class="journey-arrow" aria-hidden="true">→</span>
+      <span class="journey-node"><strong>AI coaching begins</strong><span>only after the draft exists</span></span>
+      <span class="journey-arrow" aria-hidden="true">→</span>
+      <span class="journey-node"><strong>Process report</strong><span>submitted with the work</span></span>
+    </div>
+    <div class="journey-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="journey-dots-label">one 10-step journey, every pathway</div>
+  </div>
   <div class="path-grid">
     <div class="path-card path-card--jade">
       <h3>Autobiographical Mixed-Genre Essay</h3>
@@ -933,8 +1007,23 @@
   <div class="section-label"><span class="section-num">13</span> · Beyond this review</div>
   <h2 class="section-title">If this fits your course or program</h2>
   <div class="card card--cta">
-    <p>Tu Pana is growing deliberately — assignment by assignment, pilot by pilot, with process evidence at every step. If you teach or oversee a writing-intensive course in any discipline and can imagine one assignment that would benefit from a guided, genre-aware pathway like the four above, a conversation costs nothing.</p>
+    <p>Tu Pana is growing deliberately — assignment by assignment, pilot by pilot, with process evidence at every step. A first conversation is enough to see whether Tu Pana fits a course, program, or writing-intensive assignment.</p>
     <p>For WAC/WID programs and writing-intensive courses across disciplines, the four pathways offer one shared process and one shared evidence standard — adoptable one assignment at a time. Pilots stay small and guarded: your students would receive instructor-issued, assignment-specific links — never the review selector — and you would see the process evidence their work generates.</p>
+    <div class="check-group-title" style="margin-top:18px;">What a small pilot could look like</div>
+    <div class="pilot-grid">
+      <div class="pilot-card">
+        <h4>One course, one assignment</h4>
+        <p>A single instructor pilots one pathway for one assignment cycle, about 3–4 weeks, using instructor-issued links and process evidence at the end.</p>
+      </div>
+      <div class="pilot-card">
+        <h4>A shared assignment across sections</h4>
+        <p>Two or three sections of the same course use the same pathway, helping instructors compare process evidence side by side.</p>
+      </div>
+      <div class="pilot-card">
+        <h4>A WAC/WID program look</h4>
+        <p>A program pilots one shared assignment type across disciplines to evaluate fit before anything wider.</p>
+      </div>
+    </div>
     <p style="margin-top:14px;"><strong>Interested?</strong> Reach out with your course, the assignment you have in mind, or simply your questions — or include a note with your reviewer feedback.</p>
     <div class="founder-card">
       <img class="founder-photo" src="assets/torres-velez-headshot.jpg" alt="Portrait of Dr. Víctor M. Torres-Vélez" width="600" height="630">

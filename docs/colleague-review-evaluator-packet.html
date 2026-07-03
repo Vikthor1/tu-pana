@@ -283,6 +283,15 @@
     stroke: var(--jade); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
   }
   .card--cta { border-top: 4px solid var(--jade); padding-top: 28px; }
+  .quote-card {
+    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--gold);
+    border-radius: var(--radius); padding: 18px 22px; box-shadow: var(--shadow); margin: 0 0 12px;
+  }
+  .quote-card blockquote { font-size: 0.98rem; color: var(--ink-mid); font-style: italic; }
+  .quote-note {
+    font-family: var(--font-ui); font-size: 12.5px; color: var(--ink-muted);
+    margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
+  }
   .path-card, .context-card { transition: box-shadow 0.15s, transform 0.15s; }
   .path-card:hover, .context-card:hover { box-shadow: 0 5px 16px rgba(30,26,20,0.13); transform: translateY(-2px); }
   @media (prefers-reduced-motion: reduce) {
@@ -423,6 +432,7 @@
     <a class="quick-nav-btn" href="#problem">The Problem</a>
     <a class="quick-nav-btn" href="#why-now">Why Now</a>
     <a class="quick-nav-btn" href="#different">What’s Different</a>
+    <a class="quick-nav-btn" href="#student-voices">Student Signals</a>
     <a class="quick-nav-btn" href="#enter-review">Enter Review Mode</a>
     <a class="quick-nav-btn" href="#pathways">Four Pathways</a>
     <a class="quick-nav-btn" href="#tasks">Review Tasks</a>
@@ -518,9 +528,28 @@
 
 <hr class="section-rule">
 
+<!-- ════════ STUDENT SIGNALS ════════ -->
+<section id="student-voices">
+  <div class="section-label"><span class="section-num">04</span> · Early signals</div>
+  <h2 class="section-title">What students noticed in early use</h2>
+  <p class="section-sub">Anonymized comments from classroom use — signals, not statistics.</p>
+  <figure class="quote-card">
+    <blockquote>“Stage 6 made it very transparent. The instructions explicitly stated that feedback could only be given on an existing draft, and the interface wouldn’t let me unlock the revision tools until I pasted my own text into the workspace.”</blockquote>
+  </figure>
+  <figure class="quote-card">
+    <blockquote>“The app was surprisingly respectful of my voice. When I used code-switching or included specific Spanish phrasing within an English sentence, it understood the context and didn’t flag it as an ‘error’ or force me to translate it into standard academic English.”</blockquote>
+  </figure>
+  <figure class="quote-card">
+    <blockquote>“[It] helps you write out your ideas and it gives you feedback immediately by asking you questions a professor would ask.”</blockquote>
+  </figure>
+  <p class="quote-note">These early comments are included as anonymized student feedback from classroom use. They are not presented as formal assessment results, but as signals of what students noticed: clearer process, more respectful bilingual support, and coaching that asks them to keep doing the writing.</p>
+</section>
+
+<hr class="section-rule">
+
 <!-- ════════ ENTER REVIEW MODE ════════ -->
 <section id="enter-review">
-  <div class="section-label"><span class="section-num">04</span> · Getting in</div>
+  <div class="section-label"><span class="section-num">05</span> · Getting in</div>
   <h2 class="section-title">How to enter review mode</h2>
   <p class="section-sub">One link opens the pathway selector; direct links jump straight into a pathway.</p>
 
@@ -570,7 +599,7 @@
 
 <!-- ════════ FOUR PATHWAYS ════════ -->
 <section id="pathways">
-  <div class="section-label"><span class="section-num">05</span> · What you are comparing</div>
+  <div class="section-label"><span class="section-num">06</span> · What you are comparing</div>
   <h2 class="section-title">The four genre pathways</h2>
   <p class="section-sub">One 10-step writing journey — with an unassisted first-draft authorship gate, voice protection, process evidence, and AI-use transparency — carries all four genres.</p>
   <div class="path-grid">
@@ -601,7 +630,7 @@
 
 <!-- ════════ REVIEW TASKS ════════ -->
 <section id="tasks">
-  <div class="section-label"><span class="section-num">06</span> · What to do</div>
+  <div class="section-label"><span class="section-num">07</span> · What to do</div>
   <h2 class="section-title">Review tasks</h2>
   <p class="section-sub">About 25–30 minutes total, or review just the pathway closest to your discipline.</p>
   <div class="card">
@@ -619,7 +648,7 @@
 
 <!-- ════════ CHECKLIST ════════ -->
 <section id="checklist">
-  <div class="section-label"><span class="section-num">07</span> · What to notice</div>
+  <div class="section-label"><span class="section-num">08</span> · What to notice</div>
   <h2 class="section-title">Evaluation checklist</h2>
   <p class="section-sub">Ten questions — jot quick notes as you go.</p>
   <div class="card">
@@ -692,7 +721,7 @@
 
 <!-- ════════ ADOPTION ════════ -->
 <section id="adopt">
-  <div class="section-label"><span class="section-num">08</span> · Beyond this review</div>
+  <div class="section-label"><span class="section-num">09</span> · Beyond this review</div>
   <h2 class="section-title">If this fits your course or program</h2>
   <div class="card card--cta">
     <p>Tu Pana is growing deliberately — assignment by assignment, pilot by pilot, with process evidence at every step. If you teach or oversee a writing-intensive course in any discipline and can imagine one assignment that would benefit from a guided, genre-aware pathway like the four above, a conversation costs nothing.</p>

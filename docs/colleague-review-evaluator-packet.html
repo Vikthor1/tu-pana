@@ -43,7 +43,7 @@
 
   /* ── Layout ── */
   .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
-  section { padding: 44px 0 0; }
+  section { padding: 50px 0 0; }
 
   /* ── Hero ── */
   .hero { background: var(--ink); color: #f7f4ef; padding: 52px 24px 44px; text-align: center; }
@@ -162,9 +162,14 @@
 
   /* ── Section header ── */
   .section-label {
-    font-family: var(--font-ui); font-size: 11px; font-weight: 700;
-    letter-spacing: 0.13em; text-transform: uppercase; color: var(--jade); margin-bottom: 8px;
+    font-family: var(--font-ui); font-size: 13px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--jade); margin-bottom: 10px;
   }
+  .section-label::before {
+    content: ""; display: block; width: 34px; height: 3px;
+    background: var(--jade); border-radius: 2px; margin-bottom: 10px;
+  }
+  .section-num { color: var(--gold); }
   .section-title { font-size: 1.45rem; margin-bottom: 6px; }
   .section-sub { color: var(--ink-muted); font-size: 0.95rem; margin-bottom: 24px; font-style: italic; }
   hr.section-rule { border: none; border-top: 1px solid var(--border); margin: 40px 0 0; }
@@ -219,18 +224,71 @@
     border-radius: var(--radius); padding: 26px 28px; box-shadow: var(--shadow);
     text-align: center; margin-bottom: 16px;
   }
-  .review-link-panel .big-link {
-    display: inline-block; font-family: var(--font-ui); font-size: clamp(0.85rem, 2.6vw, 1.05rem);
-    font-weight: 700; color: var(--jade); word-break: break-all;
-    background: var(--jade-light); border: 1px solid #b2d8c6; border-radius: var(--radius-sm);
-    padding: 10px 16px; margin: 10px 0 12px; text-decoration: none;
-  }
-  .review-link-panel .big-link:hover { background: #d8ebe1; }
   .dont-share {
     font-family: var(--font-ui); font-size: 12.5px; font-weight: 700; color: var(--clay);
     letter-spacing: 0.02em;
   }
   .alias-note { font-family: var(--font-ui); font-size: 11px; color: var(--ink-muted); margin-top: 12px; }
+
+  /* ── Copy-link controls ── */
+  button.feedback-button { cursor: pointer; }
+  .link-label {
+    display: inline-block; font-family: var(--font-ui); font-size: 13px; font-weight: 600;
+    color: var(--jade-deep); background: var(--jade-light); border: 1px solid #b2d8c6;
+    border-radius: var(--radius-sm); padding: 6px 14px; margin-top: 14px; letter-spacing: 0.01em;
+  }
+  .copy-status {
+    font-family: var(--font-ui); font-size: 12.5px; font-weight: 600; color: var(--jade);
+    min-height: 1.4em; margin-top: 8px; word-break: break-all;
+  }
+  .hero-copy-btn {
+    background: none; border: none; padding: 0; cursor: pointer;
+    font-family: var(--font-ui); font-size: 11px; color: rgba(255,255,255,0.55);
+    text-decoration: underline; text-underline-offset: 2px;
+  }
+  .hero-copy-btn:hover { color: rgba(255,255,255,0.85); }
+  .hero-copy-btn:focus { outline: 2px solid var(--jade-mid); outline-offset: 2px; }
+  .hero .copy-status { color: var(--jade-mid); margin-top: 6px; }
+  .foot-share { margin-top: 14px; }
+  .foot-share-btn {
+    background: none; border: 1px solid var(--border-mid); border-radius: 20px;
+    padding: 6px 16px; cursor: pointer;
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600; color: var(--ink-mid);
+    transition: background 0.12s;
+  }
+  .foot-share-btn:hover { background: var(--surface); }
+  .foot-share-btn:focus { outline: 2px solid var(--jade); outline-offset: 2px; }
+
+  /* ── Contact block ── */
+  .contact-block {
+    margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  .contact-name { font-size: 1.08rem; font-weight: bold; color: var(--ink); }
+  .contact-role { font-family: var(--font-ui); font-size: 12.5px; color: var(--ink-muted); margin-top: 3px; }
+  .contact-email { margin-top: 10px; font-family: var(--font-ui); font-size: 12.5px; }
+  .contact-email a { color: var(--jade-deep); }
+
+  /* ── Premium touches ── */
+  .triad-row { display: flex; flex-wrap: wrap; gap: 8px; margin: -8px 0 22px; }
+  .triad-chip {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+    border-radius: 20px; padding: 5px 14px; letter-spacing: 0.02em;
+    background: var(--jade-light); color: var(--jade-deep); border: 1px solid #b2d8c6;
+  }
+  .triad-chip--gold { background: var(--gold-light); color: #8a5c14; border-color: #e4c88f; }
+  .triad-chip--clay { background: var(--clay-light); color: #9c4432; border-color: #eec2b8; }
+  .card-glyph {
+    width: 22px; height: 22px; display: block; margin-bottom: 8px;
+    stroke: var(--jade); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .card--cta { border-top: 4px solid var(--jade); padding-top: 28px; }
+  .path-card, .context-card { transition: box-shadow 0.15s, transform 0.15s; }
+  .path-card:hover, .context-card:hover { box-shadow: 0 5px 16px rgba(30,26,20,0.13); transform: translateY(-2px); }
+  @media (prefers-reduced-motion: reduce) {
+    .path-card, .context-card { transition: none; }
+    .path-card:hover, .context-card:hover { transform: none; }
+  }
 
   /* ── Steps ── */
   .steps { counter-reset: step; list-style: none; padding-left: 0; }
@@ -352,7 +410,9 @@
   </div>
   <p class="hero-instruction">Colleagues &amp; evaluators only — this link opens a pathway selector so you can compare all four genre journeys.<br><em>Solo para colegas y evaluadores — este enlace abre un selector para comparar los cuatro caminos de escritura.</em></p>
   <p class="hero-provenance">Faculty-built at CUNY Hostos Community College · now in its second classroom pilot</p>
-  <p class="hero-app-url">Review link: <a href="https://vikthor1.github.io/tu-pana/?review=colleague" target="_blank" rel="noopener">https://vikthor1.github.io/tu-pana/?review=colleague</a></p>
+  <div class="hero-app-url copy-scope">Review link: <span style="color: rgba(255,255,255,0.6);">tu-pana/?review=colleague</span> · <button type="button" class="hero-copy-btn copy-btn" data-copy="https://vikthor1.github.io/tu-pana/?review=colleague" data-msg="Review link copied · Enlace copiado">Copy link</button>
+    <div class="copy-status" role="status" aria-live="polite"></div>
+  </div>
 </div>
 
 <!-- ════════ QUICK NAV ════════ -->
@@ -386,7 +446,7 @@
 
 <!-- ════════ THE PROBLEM ════════ -->
 <section id="problem">
-  <div class="section-label">The problem</div>
+  <div class="section-label"><span class="section-num">01</span> · The problem</div>
   <h2 class="section-title">What Tu Pana solves</h2>
   <p class="section-sub">The question AI has put in front of every writing-intensive course: did the student do the thinking?</p>
   <div class="card">
@@ -399,21 +459,24 @@
 
 <!-- ════════ WHY NOW ════════ -->
 <section id="why-now">
-  <div class="section-label">Why this matters now</div>
+  <div class="section-label"><span class="section-num">02</span> · Why this matters now</div>
   <h2 class="section-title">Built for the moment universities are in</h2>
   <p class="section-sub">Higher education is converging on disclosure, authorship, and AI literacy. Tu Pana is built from those principles — not retrofitted to them.</p>
   <div class="context-grid">
     <div class="context-card">
+      <svg class="card-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 15.5h5"/></svg>
       <span class="context-num">Disclosure</span>
       <h3>AI use documented, not suspected</h3>
       <p>Students finish with a process report showing how AI was used along the way — what was asked, what feedback was accepted or questioned. Disclosure becomes evidence, not an honor pledge.</p>
     </div>
     <div class="context-card">
+      <svg class="card-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16l-1 4z"/><path d="M13.5 7.5l3 3"/></svg>
       <span class="context-num">Authorship</span>
       <h3>The first draft is the student’s alone</h3>
       <p>An unassisted first-draft gate means AI coaching begins only after the student has written. Authorship isn’t policed after the fact — it’s structured in from the start.</p>
     </div>
     <div class="context-card">
+      <svg class="card-glyph" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.3 15.3L21 21"/><path d="M7.8 10.6l1.9 1.9 3.2-3.6"/></svg>
       <span class="context-num">AI literacy</span>
       <h3>Critical use is the curriculum</h3>
       <p>Students practice questioning, accepting, and rejecting AI feedback — with their reasoning captured — so they learn to use AI without being used by it.</p>
@@ -425,9 +488,14 @@
 
 <!-- ════════ WHAT MAKES IT DIFFERENT ════════ -->
 <section id="different">
-  <div class="section-label">What makes it different</div>
+  <div class="section-label"><span class="section-num">03</span> · What makes it different</div>
   <h2 class="section-title">Not a chatbot, not a detector</h2>
   <p class="section-sub">Where Tu Pana departs from generic AI assistants, AI detectors, and syllabus-wrapped ChatGPT.</p>
+  <div class="triad-row" aria-label="Three things Tu Pana is not">
+    <span class="triad-chip">No ghost-writing</span>
+    <span class="triad-chip triad-chip--gold">No detection scores</span>
+    <span class="triad-chip triad-chip--clay">No shortcuts</span>
+  </div>
   <div class="path-grid">
     <div class="path-card path-card--jade">
       <h3>Coaching with hard boundaries</h3>
@@ -452,7 +520,7 @@
 
 <!-- ════════ ENTER REVIEW MODE ════════ -->
 <section id="enter-review">
-  <div class="section-label">Getting in</div>
+  <div class="section-label"><span class="section-num">04</span> · Getting in</div>
   <h2 class="section-title">How to enter review mode</h2>
   <p class="section-sub">One link opens the pathway selector; direct links jump straight into a pathway.</p>
 
@@ -461,9 +529,14 @@
     <p>Pilot 2 students use independent, assignment-specific links — a student’s link <em>is</em> their pathway, with no genre choice inside the app. As a colleague or evaluator you use the review link below instead: it opens a pathway selector (with a visible review badge) so you can compare all four journeys, then share what you noticed via the checklist further down.</p>
   </div>
 
-  <div class="review-link-panel">
+  <div class="review-link-panel copy-scope">
     <div class="callout-title" style="color: var(--jade);">Canonical colleague / evaluator link</div>
-    <a class="big-link" href="https://vikthor1.github.io/tu-pana/?review=colleague" target="_blank" rel="noopener">https://vikthor1.github.io/tu-pana/?review=colleague</a>
+    <div class="feedback-actions" style="margin-top:14px;">
+      <a class="feedback-button feedback-button--primary" href="https://vikthor1.github.io/tu-pana/?review=colleague" target="_blank" rel="noopener">Open review page</a>
+      <button type="button" class="feedback-button feedback-button--secondary copy-btn" data-copy="https://vikthor1.github.io/tu-pana/?review=colleague" data-msg="Review link copied · Enlace copiado">Copy review link</button>
+    </div>
+    <div><span class="link-label">tu-pana/?review=colleague</span></div>
+    <div class="copy-status" role="status" aria-live="polite"></div>
     <div class="dont-share">Do not share this link with students during Pilot 2. · No compartas este enlace con estudiantes durante Pilot 2.</div>
     <p style="font-size:0.9rem; margin-top:14px;">You will see a <strong>“Modo de revisión · Review mode”</strong> selector and badge. Choosing a pathway opens it exactly as a student would experience it — plus the visible review badge.</p>
   </div>
@@ -474,19 +547,19 @@
       <tr><th>Pathway</th><th>Direct review link</th></tr>
       <tr>
         <td><span class="stage-name-es">Ensayo autobiográfico de género mixto</span><span class="stage-name-en">Autobiographical Mixed-Genre Essay</span></td>
-        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=generic" target="_blank" rel="noopener">…/tu-pana/?review=colleague&amp;assignment=generic</a></td>
+        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=generic" target="_blank" rel="noopener">?review=colleague&amp;assignment=generic</a></td>
       </tr>
       <tr>
         <td><span class="stage-name-es">Informe de aprendizaje-servicio</span><span class="stage-name-en">Service-Learning Report</span></td>
-        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=cap200-bronx-beautiful-service-learning" target="_blank" rel="noopener">…/tu-pana/?review=colleague&amp;assignment=cap200-bronx-beautiful-service-learning</a></td>
+        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=cap200-bronx-beautiful-service-learning" target="_blank" rel="noopener">?review=colleague&amp;assignment=cap200-bronx-beautiful-service-learning</a></td>
       </tr>
       <tr>
         <td><span class="stage-name-es">Trabajo de investigación</span><span class="stage-name-en">Research Paper</span></td>
-        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=research-paper" target="_blank" rel="noopener">…/tu-pana/?review=colleague&amp;assignment=research-paper</a></td>
+        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=research-paper" target="_blank" rel="noopener">?review=colleague&amp;assignment=research-paper</a></td>
       </tr>
       <tr>
         <td><span class="stage-name-es">Informe de laboratorio STEM</span><span class="stage-name-en">STEM Lab Report</span></td>
-        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=stem-lab-report" target="_blank" rel="noopener">…/tu-pana/?review=colleague&amp;assignment=stem-lab-report</a></td>
+        <td><a href="https://vikthor1.github.io/tu-pana/?review=colleague&amp;assignment=stem-lab-report" target="_blank" rel="noopener">?review=colleague&amp;assignment=stem-lab-report</a></td>
       </tr>
     </table>
     <p class="alias-note">Testing note: <code>?review=true</code> works as an alias of the review flag; the published colleague link is <code>?review=colleague</code>. Review mode lives only in the URL and is never saved. Your progress is stored only in your own browser — use a private window if you want a fresh first-run experience per pathway.</p>
@@ -497,7 +570,7 @@
 
 <!-- ════════ FOUR PATHWAYS ════════ -->
 <section id="pathways">
-  <div class="section-label">What you are comparing</div>
+  <div class="section-label"><span class="section-num">05</span> · What you are comparing</div>
   <h2 class="section-title">The four genre pathways</h2>
   <p class="section-sub">One 10-step writing journey — with an unassisted first-draft authorship gate, voice protection, process evidence, and AI-use transparency — carries all four genres.</p>
   <div class="path-grid">
@@ -528,7 +601,7 @@
 
 <!-- ════════ REVIEW TASKS ════════ -->
 <section id="tasks">
-  <div class="section-label">What to do</div>
+  <div class="section-label"><span class="section-num">06</span> · What to do</div>
   <h2 class="section-title">Review tasks</h2>
   <p class="section-sub">About 25–30 minutes total, or review just the pathway closest to your discipline.</p>
   <div class="card">
@@ -546,7 +619,7 @@
 
 <!-- ════════ CHECKLIST ════════ -->
 <section id="checklist">
-  <div class="section-label">What to notice</div>
+  <div class="section-label"><span class="section-num">07</span> · What to notice</div>
   <h2 class="section-title">Evaluation checklist</h2>
   <p class="section-sub">Ten questions — jot quick notes as you go.</p>
   <div class="card">
@@ -619,12 +692,20 @@
 
 <!-- ════════ ADOPTION ════════ -->
 <section id="adopt">
-  <div class="section-label">Beyond this review</div>
+  <div class="section-label"><span class="section-num">08</span> · Beyond this review</div>
   <h2 class="section-title">If this fits your course or program</h2>
-  <div class="card">
+  <div class="card card--cta">
     <p>Tu Pana is growing deliberately — assignment by assignment, pilot by pilot, with process evidence at every step. If you teach or oversee a writing-intensive course in any discipline and can imagine one assignment that would benefit from a guided, genre-aware pathway like the four above, a conversation costs nothing.</p>
     <p>Pilots stay small and guarded: your students would receive instructor-issued, assignment-specific links — never the review selector — and you would see the process evidence their work generates.</p>
-    <p style="margin-top:14px;"><strong>Interested?</strong> Reach out to Dr. Víctor Torres-Vélez (CUNY Hostos Community College) with your course, the assignment you have in mind, or simply your questions — or include a note with your reviewer feedback.</p>
+    <p style="margin-top:14px;"><strong>Interested?</strong> Reach out with your course, the assignment you have in mind, or simply your questions — or include a note with your reviewer feedback.</p>
+    <div class="contact-block">
+      <div class="contact-name">Dr. Víctor M. Torres-Vélez</div>
+      <div class="contact-role">Associate Professor · Eugenio María de Hostos Community College, CUNY</div>
+      <div class="feedback-actions" style="margin-top:14px;">
+        <a class="feedback-button feedback-button--primary" href="mailto:dr.torres.velez@gmail.com?subject=Tu%20Pana%20Writing%20Studio">Email Dr. Torres-Vélez</a>
+      </div>
+      <div class="contact-email"><a href="mailto:dr.torres.velez@gmail.com">dr.torres.velez@gmail.com</a></div>
+    </div>
   </div>
 </section>
 
@@ -634,7 +715,54 @@
 <footer class="doc-footer">
   <div class="foot-guard">Colleagues &amp; evaluators only — please do not share the review link with students during Pilot 2.</div>
   <div>Tu Pana de Escritura · CUNY Hostos Community College · This packet describes review affordances only; it changes nothing about how pilot students access the app.</div>
+  <div class="foot-share copy-scope">
+    <button type="button" class="foot-share-btn copy-btn" data-copy="https://vikthor1.github.io/tu-pana/docs/colleague-review-evaluator-packet.html" data-msg="Packet link copied · Enlace del paquete copiado">Copy packet link — share this page with a colleague</button>
+    <div class="copy-status" role="status" aria-live="polite"></div>
+  </div>
 </footer>
+
+<script>
+(function () {
+  "use strict";
+  function statusFor(btn) {
+    var scope = btn.closest ? btn.closest(".copy-scope") : null;
+    return scope ? scope.querySelector(".copy-status") : null;
+  }
+  function announce(btn, msg) {
+    var s = statusFor(btn);
+    if (!s) return;
+    s.textContent = msg;
+    clearTimeout(s._t);
+    s._t = setTimeout(function () { s.textContent = ""; }, 5000);
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".copy-btn"), function (btn) {
+    btn.addEventListener("click", function () {
+      var text = btn.getAttribute("data-copy") || "";
+      var okMsg = btn.getAttribute("data-msg") || "Link copied · Enlace copiado";
+      var failMsg = "Copy is unavailable here — the link is: " + text;
+      function done(ok) { announce(btn, ok ? okMsg : failMsg); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallbackCopy(text)); });
+      } else {
+        done(fallbackCopy(text));
+      }
+    });
+  });
+})();
+</script>
 
 </body>
 </html>

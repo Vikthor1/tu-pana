@@ -76,7 +76,7 @@ Tag each note with one of:
 6. **Pilot-readiness concern**
 7. **Instructor trust concern**
 
-Send notes to Dr. Torres-Vélez (any format; per-pathway headings help).
+Send notes to Dr. Víctor M. Torres-Vélez, Associate Professor, Eugenio María de Hostos Community College, CUNY — dr.torres.velez@gmail.com (any format; per-pathway headings help).
 
 ## 8. Known open items (don't re-report these)
 

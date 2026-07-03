@@ -3,7 +3,7 @@
 **Audience:** faculty and staff colleagues reviewing Tu Pana as evaluators.
 **Not for students.** See the guardrail below before sharing anything from this packet.
 **Last updated:** 2026-07-03 · Product state: colleague review mode + four genre pathways live.
-**Faculty-facing version:** the polished webpage packet at `docs/colleague-review-evaluator-packet.html` is the version to share with colleagues; this Markdown file is its working companion. The HTML page also includes a short "From Pilot 1 to Pilot 2" section (preliminary classroom design learning — explicitly not formal assessment results) and three anonymized early student comments from classroom use (presented as signals, not statistics).
+**Faculty-facing version:** the polished webpage packet at `docs/colleague-review-evaluator-packet.html` is the version to share with colleagues; this Markdown file is its working companion. The HTML page also includes an "At a glance" summary band under the hero (what/who/evidence status/reviewer ask/time), a short "From Pilot 1 to Pilot 2" section (preliminary classroom design learning — explicitly not formal assessment results), and three anonymized early student comments from classroom use (presented as signals, not statistics).
 
 ---
 

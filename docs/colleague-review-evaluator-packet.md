@@ -42,6 +42,8 @@ You will see a "Modo de revisión · Review mode" selector listing the four path
 
 Testing note: `?review=true` works as an alias of the review flag; the published colleague link is `?review=colleague`. Review mode lives only in the URL — it is never saved, so removing the parameter returns the app to normal behavior. Your progress is stored only in your own browser; use a private window if you want a fresh first-run experience per pathway.
 
+Privacy note: drafts and progress live only in the writer's browser. Tu Pana does not create student accounts, and review mode lives only in the URL and is never saved. When a writer chooses to use AI coaching, the text they submit for coaching may be sent to the model provider for that response; Tu Pana does not use that exchange as a server-side student-writing record.
+
 ## 5. The four pathways to review
 
 - **Autobiographical Mixed-Genre Essay** — personal, reflective, analytical writing that connects lived experience, course concepts, and community knowledge.

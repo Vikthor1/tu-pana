@@ -360,6 +360,9 @@
     color: var(--gold); opacity: 0.4;
   }
   .quote-card blockquote { font-size: 0.98rem; color: var(--ink-mid); font-style: italic; }
+  .quote-card figcaption {
+    font-family: var(--font-ui); font-size: 11.5px; color: var(--ink-muted); margin-top: 8px;
+  }
   .pub-list { font-size: 0.9rem; color: var(--ink-mid); margin-top: 8px; }
   .pub-list li { margin-bottom: 0.8em; }
   .pub-list details { margin-top: 4px; }
@@ -716,12 +719,15 @@
   <p class="section-sub">Anonymized comments from classroom use — signals, not statistics.</p>
   <figure class="quote-card">
     <blockquote>“Stage 6 made it very transparent. The instructions explicitly stated that feedback could only be given on an existing draft, and the interface wouldn’t let me unlock the revision tools until I pasted my own text into the workspace.”</blockquote>
+    <figcaption>— Pilot 1 student, anonymized</figcaption>
   </figure>
   <figure class="quote-card">
     <blockquote>“The app was surprisingly respectful of my voice. When I used code-switching or included specific Spanish phrasing within an English sentence, it understood the context and didn’t flag it as an ‘error’ or force me to translate it into standard academic English.”</blockquote>
+    <figcaption>— Pilot 1 student, anonymized</figcaption>
   </figure>
   <figure class="quote-card">
     <blockquote>“[It] helps you write out your ideas and it gives you feedback immediately by asking you questions a professor would ask.”</blockquote>
+    <figcaption>— Pilot 1 student, anonymized</figcaption>
   </figure>
   <p class="quote-note">These early comments are included as anonymized student feedback from classroom use. They are not presented as formal assessment results, but as signals of what students noticed: clearer process, more respectful bilingual support, and coaching that asks them to keep doing the writing.</p>
 </section>
@@ -794,6 +800,7 @@
     </table>
     <div class="copy-status" role="status" aria-live="polite" style="margin-top:8px;"></div>
     <p class="alias-note">Testing note: <code>?review=true</code> works as an alias of the review flag; the published colleague link is <code>?review=colleague</code>. Review mode lives only in the URL and is never saved. Your progress is stored only in your own browser — use a private window if you want a fresh first-run experience per pathway.</p>
+    <p class="alias-note">Privacy note: drafts and progress live only in the writer’s browser. Tu Pana does not create student accounts, and review mode lives only in the URL and is never saved. When a writer chooses to use AI coaching, the text they submit for coaching may be sent to the model provider for that response; Tu Pana does not use that exchange as a server-side student-writing record.</p>
   </div>
 </section>
 
@@ -927,7 +934,7 @@
   <h2 class="section-title">If this fits your course or program</h2>
   <div class="card card--cta">
     <p>Tu Pana is growing deliberately — assignment by assignment, pilot by pilot, with process evidence at every step. If you teach or oversee a writing-intensive course in any discipline and can imagine one assignment that would benefit from a guided, genre-aware pathway like the four above, a conversation costs nothing.</p>
-    <p>Pilots stay small and guarded: your students would receive instructor-issued, assignment-specific links — never the review selector — and you would see the process evidence their work generates.</p>
+    <p>For WAC/WID programs and writing-intensive courses across disciplines, the four pathways offer one shared process and one shared evidence standard — adoptable one assignment at a time. Pilots stay small and guarded: your students would receive instructor-issued, assignment-specific links — never the review selector — and you would see the process evidence their work generates.</p>
     <p style="margin-top:14px;"><strong>Interested?</strong> Reach out with your course, the assignment you have in mind, or simply your questions — or include a note with your reviewer feedback.</p>
     <div class="founder-card">
       <img class="founder-photo" src="assets/torres-velez-headshot.jpg" alt="Portrait of Dr. Víctor M. Torres-Vélez" width="600" height="630">

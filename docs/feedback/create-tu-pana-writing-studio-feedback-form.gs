@@ -17,7 +17,17 @@
  *      EDIT URL       — review and adjust the form here first
  *      RESPONDENT URL — the link that will eventually replace the
  *                       packet's temporary placeholder
- * 5. REVIEW THE FORM BEFORE SHARING. Nothing is published, emailed, or
+ * 5. BRAND THE FORM (manual — the Forms API cannot set themes):
+ *    open the EDIT URL → Customize theme (🎨 palette icon, top right):
+ *      a. Header image → Upload → choose
+ *         docs/feedback/assets/tu-pana-feedback-form-header.png
+ *         (1600×400, generated from the packet's design tokens)
+ *      b. Theme color → Tu Pana jade #2d7a5f (or the closest green
+ *         if the picker offers no custom hex entry)
+ *      c. Background → the closest warm/light option offered
+ *    Goal: the form ECHOES the evaluator packet — do not attempt
+ *    webpage-like styling; brevity beats decoration.
+ * 6. REVIEW THE FORM BEFORE SHARING. Nothing is published, emailed, or
  *    linked anywhere by this script. The evaluator packet keeps its old
  *    placeholder link until the founder explicitly approves the new URL
  *    and a separate approved edit swaps it.

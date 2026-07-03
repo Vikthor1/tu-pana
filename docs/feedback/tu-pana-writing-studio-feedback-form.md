@@ -81,6 +81,15 @@
 
 ---
 
+## Visual branding (lightweight companion, not a webpage clone)
+
+Google Forms cannot reproduce the packet's custom design; the goal is a form that visually *echoes* the evaluator packet, not one that recreates it. No custom CSS, no embedding tricks, no dependencies.
+
+- **Header image:** `docs/feedback/assets/tu-pana-feedback-form-header.png` — 1600×400 (Google Forms' recommended banner size), ~38 KB, generated locally from the packet's own design tokens: bone paper background `#f7f4ef`, ink Georgia title, jade `#2d7a5f` subtitle and rules, gold `#c8882a` accent dots, muted italic tagline. Text: "Tu Pana Writing Studio · Colleague Review Feedback · A bilingual writing studio where students do the writing — and AI never writes it for them."
+- **Theme color:** set to Tu Pana jade — `#2d7a5f`, or the closest green Google Forms offers if exact hex entry is unavailable.
+- **Background:** choose the closest warm/light option Google offers for the selected theme color (echoes the packet's paper background).
+- **Structure:** keep the form as one concise section; do not add section headers/pages that lengthen perceived effort. Visual connection comes from the header + theme color, brevity stays the priority.
+
 ## How the data guides next steps
 
 - **Q3 + Q4 low** → refine packet messaging before widening faculty review (docs sprint, not app sprint).
@@ -93,6 +102,7 @@
 ## Deployment sequence (after founder approval)
 
 1. Founder runs the companion Apps Script once (instructions in the `.gs` header) — creates the form in their own Google Drive.
-2. Founder reviews the created form in the Forms editor; adjusts wording if desired.
-3. Founder approves the respondent URL.
-4. Only then: a separate approved change replaces the packet's temporary placeholder link.
+2. Founder applies the visual branding manually in the Forms editor (Customize theme 🎨): upload the header image above, set theme color to jade, pick the closest warm/light background.
+3. Founder reviews the created form in the Forms editor; adjusts wording if desired.
+4. Founder approves the respondent URL.
+5. Only then: a separate approved change replaces the packet's temporary placeholder link.

@@ -431,8 +431,16 @@
   .cat-chip {
     font-family: var(--font-ui); font-size: 12px; font-weight: 600;
     background: var(--surface-alt); border: 1px solid var(--border-mid);
-    border-radius: 20px; padding: 5px 13px; color: var(--ink-mid);
+    border-radius: 20px; padding: 5px 13px 5px 24px; color: var(--ink-mid);
+    position: relative;
   }
+  .cat-chip::before {
+    content: ""; position: absolute; left: 10px; top: 50%; margin-top: -3.5px;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--border-mid);
+  }
+  .cat-chip--clay::before { background: var(--clay); }
+  .cat-chip--gold::before { background: var(--gold); }
+  .cat-chip--jade::before { background: var(--jade); }
 
   /* ── Direct-links table ── */
   .stage-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; font-size: 0.88rem; margin-top: 4px; }
@@ -454,12 +462,13 @@
   .stage-table td a { font-family: var(--font-ui); font-size: 12px; word-break: break-all; }
   .stage-link-btns { display: flex; gap: 8px; flex-wrap: wrap; }
   a.stage-open-btn {
-    font-family: var(--font-ui); font-size: 11.5px; font-weight: 700; color: var(--jade-deep);
-    text-decoration: none; padding: 5px 14px; border: 1px solid #b2d8c6; border-radius: 20px;
-    background: var(--jade-light); white-space: nowrap; word-break: normal;
+    font-family: var(--font-ui); font-size: 11.5px; font-weight: 700; color: #fff;
+    text-decoration: none; padding: 6px 18px; border: 1px solid var(--jade); border-radius: 20px;
+    background: var(--jade); white-space: nowrap; word-break: normal;
+    box-shadow: 0 1px 4px rgba(45,122,95,0.25);
     transition: background 0.12s, color 0.12s;
   }
-  a.stage-open-btn:hover { background: var(--jade); color: #fff; }
+  a.stage-open-btn:hover { background: var(--jade-mid); border-color: var(--jade-mid); color: #fff; }
   .stage-copy-btn {
     font-family: var(--font-ui); font-size: 11.5px; font-weight: 600; color: var(--ink-mid);
     background: none; border: 1px solid var(--border-mid); border-radius: 20px; padding: 5px 14px;
@@ -473,6 +482,19 @@
 
   /* ── Review-kit polish ── */
   #enter-review .section-title, #feedback .section-title, #adopt .section-title { font-size: 1.6rem; }
+  .review-link-panel .feedback-button--primary { font-size: 15px; padding: 15px 36px; }
+  .type-badge {
+    display: inline-block; font-family: var(--font-ui); font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; border-radius: 4px; padding: 3px 9px;
+    vertical-align: 2px; margin-left: 8px;
+  }
+  .callout .type-badge { display: block; width: fit-content; margin: 0 0 8px; vertical-align: baseline; }
+  .type-badge--clay { background: var(--clay-light); color: #9c4432; border: 1px solid #eec2b8; }
+  .type-badge--gold { background: var(--gold-light); color: #8a5c14; border: 1px solid #e4c88f; }
+  .type-badge--jade { background: var(--jade-light); color: var(--jade-deep); border: 1px solid #b2d8c6; }
+  .type-badge--ink  { background: var(--surface-alt); color: var(--ink-mid); border: 1px solid var(--border-mid); }
+  .card--feedback { border-top: 4px solid var(--gold); padding-top: 26px; }
+  .card--feedback .feedback-button--secondary { font-size: 14.5px; padding: 14px 32px; }
   .informs-line {
     display: block; font-family: var(--font-ui); font-size: 11.5px; font-weight: 600;
     color: var(--jade-deep); margin-top: 5px; letter-spacing: 0.01em;
@@ -628,6 +650,7 @@
 <!-- ════════ GUARDRAIL ════════ -->
 <section id="guardrail">
   <div class="callout callout--clay">
+    <span class="type-badge type-badge--clay">Caution · colleagues only</span>
     <div class="callout-title">Read first — colleague-only guardrail</div>
     <p><strong>During Pilot 2, students access Tu Pana layers only through assignment-specific links. Students do not choose among genres inside the app. The review selector is for colleagues/evaluators only and must not be shared with students.</strong></p>
     <p style="margin-top:6px; font-size:0.88rem;">Student pilots use individualized links provided by their instructor. Please never post the review link in Brightspace or anywhere students can reach it.</p>
@@ -718,7 +741,7 @@
     <p>The name carries the design philosophy. In Caribbean and Latin American Spanish, a <em lang="es">pana</em> is a trusted friend — the companion who sits beside you and helps you get through. <em lang="es">Tu Pana de Escritura</em> is meant to be exactly that: a writing companion, not a ghost-writer — a peer guide that keeps the student doing the writing, supports them across both of their languages, and never replaces their voice with its own.</p>
   </div>
   <div class="card">
-    <h3 style="font-size:1.08rem; margin-bottom:8px;">Research and teaching foundation</h3>
+    <h3 style="font-size:1.08rem; margin-bottom:8px;">Research and teaching foundation <span class="type-badge type-badge--ink">Scholarship</span></h3>
     <p style="font-size:0.95rem;">Tu Pana Writing Studio is informed by Dr. Torres-Vélez’s scholarship and teaching on multilingual pedagogy, open education, writing, and educational equity — much of it written from the same Hostos classrooms the studio grew out of, and translated here into a practical writing environment for the AI era.</p>
     <div class="check-group-title" style="margin-top:14px;">Research</div>
     <ul class="pub-list">
@@ -776,7 +799,7 @@
 
 <!-- ════════ STUDENT SIGNALS ════════ -->
 <section id="student-voices">
-  <div class="section-label"><span class="section-num">06</span> · Early signals</div>
+  <div class="section-label"><span class="section-num">06</span> · Early signals <span class="type-badge type-badge--gold">Evidence</span></div>
   <h2 class="section-title">What students noticed in early use</h2>
   <p class="section-sub">Anonymized comments from classroom use — signals, not statistics.</p>
   <figure class="quote-card">
@@ -798,7 +821,7 @@
 
 <!-- ════════ ENTER REVIEW MODE ════════ -->
 <section id="enter-review">
-  <div class="section-label"><span class="section-num">07</span> · Getting in</div>
+  <div class="section-label"><span class="section-num">07</span> · Getting in <span class="type-badge type-badge--jade">Action</span></div>
   <h2 class="section-title">How to enter review mode</h2>
   <p class="section-sub">One link opens the pathway selector; direct links jump straight into a pathway.</p>
 
@@ -829,7 +852,7 @@
   </div>
 
   <div class="card copy-scope">
-    <h3 style="font-size:1.05rem; margin-bottom:10px;">Direct pathway review links</h3>
+    <h3 style="font-size:1.05rem; margin-bottom:10px;">Jump straight into one pathway</h3>
     <table class="stage-table">
       <tr><th>Pathway</th><th>Direct review link</th></tr>
       <tr>
@@ -949,15 +972,15 @@
     </ul>
   </div>
   <div class="card">
-    <div class="check-group-title">Tag each note with one of</div>
+    <div class="check-group-title">Tag each note:</div>
     <div class="cat-row">
-      <span class="cat-chip">Must fix before student use</span>
-      <span class="cat-chip">Confusing but not blocking</span>
+      <span class="cat-chip cat-chip--clay">Must fix before student use</span>
+      <span class="cat-chip cat-chip--gold">Confusing but not blocking</span>
       <span class="cat-chip">Nice to have</span>
       <span class="cat-chip">Future idea</span>
-      <span class="cat-chip">Intentional design worth preserving</span>
-      <span class="cat-chip">Pilot-readiness concern</span>
-      <span class="cat-chip">Instructor trust concern</span>
+      <span class="cat-chip cat-chip--jade">Intentional design worth preserving</span>
+      <span class="cat-chip cat-chip--gold">Pilot-readiness concern</span>
+      <span class="cat-chip cat-chip--gold">Instructor trust concern</span>
     </div>
   </div>
 </section>
@@ -966,7 +989,7 @@
 
 <!-- ════════ FEEDBACK ════════ -->
 <section id="feedback">
-  <div class="section-label"><span class="section-num">11</span> · Sharing what you found</div>
+  <div class="section-label"><span class="section-num">11</span> · Sharing what you found <span class="type-badge type-badge--jade">Action</span></div>
   <h2 class="section-title">Feedback</h2>
   <p class="section-sub">Notes in any format are welcome — per-pathway headings help.</p>
 
@@ -975,7 +998,7 @@
        feedback form — spec docs/feedback/tu-pana-writing-studio-feedback-form.md, generated via
        docs/feedback/create-tu-pana-writing-studio-feedback-form.gs, founder-reviewed and branded
        before this swap. -->
-  <div class="card" style="text-align:center;">
+  <div class="card card--feedback" style="text-align:center;">
     <div class="check-group-title" style="color: var(--jade);">Colleague feedback form</div>
     <p style="font-size:0.92rem;">A short, adoption-facing form — about 3–5 minutes: <strong>classroom fit, genre clarity, student usability, bilingual access, AI transparency, instructor trust, and pilot readiness.</strong> Anonymous unless you choose to share contact details for follow-up — or simply email your notes instead.</p>
     <div class="feedback-actions" style="margin-top:16px;">

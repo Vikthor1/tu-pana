@@ -662,6 +662,159 @@ This assignment context is additive guidance. The authorship gate, voice protect
 };
 
 // ════════════════════════════════════════════════════════
+//  STEM LAB REPORT & SCIENTIFIC EXPLANATION LAYER — WID/WAC science-writing overlay
+//  A third genre profile on the SAME Stage-B.1 overlay pattern as CAP 200 and
+//  Research Paper. Pure presentation/coaching data consumed by the existing
+//  profile-aware resolvers UNCHANGED. It never mutates the default STAGES /
+//  MILESTONES / STAGE_ENTRY_MESSAGES, and it is LINK-ONLY (selectable:false) —
+//  activated only by ?assignment=stem-lab-report, never in the bare-app selector.
+//  The 10-stage engine, Stage 6 authorship gate, Stage 8 voice protection,
+//  default essay flow, CAP 200 flow, and research-paper flow are all untouched.
+//  Generic across intro STEM labs (biology, chemistry, environmental science,
+//  anatomy/physiology, psychology research methods): NO course-specific values.
+//  Spine: lab context → purpose/question → method → evidence/data → result/
+//  pattern → unassisted first draft → CER(+rebuttal) explanation → voice &
+//  scientific register → readiness check → process reflection / AI use.
+//  The coach is a WRITING coach: it never fabricates data, never solves the
+//  science, never grades or verifies scientific correctness.
+// ════════════════════════════════════════════════════════
+const stemLabReportProfile = {
+    profileId:      'stem_lab_report',
+    // Short student-facing copy (kept for a future selectable release; unused while link-only).
+    studentLabelEs: 'Informe de laboratorio',
+    studentLabelEn: 'Lab Report & Scientific Explanation',
+    studentDescEs:  'Convierte tu laboratorio en un informe científico: tu propósito, tu método, tus datos, tu explicación y tu revisión.',
+    studentDescEn:  'Turn your lab into a scientific report: your purpose, your method, your data, your explanation, and your revision.',
+
+    // ── Stage-B.1 presentation overlay (applied ONLY when this profile is active) ──
+    // Draft-area placeholder (bilingual "ES\n\nEN") — cues the student's real lab.
+    // No CBO (no CAP leak), no essay starter (no default leak), no sources cue (no research leak).
+    draftPlaceholder: 'Empieza con tu laboratorio: ¿qué observaste, qué mediste, o qué pregunta investigas? Usa tus propios datos y observaciones…\n\nStart with your lab: what did you observe, what did you measure, or what question are you investigating? Use your own data and observations…',
+    stageDisplay: {
+        1:  { es: 'Contexto del\nlaboratorio',      en: 'Lab Context' },
+        2:  { es: 'Propósito y\npregunta',          en: 'Purpose & Question' },
+        3:  { es: 'Resumen del\nmétodo',            en: 'Method Summary' },
+        4:  { es: 'Evidencia y\ndatos',             en: 'Evidence & Data' },
+        5:  { es: 'Resultado y\npatrón',            en: 'Result & Pattern' },
+        6:  { es: 'Primer\nborrador',               en: 'First Draft' },
+        7:  { es: 'Explicación\ncientífica (CER)',  en: 'Scientific Explanation (CER)' },
+        8:  { es: 'Voz y registro\ncientífico',     en: 'Voice & Scientific Register' },
+        9:  { es: 'Revisión\nfinal',                en: 'Final Readiness Check' },
+        10: { es: 'Reflexión del\nproceso',         en: 'Process Reflection' }
+    },
+    milestones: {
+        1: { es: 'Contexto y pregunta',            en: 'Context & Question' },
+        2: { es: 'Método y evidencia',             en: 'Method & Evidence' },
+        3: { es: 'Escribe tu primer borrador',     en: 'Write Your First Draft' },
+        4: { es: 'Explica y revisa (CER)',         en: 'Explain & Revise (CER)' },
+        5: { es: 'Reflexiona y entrega',           en: 'Reflect & Submit' }
+    },
+    // Coach stage-entry messages ("ES\nEN"). Stage 6 preserves the global authorship
+    // framing ("you write this draft yourself, without the coach"); Stage 8 preserves
+    // the global voice-protection framing ("without erasing your voice").
+    stageEntry: {
+        1:  'Paso 1: Contexto del laboratorio. Empieza con el laboratorio o experimento que hiciste: qué estudiaron, qué hiciste tú, y qué observaste — en tus propias palabras.\nStep 1: Lab Context. Start with the lab or experiment you did: what your class studied, what you did, and what you observed — in your own words.',
+        2:  'Paso 2: Propósito y pregunta de investigación. Aclara qué pregunta intenta responder tu laboratorio y por qué importa. Yo te ayudo a afinarla; la pregunta la escribes tú.\nStep 2: Purpose & Research Question. Clarify what question your lab tries to answer and why it matters. I help you sharpen it; you write the question.',
+        3:  'Paso 3: Resumen del método. Describe qué hiciste, paso a paso, para que otra persona pueda seguir el proceso. Tú describes tu método real — yo solo hago preguntas.\nStep 3: Method Summary. Describe what you did, step by step, so another person could follow the process. You describe your real method — I only ask questions.',
+        4:  'Paso 4: Evidencia, observaciones y datos. Registra lo que realmente observaste y mediste. Yo nunca invento datos, mediciones ni resultados — la evidencia viene de ti.\nStep 4: Evidence, Observations & Data. Record what you actually observed and measured. I never invent data, measurements, or results — the evidence comes from you.',
+        5:  'Paso 5: Resultado, patrón y plan del informe. Nombra el patrón que ves en tus datos y organiza tu informe: propósito, método, resultados, discusión. El plan lo haces tú.\nStep 5: Result, Pattern & Report Plan. Name the pattern you see in your data and organize your report: purpose, method, results, discussion. You build the plan.',
+        6:  'Paso 6: Primer borrador. Este borrador lo escribes tú, sin el coach. No tiene que ser perfecto — solo tiene que ser tuyo. Escríbelo y guárdalo para desbloquear la revisión.\nStep 6: First Draft Checkpoint. You write this draft yourself, without the coach. It does not need to be perfect — it just needs to be yours. Write and save it to unlock revision.',
+        7:  'Paso 7: Explicación científica — Afirmación, Evidencia, Razonamiento. Conecta tus datos con tu afirmación usando un concepto del curso. ¿Cuál oración es tu afirmación y cuál es tu razonamiento?\nStep 7: Scientific Explanation — Claim, Evidence, Reasoning. Connect your data to your claim using a course concept. Which sentence is your claim, and which is your reasoning?',
+        8:  'Paso 8: Voz y registro científico. Pule tu escritura hacia un registro científico claro y preciso sin borrar tu idioma, tu perspectiva ni tu voz. Elige una oración y decide qué ayuda necesita.\nStep 8: Voice & Scientific Register. Polish your writing toward a clear, precise scientific register without erasing your language, your perspective, or your voice. Choose one sentence and decide what help it needs.',
+        9:  'Paso 9: Revisión final. Confirma tu propósito, tu método, tus datos reales, tu explicación CER, tus limitaciones y fuentes de error, y tus revisiones.\nStep 9: Final Readiness Check. Confirm your purpose, your method, your real data, your CER explanation, your limitations and sources of error, and your revisions.',
+        10: 'Paso 10: Reflexión del proceso. Documenta cómo desarrollaste tu explicación, cómo usaste la IA, qué revisaste, y qué entiendes ahora sobre escribir en las ciencias.\nStep 10: Process Reflection. Document how you developed your explanation, how you used AI, what you revised, and what you now understand about writing in the sciences.'
+    },
+    // Task-bar cues per stage. Stages 1–6 carry the full 3 sub-step cues (word-count
+    // auto-advance drives movement — stages 1–6 only); stages 7–10 keep one cue: the
+    // step index never advances there, so extra cues would be unreachable dead copy.
+    stageSteps: {
+        1:  [
+            { es: 'Nombra tu laboratorio: qué estudiaron y qué hiciste tú.', en: 'Name your lab: what your class studied and what you did.' },
+            { es: 'Escribe 3–5 oraciones sobre lo que observaste.', en: 'Write 3–5 sentences about what you observed.' },
+            { es: 'Anota qué te sorprendió o qué esperabas que pasara.', en: 'Note what surprised you or what you expected to happen.' }
+        ],
+        2:  [
+            { es: 'Convierte tu laboratorio en una pregunta clara y comprobable.', en: 'Turn your lab into a clear, testable question.' },
+            { es: 'Escribe el propósito en 1–2 oraciones: ¿qué intenta responder?', en: 'Write the purpose in 1–2 sentences: what does it try to answer?' },
+            { es: 'Anota qué datos podrían responder tu pregunta.', en: 'Note what data could answer your question.' }
+        ],
+        3:  [
+            { es: 'Describe tu método paso a paso, en tus propias palabras.', en: 'Describe your method step by step, in your own words.' },
+            { es: 'Anota los materiales o instrumentos que usaste.', en: 'Note the materials or instruments you used.' },
+            { es: 'Revisa: ¿otra persona podría seguir tu proceso?', en: 'Check: could someone else follow your process?' }
+        ],
+        4:  [
+            { es: 'Registra tus observaciones y mediciones reales.', en: 'Record your real observations and measurements.' },
+            { es: 'Organiza tus datos: tabla, lista o descripción.', en: 'Organize your data: a table, list, or description.' },
+            { es: 'Separa lo que observaste de lo que crees que significa.', en: 'Separate what you observed from what you think it means.' }
+        ],
+        5:  [
+            { es: 'Nombra el patrón o la tendencia que ves en tus datos.', en: 'Name the pattern or trend you see in your data.' },
+            { es: 'Escribe tu resultado principal en 1–2 oraciones.', en: 'Write your main result in 1–2 sentences.' },
+            { es: 'Planea tu informe: propósito, método, resultados, discusión.', en: 'Plan your report: purpose, method, results, discussion.' }
+        ],
+        6:  [
+            { es: '⭐ Escribe y guarda tu primer borrador sin ayuda. Este borrador es tuyo.', en: '⭐ Write and save your unassisted first draft. This draft is yours.' },
+            { es: 'Sigue escribiendo. El coach espera hasta que guardes.', en: 'Keep writing. The coach waits until you save.' },
+            { es: 'Cuando termines, guarda tu borrador para desbloquear la revisión.', en: 'When done, save your draft to unlock revision.' }
+        ],
+        7:  [{ es: 'Conecta tu afirmación con tu evidencia usando razonamiento científico.', en: 'Connect your claim to your evidence with scientific reasoning.' }],
+        8:  [{ es: 'Pule tu registro científico sin borrar tu voz ni tu idioma.', en: 'Polish your scientific register without erasing your voice or language.' }],
+        9:  [{ es: 'Verifica propósito, método, datos reales, CER, limitaciones y revisiones.', en: 'Check purpose, method, real data, CER, limitations, and revisions.' }],
+        10: [{ es: 'Documenta tu explicación, tu uso de la IA y tu proceso de revisión.', en: 'Document your explanation, your AI use, and your revision process.' }]
+    },
+    // Post-onboarding coach welcome — resolved by ASSIGNMENT IDENTITY via
+    // getWelcomeOverride(). Bilingual "ES\nEN" (wrapBilingualHtml format).
+    welcome: {
+        connected: '¡Bienvenido/a! Completaste Tu Conocimiento y la orientación inicial. Estás en el Paso 1: Contexto del laboratorio de tu informe. Empieza en el panel del borrador: qué estudiaron, qué hiciste y qué observaste — en tus propias palabras. Tu voz importa.\nWelcome! You completed Tu Conocimiento and El Laboratorio. You are at Step 1: Lab Context of your lab report. Start in the draft panel: what your class studied, what you did, and what you observed — in your own words. Your voice matters.',
+        offline:   '¡Bienvenido/a! Completaste la orientación. Ve al Paso 1: Contexto del laboratorio y empieza a escribir en el panel del borrador — qué estudiaron, qué hiciste, y qué observaste, en tus propias palabras. Tu coach estará listo cuando el instructor conecte la IA.\nWelcome! You completed the orientation. Go to Step 1: Lab Context and start writing in the draft panel — what your class studied, what you did, and what you observed, in your own words. Your coach will be ready once the instructor connects the AI.'
+    },
+    // ── Prompt-facing per-stage coachFocus OVERRIDE (science-writing-shaped) ──
+    // Consumed ONLY by getCoachFocusOverride() → buildOllamaSystemPrompt()'s
+    // per-stage Stage-focus block when this profile is active. These strings
+    // REPLACE the default essay coachFocus lines so the model no longer receives
+    // anecdote/bridge/pitch essay framing. They are SUBORDINATE to the mandatory
+    // global rules (absolute authorship, no-copyable-prose, voice protection) —
+    // Stage 6 authorship and Stage 8 voice protection always win.
+    coachFocus: {
+        1:  'Help the student describe the lab or experiment they actually did: what the class was studying, what the student did, and what they observed. Use only the student\'s real lab experience. Do not invent an experiment, procedure, or observation, and do not explain the science for them — the goal is their own account of the lab context in their own words.',
+        2:  'Help the student turn their lab into one clear purpose statement or testable research question. Help them tell apart questions that are too broad, too vague, and workable, and ask what their data could actually answer. Offer question frames (blanks only); never write the purpose or question for them, and never supply the scientific answer the question points toward.',
+        3:  'Help the student summarize their method: what they did, in what order, with what materials or instruments, so a reader could follow the process. Ask clarifying questions about the student\'s real procedure. Do not invent procedural steps, do not correct the science of their method, and do not judge whether the experiment was performed correctly — help them describe accurately what they actually did.',
+        4:  'Help the student record and organize their real observations, measurements, and data, and keep observation (what they saw or measured) separate from interpretation (what they think it means). If data is missing, ask the student for it. NEVER invent, estimate, complete, or clean up data, measurements, observations, or results. Do not solve lab calculations for them; you may ask which formula or course concept applies and let the student compute.',
+        5:  'Help the student name the pattern, trend, or relationship they see in their own data and state their main result in their own words, then plan the report\'s structure (purpose, method, results, discussion/conclusion). Ask pattern-noticing questions; do not tell them what the data shows, do not declare their result correct or expected, and do not build the outline for them.',
+        6:  'This is the unassisted first-draft stage. The student writes the lab report or scientific explanation draft themselves. You may help them work from their own notes, data, and report plan, but do not write sentences, sections, or any part of the draft, and do not give paragraph-level revision until the student has saved a first draft.',
+        7:  'Help the student strengthen their scientific explanation using Claim–Evidence–Reasoning, plus rebuttal and limitations where relevant: which sentence is the claim, which evidence from THEIR data supports it, and what course concept or scientific reasoning links the evidence to the claim. Ask questions like "Where is the evidence for this claim?", "What course concept explains this pattern?", and "What limitation might affect how strongly you can state this conclusion?" Do not supply the claim, the reasoning, or the scientific answer; do not confirm the explanation is scientifically correct — the student reasons, you question.',
+        8:  'Help the student revise toward a clear, precise scientific register while preserving their language, perspective, and voice. Scientific writing can be precise without erasing the writer. Do not rewrite sentences into polished replacement prose and do not flatten their voice into generic textbook language — name what a sentence needs and ask guiding questions; the student writes the revision.',
+        9:  'Help the student check readiness: purpose stated, method summarized, real data presented, result named, CER explanation linked to their own data, limitations and sources of error acknowledged, and revisions made. Ask checking questions only. Do not write missing sections, do not certify the report as scientifically correct, and do not grade it.',
+        10: 'Help the student reflect on their process: how their question or explanation changed, how they used AI, what they revised, and what they learned about scientific writing — in their own words. Do not write the reflection or process report for them, and do not claim the report is correct, complete, verified, or graded.'
+    }
+};
+
+// Registry-ready layer (backward-compatible {id, name, context} shape). `context`
+// is an ADDITIVE science-writing coaching body — parallel to CAP 200's and the
+// research paper's — that explicitly defers to the authorship gate and voice rules
+// and forbids data fabrication, science-answer checking, correctness grading, and
+// experimental-validity verification.
+const stemLabReportLayer = {
+    id:         'stem-lab-report',
+    name:       'STEM Lab Report & Scientific Explanation Coach',
+    type:       'stem_lab_report',
+    // Read-only pathway chip label — informational only.
+    pathwayLabel: { es: 'Informe de laboratorio', en: 'Lab Report' },
+    selectable: false,  // LINK-ONLY: activated by ?assignment=stem-lab-report; not shown in the bare-app selector
+    profile:    stemLabReportProfile,
+    context:
+`The student is working on a STEM LAB REPORT & SCIENTIFIC EXPLANATION — writing-in-the-disciplines work where the student practices the conventions of scientific writing: lab context, purpose/research question, method summary, evidence/observations/data, result/pattern, a Claim–Evidence–Reasoning scientific explanation (with rebuttal/limitations), sources of error, revision, and process reflection. Help them THINK, PLAN, ORGANIZE, DRAFT, and REVISE their own scientific writing. You never write it for them and never grade it; the student is the author of every word.
+- Work ONLY from the student's real lab experience, real observations, and real data. If evidence, a measurement, or an observation is missing, ask the student for it before commenting on results. NEVER invent, fabricate, estimate, complete, or adjust data, observations, measurements, results, calculations, constants, or findings — not even as examples.
+- You are a WRITING coach, not a science-answer checker or grader. Do not solve the science, do not confirm or reject the scientific correctness of a claim, hypothesis, result, or explanation, do not verify experimental validity, and do not predict or assign a grade. When the student asks "is this right?", redirect them to their own data, their course concepts, their textbook or notes, and their instructor.
+- Do not solve lab calculations for the student. You may ask which formula or course concept applies and coach them to show their own work.
+- Help the student keep observation, result, claim, evidence, reasoning, and limitation clearly distinct, and link claims to their own data through scientific reasoning (Claim–Evidence–Reasoning, plus rebuttal/limitations).
+- Help the student revise toward a clear, precise scientific register without erasing their language, perspective, or voice.
+- Never remove, weaken, or help hide AI-use transparency: the student's process reflection and AI-use documentation are part of the assignment.
+This assignment context is additive guidance. The authorship gate, voice protection, and no-copyable-prose / no-invented-data rules stated above remain in full force and are never relaxed by it.`
+};
+
+// ════════════════════════════════════════════════════════
 //  ASSIGNMENT LAYERS (Session 78) — thin, link/config-activated context
 //  ON TOP OF the stable 10-stage core. Pure data + lookup (no DOM here).
 //  An assignment layer adds ASSIGNMENT CONTEXT to the coach prompt; it is
@@ -690,7 +843,9 @@ This assignment context is additive guidance. The authorship gate, voice protect
     // Stage B: comprehensive CAP 200 service-learning profile (generic engine + profile config).
     'cap200-bronx-beautiful-service-learning': cap200ServiceLearningLayer,
     // Research Paper Genre Layer A.1 (LINK-ONLY, selectable:false): academic research-paper overlay.
-    'research-paper': researchPaperLayer
+    'research-paper': researchPaperLayer,
+    // STEM Lab Report & Scientific Explanation (LINK-ONLY, selectable:false): science-writing overlay.
+    'stem-lab-report': stemLabReportLayer
 };
 
 // Pure lookup — returns the layer object for a known id, else null (generic fallback). No DOM.

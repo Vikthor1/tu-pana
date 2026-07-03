@@ -53,6 +53,8 @@
 !storage_keys_test.mjs
 # ── Allow Stage B.1 label-alignment regression test ──────
 !cap200_labels_test.mjs
+# ── Allow STEM lab-report genre-layer regression test ─────
+!stem_lab_report_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

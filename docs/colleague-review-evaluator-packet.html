@@ -49,7 +49,11 @@
   section { padding: 50px 0 0; }
 
   /* ── Hero ── */
-  .hero { background: var(--ink); color: #f7f4ef; padding: 52px 24px 44px; text-align: center; }
+  .hero {
+    background: radial-gradient(ellipse 120% 90% at 50% 22%, #27322b 0%, var(--ink) 72%), var(--ink);
+    color: #f7f4ef; padding: 52px 24px 44px; text-align: center;
+    border-bottom: 2px solid var(--gold);
+  }
   .hero-eyebrow {
     font-family: var(--font-ui); font-size: 12px; font-weight: 600;
     letter-spacing: 0.12em; text-transform: uppercase; color: var(--jade-mid); margin-bottom: 14px;
@@ -489,6 +493,43 @@
     vertical-align: 2px; margin-left: 8px;
   }
   .callout .type-badge { display: block; width: fit-content; margin: 0 0 8px; vertical-align: baseline; }
+  /* Impl-3: pilot trio accents + numerals */
+  .pilot-grid { counter-reset: pilot; }
+  .pilot-grid .pilot-card { position: relative; border-top: 3px solid var(--jade); counter-increment: pilot; }
+  .pilot-grid .pilot-card:nth-child(2) { border-top-color: var(--gold); }
+  .pilot-grid .pilot-card:nth-child(3) { border-top-color: var(--clay); }
+  .pilot-card::after {
+    content: counter(pilot); position: absolute; top: 10px; right: 13px;
+    font-family: var(--font-ui); font-size: 11px; font-weight: 700; color: var(--border-mid);
+  }
+  /* Impl-3: at-a-glance separators + ticks */
+  .glance-item { padding-left: 14px; border-left: 1px solid var(--border); }
+  .glance-item:first-child { border-left: none; padding-left: 0; }
+  .glance-label::before {
+    content: ""; display: inline-block; width: 6px; height: 6px;
+    background: var(--jade); border-radius: 1px; margin-right: 6px;
+  }
+  @media (max-width: 700px) { .glance-item { border-left: none; padding-left: 0; } }
+  /* Impl-3: foundation shelf treatment */
+  .pub-list { list-style: none; padding-left: 0; }
+  .pub-list > li { position: relative; padding-left: 18px; }
+  .pub-list > li::before {
+    content: ""; position: absolute; left: 2px; top: 9px; width: 7px; height: 7px;
+    background: var(--jade-light); border: 1px solid var(--jade-mid); border-radius: 1px;
+  }
+  /* Impl-4: accordion affordance + focus-visible + tactile press */
+  .pub-list summary { list-style: none; position: relative; padding-left: 14px; }
+  .pub-list summary::-webkit-details-marker { display: none; }
+  .pub-list summary::before {
+    content: "▸"; position: absolute; left: 1px; top: 0;
+    color: var(--jade-mid); font-size: 10px;
+  }
+  .pub-list details[open] > summary::before { content: "▾"; }
+  .pub-list summary:hover { color: var(--jade); }
+  .pub-list summary:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; border-radius: 3px; }
+  .feedback-button--primary:active { box-shadow: 0 1px 4px rgba(45,122,95,0.35), 0 1px 2px rgba(0,0,0,0.15); }
+  a.stage-open-btn:active { box-shadow: 0 0 2px rgba(45,122,95,0.2); }
+
   .type-badge--clay { background: var(--clay-light); color: #9c4432; border: 1px solid #eec2b8; }
   .type-badge--gold { background: var(--gold-light); color: #8a5c14; border: 1px solid #e4c88f; }
   .type-badge--jade { background: var(--jade-light); color: var(--jade-deep); border: 1px solid #b2d8c6; }
@@ -532,11 +573,17 @@
 
   /* ── Footer ── */
   .doc-footer {
-    margin-top: 52px; background: var(--surface-alt); border-top: 1px solid var(--border);
-    padding: 26px 24px 34px; text-align: center;
-    font-family: var(--font-ui); font-size: 12px; color: var(--ink-muted);
+    margin-top: 52px;
+    background: radial-gradient(ellipse 120% 110% at 50% 85%, #27322b 0%, var(--ink) 75%), var(--ink);
+    border-top: 2px solid var(--gold);
+    padding: 30px 24px 38px; text-align: center;
+    font-family: var(--font-ui); font-size: 12px; color: #b7afa2;
   }
-  .doc-footer .foot-guard { color: var(--clay); font-weight: 700; margin-bottom: 6px; }
+  .doc-footer .foot-guard { color: #e8a08d; font-weight: 700; margin-bottom: 6px; }
+  .doc-footer .foot-share-btn { border-color: rgba(255,255,255,0.28); color: #d8d2c6; }
+  .doc-footer .foot-share-btn:hover { background: rgba(255,255,255,0.08); }
+  .doc-footer .foot-share-btn:focus { outline-color: var(--jade-mid); }
+  .doc-footer .copy-status { color: var(--jade-mid); }
 
   /* ── Responsive ── */
   @media (max-width: 700px) {

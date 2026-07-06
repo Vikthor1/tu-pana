@@ -49,7 +49,8 @@ async function visit(url, opts = {}) {
         selectable: getSelectableProfiles().map(x => x.assignmentId),
         review: (typeof getReviewProfiles === 'function') ? getReviewProfiles() : null,
         rpFlag: getAssignmentLayer('research-paper')?.selectable,
-        stemFlag: getAssignmentLayer('stem-lab-report')?.selectable
+        stemFlag: getAssignmentLayer('stem-lab-report')?.selectable,
+        cpsFlag: getAssignmentLayer('college-personal-statement')?.selectable
     }));
     if (opts.keep) return { page: p, r };
     await p.close();
@@ -60,19 +61,20 @@ async function visit(url, opts = {}) {
 console.log('\n── A. Normal student invariant ──');
 let r = await visit('/', { onboarded: false });
 check('first-run chooser is the STUDENT selector (Elige tu proyecto), no review copy', r.selector && /Elige tu proyecto/.test(r.selectorText) && !/Modo de revisión/.test(r.selectorText));
-check('student chooser lists NO Research Paper / STEM', !/Research Paper/.test(r.selectorText) && !/STEM/.test(r.selectorText));
+check('student chooser lists NO Research Paper / STEM / Admissions', !/Research Paper/.test(r.selectorText) && !/STEM/.test(r.selectorText) && !/Admissions/.test(r.selectorText));
 check('getSelectableProfiles() = CAP only', r.selectable.join() === 'cap200-bronx-beautiful-service-learning');
 check('research-paper + stem-lab-report remain selectable:false', r.rpFlag === false && r.stemFlag === false);
+check('college-personal-statement remains selectable:false', r.cpsFlag === false);
 check('no badge in student first-run', !r.badge);
 r = await visit('/');
 check('onboarded bare URL: no selector, no badge', !r.selector && !r.badge);
 
 // ── B. Review profile list ──
 console.log('\n── B. getReviewProfiles() ──');
-check('exists and lists CAP, research, STEM in order', Array.isArray(r.review) && r.review.map(p => p.assignmentId).join() === 'cap200-bronx-beautiful-service-learning,research-paper,stem-lab-report');
-check('succinct EN review labels', r.review.map(p => p.labelEn).join('|') === 'Service-Learning Report|Research Paper|STEM Lab Report');
-check('succinct ES review labels (Trabajo de investigación)', r.review.map(p => p.labelEs).join('|') === 'Informe de aprendizaje-servicio|Trabajo de investigación|Informe de laboratorio STEM');
-check('listing does not change layer flags', r.rpFlag === false && r.stemFlag === false);
+check('exists and lists CAP, research, STEM, admissions in order', Array.isArray(r.review) && r.review.map(p => p.assignmentId).join() === 'cap200-bronx-beautiful-service-learning,research-paper,stem-lab-report,college-personal-statement');
+check('succinct EN review labels', r.review.map(p => p.labelEn).join('|') === 'Service-Learning Report|Research Paper|STEM Lab Report|College Admissions Essay');
+check('succinct ES review labels (Trabajo de investigación)', r.review.map(p => p.labelEs).join('|') === 'Informe de aprendizaje-servicio|Trabajo de investigación|Informe de laboratorio STEM|Ensayo de admisión universitaria');
+check('listing does not change layer flags', r.rpFlag === false && r.stemFlag === false && r.cpsFlag === false);
 
 // ── C. Review selector via canonical link + alias ──
 console.log('\n── C. Review selector ──');
@@ -81,7 +83,7 @@ check('?review=colleague shows review heading', r.selector && /Modo de revisión
 check('subtitle: Compara los caminos de escritura', /Compara los caminos de escritura/.test(r.selectorText));
 check('bilingual guardrail note present', /No compartas este enlace con estudiantes durante Pilot 2/.test(r.selectorText) && /Do not share this link with students during Pilot 2/.test(r.selectorText));
 check('Default card titled Autobiographical Mixed-Genre Essay', /Autobiographical Mixed-Genre Essay/.test(r.selectorText) && /Ensayo autobiográfico de género mixto/.test(r.selectorText));
-check('cards: Service-Learning Report + Research Paper + STEM Lab Report', /Service-Learning Report/.test(r.selectorText) && /Research Paper/.test(r.selectorText) && /STEM Lab Report/.test(r.selectorText));
+check('cards: Service-Learning Report + Research Paper + STEM Lab Report + College Admissions Essay', /Service-Learning Report/.test(r.selectorText) && /Research Paper/.test(r.selectorText) && /STEM Lab Report/.test(r.selectorText) && /College Admissions Essay/.test(r.selectorText));
 check('visible review badge', r.badge && /Modo de revisión · Review mode/.test(r.badgeText));
 check('review mode NOT persisted (no review keys in storage)', r.reviewKeysStored === 'none');
 r = await visit('/?review=true');
@@ -93,6 +95,10 @@ r = await visit('/?review=colleague&assignment=stem-lab-report');
 check('STEM activates directly (Lab Context)', r.aid === 'stem-lab-report' && r.node1 === 'Lab Context');
 check('badge appears', r.badge);
 check('selector does not block direct review', !r.selector);
+r = await visit('/?review=colleague&assignment=college-personal-statement');
+check('Admissions activates directly (Story Inventory)', r.aid === 'college-personal-statement' && r.node1 === 'Story Inventory');
+check('admissions review badge appears', r.badge);
+check('selector does not block admissions direct review', !r.selector);
 // link-hub navigation from the selector
 {
     const { page: p } = await visit('/?review=colleague', { keep: true });
@@ -110,7 +116,8 @@ console.log('\n── E. Normal student deep links (no badge, no selector) ─�
 for (const [q, label] of [
     ['/?assignment=stem-lab-report', 'Lab Context'],
     ['/?assignment=research-paper', 'Topic & Context'],
-    ['/?assignment=cap200-bronx-beautiful-service-learning', 'Community Starting Point']
+    ['/?assignment=cap200-bronx-beautiful-service-learning', 'Community Starting Point'],
+    ['/?assignment=college-personal-statement', 'Story Inventory']
 ]) {
     r = await visit(q);
     check(`${q} activates (${label}), no badge, no selector`, r.node1 === label && !r.badge && !r.selector);

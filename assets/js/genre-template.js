@@ -815,6 +815,158 @@ This assignment context is additive guidance. The authorship gate, voice protect
 };
 
 // ════════════════════════════════════════════════════════
+//  COLLEGE ADMISSIONS PERSONAL ESSAY LAYER — Common App personal statement.
+//  Additive assignment/profile overlay on the SHARED 10-stage engine (identical
+//  pattern to Research Paper / STEM Lab Report). Canonical STAGE_IDS unchanged —
+//  Stage 7 = stage.revision and Stage 10 = stage.reflection are inherited, so the
+//  shared model/proxy/Worker routing is reused with NO routing change. LINK-ONLY
+//  (selectable:false): activated only by ?assignment=college-personal-statement,
+//  never in the bare-app student selector. The primary genre is the Common App
+//  PERSONAL STATEMENT — NOT a "statement of purpose" (a different, graduate genre).
+//  10-stage engine, Stage 6 authorship gate, Stage 8 voice protection, default
+//  essay flow, and all other genre flows are untouched.
+// ════════════════════════════════════════════════════════
+const collegePersonalStatementProfile = {
+    profileId:      'college_personal_statement',
+    // Short student-facing copy (kept for a future selectable release; unused while link-only).
+    studentLabelEs: 'Ensayo personal de admisión universitaria',
+    studentLabelEn: 'College Admissions Personal Essay',
+    studentDescEs:  'Escribe tu declaración personal de Common App: tu historia, tu significado, tu voz y tu revisión.',
+    studentDescEn:  'Write your Common App personal statement: your story, your meaning, your voice, and your revision.',
+
+    // ── Stage-B.1 presentation overlay (applied ONLY when this profile is active) ──
+    // Draft-area placeholder (bilingual "ES\n\nEN") — cues small, ownable material.
+    // No trauma demand, no CBO (no CAP leak), no research/source cue (no research leak).
+    draftPlaceholder: 'Empieza con un momento pequeño, un objeto, un lugar, una relación o una pregunta que sigues recordando…\n\nStart with a small moment, an object, a place, a relationship, or a question you keep thinking about…',
+    stageDisplay: {
+        1:  { es: 'Inventario de\nhistorias',   en: 'Story Inventory' },
+        2:  { es: 'Revisión de\nposibilidades', en: 'Possibility Check' },
+        3:  { es: 'Elige un\nrumbo',            en: 'Choose a Direction' },
+        4:  { es: 'Significado y\ntensión',     en: 'Meaning & Tension' },
+        5:  { es: 'Da forma\nal ensayo',        en: 'Shape the Essay' },
+        6:  { es: 'Primer\nborrador',           en: 'First Draft' },
+        7:  { es: 'Significado y\nestructura',  en: 'Meaning & Structure' },
+        8:  { es: 'Detalle y\nvoz',             en: 'Specificity & Voice' },
+        9:  { es: 'Reflexión e\nintegridad',    en: 'Reflection & Integrity' },
+        10: { es: 'Reflexión del\nproceso',     en: 'Process Reflection' }
+    },
+    milestones: {
+        1: { es: 'Encuentra tu historia',       en: 'Find Your Story' },
+        2: { es: 'Dale forma al significado',   en: 'Shape the Meaning' },
+        3: { es: 'Escribe tu primer borrador',  en: 'Write Your First Draft' },
+        4: { es: 'Revisa y encuentra tu voz',   en: 'Revise & Find Your Voice' },
+        5: { es: 'Reflexiona y entrega',        en: 'Reflect & Submit' }
+    },
+    // Coach stage-entry messages ("ES\nEN"). Stage 1 stays small and finishable (no
+    // trauma demand). Stage 6 preserves the global authorship framing ("you write
+    // this draft yourself, without the coach"); Stage 8 preserves the global voice-
+    // protection framing ("without erasing your voice"). No admissions prediction,
+    // no essay-quality score, no prestige/"Ivy" framing anywhere.
+    stageEntry: {
+        1:  'Paso 1: Inventario de historias. Haz una lista de momentos pequeños, rutinas, objetos, lugares, relaciones o preguntas que sigues recordando. No tiene que ser lo más dramático de tu vida. Agrega tres posibilidades — puedes parar después de tres.\nStep 1: Story Inventory. List small moments, routines, objects, places, relationships, or questions you keep thinking about. It does not have to be the most dramatic thing in your life. Add three possibilities — you may stop after three.',
+        2:  'Paso 2: Revisión de posibilidades. Elige hasta tres ideas de tu lista y compáralas: ¿de cuál recuerdas momentos concretos? ¿en cuál hay algo que explorar más allá de lo que pasó? ¿cuál sientes más tuya? Esto mide cuál funciona para escribir, no tus probabilidades de admisión.\nStep 2: Possibility Check. Pick up to three ideas from your list and compare them: which one do you remember in concrete moments? which has something to explore beyond what happened? which feels most yours? This checks which one works to write — not your odds of admission.',
+        3:  'Paso 3: Elige un rumbo. Escoge una dirección para empezar. No tiene que ser perfecta y puede cambiar — elegir no predice tu admisión. Lo importante es que tengas material real con que trabajar.\nStep 3: Choose a Direction. Pick one direction to start. It does not have to be perfect and it may change — choosing does not predict admission. What matters is that you have real material to work with.',
+        4:  'Paso 4: Significado y tensión. Pasa de "¿qué pasó?" a "¿por qué importa?". ¿Qué cambió, qué sigue sin resolverse, o qué contradicción o pregunta vive aquí? No necesitas un final feliz ni una lección — solo lo que esto revela sobre ti.\nStep 4: Meaning & Tension. Move from "what happened?" to "why does it matter?" What changed, what stays unresolved, or what contradiction or question lives here? You do not need a happy ending or a lesson — just what this reveals about you.',
+        5:  'Paso 5: Da forma al ensayo. Ahora que tienes material, mira posibles formas: narrativa, montaje, estructura trenzada, centrada en un objeto o lugar, una pregunta intelectual, una relación, o un momento de darte cuenta. No hay una fórmula ganadora — elige la forma que sirva a tu historia.\nStep 5: Shape the Essay. Now that you have material, look at possible shapes: narrative, montage, braided, object- or place-centered, an intellectual question, a relationship, or a moment of realization. There is no winning formula — choose the shape that serves your story.',
+        6:  'Paso 6: Primer borrador. Este borrador lo escribes tú, sin el coach. No tiene que ser perfecto — solo tiene que ser tuyo. Vuelve a tu mapa, tus notas y tus decisiones. Escríbelo y guárdalo para desbloquear la revisión.\nStep 6: First Draft Checkpoint. You write this draft yourself, without the coach. It does not need to be perfect — it just needs to be yours. Return to your map, your notes, and your decisions. Write and save it to unlock revision.',
+        7:  'Paso 7: Significado y estructura. Da una pasada a la estructura: el centro de gravedad, la proporción, el ritmo, el hilo narrativo, y el equilibrio entre escena, contexto y reflexión. ¿Hay repetición del currículum o explicación de más? Yo diagnostico y pregunto — el texto lo revisas tú.\nStep 7: Meaning & Structure. Take one pass at structure: the center of gravity, proportion, pacing, the narrative thread, and the balance of scene, context, and reflection. Any résumé repetition or over-explanation? I diagnose and ask — you revise the writing.',
+        8:  'Paso 8: Detalle y voz. Encuentra los pasajes vagos y las oportunidades de detalle concreto, y nota los cambios bruscos de registro. ¿Suena a ti? Protejo tu idioma y tu conocimiento comunitario — no cambio tu voz por una voz genérica. Elige una oración y decide qué ayuda necesita.\nStep 8: Specificity & Voice. Find the vague passages and the chances for concrete detail, and notice abrupt shifts in register. Does it sound like you? I protect your language and community knowledge — I do not swap your voice for a generic one. Choose one sentence and decide what help it needs.',
+        9:  'Paso 9: Reflexión e integridad. Revisa tu idea central y tu reflexión, cuida que la lección no suene genérica, confirma que todo es tuyo y auténtico, pule la claridad y la gramática, y revisa el límite de palabras real de tu solicitud. No predigo admisión ni le pongo una nota a tu ensayo.\nStep 9: Reflection & Integrity. Check your controlling insight and reflection, watch that the lesson does not sound generic, confirm everything is yours and authentic, polish clarity and grammar, and check your application\'s real word limit. I do not predict admission or score your essay.',
+        10: 'Paso 10: Reflexión del proceso. Documenta cómo elegiste tu historia, tus decisiones de estructura, lo que revisaste, qué retroalimentación usaste, cómo usaste la IA, y cómo protegiste tu voz — en tus propias palabras. La reflexión la escribes tú.\nStep 10: Process Reflection. Document how you chose your story, your structure decisions, what you revised, what feedback you used, how you used AI, and how you protected your voice — in your own words. You write the reflection.'
+    },
+    // Task-bar cues per stage. Stages 1–6 carry 3 sub-step cues (word-count auto-
+    // advance drives movement — stages 1–6 only); stages 7–10 keep one cue: the step
+    // index never advances there, so extra cues would be unreachable dead copy.
+    stageSteps: {
+        1:  [
+            { es: 'Anota momentos pequeños, objetos, lugares o preguntas que recuerdas.', en: 'Jot down small moments, objects, places, or questions you remember.' },
+            { es: 'Agrega tres posibilidades — puedes parar después de tres.', en: 'Add three possibilities — you may stop after three.' },
+            { es: 'No busques lo más dramático; busca lo que sigues pensando.', en: 'Don\'t hunt for the most dramatic; look for what you keep thinking about.' }
+        ],
+        2:  [
+            { es: 'Elige hasta tres ideas para comparar — no más.', en: 'Pick up to three ideas to compare — no more.' },
+            { es: '¿De cuál recuerdas momentos concretos, no solo hechos?', en: 'Which do you remember in concrete moments, not just facts?' },
+            { es: '¿Cuál sientes más tuya y con espacio para explorar?', en: 'Which feels most yours and has room to explore?' }
+        ],
+        3:  [
+            { es: 'Escoge una dirección para empezar — puede cambiar.', en: 'Pick one direction to start — it can change.' },
+            { es: 'Escribe 1–2 oraciones: ¿de qué trata, para ti?', en: 'Write 1–2 sentences: what is it about, for you?' },
+            { es: 'Recuerda: que funcione, no que sea perfecta. Elegir no predice admisión.', en: 'Remember: workable, not perfect. Choosing does not predict admission.' }
+        ],
+        4:  [
+            { es: 'Pregúntate: ¿por qué me importa esto?', en: 'Ask yourself: why does this matter to me?' },
+            { es: 'Nombra qué cambió o qué sigue sin resolverse.', en: 'Name what changed or what stays unresolved.' },
+            { es: 'No fuerces una lección — busca lo que revela de ti.', en: 'Don\'t force a lesson — look for what it reveals about you.' }
+        ],
+        5:  [
+            { es: 'Mira varias formas posibles; ninguna es "la ganadora".', en: 'Look at several possible shapes; none is "the winning" one.' },
+            { es: 'Elige la forma que sirva a tu historia.', en: 'Choose the shape that serves your story.' },
+            { es: 'Haz un plan breve — tú lo armas, no el coach.', en: 'Make a short plan — you build it, not the coach.' }
+        ],
+        6:  [
+            { es: '⭐ Escribe y guarda tu primer borrador sin ayuda. Este borrador es tuyo.', en: '⭐ Write and save your unassisted first draft. This draft is yours.' },
+            { es: 'Sigue escribiendo. El coach espera hasta que guardes.', en: 'Keep writing. The coach waits until you save.' },
+            { es: 'Cuando termines, guarda tu borrador para desbloquear la revisión.', en: 'When done, save your draft to unlock revision.' }
+        ],
+        7:  [{ es: 'Revisa la estructura: centro, proporción, ritmo e hilo. Yo pregunto; tú revisas.', en: 'Check structure: center, proportion, pacing, and thread. I ask; you revise.' }],
+        8:  [{ es: 'Añade detalle concreto y cuida tu voz — sin cambiarla por una genérica.', en: 'Add concrete detail and protect your voice — without swapping it for a generic one.' }],
+        9:  [{ es: 'Confirma tu reflexión, tu integridad, la claridad y el límite de palabras real.', en: 'Confirm your reflection, your integrity, clarity, and the real word limit.' }],
+        10: [{ es: 'Documenta tus decisiones de historia, estructura, revisión y uso de IA.', en: 'Document your story, structure, revision, and AI-use decisions.' }]
+    },
+    // Post-onboarding coach welcome — resolved by ASSIGNMENT IDENTITY via
+    // getWelcomeOverride(). Bilingual "ES\nEN". Stage 1 framing stays small and
+    // non-trauma; no admissions prediction.
+    welcome: {
+        connected: '¡Bienvenido/a! Completaste Tu Conocimiento y El Laboratorio. Estás en el Paso 1: Inventario de historias de tu ensayo de admisión. Empieza en el panel del borrador: anota momentos pequeños, objetos, lugares, relaciones o preguntas que sigues recordando. No tiene que ser lo más dramático de tu vida. Tu voz importa.\nWelcome! You completed Tu Conocimiento and El Laboratorio. You are at Step 1: Story Inventory of your admissions essay. Start in the draft panel: jot down small moments, objects, places, relationships, or questions you keep thinking about. It does not have to be the most dramatic thing in your life. Your voice matters.',
+        offline:   '¡Bienvenido/a! Completaste la orientación. Ve al Paso 1: Inventario de historias y empieza a escribir en el panel del borrador — momentos pequeños, objetos, lugares o preguntas que sigues recordando, en tus propias palabras. Tu coach estará listo cuando el instructor conecte la IA.\nWelcome! You completed the orientation. Go to Step 1: Story Inventory and start writing in the draft panel — small moments, objects, places, or questions you keep thinking about, in your own words. Your coach will be ready once the instructor connects the AI.'
+    },
+    // ── I2: prompt-facing per-stage coachFocus OVERRIDE (admissions-shaped) ──
+    // Consumed ONLY by getCoachFocusOverride() → buildOllamaSystemPrompt()'s per-stage
+    // Stage-focus block when this profile is active. Keyed by stage number (1–10),
+    // mirroring stageDisplay/stageEntry/stageSteps. These strings REPLACE the default
+    // essay coachFocus lines for admissions mode. They are SUBORDINATE to the mandatory
+    // global rules (absolute authorship, no-copyable-prose, voice protection) — the
+    // Stage 6 authorship gate and Stage 8 voice protection always win. No admissions
+    // prediction, no essay score, no prestige/"Ivy" optimization, no trauma extraction.
+    coachFocus: {
+        1:  'Help the student build a bounded inventory of small, real, ownable material — moments, routines, objects, places, relationships, questions, mistakes, tensions, processes, recurring interests. Keep the first task small and finishable ("add three; you may stop after three"). Do NOT demand trauma, adversity, "the biggest challenge of your life," or the most painful experience, and do not tell the student that pain makes a stronger essay. The student generates the material; you offer categories, never invented memories.',
+        2:  'Help the student compare no more than three of their OWN candidate directions using non-predictive questions: concreteness, reflective potential, ownership, room to develop within the real word limit, and whether the material reveals something beyond an obvious résumé fact. Do NOT score, rank by prestige, or estimate admission probability — the purpose is workability, not admission odds. Never choose the topic for the student.',
+        3:  'Help the student commit to one provisional, workable direction and reassure them it can change. Make clear that choosing is normal and revisable and does NOT predict admission, and discourage endless topic-shopping. Do not tell them a topic will impress any reader or institution.',
+        4:  'Help the student move from "what happened" to why it matters — what changed, what stays unresolved, what contradiction or question is present, and what it reveals about their attention, thinking, relationships, values, or growth. Do NOT force triumph, closure, redemption, a neat life lesson, or a moral. Ask questions; do not supply the meaning or write reflective sentences for them.',
+        5:  'Help the student see multiple legitimate structures — narrative, montage, braided, object- or place-centered, intellectual-question, relationship-centered, process/routine, moment-of-realization — only after they have real material. Do NOT rank structures by admissions value, teach a single "winning" or "Ivy" structure, or produce a copy-ready outline that dictates the essay. Offer options and questions; the student builds the plan.',
+        6:  'This is the unassisted first-draft stage. The student writes the draft themselves. You may point them back to their own inventory, notes, meaning, and structure decisions, but do NOT write essay prose, a paragraph, a hook, an ending, a copy-ready outline, fabricated dialogue, invented memories, or "authentic-sounding" identity prose, and do not give paragraph-level revision until the student has saved a first draft.',
+        7:  'Help the student make one bounded structural revision pass: center of gravity, proportion, pacing, narrative thread, the balance of scene/context/reflection, résumé repetition, unnecessary backstory, missing reflection, and over-explanation. Diagnose and ask questions — do NOT rewrite, and do not produce replacement paragraphs or a finished outline as copy-ready prose.',
+        8:  'Help the student find vague passages and real chances for concrete detail, and notice abrupt register shifts, while protecting their voice, multilingual language, and community knowledge. Explain what a sentence needs and ask whether it sounds like them — do NOT rewrite into generic consultant voice, prestige-coded vocabulary, artificial maturity, or adult-authored polish, and do not supply replacement prose. Treat code-switching and non-English words as choices, not errors; never auto-delete, italicize, or demand translation of every phrase.',
+        9:  'Help the student check their controlling insight and reflection, flag generic or clichéd "lessons," confirm the writing is their own and authentic, clean up clarity and mechanics after substantive drafting, and verify the essay fits the real word limit using context the student provides. Do NOT predict admission, assign an admissions-quality score, call the essay "Ivy-worthy," or claim it will impress a named institution.',
+        10: 'Help the student document, in their own words, their story-selection and structural decisions, their substantive revisions, the feedback they considered and accepted or rejected, how they used AI transparently, and how they protected their voice. This stage stays on the shared reflection route. Do NOT write the reflection for the student, weaken AI-use transparency, or claim the essay is finished, correct, or graded.'
+    }
+};
+
+// Registry-ready layer ({id, name, context} shape). LINK-ONLY (selectable:false).
+// `context` is an ADDITIVE admissions-writing coaching body — parallel to Research
+// Paper / STEM — that explicitly defers to the global authorship gate and voice
+// rules and forbids ghostwriting, admission prediction, essay scoring, prestige
+// optimization, invented memories, and trauma extraction. (Batch I2.)
+const collegePersonalStatementLayer = {
+    id:         'college-personal-statement',
+    name:       'College Admissions Personal Essay — Common App Personal Statement',
+    type:       'college_personal_statement',
+    // Read-only pathway chip label — informational only.
+    pathwayLabel: { es: 'Ensayo de admisión', en: 'Admissions Essay' },
+    selectable: false,  // LINK-ONLY: activated by ?assignment=college-personal-statement; not shown in the bare-app selector
+    profile:    collegePersonalStatementProfile,
+    context:
+`The student is working on a COLLEGE ADMISSIONS PERSONAL ESSAY — specifically a Common App personal statement / undergraduate college admissions personal essay (NOT a graduate "statement of purpose"). Help them THINK, PLAN, DRAFT, and REVISE their own essay so a reader can understand something meaningful about how they notice, think, relate, question, make, care, or change. You never write it for them, never predict admission, and never grade it; the student is the author of every word.
+- Coach the PROCESS, not a product: help the student generate bounded, ownable material; compare a few of their OWN directions by workability (concreteness, reflection, ownership, fit to the real word limit) — never by admission probability or prestige; find meaning and tension; and choose among multiple legitimate structures. There is no "winning formula" and no single "Ivy essay" — do not teach one.
+- Protect authorship absolutely. NEVER write the essay, a paragraph, a hook, or an ending; never invent memories, dialogue, or emotional stakes; never manufacture or intensify adversity; never turn the student's notes into polished ghostwritten prose; and never produce a copy-ready outline that dictates the essay. You may ask questions, offer bounded brainstorming categories, name vague or thin passages, flag résumé repetition or structural imbalance, and explain why something reads as generic — then the student writes and revises.
+- Never extract trauma. Do not tell the student that adversity or pain makes a stronger essay, do not push toward more painful disclosure, and do not require any disclosure. A student may choose difficult material; if so, support their own writing choices without exploiting pain or demanding a triumphant ending.
+- Treat multilingual, family, and community knowledge as assets. Do not automatically delete code-switching, italicize every non-English word, demand translation of every phrase, exoticize family practices, or make a relative the "interesting character" while losing the student's perspective. Keep the student's own noticing, participation, and meaning-making central.
+- Revise without erasing the writer. At every stage preserve the student's language, perspective, and voice; do not standardize toward generic consultant voice or generic academic English. Support transparent AI-use reflection and never help hide or weaken it.
+- Do NOT predict admission, assign an admissions-quality or essay score, call a passage "Ivy-worthy," or claim it will "impress Harvard" or any named institution. Outside readers (parents, mentors, counselors, consultants) are readers, not co-authors; the student may summarize their feedback in their own words, but you do not convert those comments into replacement prose.
+This assignment context is additive guidance. The authorship gate, voice protection, and no-copyable-prose rules stated above remain in full force and are never relaxed by it.`
+};
+
+// ════════════════════════════════════════════════════════
 //  ASSIGNMENT LAYERS (Session 78) — thin, link/config-activated context
 //  ON TOP OF the stable 10-stage core. Pure data + lookup (no DOM here).
 //  An assignment layer adds ASSIGNMENT CONTEXT to the coach prompt; it is
@@ -845,7 +997,10 @@ This assignment context is additive guidance. The authorship gate, voice protect
     // Research Paper Genre Layer A.1 (LINK-ONLY, selectable:false): academic research-paper overlay.
     'research-paper': researchPaperLayer,
     // STEM Lab Report & Scientific Explanation (LINK-ONLY, selectable:false): science-writing overlay.
-    'stem-lab-report': stemLabReportLayer
+    'stem-lab-report': stemLabReportLayer,
+    // College Admissions Personal Essay / Common App Personal Statement (LINK-ONLY, selectable:false):
+    // additive overlay on the shared 10-stage engine; canonical Stage 7/10 routing inherited unchanged.
+    'college-personal-statement': collegePersonalStatementLayer
 };
 
 // Pure lookup — returns the layer object for a known id, else null (generic fallback). No DOM.
@@ -884,12 +1039,14 @@ function getSelectableProfiles() {
 const REVIEW_PROFILE_ORDER = [
     'cap200-bronx-beautiful-service-learning',
     'research-paper',
-    'stem-lab-report'
+    'stem-lab-report',
+    'college-personal-statement'
 ];
 const REVIEW_PROFILE_LABELS = {
     'cap200-bronx-beautiful-service-learning': { labelEn: 'Service-Learning Report', labelEs: 'Informe de aprendizaje-servicio' },
     'research-paper':  { labelEn: 'Research Paper',  labelEs: 'Trabajo de investigación' },
-    'stem-lab-report': { labelEn: 'STEM Lab Report', labelEs: 'Informe de laboratorio STEM' }
+    'stem-lab-report': { labelEn: 'STEM Lab Report', labelEs: 'Informe de laboratorio STEM' },
+    'college-personal-statement': { labelEn: 'College Admissions Essay', labelEs: 'Ensayo de admisión universitaria' }
 };
 function getReviewProfiles() {
     return REVIEW_PROFILE_ORDER

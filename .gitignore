@@ -57,6 +57,12 @@
 !stem_lab_report_test.mjs
 # ── Allow colleague review-mode regression test ───────────
 !review_mode_test.mjs
+# ── Allow Stage 7/10 truncation-stabilization regression tests ──
+!gemini_worker_test.mjs
+!gemini_truncation_test.mjs
+!gemini_fallback_test.mjs
+!stuck_menu_reachability_test.mjs
+!stage10_reflection_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

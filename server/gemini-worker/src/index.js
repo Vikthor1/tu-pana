@@ -48,16 +48,51 @@ function handleOptions(request) {
 
 // ── Gemini API call ───────────────────────────────────────
 
-async function callGemini({ model, systemPrompt, userMessage, apiKey }) {
+// Stage 7 is the revision stage (frontend sends stageId 7 / 'stage.revision').
+function isStage7(stageId) {
+    return stageId === 7 || stageId === 'stage.revision';
+}
+
+// Stage 10 is the capstone reflection (frontend sends stageId 10 / 'stage.reflection').
+function isStage10(stageId) {
+    return stageId === 10 || stageId === 'stage.reflection';
+}
+
+// Per-request generation config.
+//
+// Stages 7 and 10 run on gemini-2.5-flash, a *thinking* model, where maxOutputTokens
+// caps thinking + visible tokens COMBINED. Default thinking consumed almost the entire
+// 600-token budget (~573 thought vs 23 visible → finishReason MAX_TOKENS), starving
+// the visible output. Disabling thinking (thinkingBudget:0) frees the whole budget for
+// the reply. Each ceiling is a VALIDATED SAFETY CEILING sized from a faithful probe of
+// that stage's real prompt, not a verbosity target; billing is on tokens generated, so
+// a ceiling above the real output adds no normal-case cost and only bounds a runaway:
+//   - Stage 7 (revision, prose coaching): self-terminated (STOP) at ~269 tokens → 1536.
+//   - Stage 10 (capstone: valid JSON, 8 rubric dimensions x rating/observation/
+//     suggestion + limitations): self-terminated (STOP) at ~643 tokens → 2048. Thinking
+//     MUST be off here too — with thinking on, 2048 was consumed by ~1964 thought tokens
+//     and the JSON came back truncated/invalid (0/8 dimensions).
+//
+// Every other stage/model is intentionally UNCHANGED (Flash 600, Flash-Lite 400,
+// default thinking).
+function buildGenerationConfig(model, stageId) {
+    if (model === 'gemini-2.5-flash' && isStage7(stageId)) {
+        return { maxOutputTokens: 1536, thinkingConfig: { thinkingBudget: 0 } };
+    }
+    if (model === 'gemini-2.5-flash' && isStage10(stageId)) {
+        return { maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } };
+    }
+    return { maxOutputTokens: model === 'gemini-2.5-flash' ? 600 : 400 };
+}
+
+async function callGemini({ model, stageId, systemPrompt, userMessage, apiKey }) {
     const endpoint =
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     const body = {
         systemInstruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined,
         contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-        // Flash gets 600 tokens: Stage 7 revision needs detailed coaching;
-        // Stage 10 capstone JSON (8 dimensions × 3 fields) is tight at 400.
-        generationConfig: { maxOutputTokens: model === 'gemini-2.5-flash' ? 600 : 400 },
+        generationConfig: buildGenerationConfig(model, stageId),
     };
 
     const resp = await fetch(endpoint, {
@@ -85,8 +120,13 @@ async function callGemini({ model, systemPrompt, userMessage, apiKey }) {
     }
 
     const data = await resp.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-    return text;
+    const cand = data?.candidates?.[0];
+    const text = cand?.content?.parts?.[0]?.text ?? '';
+    // Surface the termination reason so the caller can tell a complete reply
+    // (STOP) from a truncated one (MAX_TOKENS). Previously discarded, which let a
+    // cut-off partial reply be presented as complete coaching.
+    const finishReason = cand?.finishReason ?? null;
+    return { text, finishReason };
 }
 
 // ── Main handler ──────────────────────────────────────────
@@ -138,7 +178,7 @@ export default {
         }
 
         // Validate prompt
-        const { prompt, model: reqModel } = payload;
+        const { prompt, model: reqModel, stageId } = payload;
         if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
             return Response.json(
                 { error: 'prompt is required' },
@@ -157,13 +197,19 @@ export default {
 
         // Call Gemini
         try {
-            const text = await callGemini({
+            const { text, finishReason } = await callGemini({
                 model,
+                stageId,              // selects the Stage 7 / Stage 10 generation config
                 systemPrompt: null,   // system prompt assembly happens in the frontend pipeline
                 userMessage:  prompt,
                 apiKey:       env.GEMINI_API_KEY,
             });
-            return Response.json({ text }, { headers: corsHeaders(origin) });
+            // Integrity: a MAX_TOKENS-truncated reply must not be returned as complete
+            // coaching. Flag ONLY the confirmed truncation reason here — other non-STOP
+            // reasons (e.g. SAFETY) generally arrive with empty text and keep the
+            // existing invalid-response handling; this is not a general error redesign.
+            const truncated = finishReason === 'MAX_TOKENS';
+            return Response.json({ text, truncated }, { headers: corsHeaders(origin) });
         } catch (err) {
             // Log only error type and upstream status — never log prompt, key, or student content
             console.error('Gemini proxy error:', err.name, err.status || '', err.upstreamStatus || '');

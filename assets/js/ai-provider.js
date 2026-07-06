@@ -93,6 +93,12 @@ function getGeminiErrorMessage(err) {
     return 'El Coach IA no está disponible temporalmente. Puedes intentar de nuevo o continuar con la Guía sin IA.\nThe Live AI coach is temporarily unavailable. You can try again or continue with Built-in, no AI mode.';
 }
 
+// Appended to a coach reply the Worker flagged as cut off (finishReason
+// MAX_TOKENS) so the student sees it is incomplete and how to continue.
+const GEMINI_CUTOFF_NOTICE =
+    '— ✂️ Esta respuesta se cortó antes de terminar. Pídeme que continúe, o divide tu mensaje en partes más cortas.\n' +
+    '— ✂️ This response was cut off before it finished. Ask me to continue, or break your message into shorter parts.';
+
 // Single-attempt Gemini fetch — called by callGeminiProviderViaProxy retry loop
 async function _callGeminiOnce(coachPayload) {
     let response;
@@ -137,6 +143,14 @@ async function _callGeminiOnce(coachPayload) {
 
     if (!data?.text || typeof data.text !== 'string') {
         throw _mkGeminiErr('[Tu Pana] Gemini proxy returned no text', 'invalid_response');
+    }
+
+    // Integrity: when the Worker reports the reply was cut off (finishReason
+    // MAX_TOKENS), append a concise bilingual continuation affordance so a partial
+    // response is never presented as complete coaching. Backward-compatible: if the
+    // Worker omits `truncated` (or it is false), behavior is exactly as before.
+    if (data.truncated === true) {
+        return data.text + '\n\n' + GEMINI_CUTOFF_NOTICE;
     }
 
     return data.text;

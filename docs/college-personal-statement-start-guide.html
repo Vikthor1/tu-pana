@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en" class="lang-both">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="A calm, quick start guide for writing your college admissions personal essay (Common App personal statement) with Tu Pana. You write it — the coach helps you think. / Una guía breve y tranquila para escribir tu ensayo personal de admisión universitaria con Tu Pana.">
+  <title>Start Your College Essay · Empieza tu ensayo — Tu Pana Writing Studio</title>
+  <style>
+    /* ============================================================
+       Tu Pana — College Admissions Personal Essay start guide.
+       Self-contained visual system. No external dependencies.
+       Tokens reused from docs/colleague-review-evaluator-packet.html.
+       ============================================================ */
+    :root {
+      --bg:          #f7f4ef;
+      --surface:     #ffffff;
+      --surface-alt: #f2ede6;
+      --ink:         #1e1a14;
+      --ink-mid:     #463f35;
+      --ink-muted:   #6f6558;
+      --jade:        #2d7a5f;
+      --jade-light:  #e6f2ec;
+      --jade-tint:   #eef6f1;
+      --jade-mid:    #3f8a6c;
+      --jade-deep:   #235f49;
+      --gold:        #8f5e12;
+      --gold-light:  #fdf3e3;
+      --clay:        #b8543d;
+      --clay-light:  #fdecea;
+      --border:      #ddd8cf;
+      --border-mid:  #c8c1b4;
+      --radius:      14px;
+      --radius-sm:   10px;
+      --shadow:      0 2px 10px rgba(30,26,20,0.06);
+      --shadow-cta:  0 4px 16px rgba(35,95,73,0.22);
+      --max-w:       720px;
+      --font:        Georgia, 'Times New Roman', serif;
+      --font-ui:     system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      font-size: 17px;
+      line-height: 1.62;
+      overflow-wrap: break-word;
+    }
+
+    /* --- bilingual visibility: no-JS default shows BOTH languages (paired,
+       ES rendered quieter). G3 sets .lang-en / .lang-es on <html>. --- */
+    .lang-both .es { color: var(--ink-muted); font-size: 0.96em; }
+    .lang-both .es::before { content: ""; }
+    .lang-en .es { display: none; }
+    .lang-es .en { display: none; }
+    .lang-es .es { color: inherit; font-size: inherit; }
+
+    a { color: var(--jade-deep); }
+
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 20px; }
+
+    h1, h2, h3 { font-family: var(--font); line-height: 1.2; color: var(--ink); letter-spacing: -0.01em; }
+    h1 { font-size: clamp(1.7rem, 5.4vw, 2.35rem); margin: 0 0 0.45em; }
+    h2 { font-size: clamp(1.3rem, 4vw, 1.55rem); margin: 0 0 0.5em; }
+    h3 { font-size: 1.08rem; margin: 0 0 0.3em; font-family: var(--font-ui); }
+
+    .eyebrow {
+      font-family: var(--font-ui);
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.13em; text-transform: uppercase;
+      color: var(--jade-deep); margin: 0 0 10px;
+    }
+
+    section { padding: 30px 0; border-top: 1px solid var(--border); }
+    section:first-of-type { border-top: 0; }
+
+    p { margin: 0 0 0.85em; }
+    .pair > p:last-child { margin-bottom: 0; }
+    .lead p { font-size: clamp(1rem, 2.6vw, 1.12rem); color: var(--ink-mid); }
+    ul, ol { margin: 0 0 0.4em; padding-left: 1.25em; }
+    li { margin: 0.35em 0; }
+
+    /* skip link */
+    .skip {
+      position: absolute; left: 8px; top: -52px;
+      background: var(--jade-deep); color: #fff; z-index: 10;
+      padding: 10px 16px; border-radius: var(--radius-sm);
+      font-family: var(--font-ui); font-size: 14px; text-decoration: none;
+      transition: top 0.15s ease;
+    }
+    .skip:focus { top: 8px; }
+
+    /* header / language control */
+    .site-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 16px 0 6px; flex-wrap: wrap;
+    }
+    .brand {
+      font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted);
+    }
+    .lang-toggle {
+      font-family: var(--font-ui); font-size: 14px; font-weight: 600;
+      background: var(--surface); color: var(--jade-deep);
+      border: 1px solid var(--border-mid); border-radius: 999px;
+      padding: 9px 18px; min-height: 44px; cursor: pointer;
+    }
+    .lang-toggle:hover { border-color: var(--jade-mid); background: var(--jade-tint); }
+
+    /* ---------- HERO ---------- */
+    #hero {
+      background: var(--jade-tint);
+      border: 1px solid #d3e5db;
+      border-radius: 20px;
+      padding: clamp(24px, 5vw, 40px) clamp(20px, 4vw, 34px);
+      margin-top: 8px;
+    }
+    #hero .eyebrow { color: var(--gold); }
+    #hero h1 { max-width: 18ch; }
+
+    /* primary CTA */
+    .cta {
+      display: inline-block;
+      font-family: var(--font-ui); font-size: clamp(16px, 3.2vw, 18px); font-weight: 700;
+      background: var(--jade); color: #fff; text-decoration: none;
+      padding: 16px 34px; border-radius: var(--radius); min-height: 44px;
+      box-shadow: var(--shadow-cta);
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+    .cta:hover { background: var(--jade-deep); color: #fff; }
+    .cta:active { transform: translateY(1px); }
+    /* keep BOTH CTA languages white & full-size in no-JS paired mode */
+    .cta .en, .cta .es { color: #fff; }
+    .lang-both .cta .es { color: #fff; font-size: 1em; }
+    .lang-both .cta .es::before { content: "\00B7\00A0"; opacity: 0.7; }
+    .cta-wrap { margin: 22px 0 0; }
+    .cta-sub {
+      font-family: var(--font-ui); font-size: 14px; line-height: 1.5;
+      color: var(--ink-mid); margin: 14px 0 0; max-width: 46ch;
+    }
+    .lang-both .cta-sub .es { color: var(--ink-muted); }
+    .cta-url {
+      font-family: var(--font-ui); font-size: 12px; color: var(--ink-muted);
+      word-break: break-all; margin-top: 10px;
+    }
+    /* subordinate in-page helper for an overwhelmed student — not an app CTA */
+    .hero-stuck-link { margin: 16px 0 0; }
+    .hero-stuck-link a {
+      font-family: var(--font-ui); font-size: 14px; font-weight: 600;
+      color: var(--jade-deep); text-decoration: none;
+      border-bottom: 1px solid var(--jade-mid); padding-bottom: 1px;
+    }
+    .hero-stuck-link a:hover { border-bottom-color: var(--jade-deep); }
+
+    /* ---------- 60-SECOND LIST ---------- */
+    #sixty ol { counter-reset: step; list-style: none; padding-left: 0; display: grid; gap: 10px; }
+    #sixty ol li {
+      counter-increment: step; position: relative;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 13px 16px 13px 52px;
+      font-size: 15.5px;
+    }
+    #sixty ol li::before {
+      content: counter(step); position: absolute; left: 12px; top: 12px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--jade-light); color: var(--jade-deep);
+      font-family: var(--font-ui); font-size: 14px; font-weight: 700;
+      text-align: center; line-height: 28px;
+    }
+
+    /* ---------- JOURNEY ---------- */
+    .milestone-label {
+      font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase; color: var(--gold);
+      margin: 22px 0 8px; padding-top: 4px;
+    }
+    details.stage {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); margin: 8px 0; overflow: hidden;
+    }
+    details.stage > summary {
+      font-family: var(--font-ui); font-size: 15px; font-weight: 600; color: var(--ink);
+      padding: 14px 16px; cursor: pointer; min-height: 44px;
+      display: flex; align-items: center; gap: 11px;
+      list-style: none;
+    }
+    details.stage > summary::-webkit-details-marker { display: none; }
+    details.stage > summary::after {
+      content: "+"; margin-left: auto; flex: 0 0 auto;
+      font-family: var(--font-ui); font-size: 20px; font-weight: 400;
+      color: var(--jade-mid); line-height: 1;
+    }
+    details.stage[open] > summary::after { content: "\2013"; }
+    details.stage[open] > summary { border-bottom: 1px solid var(--border); }
+    details.stage > summary:hover { background: var(--jade-tint); }
+    .stage-num {
+      flex: 0 0 auto; width: 27px; height: 27px; border-radius: 50%;
+      background: var(--jade-light); color: var(--jade-deep);
+      font-size: 13px; font-weight: 700; text-align: center; line-height: 27px;
+    }
+    details.stage .stage-body { padding: 14px 18px 16px; font-size: 15.5px; }
+    details.stage .stage-body > p:last-child { margin-bottom: 0; }
+    #stuck details.stage .stage-body { padding-top: 14px; }
+    .your-job {
+      font-family: var(--font-ui); font-size: 11.5px; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase; color: var(--jade-deep);
+      margin-right: 4px;
+    }
+
+    /* ---------- CARDS (asks / stops) ---------- */
+    .cards { display: grid; gap: 14px; margin-top: 6px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 18px 20px;
+    }
+    .card h3 { margin-top: 0; }
+    .card.good  { border-top: 3px solid var(--jade); }
+    .card.avoid { border-top: 3px solid var(--clay); }
+    .card.good h3  .en, .card.good h3  .es { color: var(--jade-deep); }
+    .card.avoid h3 .en, .card.avoid h3 .es { color: var(--clay); }
+    .card ul { padding-left: 1.15em; }
+    .card li { font-size: 15px; }
+
+    @media (min-width: 620px) {
+      #coach .cards { grid-template-columns: 1fr 1fr; align-items: start; }
+    }
+
+    /* ---------- stopping-points list ---------- */
+    #small ul {
+      list-style: none; padding-left: 0;
+      display: grid; gap: 8px; grid-template-columns: 1fr;
+    }
+    #small ul li {
+      background: var(--surface-alt); border-radius: var(--radius-sm);
+      padding: 11px 15px 11px 38px; position: relative; font-size: 15px;
+    }
+    #small ul li::before {
+      content: "\2713"; position: absolute; left: 14px; top: 11px;
+      color: var(--jade); font-weight: 700; font-family: var(--font-ui);
+    }
+    @media (min-width: 560px) { #small ul { grid-template-columns: 1fr 1fr; } }
+
+    /* ---------- VOICE / RETURN accents ---------- */
+    #voice { }
+    #return .pair p strong { color: var(--jade-deep); }
+
+    /* ---------- FINAL CTA ---------- */
+    #final { text-align: center; }
+    #final h2 { max-width: 26ch; margin-left: auto; margin-right: auto; }
+    #final .cta { margin-top: 6px; }
+
+    /* focus visibility */
+    a:focus-visible, button:focus-visible, summary:focus-visible {
+      outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px;
+    }
+
+    footer {
+      padding: 26px 0 46px; margin-top: 6px; color: var(--ink-muted);
+      font-size: 13px; font-family: var(--font-ui); line-height: 1.5;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .skip, .cta { transition: none; }
+      .cta:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main"><span class="en">Skip to the guide</span><span class="es">Saltar a la guía</span></a>
+
+  <div class="container">
+    <header class="site-head">
+      <span class="brand">Tu Pana Writing Studio</span>
+      <!-- Progressive enhancement: hidden without JS so no inert control appears; no-JS shows both languages. -->
+      <button type="button" class="lang-toggle" id="langToggle" hidden lang="es" aria-label="Cambiar esta guía al español">Español</button>
+    </header>
+
+    <main id="main">
+
+      <!-- ============ HERO ============ -->
+      <section id="hero" aria-labelledby="hero-h">
+        <p class="eyebrow">
+          <span class="en">College Admissions Personal Essay</span><span class="es">Ensayo personal de admisión universitaria</span>
+        </p>
+        <h1 id="hero-h" class="pair">
+          <span class="en">Let's build your college essay — one small step at a time.</span>
+          <span class="es">Construyamos tu ensayo universitario — un paso pequeño a la vez.</span>
+        </h1>
+
+        <div class="pair lead">
+          <p class="en">This is a coach that helps you write <strong>your own</strong> college admissions personal essay. You do <strong>not</strong> need the perfect topic to begin. Your first move is small — three little possibilities, not a finished story.</p>
+          <p class="es">Este es un coach que te ayuda a escribir <strong>tu propio</strong> ensayo personal de admisión universitaria. <strong>No</strong> necesitas el tema perfecto para empezar. Tu primer paso es pequeño — tres posibilidades, no una historia terminada.</p>
+        </div>
+
+        <p><a class="cta" href="https://vikthor1.github.io/tu-pana/?assignment=college-personal-statement">
+          <span class="en">Start My Essay</span><span class="es">Empezar mi ensayo</span>
+        </a></p>
+        <p class="cta-sub pair">
+          <span class="en">You'll begin with three small possibilities — not a finished or perfect topic.</span>
+          <span class="es">Empiezas con tres posibilidades pequeñas — no con un tema perfecto o terminado.</span>
+        </p>
+        <p class="cta-sub pair">
+          <span class="en"><strong>One thing this coach will never do:</strong> write the essay for you. The thinking and the words stay yours.</span>
+          <span class="es"><strong>Algo que este coach nunca hará:</strong> escribir el ensayo por ti. El pensamiento y las palabras siguen siendo tuyos.</span>
+        </p>
+        <p class="hero-stuck-link">
+          <a href="#stuck"><span class="en">Brain already saying &ldquo;nope&rdquo;? Jump to one tiny step &rarr;</span><span class="es">&iquest;Tu cerebro ya dice &ldquo;no&rdquo;? Ve a un paso peque&ntilde;o &rarr;</span></a>
+        </p>
+      </section>
+
+      <!-- ============ 60-SECOND VERSION ============ -->
+      <section id="sixty" aria-labelledby="sixty-h">
+        <p class="eyebrow"><span class="en">The 60-second version</span><span class="es">La versión de 60 segundos</span></p>
+        <h2 id="sixty-h" class="pair">
+          <span class="en">The whole thing, in six moves</span>
+          <span class="es">Todo el proceso, en seis pasos</span>
+        </h2>
+        <ol>
+          <li class="pair"><span class="en"><strong>Bring three possibilities.</strong> Small moments count.</span><span class="es"><strong>Trae tres posibilidades.</strong> Los momentos pequeños cuentan.</span></li>
+          <li class="pair"><span class="en"><strong>Choose one direction.</strong> It can change later.</span><span class="es"><strong>Elige un rumbo.</strong> Puede cambiar después.</span></li>
+          <li class="pair"><span class="en"><strong>Write your own first draft.</strong> Awkward is allowed.</span><span class="es"><strong>Escribe tú tu primer borrador.</strong> Se vale que sea torpe.</span></li>
+          <li class="pair"><span class="en"><strong>Use the coach to revise</strong> — not to replace your writing.</span><span class="es"><strong>Usa el coach para revisar</strong> — no para reemplazar lo que escribiste.</span></li>
+          <li class="pair"><span class="en"><strong>Protect your voice.</strong> Sounding like you is the point.</span><span class="es"><strong>Protege tu voz.</strong> Sonar como tú es el punto.</span></li>
+          <li class="pair"><span class="en"><strong>Reflect</strong> on what you changed and why.</span><span class="es"><strong>Reflexiona</strong> sobre qué cambiaste y por qué.</span></li>
+        </ol>
+      </section>
+
+      <!-- ============ JOURNEY MAP ============ -->
+      <section id="journey" aria-labelledby="journey-h">
+        <p class="eyebrow"><span class="en">The journey</span><span class="es">El recorrido</span></p>
+        <h2 id="journey-h" class="pair">
+          <span class="en">Ten stages, five milestones</span>
+          <span class="es">Diez etapas, cinco hitos</span>
+        </h2>
+        <div class="pair">
+          <p class="en">The rhythm is simple: <em>notice → compare → choose → find the meaning → shape it → draft → revise the structure → protect your voice → check your integrity → reflect.</em> Tap any stage to see what it is and what your job is. You don't have to memorize this — the app shows you where you are.</p>
+          <p class="es">El ritmo es simple: <em>observa → compara → elige → encuentra el significado → dale forma → escribe → revisa la estructura → protege tu voz → cuida tu integridad → reflexiona.</em> Toca cualquier etapa para ver qué es y cuál es tu trabajo. No tienes que memorizar esto — la app te muestra dónde estás.</p>
+        </div>
+
+        <!-- Milestone 1 -->
+        <p class="milestone-label"><span class="en">Milestone 1 · Find Your Story</span><span class="es">Hito 1 · Encuentra tu historia</span></p>
+
+        <details class="stage">
+          <summary><span class="stage-num">1</span><span class="en">Story Inventory</span><span class="es">Inventario de historias</span></summary>
+          <div class="stage-body pair">
+            <p class="en">List small moments, routines, objects, places, relationships, or questions you keep thinking about. It doesn't have to be the most dramatic thing in your life.</p>
+            <p class="es">Anota momentos pequeños, rutinas, objetos, lugares, relaciones o preguntas que sigues recordando. No tiene que ser lo más dramático de tu vida.</p>
+            <p><span class="your-job en">Your job:</span><span class="your-job es">Tu trabajo:</span> <span class="en">add three possibilities. You may stop after three.</span><span class="es">agrega tres posibilidades. Puedes parar después de tres.</span></p>
+          </div>
+        </details>
+
+        <details class="stage">
+          <summary><span class="stage-num">2</span><span class="en">Possibility Check</span><span class="es">Revisión de posibilidades</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Compare a few of your own ideas to see which one <em>works to write</em> — which you remember in concrete moments, and which feels most yours. This is not about your odds of admission.</p>
+            <p class="es">Compara algunas de tus propias ideas para ver cuál <em>funciona para escribir</em> — de cuál recuerdas momentos concretos y cuál sientes más tuya. Esto no mide tus probabilidades de admisión.</p>
+            <p><span class="your-job en">Your job:</span><span class="your-job es">Tu trabajo:</span> <span class="en">pick up to three to compare. No more.</span><span class="es">elige hasta tres para comparar. No más.</span></p>
+          </div>
+        </details>
+
+        <details class="stage">
+          <summary><span class="stage-num">3</span><span class="en">Choose a Direction</span><span class="es">Elige un rumbo</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Pick one direction to start. It doesn't have to be perfect, and it can change. Choosing does not predict your admission — it just gives you real material to work with.</p>
+            <p class="es">Escoge una dirección para empezar. No tiene que ser perfecta y puede cambiar. Elegir no predice tu admisión — solo te da material real con que trabajar.</p>
+            <p><span class="your-job en">Your job:</span><span class="your-job es">Tu trabajo:</span> <span class="en">choose one, and write 1–2 sentences on what it's about, for you.</span><span class="es">elige una y escribe 1–2 oraciones sobre de qué trata, para ti.</span></p>
+          </div>
+        </details>
+
+        <!-- Milestone 2 -->
+        <p class="milestone-label"><span class="en">Milestone 2 · Shape the Meaning</span><span class="es">Hito 2 · Dale forma al significado</span></p>
+
+        <details class="stage">
+          <summary><span class="stage-num">4</span><span class="en">Meaning &amp; Tension</span><span class="es">Significado y tensión</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Move from "what happened?" to "why does it matter?" What changed, what stays unresolved, or what question lives here? You do not need a happy ending or a tidy lesson.</p>
+            <p class="es">Pasa de "¿qué pasó?" a "¿por qué importa?". ¿Qué cambió, qué sigue sin resolverse o qué pregunta vive aquí? No necesitas un final feliz ni una lección ordenada.</p>
+            <p><span class="your-job en">Your job:</span><span class="your-job es">Tu trabajo:</span> <span class="en">name what changed or what stays unresolved.</span><span class="es">nombra qué cambió o qué sigue sin resolverse.</span></p>
+          </div>
+        </details>
+
+        <details class="stage">
+          <summary><span class="stage-num">5</span><span class="en">Shape the Essay</span><span class="es">Da forma al ensayo</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Look at possible shapes — narrative, montage, braided, centered on an object or place, an intellectual question, a relationship. There is no winning formula and no single "right" essay.</p>
+            <p class="es">Mira las formas posibles — narrativa, montaje, trenzada, centrada en un objeto o lugar, una pregunta intelectual, una relación. No hay una fórmula ganadora ni un único ensayo "correcto".</p>
+            <p><span class="your-job en">Your job:</span><span class="your-job es">Tu trabajo:</span> <span class="en">choose the shape that serves your story, and sketch a short plan.</span><span class="es">elige la forma que sirva a tu historia y haz un plan breve.</span></p>
+          </div>
+        </details>
+
+        <!-- Milestone 3 -->
+        <p class="milestone-label"><span class="en">Milestone 3 · Write Your First Draft</span><span class="es">Hito 3 · Escribe tu primer borrador</span></p>
+
+        <details class="stage">
+          <summary><span class="stage-num">6</span><span class="en">First Draft &mdash; you write this one</span><span class="es">Primer borrador &mdash; este lo escribes tú</span></summary>
+          <div class="stage-body pair">
+            <p class="en">You write this draft yourself, without the coach. It does not need to be good — it needs to be <em>yours</em>. Return to your notes, your map, and your decisions.</p>
+            <p class="es">Este borrador lo escribes tú, sin el coach. No tiene que ser bueno — tiene que ser <em>tuyo</em>. Vuelve a tus notas, tu mapa y tus decisiones.</p>
+            <p><span class="your-job en">Your job:</span><span class="your-job es">Tu trabajo:</span> <span class="en">write it and save it. Saving unlocks revision.</span><span class="es">escríbelo y guárdalo. Guardar desbloquea la revisión.</span></p>
+          </div>
+        </details>
+
+        <!-- Milestone 4 -->
+        <p class="milestone-label"><span class="en">Milestone 4 · Revise &amp; Find Your Voice</span><span class="es">Hito 4 · Revisa y encuentra tu voz</span></p>
+
+        <details class="stage">
+          <summary><span class="stage-num">7</span><span class="en">Meaning &amp; Structure</span><span class="es">Significado y estructura</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Take one pass at structure — proportion, pacing, the narrative thread, the balance of scene and reflection. Any résumé repetition or over-explaining?</p>
+            <p class="es">Da una pasada a la estructura — proporción, ritmo, el hilo narrativo, el equilibrio entre escena y reflexión. ¿Hay repetición del currículum o explicación de más?</p>
+            <p><span class="your-job en">Your job:</span><span class="your-job es">Tu trabajo:</span> <span class="en">the coach diagnoses and asks; you revise the writing.</span><span class="es">el coach diagnostica y pregunta; tú revisas el texto.</span></p>
+          </div>
+        </details>
+
+        <details class="stage">
+          <summary><span class="stage-num">8</span><span class="en">Specificity &amp; Voice</span><span class="es">Detalle y voz</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Find the vague passages and the places that could use a concrete detail. Does it still sound like you? The coach protects your language and community knowledge — it does not swap your voice for a generic one.</p>
+            <p class="es">Encuentra los pasajes vagos y los lugares que piden un detalle concreto. ¿Sigue sonando a ti? El coach protege tu idioma y tu conocimiento comunitario — no cambia tu voz por una genérica.</p>
+            <p><span class="your-job en">Your job:</span><span class="your-job es">Tu trabajo:</span> <span class="en">pick one sentence and decide what help it needs.</span><span class="es">elige una oración y decide qué ayuda necesita.</span></p>
+          </div>
+        </details>
+
+        <details class="stage">
+          <summary><span class="stage-num">9</span><span class="en">Reflection &amp; Integrity</span><span class="es">Reflexión e integridad</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Check your central insight, keep the lesson from sounding generic, polish clarity and grammar, and check your application's real word limit. The coach does not predict admission or score your essay.</p>
+            <p class="es">Revisa tu idea central, cuida que la lección no suene genérica, pule la claridad y la gramática, y revisa el límite de palabras real de tu solicitud. El coach no predice admisión ni le pone una nota a tu ensayo.</p>
+            <p><span class="your-job en">Your job:</span><span class="your-job es">Tu trabajo:</span> <span class="en">confirm every word is yours and authentic.</span><span class="es">confirma que cada palabra es tuya y auténtica.</span></p>
+          </div>
+        </details>
+
+        <!-- Milestone 5 -->
+        <p class="milestone-label"><span class="en">Milestone 5 · Reflect &amp; Submit</span><span class="es">Hito 5 · Reflexiona y entrega</span></p>
+
+        <details class="stage">
+          <summary><span class="stage-num">10</span><span class="en">Process Reflection</span><span class="es">Reflexión del proceso</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Document how you chose your story, what you revised, what feedback you used, how you used AI, and how you protected your voice — in your own words.</p>
+            <p class="es">Documenta cómo elegiste tu historia, qué revisaste, qué retroalimentación usaste, cómo usaste la IA y cómo protegiste tu voz — en tus propias palabras.</p>
+            <p><span class="your-job en">Your job:</span><span class="your-job es">Tu trabajo:</span> <span class="en">you write the reflection. It's yours too.</span><span class="es">tú escribes la reflexión. También es tuya.</span></p>
+          </div>
+        </details>
+      </section>
+
+      <!-- ============ AI COACH BOUNDARIES ============ -->
+      <section id="coach" aria-labelledby="coach-h">
+        <p class="eyebrow"><span class="en">Working with the coach</span><span class="es">Cómo trabajar con el coach</span></p>
+        <h2 id="coach-h" class="pair">
+          <span class="en">How to use the AI coach without losing your essay</span>
+          <span class="es">Cómo usar el coach de IA sin perder tu ensayo</span>
+        </h2>
+        <div class="pair">
+          <p class="en">The coach can help you <em>think</em>. It does not get to steal your keyboard. Here's the difference.</p>
+          <p class="es">El coach puede ayudarte a <em>pensar</em>. Pero no puede robarte el teclado. Aquí está la diferencia.</p>
+        </div>
+
+        <div class="cards">
+          <div class="card good">
+            <h3 class="pair"><span class="en">Good asks</span><span class="es">Buenas preguntas</span></h3>
+            <ul>
+              <li class="pair"><span class="en">"Ask me questions so I understand why this moment matters to me."</span><span class="es">"Hazme preguntas para entender por qué este momento me importa."</span></li>
+              <li class="pair"><span class="en">"Where does my structure get confusing?"</span><span class="es">"¿Dónde se vuelve confusa mi estructura?"</span></li>
+              <li class="pair"><span class="en">"Which part needs more reflection?"</span><span class="es">"¿Qué parte necesita más reflexión?"</span></li>
+              <li class="pair"><span class="en">"Where does my voice suddenly sound like someone else?"</span><span class="es">"¿Dónde mi voz de repente suena a otra persona?"</span></li>
+              <li class="pair"><span class="en">"Help me pick one revision to do next."</span><span class="es">"Ayúdame a elegir una revisión para hacer ahora."</span></li>
+            </ul>
+          </div>
+          <div class="card avoid">
+            <h3 class="pair"><span class="en">Not-so-good asks</span><span class="es">Preguntas no tan buenas</span></h3>
+            <ul>
+              <li class="pair"><span class="en">"Write my introduction."</span><span class="es">"Escribe mi introducción."</span></li>
+              <li class="pair"><span class="en">"Give me a better hook."</span><span class="es">"Dame un mejor gancho."</span></li>
+              <li class="pair"><span class="en">"Rewrite this paragraph so it sounds impressive."</span><span class="es">"Reescribe este párrafo para que suene impresionante."</span></li>
+              <li class="pair"><span class="en">"Invent some dialogue for me."</span><span class="es">"Invéntame algún diálogo."</span></li>
+              <li class="pair"><span class="en">"Make my story more emotional."</span><span class="es">"Haz mi historia más emotiva."</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pair">
+          <p class="en"><strong>Why this matters:</strong> the goal isn't to prove you wrote without any tools. The goal is to keep the thinking and the writing decisions <em>yours</em> — so the essay actually sounds like the person applying.</p>
+          <p class="es"><strong>Por qué importa:</strong> la meta no es probar que escribiste sin herramientas. La meta es que las decisiones de pensar y escribir sigan siendo <em>tuyas</em> — para que el ensayo de verdad suene a la persona que solicita.</p>
+        </div>
+      </section>
+
+      <!-- ============ WHEN YOUR BRAIN SAYS NOPE ============ -->
+      <section id="stuck" aria-labelledby="stuck-h">
+        <p class="eyebrow"><span class="en">When you're stuck</span><span class="es">Cuando te atoras</span></p>
+        <h2 id="stuck-h" class="pair">
+          <span class="en">When your brain says <em>nope</em></span>
+          <span class="es">Cuando tu cerebro dice <em>no</em></span>
+        </h2>
+        <div class="pair">
+          <p class="en">Every one of these is normal. Each one has exactly one tiny next move. Do that one thing.</p>
+          <p class="es">Todo esto es normal. Cada caso tiene exactamente un paso pequeño. Haz ese único paso.</p>
+        </div>
+
+        <details class="stage">
+          <summary><span class="en">"I have no topic."</span><span class="es">"No tengo tema."</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Write three small moments. Not thirty-seven. Three. You do not need to discover the meaning of life before dinner.</p>
+            <p class="es">Escribe tres momentos pequeños. No treinta y siete. Tres. No necesitas descubrir el sentido de la vida antes de la cena.</p>
+          </div>
+        </details>
+        <details class="stage">
+          <summary><span class="en">"All my ideas are boring."</span><span class="es">"Todas mis ideas son aburridas."</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Boring on paper isn't the same as boring to think about. Pick the one you keep quietly returning to. Your life does not need to be extraordinary — it needs to be observed.</p>
+            <p class="es">Aburrida en papel no es lo mismo que aburrida de pensar. Elige esa a la que sigues volviendo en silencio. Tu vida no tiene que ser extraordinaria — tiene que ser observada.</p>
+          </div>
+        </details>
+        <details class="stage">
+          <summary><span class="en">"I have too many ideas."</span><span class="es">"Tengo demasiadas ideas."</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Choose only three to compare. Not thirty-seven. Your brain may file a complaint; we are proceeding anyway. You can revisit the others later.</p>
+            <p class="es">Elige solo tres para comparar. No treinta y siete. Tu cerebro quizá presente una queja; seguimos de todos modos. Puedes volver a las otras después.</p>
+          </div>
+        </details>
+        <details class="stage">
+          <summary><span class="en">"I hate my draft."</span><span class="es">"Odio mi borrador."</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Good — a draft is allowed to be awkward. That's why it's called a draft and not a marble monument. Reopen <em>one</em> paragraph, not the whole thing.</p>
+            <p class="es">Bien — se vale que un borrador sea torpe. Por eso se llama borrador y no monumento de mármol. Reabre <em>un</em> párrafo, no todo el ensayo.</p>
+          </div>
+        </details>
+        <details class="stage">
+          <summary><span class="en">"I stopped for a week."</span><span class="es">"Me detuve por una semana."</span></summary>
+          <div class="stage-body pair">
+            <p class="en">That's normal. Reread the last thing you saved. That's the whole first step — nothing else required today.</p>
+            <p class="es">Es normal. Relee lo último que guardaste. Ese es todo el primer paso — nada más se requiere hoy.</p>
+          </div>
+        </details>
+        <details class="stage">
+          <summary><span class="en">"I want AI to just fix everything."</span><span class="es">"Quiero que la IA lo arregle todo."</span></summary>
+          <div class="stage-body pair">
+            <p class="en">Ask the coach for one question instead. Borrow its brain, keep your keyboard. The essay a reader remembers is the one that sounds like you.</p>
+            <p class="es">Mejor pídele al coach una sola pregunta. Toma prestado su cerebro, quédate con tu teclado. El ensayo que un lector recuerda es el que suena a ti.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- ============ A GOOD SESSION CAN BE SMALL ============ -->
+      <section id="small" aria-labelledby="small-h">
+        <p class="eyebrow"><span class="en">Finishing for today</span><span class="es">Terminar por hoy</span></p>
+        <h2 id="small-h" class="pair">
+          <span class="en">A good session can be small</span>
+          <span class="es">Una buena sesión puede ser pequeña</span>
+        </h2>
+        <div class="pair">
+          <p class="en">You do not have to finish the essay today to make real progress today. Any one of these is a complete, honest stopping point:</p>
+          <p class="es">No tienes que terminar el ensayo hoy para avanzar de verdad hoy. Cualquiera de estos es un punto de parada completo y honesto:</p>
+        </div>
+        <ul>
+          <li class="pair"><span class="en">added three story possibilities</span><span class="es">agregaste tres posibilidades de historia</span></li>
+          <li class="pair"><span class="en">compared three possibilities</span><span class="es">comparaste tres posibilidades</span></li>
+          <li class="pair"><span class="en">chose one direction (for now)</span><span class="es">elegiste un rumbo (por ahora)</span></li>
+          <li class="pair"><span class="en">sketched one possible shape</span><span class="es">esbozaste una forma posible</span></li>
+          <li class="pair"><span class="en">drafted for 20 minutes</span><span class="es">escribiste durante 20 minutos</span></li>
+          <li class="pair"><span class="en">revised one structural issue</span><span class="es">revisaste un problema de estructura</span></li>
+          <li class="pair"><span class="en">clarified one vague passage</span><span class="es">aclaraste un pasaje vago</span></li>
+          <li class="pair"><span class="en">finished one reflection check</span><span class="es">completaste una reflexión</span></li>
+        </ul>
+      </section>
+
+      <!-- ============ VOICE PROTECTION ============ -->
+      <section id="voice" aria-labelledby="voice-h">
+        <p class="eyebrow"><span class="en">Your voice</span><span class="es">Tu voz</span></p>
+        <h2 id="voice-h" class="pair">
+          <span class="en">Sounding like yourself is not a defect</span>
+          <span class="es">Sonar como tú no es un defecto</span>
+        </h2>
+        <div class="pair">
+          <p class="en">Your natural language belongs here. So does more than one language. Code-switching, family and community knowledge, the way people actually talk where you're from — these are material, not mistakes to sand down.</p>
+          <p class="es">Tu idioma natural pertenece aquí. Más de un idioma también. El cambio de código, el conocimiento de tu familia y tu comunidad, la forma en que la gente de verdad habla de donde eres — eso es material, no errores que borrar.</p>
+        </div>
+        <div class="pair">
+          <p class="en">You don't have to translate your life into a performance for an imagined stranger. Clarity matters — but clarity is not the same as erasing yourself.</p>
+          <p class="es">No tienes que traducir tu vida en una actuación para un desconocido imaginado. La claridad importa — pero la claridad no es lo mismo que borrarte a ti.</p>
+        </div>
+      </section>
+
+      <!-- ============ RETURN / RESTART ============ -->
+      <section id="return" aria-labelledby="return-h">
+        <p class="eyebrow"><span class="en">Leaving and coming back</span><span class="es">Salir y volver</span></p>
+        <h2 id="return-h" class="pair">
+          <span class="en">Stopping and returning is normal</span>
+          <span class="es">Parar y volver es normal</span>
+        </h2>
+        <div class="pair">
+          <p class="en">Your work saves automatically <strong>on this device only</strong> — never on a server, and there is no account to create. To come back, use the <strong>same computer and browser</strong>, open your link again, find the stage you're on, and choose one next action.</p>
+          <p class="es">Tu trabajo se guarda automáticamente <strong>solo en este dispositivo</strong> — nunca en un servidor, y no hay cuenta que crear. Para volver, usa <strong>la misma computadora y el mismo navegador</strong>, abre tu enlace otra vez, encuentra la etapa en la que estás y elige un paso siguiente.</p>
+        </div>
+        <div class="pair">
+          <p class="en">One habit worth keeping: <strong>export your work now and then as a backup.</strong> Same browser, same device — that's how it stays with you.</p>
+          <p class="es">Un hábito que vale la pena: <strong>exporta tu trabajo de vez en cuando como respaldo.</strong> Mismo navegador, mismo dispositivo — así se queda contigo.</p>
+        </div>
+      </section>
+
+      <!-- ============ FINAL CTA ============ -->
+      <section id="final" aria-labelledby="final-h">
+        <h2 id="final-h" class="pair">
+          <span class="en">Ready? Your first step is three small possibilities.</span>
+          <span class="es">¿Listo? Tu primer paso son tres posibilidades pequeñas.</span>
+        </h2>
+        <p><a class="cta" href="https://vikthor1.github.io/tu-pana/?assignment=college-personal-statement">
+          <span class="en">Start My Essay</span><span class="es">Empezar mi ensayo</span>
+        </a></p>
+        <p class="cta-url">https://vikthor1.github.io/tu-pana/?assignment=college-personal-statement</p>
+      </section>
+
+    </main>
+
+    <footer id="pagefoot">
+      <p class="pair">
+        <span class="en">Tu Pana Writing Studio — your bilingual writing coach. You are the author of every word.</span>
+        <span class="es">Tu Pana Writing Studio — tu coach de escritura bilingüe. Tú eres quien escribe cada palabra.</span>
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    /* Progressive-enhancement EN/ES toggle. Native <details> need no JS.
+       No JS  → <html class="lang-both">, both languages visible (fallback intact).
+       Preference held in sessionStorage for the page session only (language only;
+       no PII, no analytics, no tracking). */
+    (function () {
+      var html = document.documentElement;
+      var btn = document.getElementById('langToggle');
+      if (!btn) return;
+      var KEY = 'tupana_guide_lang';
+
+      function apply(lang) {
+        var es = (lang === 'es');
+        html.classList.remove('lang-both', 'lang-en', 'lang-es');
+        html.classList.add(es ? 'lang-es' : 'lang-en');
+        html.setAttribute('lang', es ? 'es' : 'en');
+        // Button offers the OTHER language; label + lang + accessible name all update.
+        btn.textContent = es ? 'English' : 'Español';
+        btn.setAttribute('lang', es ? 'en' : 'es');
+        btn.setAttribute('aria-label', es ? 'Switch this guide to English' : 'Cambiar esta guía al español');
+      }
+
+      var saved = null;
+      try { saved = sessionStorage.getItem(KEY); } catch (e) {}
+      apply(saved === 'es' || saved === 'en' ? saved : 'en');  // default: English
+      btn.hidden = false;
+
+      btn.addEventListener('click', function () {
+        var next = html.classList.contains('lang-es') ? 'en' : 'es';
+        apply(next);
+        try { sessionStorage.setItem(KEY, next); } catch (e) {}
+      });
+    })();
+  </script>
+</body>
+</html>

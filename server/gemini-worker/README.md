@@ -2,7 +2,7 @@
 
 **Purpose:** Secure server-side proxy for Gemini API calls. Keeps the Gemini API key out of the GitHub Pages frontend.
 
-**Status:** Scaffold only. Frontend is not connected yet. Gemini remains disabled in Tu Pana (`FEATURES.geminiProvider = false`, `CONFIG.geminiProxyUrl = ''`).
+**Status:** Active Cloudflare Worker proxy for Gemini. Configure `GEMINI_API_KEY` and point the frontend at the deployed Worker URL via `CONFIG.geminiProxyUrl`.
 
 ---
 

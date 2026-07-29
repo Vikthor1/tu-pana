@@ -2,10 +2,11 @@
 // Encodes the hard Pilot 2 invariant + review-mode behavior:
 //   A. Normal student flow NEVER exposes Research Paper / STEM through a selector;
 //      getSelectableProfiles() excludes them; selectable:false unchanged.
-//   B. getReviewProfiles() lists CAP 200 + Research Paper + STEM with succinct
+//   B. getReviewProfiles() lists CAP 200 + Research Paper + STEM + both
+//      admissions genres with succinct
 //      review display labels, without touching layer flags.
 //   C. ?review=colleague (canonical) shows the review selector — heading, subtitle,
-//      bilingual do-not-share guardrail, all four succinct card titles — plus the
+//      bilingual do-not-share guardrail, all five succinct card titles — plus the
 //      visible "Modo de revisión · Review mode" badge; ?review=true is an alias.
 //      Review mode is URL-scoped only (never persisted).
 //   D. Direct review links (?review=colleague&assignment=<id>) activate the
@@ -50,7 +51,8 @@ async function visit(url, opts = {}) {
         review: (typeof getReviewProfiles === 'function') ? getReviewProfiles() : null,
         rpFlag: getAssignmentLayer('research-paper')?.selectable,
         stemFlag: getAssignmentLayer('stem-lab-report')?.selectable,
-        cpsFlag: getAssignmentLayer('college-personal-statement')?.selectable
+        cpsFlag: getAssignmentLayer('college-personal-statement')?.selectable,
+        sopFlag: getAssignmentLayer('graduate-sop')?.selectable
     }));
     if (opts.keep) return { page: p, r };
     await p.close();
@@ -65,16 +67,17 @@ check('student chooser lists NO Research Paper / STEM / Admissions', !/Research 
 check('getSelectableProfiles() = CAP only', r.selectable.join() === 'cap200-bronx-beautiful-service-learning');
 check('research-paper + stem-lab-report remain selectable:false', r.rpFlag === false && r.stemFlag === false);
 check('college-personal-statement remains selectable:false', r.cpsFlag === false);
+check('graduate-sop remains selectable:false', r.sopFlag === false);
 check('no badge in student first-run', !r.badge);
 r = await visit('/');
 check('onboarded bare URL: no selector, no badge', !r.selector && !r.badge);
 
 // ── B. Review profile list ──
 console.log('\n── B. getReviewProfiles() ──');
-check('exists and lists CAP, research, STEM, admissions in order', Array.isArray(r.review) && r.review.map(p => p.assignmentId).join() === 'cap200-bronx-beautiful-service-learning,research-paper,stem-lab-report,college-personal-statement');
-check('succinct EN review labels', r.review.map(p => p.labelEn).join('|') === 'Service-Learning Report|Research Paper|STEM Lab Report|College Admissions Essay');
-check('succinct ES review labels (Trabajo de investigación)', r.review.map(p => p.labelEs).join('|') === 'Informe de aprendizaje-servicio|Trabajo de investigación|Informe de laboratorio STEM|Ensayo de admisión universitaria');
-check('listing does not change layer flags', r.rpFlag === false && r.stemFlag === false && r.cpsFlag === false);
+check('exists and lists CAP, research, STEM, college admissions, graduate SOP in order', Array.isArray(r.review) && r.review.map(p => p.assignmentId).join() === 'cap200-bronx-beautiful-service-learning,research-paper,stem-lab-report,college-personal-statement,graduate-sop');
+check('succinct EN review labels', r.review.map(p => p.labelEn).join('|') === 'Service-Learning Report|Research Paper|STEM Lab Report|College Admissions Essay|Graduate Statement of Purpose');
+check('succinct ES review labels (Trabajo de investigación)', r.review.map(p => p.labelEs).join('|') === 'Informe de aprendizaje-servicio|Trabajo de investigación|Informe de laboratorio STEM|Ensayo de admisión universitaria|Carta de intención de posgrado');
+check('listing does not change layer flags', r.rpFlag === false && r.stemFlag === false && r.cpsFlag === false && r.sopFlag === false);
 
 // ── C. Review selector via canonical link + alias ──
 console.log('\n── C. Review selector ──');
@@ -83,7 +86,7 @@ check('?review=colleague shows review heading', r.selector && /Modo de revisión
 check('subtitle: Compara los caminos de escritura', /Compara los caminos de escritura/.test(r.selectorText));
 check('bilingual guardrail note present', /No compartas este enlace con estudiantes durante Pilot 2/.test(r.selectorText) && /Do not share this link with students during Pilot 2/.test(r.selectorText));
 check('Default card titled Autobiographical Mixed-Genre Essay', /Autobiographical Mixed-Genre Essay/.test(r.selectorText) && /Ensayo autobiográfico de género mixto/.test(r.selectorText));
-check('cards: Service-Learning Report + Research Paper + STEM Lab Report + College Admissions Essay', /Service-Learning Report/.test(r.selectorText) && /Research Paper/.test(r.selectorText) && /STEM Lab Report/.test(r.selectorText) && /College Admissions Essay/.test(r.selectorText));
+check('cards: Service-Learning + Research + STEM + College Admissions + Graduate SOP', /Service-Learning Report/.test(r.selectorText) && /Research Paper/.test(r.selectorText) && /STEM Lab Report/.test(r.selectorText) && /College Admissions Essay/.test(r.selectorText) && /Graduate Statement of Purpose/.test(r.selectorText));
 check('visible review badge', r.badge && /Modo de revisión · Review mode/.test(r.badgeText));
 check('review mode NOT persisted (no review keys in storage)', r.reviewKeysStored === 'none');
 r = await visit('/?review=true');
@@ -99,6 +102,10 @@ r = await visit('/?review=colleague&assignment=college-personal-statement');
 check('Admissions activates directly (Story Inventory)', r.aid === 'college-personal-statement' && r.node1 === 'Story Inventory');
 check('admissions review badge appears', r.badge);
 check('selector does not block admissions direct review', !r.selector);
+r = await visit('/?review=colleague&assignment=graduate-sop');
+check('Graduate SOP activates directly (Frame & Requirements)', r.aid === 'graduate-sop' && r.node1 === 'Frame & Requirements');
+check('graduate SOP review badge appears', r.badge);
+check('selector does not block graduate SOP direct review', !r.selector);
 // link-hub navigation from the selector
 {
     const { page: p } = await visit('/?review=colleague', { keep: true });
@@ -117,7 +124,8 @@ for (const [q, label] of [
     ['/?assignment=stem-lab-report', 'Lab Context'],
     ['/?assignment=research-paper', 'Topic & Context'],
     ['/?assignment=cap200-bronx-beautiful-service-learning', 'Community Starting Point'],
-    ['/?assignment=college-personal-statement', 'Story Inventory']
+    ['/?assignment=college-personal-statement', 'Story Inventory'],
+    ['/?assignment=graduate-sop', 'Frame & Requirements']
 ]) {
     r = await visit(q);
     check(`${q} activates (${label}), no badge, no selector`, r.node1 === label && !r.badge && !r.selector);

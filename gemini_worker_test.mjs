@@ -8,6 +8,7 @@
 //       generationConfig = { maxOutputTokens: 1536, thinkingConfig:{thinkingBudget:0} }
 //   - Stage 10 ('stage.reflection'/10) on flash: 2048 + thinkingBudget:0 (Batch 4)
 //   - Cross-genre passage analysis: Flash 1536 + thinkingBudget:0 at any stage
+//   - Guided full-draft review: Flash 3072 + thinkingBudget:0 at any stage
 //   - Flash-Lite + other flash stages: UNCHANGED (400 / 600, no thinkingConfig)
 //   - upstream finishReason MAX_TOKENS  -> response { truncated: true }
 //   - upstream finishReason STOP        -> response { truncated: false }
@@ -26,7 +27,14 @@ function mockUpstream({ finishReason = 'STOP', text = 'coach reply', status = 20
         captured = JSON.parse(opts.body);
         return new Response(JSON.stringify({
             candidates: [{ content: { parts: [{ text }] }, finishReason }],
-            usageMetadata: { candidatesTokenCount: 42 },
+            usageMetadata: {
+                promptTokenCount: 2100,
+                candidatesTokenCount: 180,
+                thoughtsTokenCount: 0,
+                cachedContentTokenCount: 120,
+                totalTokenCount: 2280,
+                promptText: 'must never be forwarded'
+            },
         }), { status, headers: { 'content-type': 'application/json' } });
     };
 }
@@ -82,6 +90,25 @@ try {
           r.gen?.maxOutputTokens === 1536);
     check('Passage analysis: thinkingBudget = 0',
           r.gen?.thinkingConfig?.thinkingBudget === 0);
+
+    // ── Whole-draft review at an ordinary stage ──
+    console.log('\n── Full-draft review config ──');
+    mockUpstream({ finishReason: 'STOP' });
+    r = await callWorker({
+        prompt: 'a complete student draft',
+        model: 'gemini-2.5-flash',
+        stageId: 'stage.checklist',
+        requestKind: 'full_draft_review'
+    });
+    check('Full-draft review: maxOutputTokens = 3072',
+          r.gen?.maxOutputTokens === 3072);
+    check('Full-draft review: thinkingBudget = 0',
+          r.gen?.thinkingConfig?.thinkingBudget === 0);
+    check('Worker returns privacy-safe aggregate token counts',
+          r.body?.usage?.inputTokens === 2100 &&
+          r.body?.usage?.outputTokens === 180 &&
+          r.body?.usage?.cachedTokens === 120 &&
+          !('promptText' in (r.body?.usage || {})));
 
     mockUpstream({ finishReason: 'STOP' });
     r = await callWorker({

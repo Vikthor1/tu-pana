@@ -39,6 +39,7 @@
 !stage10_completion_test.mjs
 !polishing_sprint_test.mjs
 !passage_coach_test.mjs
+!full_draft_review_test.mjs
 # ── Allow Stage A.1 Skills-Gains regression tests ────────
 !badge_test.mjs
 !milestone_gate_test.mjs

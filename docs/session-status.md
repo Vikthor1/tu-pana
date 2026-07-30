@@ -1,10 +1,40 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-07-30 (Fall 2026 polishing sprint: shared whole-passage coaching)
+Last updated: 2026-07-30 (Fall 2026 polishing sprint: guided full-draft review)
 
-## Fall 2026 polishing sprint — shared passage coaching
+## Fall 2026 polishing sprint — guided full-draft review
 
 - Branch: `experiment/redesign-v1`
+- Stages 7 and 9 now expose one shared **Review draft** action across the
+  autobiographical, service-learning, research, STEM, college-admissions, and
+  graduate-SOP pathways.
+- The student chooses one of five lenses: structure/trajectory,
+  evidence/specificity, assignment fit, voice/clarity, or final audit. The
+  coach must read the complete draft, anchor observations, return at most
+  three revision priorities, and never rewrite.
+- There is no student-facing quota. Follow-up reviews ask what changed or what
+  should be inspected; an unchanged draft requires an explicit different-lens
+  choice. After several wide-angle reviews, passage coaching is recommended
+  but another purposeful full reading remains available.
+- Drafts up to 2,000 words receive a comfortable-length cue; 2,000–3,000 and
+  3,000+ drafts receive increasingly focused guidance but are not rejected.
+- Full-draft review uses Gemini 2.5 Flash with a 3,072-token output safety
+  ceiling and thinking disabled. The existing 128,000-character request
+  ceiling remains an abuse boundary far above normal five-page assignments.
+- The Worker returns sanitized usage counts. The browser stores aggregate
+  totals by request kind in `tupana_ai_usage`; no draft text, response text,
+  IP address, or student identifier is added to usage records.
+- Worker version `b3cf5571-bdca-477d-9112-fc7f537b870d` is deployed. A live
+  synthetic 1,500-word full-draft request returned `200`,
+  `truncated:false`, all four required review sections, and sanitized usage
+  totals (`4,177` input / `97` output tokens).
+- Verification: dedicated workflow 32/32; Worker 25/25; passage coaching
+  25/25; truncation 8/8; recovery 14/14; shared routing 65/65; storage 13/13;
+  broader pathway regressions passed for SOP, college admissions,
+  service-learning, STEM, Stage 10, and colleague review mode.
+
+### Carried forward — shared passage coaching
+
 - The ambiguous **Strength** action is split into **What works** and
   **Strengthen**; Clarity, Voice, and Ask remain shared across all genre layers.
 - Selected passages and directly pasted multi-sentence writing follow one
@@ -14,10 +44,8 @@ Last updated: 2026-07-30 (Fall 2026 polishing sprint: shared whole-passage coach
 - Passage analysis uses Gemini 2.5 Flash at every stage. Worker
   `requestKind: "passage_analysis"` uses a 1,536-token ceiling with thinking
   disabled so the visible answer completes.
-- Worker version `5284786b-34fc-40e6-bd84-19ae96c697c0` is deployed. Live
-  synthetic verification returned `200`, `truncated:false`.
-- Verification: passage coaching 25/25; Worker 22/22; all 29 regression files
-  passed; 390-pixel phone layout retains five 44-pixel actions without overflow.
+- Previous Worker version `5284786b-34fc-40e6-bd84-19ae96c697c0` passed live
+  passage verification; the full-draft version above supersedes it.
 
 ---
 

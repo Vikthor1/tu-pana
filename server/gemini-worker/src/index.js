@@ -64,8 +64,9 @@ function isStage10(stageId) {
 
 // Per-request generation config.
 //
-// Stages 7 and 10 plus shared passage analysis run on gemini-2.5-flash, a
-// *thinking* model, where maxOutputTokens caps thinking + visible tokens COMBINED.
+// Stages 7 and 10 plus shared passage/full-draft analysis run on
+// gemini-2.5-flash, a *thinking* model, where maxOutputTokens caps thinking +
+// visible tokens COMBINED.
 // Default thinking consumed almost the entire
 // 600-token budget (~573 thought vs 23 visible → finishReason MAX_TOKENS), starving
 // the visible output. Disabling thinking (thinkingBudget:0) frees the whole budget for
@@ -73,6 +74,7 @@ function isStage10(stageId) {
 // that stage's real prompt, not a verbosity target; billing is on tokens generated, so
 // a ceiling above the real output adds no normal-case cost and only bounds a runaway:
 //   - Passage analysis: whole-passage reading across every genre → 1536.
+//   - Full-draft review: whole-draft map + two strengths + three priorities → 3072.
 //   - Stage 7 (revision, prose coaching): self-terminated (STOP) at ~269 tokens → 1536.
 //   - Stage 10 (capstone: valid JSON, 8 rubric dimensions x rating/observation/
 //     suggestion + limitations): self-terminated (STOP) at ~643 tokens → 2048. Thinking
@@ -82,6 +84,9 @@ function isStage10(stageId) {
 // Every other stage/model is intentionally UNCHANGED (Flash 600, Flash-Lite
 // 400, default thinking).
 function buildGenerationConfig(model, stageId, requestKind) {
+    if (model === 'gemini-2.5-flash' && requestKind === 'full_draft_review') {
+        return { maxOutputTokens: 3072, thinkingConfig: { thinkingBudget: 0 } };
+    }
     if (model === 'gemini-2.5-flash' && requestKind === 'passage_analysis') {
         return { maxOutputTokens: 1536, thinkingConfig: { thinkingBudget: 0 } };
     }
@@ -135,7 +140,19 @@ async function callGemini({ model, stageId, requestKind, systemPrompt, userMessa
     // (STOP) from a truncated one (MAX_TOKENS). Previously discarded, which let a
     // cut-off partial reply be presented as complete coaching.
     const finishReason = cand?.finishReason ?? null;
-    return { text, finishReason };
+    const rawUsage = data?.usageMetadata || {};
+    const asCount = value => Number.isFinite(Number(value))
+        ? Math.max(0, Math.floor(Number(value)))
+        : 0;
+    // Return counts only. The Worker never logs or stores prompts or responses.
+    const usage = {
+        inputTokens: asCount(rawUsage.promptTokenCount),
+        outputTokens: asCount(rawUsage.candidatesTokenCount),
+        thoughtTokens: asCount(rawUsage.thoughtsTokenCount),
+        cachedTokens: asCount(rawUsage.cachedContentTokenCount),
+        totalTokens: asCount(rawUsage.totalTokenCount),
+    };
+    return { text, finishReason, usage };
 }
 
 // ── Main handler ──────────────────────────────────────────
@@ -211,11 +228,13 @@ export default {
         // all unknown values as ordinary requests.
         const requestKind = payload.requestKind === 'passage_analysis'
             ? 'passage_analysis'
-            : null;
+            : payload.requestKind === 'full_draft_review'
+                ? 'full_draft_review'
+                : null;
 
         // Call Gemini
         try {
-            const { text, finishReason } = await callGemini({
+            const { text, finishReason, usage } = await callGemini({
                 model,
                 stageId,              // selects the Stage 7 / Stage 10 generation config
                 requestKind,          // selects complete cross-genre passage coaching
@@ -228,7 +247,7 @@ export default {
             // reasons (e.g. SAFETY) generally arrive with empty text and keep the
             // existing invalid-response handling; this is not a general error redesign.
             const truncated = finishReason === 'MAX_TOKENS';
-            return Response.json({ text, truncated }, { headers: corsHeaders(origin) });
+            return Response.json({ text, truncated, usage }, { headers: corsHeaders(origin) });
         } catch (err) {
             // Log only error type and upstream status — never log prompt, key, or student content
             console.error('Gemini proxy error:', err.name, err.status || '', err.upstreamStatus || '');

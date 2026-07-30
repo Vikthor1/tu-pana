@@ -54,20 +54,25 @@ Tighten this list before any public deployment.
 {
   "prompt": "...",
   "model": "gemini-2.5-flash",
-  "stageId": "stage.frame_requirements",
-  "requestKind": "passage_analysis"
+  "stageId": "stage.revision",
+  "requestKind": "full_draft_review"
 }
 ```
 
 `stageId` selects the validated Stage 7 and Stage 10 generation profiles.
 `requestKind: "passage_analysis"` selects the cross-genre whole-passage
 profile: Gemini 2.5 Flash, 1,536 output-token ceiling, and thinking disabled so
-the concise visible response is not starved by hidden reasoning. Unknown
-`requestKind` values receive the ordinary stage configuration.
+the concise visible response is not starved by hidden reasoning.
+`requestKind: "full_draft_review"` selects the guided whole-draft profile:
+Gemini 2.5 Flash, a 3,072 output-token safety ceiling, and thinking disabled.
+The higher ceiling prevents a structured whole-draft review from being cut off;
+it is not a target response length. Unknown `requestKind` values receive the
+ordinary stage configuration.
 
 ## Response shape
 
-Success: `{ "text": "...", "truncated": false }`
+Success:
+`{ "text": "...", "truncated": false, "usage": { "inputTokens": 0, "outputTokens": 0, "thoughtTokens": 0, "cachedTokens": 0, "totalTokens": 0 } }`
 Error: `{ "error": "...", "category": "..." }`
 
 The Worker accepts prompts up to 128,000 characters. This application ceiling
@@ -78,4 +83,7 @@ retaining a bounded request size.
 
 ## Privacy
 
-Student writing is never logged. API key is never logged. Only error type is logged on failure.
+Student writing is never logged. API key is never logged. Only error type is
+logged on failure. The success response exposes sanitized aggregate token
+counts from Gemini so the browser can maintain local usage totals; it never
+includes prompt text, response text, IP addresses, or student identifiers.

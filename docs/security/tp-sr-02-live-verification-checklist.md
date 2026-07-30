@@ -23,6 +23,7 @@ abuse can no longer burn quota. **It does not stop a determined non-browser clie
 | Cloudflare **Rate Limiting** rule on the Worker route | **Needs dashboard verification** | Add a rule (e.g. N requests / IP / minute → block or challenge) on the `tupana-gemini-proxy` route. This is the real abuse/cost ceiling. |
 | Cloudflare **Turnstile** (optional, stronger) | **Deferred** | Only if rate limiting proves insufficient; adds a human-verification step. Not built — requires separate authorization. |
 | Gemini per-request caps (prompt size, model allowlist, output tokens) | **Verified from repo** | Already enforced in `src/index.js` (`MAX_PROMPT_CHARS`, `ALLOWED_MODELS`, `maxOutputTokens`). |
+| Privacy-safe local usage totals | **Verified from repo** | Worker returns token counts only; browser aggregates them locally by request kind. No prompts, responses, IPs, or student identifiers are added. |
 
 ## F5 — Live Cloudflare / deployment verification
 
@@ -33,6 +34,7 @@ abuse can no longer burn quota. **It does not stop a determined non-browser clie
 | CORS allowed origins match production needs | **Verified from repo** (values) / **Needs dashboard verification** (deployed build matches repo) | Repo allowlists `https://vikthor1.github.io` + two dev `localhost` origins (now marked dev-only). Remove localhost for a production-only deploy if desired. |
 | Cloudflare logs do **not** retain request bodies / student text | **Not inspectable from repo** | Confirm no Logpush / log retention captures POST bodies. Worker code logs only error type + status enum. |
 | Gemini billing / quota limits set | **Needs dashboard verification** | Confirm a billing cap / quota on the Google Cloud project to bound cost. |
+| Billing alert threshold matches Fall enrollment | **Needs dashboard verification** | Set a Google Cloud budget alert appropriate to expected enrollment and review it after the first week. The app's soft review guidance is not a substitute for an account-level alert. |
 | Gemini data-retention / training settings | **Not inspectable from repo** | Confirm the API tier's data-use terms (paid tier generally excludes training-on-data); record the determination. |
 | GitHub Pages serves only intended files | **Needs dashboard verification** | Confirm the Pages deploy publishes only allowlisted files (backups like `index.original.html`, `*.backup` are gitignored and should not be served). |
 | Google Form (bug report) permissions & fields | **Needs dashboard verification** | Confirm the Form collects no email/identity by default and is not public-editable. Repo confirms only `stage, stage_en, lang, provider, ts` are passed (no PII). |

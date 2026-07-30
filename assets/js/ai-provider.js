@@ -41,12 +41,13 @@ function buildCoachPrompt({
 // ════════════════════════════════════════════════════════
 
 // Stages 7 (revision) and 10 (capstone) use Flash for stronger paragraph-level
-// reasoning and reliable JSON generation. Passage analysis also uses Flash at
-// every stage because it must reason across relationships among multiple
+// reasoning and reliable JSON generation. Passage and full-draft analysis also
+// use Flash because they must reason across relationships among multiple
 // sentences; ordinary early-stage conversation remains on Flash-Lite.
 function selectGeminiModel(stageId, requestKind) {
     const FLASH_STAGE_IDS = new Set([7, 10, 'stage.revision', 'stage.reflection']);
-    return requestKind === 'passage_analysis' || FLASH_STAGE_IDS.has(stageId)
+    const FLASH_REQUEST_KINDS = new Set(['passage_analysis', 'full_draft_review']);
+    return FLASH_REQUEST_KINDS.has(requestKind) || FLASH_STAGE_IDS.has(stageId)
         ? 'gemini-2.5-flash'
         : (CONFIG.geminiModel || 'gemini-2.5-flash-lite');
 }
@@ -106,6 +107,43 @@ const GEMINI_CUTOFF_NOTICE =
     '— ✂️ Esta respuesta se cortó antes de terminar. Pídeme que continúe, o divide tu mensaje en partes más cortas.\n' +
     '— ✂️ This response was cut off before it finished. Ask me to continue, or break your message into shorter parts.';
 
+// Privacy-safe local accounting. Store aggregate token counts only — never
+// prompts, draft text, response text, IP addresses, or student identifiers.
+const GEMINI_USAGE_KEY = 'tupana_ai_usage';
+function _safeUsageInt(value) {
+    return Number.isFinite(Number(value)) ? Math.max(0, Math.floor(Number(value))) : 0;
+}
+function _recordGeminiUsage(usage, requestKind) {
+    if (!usage || typeof usage !== 'object') return;
+    try {
+        const saved = JSON.parse(localStorage.getItem(GEMINI_USAGE_KEY) || '{}');
+        const totals = {
+            version: 1,
+            requests: _safeUsageInt(saved.requests) + 1,
+            inputTokens: _safeUsageInt(saved.inputTokens) + _safeUsageInt(usage.inputTokens),
+            outputTokens: _safeUsageInt(saved.outputTokens) + _safeUsageInt(usage.outputTokens),
+            thoughtTokens: _safeUsageInt(saved.thoughtTokens) + _safeUsageInt(usage.thoughtTokens),
+            cachedTokens: _safeUsageInt(saved.cachedTokens) + _safeUsageInt(usage.cachedTokens),
+            byKind: (saved.byKind && typeof saved.byKind === 'object') ? saved.byKind : {},
+            updatedAt: new Date().toISOString()
+        };
+        const kind = requestKind === 'full_draft_review'
+            ? 'full_draft_review'
+            : requestKind === 'passage_analysis'
+                ? 'passage_analysis'
+                : 'conversation';
+        const priorKind = totals.byKind[kind] || {};
+        totals.byKind[kind] = {
+            requests: _safeUsageInt(priorKind.requests) + 1,
+            inputTokens: _safeUsageInt(priorKind.inputTokens) + _safeUsageInt(usage.inputTokens),
+            outputTokens: _safeUsageInt(priorKind.outputTokens) + _safeUsageInt(usage.outputTokens),
+            thoughtTokens: _safeUsageInt(priorKind.thoughtTokens) + _safeUsageInt(usage.thoughtTokens),
+            cachedTokens: _safeUsageInt(priorKind.cachedTokens) + _safeUsageInt(usage.cachedTokens)
+        };
+        localStorage.setItem(GEMINI_USAGE_KEY, JSON.stringify(totals));
+    } catch(e) {}
+}
+
 // Single-attempt Gemini fetch — called by callGeminiProviderViaProxy retry loop
 async function _callGeminiOnce(coachPayload) {
     let response;
@@ -152,6 +190,8 @@ async function _callGeminiOnce(coachPayload) {
     if (!data?.text || typeof data.text !== 'string') {
         throw _mkGeminiErr('[Tu Pana] Gemini proxy returned no text', 'invalid_response');
     }
+
+    _recordGeminiUsage(data.usage, coachPayload.requestKind);
 
     // Integrity: when the Worker reports the reply was cut off (finishReason
     // MAX_TOKENS), append a concise bilingual continuation affordance so a partial

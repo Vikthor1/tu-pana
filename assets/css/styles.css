@@ -1332,6 +1332,23 @@
         .footer-btn svg {
             flex-shrink: 0;
         }
+        .full-draft-review-btn {
+            border-color: color-mix(in srgb, var(--jade) 52%, var(--border));
+            background: linear-gradient(135deg, var(--jade-glow), var(--bg-raised));
+            color: var(--jade-text);
+        }
+        .full-draft-review-btn[hidden] { display: none !important; }
+        .full-draft-review-btn:hover:not(:disabled) {
+            border-color: var(--jade);
+            background: var(--jade-glow);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+        .full-draft-review-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.48;
+            transform: none;
+        }
 
         .draft-textarea {
             flex: 1; padding: 24px 28px 40px;
@@ -3113,6 +3130,230 @@
         }
         .toolkit-close:hover { border-color: var(--border-hi); color: var(--text-primary); }
         .toolkit-close:focus-visible { outline: var(--focus-ring-alt); outline-offset: 2px; }
+        .full-review-modal-card { max-width: 760px; padding: 0; }
+        .full-review-modal-top {
+            margin: 0;
+            padding: 22px 24px 18px;
+            background: linear-gradient(135deg, var(--jade-glow), transparent 62%);
+        }
+        .full-review-modal-card > :not(.full-review-modal-top) {
+            margin-left: 24px;
+            margin-right: 24px;
+        }
+        .full-review-eyebrow {
+            margin: 0 0 5px;
+            color: var(--jade-text);
+            font-size: var(--text-caption);
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .full-review-intro {
+            margin-top: 18px;
+            margin-bottom: 12px;
+            color: var(--text-sub);
+            font-size: var(--text-body);
+            line-height: 1.55;
+        }
+        .full-review-length,
+        .full-review-notice {
+            padding: 11px 13px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: var(--text-note);
+            line-height: 1.5;
+        }
+        .full-review-length { margin-top: 0; margin-bottom: 14px; }
+        .full-review-length--comfortable {
+            background: var(--jade-glow);
+            border-color: color-mix(in srgb, var(--jade) 36%, var(--border));
+            color: var(--jade-text);
+        }
+        .full-review-length--long {
+            background: var(--amber-glow);
+            border-color: color-mix(in srgb, var(--amber-text) 34%, var(--border));
+        }
+        .full-review-length--very-long {
+            background: color-mix(in srgb, var(--amber-glow) 72%, var(--bg-panel));
+            border-color: var(--amber-text);
+        }
+        .full-review-notice {
+            margin-top: 0;
+            margin-bottom: 12px;
+            background: var(--bg-surface);
+            color: var(--text-sub);
+        }
+        .full-review-notice--same {
+            border-left: 3px solid var(--amber-text);
+        }
+        .full-review-fieldset {
+            border: 0;
+            margin-top: 18px !important;
+            padding: 0;
+            min-width: 0;
+        }
+        .full-review-fieldset legend {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-size: var(--text-body);
+            font-weight: 800;
+        }
+        .full-review-lens-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 9px;
+        }
+        .full-review-lens {
+            position: relative;
+            display: flex;
+            min-width: 0;
+            min-height: 76px;
+            padding: 12px 13px;
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-md);
+            background: var(--bg-surface);
+            cursor: pointer;
+            transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        .full-review-lens:hover {
+            border-color: var(--jade);
+            background: var(--jade-glow);
+        }
+        .full-review-lens:has(input:checked) {
+            border-color: var(--jade);
+            background: var(--jade-glow);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--jade) 24%, transparent);
+        }
+        .full-review-lens:has(input:focus-visible) {
+            outline: var(--focus-ring-alt);
+            outline-offset: 2px;
+        }
+        .full-review-lens input {
+            width: 17px;
+            height: 17px;
+            margin: 2px 10px 0 0;
+            accent-color: var(--jade);
+            flex-shrink: 0;
+        }
+        .full-review-lens-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+        .full-review-lens-copy strong {
+            color: var(--text-primary);
+            font-size: var(--text-note);
+            line-height: 1.3;
+        }
+        .full-review-lens-copy small {
+            color: var(--text-muted);
+            font-size: var(--text-caption);
+            line-height: 1.35;
+        }
+        .full-review-recommended {
+            position: absolute;
+            right: 8px;
+            top: -8px;
+            padding: 2px 6px;
+            border-radius: var(--radius-full);
+            background: var(--jade);
+            color: var(--bg-panel);
+            font-size: 0.58rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+        .full-review-purpose-label {
+            display: block;
+            margin-top: 17px;
+            color: var(--text-primary);
+            font-size: var(--text-note);
+            line-height: 1.4;
+        }
+        .full-review-purpose-label textarea {
+            display: block;
+            width: 100%;
+            min-height: 76px;
+            margin-top: 7px;
+            padding: 10px 12px;
+            resize: vertical;
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-md);
+            background: var(--bg-raised);
+            color: var(--text-primary);
+            font: inherit;
+            line-height: 1.5;
+        }
+        .full-review-purpose-label textarea:focus-visible {
+            outline: var(--focus-ring-alt);
+            outline-offset: 2px;
+        }
+        .full-review-purpose-label small {
+            display: block;
+            margin-top: 5px;
+            color: var(--text-muted);
+            font-size: var(--text-caption);
+        }
+        .full-review-override {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            margin-top: 14px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            background: var(--amber-glow);
+            color: var(--text-sub);
+            cursor: pointer;
+            font-size: var(--text-note);
+            line-height: 1.4;
+        }
+        .full-review-override input {
+            width: 18px;
+            height: 18px;
+            margin: 1px 0 0;
+            accent-color: var(--jade);
+            flex-shrink: 0;
+        }
+        .full-review-actions {
+            position: sticky;
+            bottom: 0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 9px;
+            margin-top: 20px;
+            margin-bottom: 0 !important;
+            padding: 14px 0 20px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-panel);
+        }
+        .full-review-passage-btn,
+        .full-review-submit {
+            min-height: 44px;
+            padding: 10px 15px;
+            border-radius: var(--radius-md);
+            font: 700 var(--text-note)/1.25 var(--font-body);
+            cursor: pointer;
+        }
+        .full-review-passage-btn {
+            border: 1px solid var(--border-mid);
+            background: var(--bg-raised);
+            color: var(--text-sub);
+        }
+        .full-review-submit {
+            border: 1px solid var(--jade);
+            background: var(--jade);
+            color: var(--bg-panel);
+        }
+        .full-review-submit:disabled {
+            opacity: 0.44;
+            cursor: not-allowed;
+        }
+        .full-review-passage-btn:focus-visible,
+        .full-review-submit:focus-visible {
+            outline: var(--focus-ring-alt);
+            outline-offset: 2px;
+        }
         .toolkit-section { margin-bottom: 20px; }
         .toolkit-section-title {
             font-size: var(--text-caption); font-weight: 700;
@@ -6441,6 +6682,21 @@ img, video, embed, object { max-width: 100%; height: auto; }
         margin: -12px auto 16px;
     }
     .toolkit-close { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+    .full-review-modal-card { max-height: 90svh; }
+    .full-review-modal-card::before { margin-left: auto; margin-right: auto; }
+    .full-review-modal-top { padding: 12px 16px 14px; }
+    .full-review-modal-card > :not(.full-review-modal-top) {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+    .full-review-lens-grid { grid-template-columns: 1fr; }
+    .full-review-lens { min-height: 70px; }
+    .full-review-actions {
+        flex-direction: column-reverse;
+        padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+    .full-review-passage-btn,
+    .full-review-submit { width: 100%; min-height: 48px; }
 
     /* ── Process note modal ── */
     .pn-modal-header  { padding: 14px 16px 12px; }

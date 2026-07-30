@@ -41,6 +41,7 @@ const D = {
     draftArea:    el('draftArea'),
     saveBtn:      el('saveBtn'),
     saveBtnLabel: el('saveBtnLabel'),
+    fullDraftReviewBtn: el('fullDraftReviewBtn'),
     savedNotice:  el('savedNotice'),
     continueBtn:  el('continueBtn'),
     chatMessages: el('chatMessages'),
@@ -1958,6 +1959,7 @@ function updateDraftControls() {
         footerNote.style.display = isS6 ? 'block' : 'none';
     }
     updateEditToolbarBtns();
+    updateFullDraftReviewButton();
 }
 
 function showTip(e, s) {
@@ -1988,6 +1990,7 @@ D.draftArea.addEventListener('input', () => {
     enterDraftFocus();
     if (state.stage === 8) renderVoiceVault();
     _autosaveSchedule();
+    updateFullDraftReviewButton();
 });
 
 D.draftArea.addEventListener('focus', () => {
@@ -2683,6 +2686,7 @@ function setCoachMode(mode) {
         D.chatStatus.innerHTML = '<span class="status-dot" aria-hidden="true">●</span> <span class="show-es">Guía sin IA</span><span class="lang-sep"> · </span><span class="show-en">Built-in, no AI</span>';
         D.chatStatus.classList.remove('idle');
     }
+    updateFullDraftReviewButton();
 }
 
 function _injectStartupMsg() {
@@ -2795,12 +2799,18 @@ async function sendMsg(text, options) {
     state.waiting = true;
     showTyping(true);
     D.sendBtn.disabled = true;
+    updateFullDraftReviewButton();
 
     // Ollama local AI mode: raw text via shared generateCoachResponse()
     if (state.coachMode === 'ollama') {
+        let outcome = { ok: false };
         try {
             const reply = await generateCoachResponse({ prompt: text });
-            if (reply) { const _mid = addMsg(reply, 'bot'); _appendLiveModeChip(_mid); }
+            if (reply) {
+                const _mid = addMsg(reply, 'bot');
+                _appendLiveModeChip(_mid);
+                outcome = { ok: true };
+            }
         } catch(err) {
             console.error('ollama:', err);
             addMsg(getOllamaFriendlyError(err), 'bot');
@@ -2808,12 +2818,14 @@ async function sendMsg(text, options) {
             showTyping(false);
             state.waiting = false;
             D.sendBtn.disabled = false;
+            updateFullDraftReviewButton();
         }
-        return;
+        return outcome;
     }
 
     // Gemini via Cloudflare Worker proxy
     if (state.coachMode === 'gemini') {
+        let outcome = { ok: false };
         try {
             const _gLang    = getCurrentCoachLanguageLabel();
             const _gCtx     = buildChannelData();
@@ -2833,7 +2845,11 @@ async function sendMsg(text, options) {
                 stageId: getStageId(state.stage),
                 requestKind: options && options.requestKind
             });
-            if (reply) { const _mid = addMsg(reply, 'bot'); _appendLiveModeChip(_mid); }
+            if (reply) {
+                const _mid = addMsg(reply, 'bot');
+                _appendLiveModeChip(_mid);
+                outcome = { ok: true };
+            }
         } catch(err) {
             console.error('[Tu Pana] Coach error', {
                 category:  err?.category  ?? '(missing)',
@@ -2847,10 +2863,12 @@ async function sendMsg(text, options) {
             showTyping(false);
             state.waiting = false;
             D.sendBtn.disabled = false;
+            updateFullDraftReviewButton();
         }
-        return;
+        return outcome;
     }
 
+    return { ok: false };
 }
 
 // ════════════════════════════════════════════════════════
@@ -3446,6 +3464,345 @@ function submitChat() {
         if (menu.style.display !== 'none') positionMenu();
     });
 })();
+
+// ════════════════════════════════════════════════════════
+//  GUIDED FULL-DRAFT REVIEW
+//  Available at the two moments when a whole-draft reading is pedagogically
+//  useful: Stage 7 revision and Stage 9 final readiness. The workflow uses
+//  purpose prompts rather than a hard quota. Students can always continue,
+//  including with a long or unchanged draft, after making the intended use
+//  explicit. Stored review history contains metadata only — never draft text.
+// ════════════════════════════════════════════════════════
+const FULL_DRAFT_REVIEW_KEY = 'tupana_full_draft_reviews';
+const FULL_DRAFT_LENSES = {
+    structure: {
+        es: 'Estructura y trayectoria',
+        en: 'Structure & trajectory',
+        descEs: 'Cómo avanza el texto y dónde pierde impulso.',
+        descEn: 'How the draft moves and where it loses momentum.',
+        instruction: 'Prioritize the draft’s overall movement, organization, sequencing, paragraph roles, transitions, and through-line. Diagnose relationships across sections rather than editing sentences.'
+    },
+    evidence: {
+        es: 'Evidencia y especificidad',
+        en: 'Evidence & specificity',
+        descEs: 'Dónde la evidencia convence y dónde falta precisión.',
+        descEn: 'Where evidence persuades and where precision is missing.',
+        instruction: 'Prioritize the quality, placement, specificity, and interpretation of evidence or concrete detail. Distinguish missing evidence from evidence that is present but not yet connected to the draft’s purpose.'
+    },
+    fit: {
+        es: 'Encaje con la tarea',
+        en: 'Assignment fit',
+        descEs: 'Qué tan bien cumple el género y sus requisitos.',
+        descEn: 'How well the draft meets its genre and requirements.',
+        instruction: 'Prioritize fit with the active assignment or genre, its audience, purpose, required moves, and stated constraints. Do not impose conventions from a different genre.'
+    },
+    voice: {
+        es: 'Voz y claridad',
+        en: 'Voice & clarity',
+        descEs: 'Dónde la voz se siente propia y dónde se nubla el sentido.',
+        descEn: 'Where the voice feels distinct and where meaning blurs.',
+        instruction: 'Prioritize voice, clarity, and rhetorical effectiveness across the whole draft. Preserve culturally meaningful language, dialect, code-switching, and the student’s distinctive phrasing. Do not rewrite or standardize their prose.'
+    },
+    audit: {
+        es: 'Auditoría final',
+        en: 'Final requirements audit',
+        descEs: 'Qué está listo y qué revisar antes de entregar.',
+        descEn: 'What is ready and what to check before submitting.',
+        instruction: 'Prioritize final readiness. Check the whole draft against the active genre and assignment requirements, distinguish high-impact gaps from optional polish, and never invent a missing requirement.'
+    }
+};
+
+function _fullDraftWordCount(text) {
+    return String(text || '').trim().split(/\s+/).filter(Boolean).length;
+}
+
+function _fullDraftProjectId() {
+    return state.assignmentId || 'mixed-genre-autobiographical-essay';
+}
+
+function _fullDraftSignature(text) {
+    const normalized = String(text || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    let hash = 2166136261;
+    for (let i = 0; i < normalized.length; i++) {
+        hash ^= normalized.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+    }
+    return `${normalized.length}:${(hash >>> 0).toString(16)}`;
+}
+
+function _loadFullDraftReviewState() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(FULL_DRAFT_REVIEW_KEY) || '{}');
+        return {
+            version: 1,
+            projects: saved.projects && typeof saved.projects === 'object' ? saved.projects : {}
+        };
+    } catch(e) {
+        return { version: 1, projects: {} };
+    }
+}
+
+function _getFullDraftReviews() {
+    const saved = _loadFullDraftReviewState();
+    const project = saved.projects[_fullDraftProjectId()];
+    return project && Array.isArray(project.reviews) ? project.reviews : [];
+}
+
+function _saveFullDraftReview(record) {
+    try {
+        const saved = _loadFullDraftReviewState();
+        const projectId = _fullDraftProjectId();
+        const prior = saved.projects[projectId];
+        const reviews = prior && Array.isArray(prior.reviews) ? prior.reviews : [];
+        saved.projects[projectId] = { reviews: reviews.concat(record).slice(-10) };
+        localStorage.setItem(FULL_DRAFT_REVIEW_KEY, JSON.stringify(saved));
+    } catch(e) {}
+}
+
+function updateFullDraftReviewButton() {
+    if (!D.fullDraftReviewBtn || !D.draftArea) return;
+    const availableStage = state.stage === 7 || state.stage === 9;
+    D.fullDraftReviewBtn.hidden = !availableStage;
+    if (!availableStage) return;
+
+    const words = _fullDraftWordCount(D.draftArea.value);
+    const liveCoachAvailable = state.coachMode !== 'offline' && state.connected;
+    D.fullDraftReviewBtn.disabled = words < 50 || !liveCoachAvailable || state.waiting;
+    const reason = words < 50
+        ? 'Añade al menos 50 palabras · Add at least 50 words'
+        : !liveCoachAvailable
+            ? 'Activa el Coach IA · Turn on Live AI'
+            : state.waiting
+                ? 'El coach está respondiendo · The coach is responding'
+                : 'Una revisión completa y enfocada · One focused full-draft review';
+    D.fullDraftReviewBtn.title = reason;
+    D.fullDraftReviewBtn.setAttribute('aria-label',
+        words < 50 ? 'Revisar borrador — añade al menos 50 palabras · Review draft — add at least 50 words'
+                   : 'Revisar el borrador completo · Review full draft');
+}
+
+function _fullDraftWordGuidance(words) {
+    if (words > 3000) {
+        return {
+            cls: 'full-review-length--very-long',
+            html: '<strong><span class="show-es">Borrador extenso.</span><span class="lang-sep"> · </span><span class="show-en">Extended draft.</span></strong> ' +
+                  '<span class="show-es">Puedes revisarlo completo. Para observaciones más precisas, elige un solo lente; después puedes trabajar un pasaje.</span>' +
+                  '<span class="lang-sep"> / </span><span class="show-en">You can review it in full. For more precise feedback, choose one lens; you can work with a passage afterward.</span>'
+        };
+    }
+    if (words > 2000) {
+        return {
+            cls: 'full-review-length--long',
+            html: '<strong><span class="show-es">Lectura amplia.</span><span class="lang-sep"> · </span><span class="show-en">Wide-angle reading.</span></strong> ' +
+                  '<span class="show-es">Este largo está bien. Un solo lente ayudará al coach a priorizar.</span>' +
+                  '<span class="lang-sep"> / </span><span class="show-en">This length is fine. One lens will help the coach prioritize.</span>'
+        };
+    }
+    return {
+        cls: 'full-review-length--comfortable',
+        html: '<span class="show-es">Este borrador tiene un largo cómodo para una revisión completa y enfocada.</span>' +
+              '<span class="lang-sep"> / </span><span class="show-en">This draft is a comfortable length for one focused whole-draft review.</span>'
+    };
+}
+
+let _fullReviewLastFocus = null;
+
+function closeFullDraftReview() {
+    const modal = document.getElementById('fullDraftReviewModal');
+    if (!modal) return;
+    modal.remove();
+    document.removeEventListener('keydown', _fullReviewKeydown);
+    if (_fullReviewLastFocus && typeof _fullReviewLastFocus.focus === 'function') {
+        _fullReviewLastFocus.focus();
+    }
+    _fullReviewLastFocus = null;
+}
+
+function _fullReviewKeydown(event) {
+    if (event.key === 'Escape') closeFullDraftReview();
+}
+
+function _updateFullDraftSubmitState(modal, sameDraft, needsPurpose) {
+    const lens = modal.querySelector('input[name="fullReviewLens"]:checked');
+    const purpose = modal.querySelector('#fullReviewPurpose');
+    const override = modal.querySelector('#fullReviewSameDraftOverride');
+    const validPurpose = !needsPurpose || (purpose && purpose.value.trim().length >= 8);
+    const validOverride = !sameDraft || (override && override.checked);
+    const submit = modal.querySelector('#fullReviewSubmit');
+    if (submit) submit.disabled = !lens || !validPurpose || !validOverride || state.waiting;
+}
+
+function openFullDraftReview() {
+    if (state.stage !== 7 && state.stage !== 9) return;
+    const draft = D.draftArea.value.trim();
+    const words = _fullDraftWordCount(draft);
+    if (words < 50) {
+        addSys('Añade al menos 50 palabras antes de pedir una lectura del borrador completo.\nAdd at least 50 words before requesting a whole-draft reading.');
+        return;
+    }
+    if (state.coachMode === 'offline' || !state.connected) {
+        addSys('Activa el Coach IA o la IA local para revisar el borrador completo.\nTurn on Live AI or Local AI to review the full draft.');
+        return;
+    }
+
+    closeFullDraftReview();
+    const reviews = _getFullDraftReviews();
+    const signature = _fullDraftSignature(draft);
+    const sameDraft = reviews.some(review => review.signature === signature);
+    const needsPurpose = reviews.length > 0;
+    const guidance = _fullDraftWordGuidance(words);
+    const recommendedLens = state.stage === 9 ? 'audit' : '';
+    _fullReviewLastFocus = document.activeElement;
+
+    const lensCards = Object.entries(FULL_DRAFT_LENSES).map(([key, lens]) => `
+        <label class="full-review-lens">
+            <input type="radio" name="fullReviewLens" value="${key}" ${key === recommendedLens ? 'data-recommended="true"' : ''}>
+            <span class="full-review-lens-copy">
+                <strong><span class="show-es">${escapeHtml(lens.es)}</span><span class="lang-sep"> · </span><span class="show-en">${escapeHtml(lens.en)}</span></strong>
+                <small><span class="show-es">${escapeHtml(lens.descEs)}</span><span class="lang-sep"> / </span><span class="show-en">${escapeHtml(lens.descEn)}</span></small>
+            </span>
+            ${key === recommendedLens ? '<span class="full-review-recommended"><span class="show-es">Sugerido ahora</span><span class="lang-sep"> · </span><span class="show-en">Suggested now</span></span>' : ''}
+        </label>`).join('');
+
+    const modal = document.createElement('div');
+    modal.id = 'fullDraftReviewModal';
+    modal.className = 'toolkit-modal-bg full-review-modal-bg';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'fullReviewTitle');
+    modal.innerHTML = `
+        <div class="toolkit-modal-card full-review-modal-card">
+            <div class="toolkit-modal-top full-review-modal-top">
+                <div>
+                    <p class="full-review-eyebrow"><span class="show-es">Lectura de texto completo</span><span class="lang-sep"> · </span><span class="show-en">Whole-draft reading</span></p>
+                    <h2 class="toolkit-modal-title" id="fullReviewTitle"><span class="show-es">¿Qué necesitas ver con más claridad?</span><span class="lang-sep"> · </span><span class="show-en">What do you need to see more clearly?</span></h2>
+                </div>
+                <button type="button" class="toolkit-close" id="fullReviewClose" aria-label="Cerrar · Close">×</button>
+            </div>
+            <p class="full-review-intro"><span class="show-es">El coach leerá las <strong>${words.toLocaleString()}</strong> palabras completas y responderá con prioridades, no con una reescritura.</span><span class="lang-sep"> / </span><span class="show-en">The coach will read all <strong>${words.toLocaleString()}</strong> words and respond with priorities—not a rewrite.</span></p>
+            <div class="full-review-length ${guidance.cls}">${guidance.html}</div>
+            ${reviews.length >= 2 ? `
+                <div class="full-review-notice">
+                    <strong><span class="show-es">Ya tienes varias perspectivas generales.</span><span class="lang-sep"> · </span><span class="show-en">You already have several wide-angle perspectives.</span></strong>
+                    <span class="show-es"> La revisión de un pasaje puede ser más útil ahora. Si otra lectura completa tiene un propósito específico, puedes continuar.</span>
+                    <span class="lang-sep"> / </span><span class="show-en"> Passage review may be more useful now. If another full reading has a specific purpose, you can continue.</span>
+                </div>` : ''}
+            ${sameDraft ? `
+                <div class="full-review-notice full-review-notice--same">
+                    <strong><span class="show-es">Este borrador no ha cambiado desde una revisión anterior.</span><span class="lang-sep"> · </span><span class="show-en">This draft has not changed since an earlier review.</span></strong>
+                    <span class="show-es"> Puedes pedir otro lente si eso es lo que necesitas.</span>
+                    <span class="lang-sep"> / </span><span class="show-en"> You can request another lens if that is what you need.</span>
+                </div>` : ''}
+            <fieldset class="full-review-fieldset">
+                <legend><span class="show-es">Elige un lente</span><span class="lang-sep"> · </span><span class="show-en">Choose one lens</span></legend>
+                <div class="full-review-lens-grid">${lensCards}</div>
+            </fieldset>
+            ${needsPurpose ? `
+                <label class="full-review-purpose-label" for="fullReviewPurpose">
+                    <strong><span class="show-es">¿Qué cambió o qué debe examinar el coach ahora?</span><span class="lang-sep"> · </span><span class="show-en">What changed, or what should the coach inspect now?</span></strong>
+                    <textarea id="fullReviewPurpose" rows="3" maxlength="500" placeholder="Ej.: Reorganicé los párrafos 2–4; verifica si la transición ahora funciona. / E.g., I reorganized paragraphs 2–4; check whether the transition now works."></textarea>
+                    <small><span class="show-es">Una frase basta. Esto hace que la nueva lectura tenga un propósito distinto.</span><span class="lang-sep"> / </span><span class="show-en">One sentence is enough. This gives the new reading a distinct purpose.</span></small>
+                </label>` : ''}
+            ${sameDraft ? `
+                <label class="full-review-override">
+                    <input type="checkbox" id="fullReviewSameDraftOverride">
+                    <span><span class="show-es">Quiero otro lente sobre este borrador sin cambios.</span><span class="lang-sep"> · </span><span class="show-en">I want a different lens on this unchanged draft.</span></span>
+                </label>` : ''}
+            <div class="full-review-actions">
+                <button type="button" class="full-review-passage-btn" id="fullReviewPassage"><span class="show-es">Trabajar un pasaje</span><span class="lang-sep"> · </span><span class="show-en">Work with a passage</span></button>
+                <button type="button" class="full-review-submit" id="fullReviewSubmit" disabled><span class="show-es">Revisar este borrador</span><span class="lang-sep"> · </span><span class="show-en">Review this draft</span></button>
+            </div>
+        </div>`;
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', event => {
+        if (event.target === modal) closeFullDraftReview();
+    });
+    modal.querySelector('#fullReviewClose').addEventListener('click', closeFullDraftReview);
+    modal.querySelector('#fullReviewPassage').addEventListener('click', () => {
+        closeFullDraftReview();
+        if (window.innerWidth <= 480) switchMobileTab('draft');
+        D.draftArea.focus();
+        addSys('Selecciona el pasaje que quieres trabajar y elige una acción breve.\nSelect the passage you want to work with and choose a focused action.');
+    });
+    modal.querySelectorAll('input[name="fullReviewLens"]').forEach(input => {
+        input.addEventListener('change', () => _updateFullDraftSubmitState(modal, sameDraft, needsPurpose));
+    });
+    modal.querySelector('#fullReviewPurpose')?.addEventListener('input', () =>
+        _updateFullDraftSubmitState(modal, sameDraft, needsPurpose));
+    modal.querySelector('#fullReviewSameDraftOverride')?.addEventListener('change', () =>
+        _updateFullDraftSubmitState(modal, sameDraft, needsPurpose));
+    modal.querySelector('#fullReviewSubmit').addEventListener('click', () =>
+        submitFullDraftReview({ modal, draft, words, signature, needsPurpose }));
+
+    document.addEventListener('keydown', _fullReviewKeydown);
+    setTimeout(() => modal.querySelector('input[name="fullReviewLens"]')?.focus(), 0);
+}
+
+async function submitFullDraftReview({ modal, draft, words, signature, needsPurpose }) {
+    const selected = modal.querySelector('input[name="fullReviewLens"]:checked');
+    if (!selected || state.waiting) return;
+    const lensKey = selected.value;
+    const lens = FULL_DRAFT_LENSES[lensKey];
+    if (!lens) return;
+    const purpose = needsPurpose
+        ? (modal.querySelector('#fullReviewPurpose')?.value || '').trim()
+        : 'First whole-draft review with this lens.';
+    const layer = typeof getAssignmentLayer === 'function' ? getAssignmentLayer(state.assignmentId) : null;
+    const assignmentName = layer?.name || getActiveTemplate()?.templateName || 'Mixed-Genre Autobiographical Essay';
+    const stageLabel = stLabel(state.stage);
+    const prompt =
+        '[FULL-DRAFT REVIEW]\n' +
+        `Assignment or genre: ${assignmentName}\n` +
+        `Stage: ${state.stage} — ${stageLabel?.en || ''}\n` +
+        `Selected lens: ${lens.en}\n` +
+        `Student purpose for this reading: ${purpose}\n` +
+        `Draft word count: ${words}\n\n` +
+        '[STUDENT DRAFT — READ ALL OF IT BEFORE RESPONDING]\n' +
+        draft +
+        '\n[END STUDENT DRAFT]\n\n' +
+        'MANDATORY WHOLE-DRAFT REVIEW CONTRACT:\n' +
+        '- Read the entire draft before diagnosing any part. Later paragraphs may develop, qualify, or answer something introduced earlier.\n' +
+        '- Apply the active assignment/genre and current-stage rules already provided in the Tu Pana system prompt. Do not import expectations from another genre.\n' +
+        `- Lens instruction: ${lens.instruction}\n` +
+        '- Do not rewrite, line-edit, or produce replacement prose. Do not add facts, experiences, evidence, sources, or language the student did not provide.\n' +
+        '- Ground every important observation in an exact anchor from the student’s draft (a short quotation or a precise paragraph/location reference).\n' +
+        '- Never request information that appears elsewhere in the draft. If an element is present but poorly connected, name the connection problem accurately.\n' +
+        '- Prioritize. Do not turn the response into a line-by-line inventory.\n\n' +
+        'Use exactly these four labeled sections in the current interface language:\n' +
+        '1. CURRENT MOVEMENT — map what the draft currently does in 2–3 sentences.\n' +
+        '2. TWO STRENGTHS — two specific strengths, each with a draft anchor and its effect.\n' +
+        '3. PRIORITY REVISIONS — at most three high-impact priorities. For each: location, effect on the reader, and one revision route the student can carry out.\n' +
+        '4. BEST NEXT ACTION — one concrete action the student should do next.\n' +
+        'End after BEST NEXT ACTION. Do not add a rewritten model paragraph.';
+
+    const visiblePurpose = needsPurpose ? `\n${_passageExcerpt(purpose, 180)}` : '';
+    const displayMessage = `Full-draft review · ${lens.es} / ${lens.en}\n${words.toLocaleString()} words${visiblePurpose}`;
+    modal.querySelector('#fullReviewSubmit').disabled = true;
+    closeFullDraftReview();
+    if (window.innerWidth <= 480) switchMobileTab('chat');
+    logProcessEvent('full_draft_review_requested',
+        `Student requested a ${lensKey} whole-draft review at Stage ${state.stage} (${words} words).`);
+    const outcome = await sendCoachMessage({
+        message: prompt,
+        displayMessage,
+        stageId: getStageId(state.stage),
+        requestKind: 'full_draft_review'
+    });
+    if (outcome?.ok) {
+        _saveFullDraftReview({
+            timestamp: new Date().toISOString(),
+            stage: state.stage,
+            lens: lensKey,
+            wordCount: words,
+            signature,
+            purpose: needsPurpose ? purpose.slice(0, 500) : ''
+        });
+        logProcessEvent('full_draft_review_completed',
+            `Coach completed a ${lensKey} whole-draft review at Stage ${state.stage} (${words} words).`);
+    }
+    updateFullDraftReviewButton();
+}
 
 // ════════════════════════════════════════════════════════
 //  PER-STAGE WRITING STORAGE

@@ -76,14 +76,11 @@ http://localhost:8000?dev=true
 
 ## AI coach configuration
 
-The app ships with the AI coach in offline mode — fully functional without any connection. To configure:
-
-1. Open `assets/js/config.js`
-2. Set `useCopilotEmbed: true` to use the Copilot Studio iframe embed
-3. Set `difyEmbedUrl` to your Dify chatbot URL, or `''` to disable
-4. Leave `directLineSecret: ''` — never put a secret in client-side code
-
-> **Security:** Direct Line secrets must never appear in browser-served JS. See the AI Coach section below for safe connection options.
+The live coach uses Gemini through a Cloudflare Worker, so the API key never
+appears in browser-served code. Configure `geminiProxyUrl` in
+`assets/js/config.js`; Worker setup and deployment details are in
+`server/gemini-worker/README.md`. The built-in guide remains available when
+the live coach is unavailable.
 
 ---
 
@@ -109,18 +106,27 @@ The app embeds in Brightspace as an iframe or external tool link. Students work 
 
 ## Privacy
 
-All student data is stored in `localStorage` only — draft text, chat history, revision decisions, process notes. Nothing is transmitted to a server by the app. The AI coach connection (if enabled) sends only chat messages to the configured bot endpoint.
+Drafts, chat history, revision decisions, and process notes are stored locally
+in the browser. When a student asks the live coach for help, the message and
+the writing explicitly included for that coaching request are sent through the
+Cloudflare proxy to Gemini; Tu Pana does not store that writing on a server.
+Local usage accounting stores aggregate token counts only.
 
 ---
 
-## AI coach (optional)
+## AI coach
 
-The Direct Line secret field is intentionally blank in this public version. Safe options:
+- **Coach IA / Live AI** — Gemini through the configured Cloudflare Worker.
+- **Guía sin IA / Built-in, no AI** — stage-aware guidance that keeps the
+  writing workflow usable without a live model.
+- **Local AI / Ollama** — retained for local development; not shown in the
+  normal student mode selector.
 
-1. **Offline mode** (default) — coach panel is inactive; all 10 stages work fully.
-2. **Copilot Studio iframe** — set `useCopilotEmbed: true` in config.js. The embed URL is pre-configured for the current agent; replace it if the agent changes.
-3. **Dify embed** — set `difyEmbedUrl` in config.js. Tested for HTTPS iframe compatibility.
-4. **Server-side token endpoint** — if Direct Line Web Chat is required, use a token service so the browser never receives the secret.
+Stages 7 and 9 offer a guided whole-draft reading. Students choose one lens;
+follow-up readings ask for a revision purpose, and unchanged drafts require an
+explicit different-lens choice. These are soft pedagogical safeguards, not a
+hard usage quota. Drafts over 3,000 words remain reviewable, with guidance to
+focus the lens or work with a passage when that would produce better feedback.
 
 ---
 

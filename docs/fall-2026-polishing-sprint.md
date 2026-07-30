@@ -1,7 +1,7 @@
 # Tu Pana Fall 2026 Polishing Sprint
 
 **Branch:** `experiment/redesign-v1`  
-**Status:** Implemented and locally verified  
+**Status:** Implemented, verified, and Worker capacity deployed
 **Purpose:** Reduce student friction without weakening Tu Pana's authorship,
 critical-AI-literacy, or process-documentation commitments.
 
@@ -88,5 +88,7 @@ signal for returning students.
 - In-app browser visual review: welcome and editor-first desktop experience
 - Responsive assertions: 390 × 844 phone viewport, no horizontal overflow
 
-No production deployment or VC-OS canonical-state edit is included in this
-branch.
+The Gemini Worker capacity update was deployed on 2026-07-30 and verified
+against the public endpoint with a synthetic 40,000-character request. The
+student-interface changes remain on `experiment/redesign-v1` for review before
+the Fall release is merged.

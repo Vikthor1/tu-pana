@@ -2828,7 +2828,11 @@ async function sendMsg(text, options) {
                 '\n\nCurrent Tu Pana context:\n' + JSON.stringify(_gCtx, null, 2) +
                 '\n\nStudent message:\n' + text +
                 '\n\nRespond as Tu Pana de Escritura following the stage-specific rules and the language rule above.';
-            const reply = await generateCoachResponse({ prompt: geminiPrompt, stageId: getStageId(state.stage) });
+            const reply = await generateCoachResponse({
+                prompt: geminiPrompt,
+                stageId: getStageId(state.stage),
+                requestKind: options && options.requestKind
+            });
             if (reply) { const _mid = addMsg(reply, 'bot'); _appendLiveModeChip(_mid); }
         } catch(err) {
             console.error('[Tu Pana] Coach error', {
@@ -3017,6 +3021,9 @@ Instead:
 4. Optionally provide a blank frame with blanks only.
 Do not write a replacement sentence. Do not write "try this version." Do not write "for now, let's try rewriting it as..." Do not paraphrase or polish the student's sentence.
 
+WHOLE-PASSAGE REVIEW RULE — mandatory across every genre:
+When the student provides more than one sentence, read the full selection before diagnosing its opening. Briefly explain the passage's current rhetorical movement — how the opening, development, evidence, and/or reflection relate. Check later sentences before claiming that context, specificity, evidence, explanation, or connection is missing; never ask for information the student already supplied later in the passage. If the highest-impact issue is in the first sentence, state the rhetorical purpose of changing it (such as creating a more situated hook, clarifying the focus, or reaching distinctive evidence sooner) and explain why. Distinguish a sentence-level problem from a passage-level problem. Ground feedback in exact language from relevant parts of the passage, choose one highest-impact next move, and do not rewrite.
+
 Your role is to ask questions, identify possibilities, give targeted feedback, and support revision without replacing the student's authorship.
 
 VOICE POLISH RULE — Stage 8 specific, this is mandatory:
@@ -3167,6 +3174,26 @@ function getOllamaFriendlyError(err) {
 // ════════════════════════════════════════════════════════
 let _pendingPassageContext = null;
 
+// Shared across every assignment/genre layer. Passage feedback must interpret
+// the selection as a connected rhetorical unit instead of latching onto its
+// first sentence and asking for evidence that appears later.
+const PASSAGE_READING_PROTOCOL =
+`WHOLE-PASSAGE READING PROTOCOL — mandatory:
+- Read the entire selected passage before diagnosing any sentence.
+- Briefly name the passage's current rhetorical movement: how its opening, development, evidence, and/or reflection work together.
+- Check later sentences before saying that context, specificity, evidence, explanation, or connection is missing. Never ask for information the selection already provides.
+- If the highest-impact issue is in the opening sentence, say what rhetorical job the proposed change would serve (for example: a more situated hook, a clearer focus, or a faster path to the passage's distinctive evidence) and explain why.
+- Distinguish among hook, focus, sequencing, evidence, connection, reflection, clarity, and voice. Name the actual level of the issue instead of giving generic praise or asking a generic question.
+- Ground feedback in the student's exact words, including relevant material later in the passage. Do not rewrite, paraphrase, or provide replacement prose.
+- Address the student's stated request directly. Offer one highest-impact next move and at most one focused decision question.`;
+
+function _looksLikeMultiSentencePassage(text) {
+    const clean = String(text || '').trim();
+    if (clean.length < 240) return false;
+    const boundaries = clean.match(/[.!?]\s+|[.!?]$|\n+/g) || [];
+    return boundaries.length >= 2;
+}
+
 function _passageExcerpt(text, limit) {
     const clean = String(text || '').replace(/\s+/g, ' ').trim();
     const max = limit || 180;
@@ -3270,21 +3297,26 @@ function submitChat() {
 
     let message = t;
     let displayMessage = t;
+    // A student may paste a passage directly into chat instead of attaching it
+    // through the contextual toolbar. Substantial multi-sentence writing still
+    // deserves full passage reasoning and the full Flash model.
+    let requestKind = _looksLikeMultiSentencePassage(t) ? 'passage_analysis' : undefined;
     if (_pendingPassageContext) {
         const passage = _pendingPassageContext;
+        requestKind = 'passage_analysis';
         message =
             '[STUDENT-SELECTED PASSAGE]\n' + passage +
             '\n[END SELECTED PASSAGE]\n\n' +
-            'Student question: ' + t +
-            '\n\nDiscuss only this passage. Do not rewrite it or provide replacement prose. ' +
-            'Use the student’s exact words when referring to the passage.';
+            PASSAGE_READING_PROTOCOL +
+            '\n\nStudent question: ' + t;
         displayMessage = t + '\n\n↳ “' + _passageExcerpt(passage, 220) + '”';
         clearPassageCoachContext();
     }
     sendCoachMessage({
         message,
         displayMessage,
-        stageId: getStageId(state.stage)
+        stageId: getStageId(state.stage),
+        requestKind
     });
 }
 
@@ -3303,7 +3335,8 @@ function submitChat() {
     menu.innerHTML = `
         <span class="passage-coach-title"><span class="show-es">Consultar pasaje</span><span class="lang-sep"> · </span><span class="show-en">Ask about passage</span></span>
         <div class="passage-coach-actions">
-            <button type="button" data-passage-action="strength"><span class="show-es">Fortaleza</span><span class="lang-sep"> · </span><span class="show-en">Strength</span></button>
+            <button type="button" data-passage-action="works" aria-label="Qué funciona · What works"><span class="show-es">Qué funciona</span><span class="lang-sep"> · </span><span class="show-en">What works</span></button>
+            <button type="button" data-passage-action="strengthen" aria-label="Fortalecer · Strengthen"><span class="show-es">Fortalecer</span><span class="lang-sep"> · </span><span class="show-en">Strengthen</span></button>
             <button type="button" data-passage-action="clarity"><span class="show-es">Claridad</span><span class="lang-sep"> · </span><span class="show-en">Clarity</span></button>
             <button type="button" data-passage-action="voice"><span class="show-es">Voz</span><span class="lang-sep"> · </span><span class="show-en">Voice</span></button>
             <button type="button" data-passage-action="ask" class="passage-coach-ask"><span class="show-es">Preguntar…</span><span class="lang-sep"> · </span><span class="show-en">Ask…</span></button>
@@ -3312,17 +3345,21 @@ function submitChat() {
     document.body.appendChild(menu);
 
     const ACTIONS = {
-        strength: {
-            label: 'Fortaleza · Strength',
-            instruction: 'Name one specific strength in this selected passage and explain briefly why it works. Quote the student’s exact words. Do not rewrite the passage.'
+        works: {
+            label: 'Qué funciona · What works',
+            instruction: 'Identify the most important thing that already works in this passage. Explain how it contributes to the passage as a whole, using exact evidence from the student’s words. Do not invent a weakness and do not rewrite.'
+        },
+        strengthen: {
+            label: 'Fortalecer · Strengthen',
+            instruction: 'Identify the single highest-impact way the student could strengthen this passage. Classify the issue precisely as hook, focus, sequencing, evidence, connection, reflection, clarity, or voice. Explain the purpose of the change and give one actionable revision route, but do not execute the revision or provide replacement prose.'
         },
         clarity: {
             label: 'Claridad · Clarity',
-            instruction: 'Identify the single most important clarity issue in this selected passage. Ask one focused question that helps the student revise it. Do not rewrite the passage or offer replacement prose.'
+            instruction: 'Identify the single most important clarity issue only after checking how the full selection develops it. Explain its location and effect, then ask one focused question that helps the student revise. Do not ask for material already present and do not offer replacement prose.'
         },
         voice: {
             label: 'Voz · Voice',
-            instruction: 'Check how the student’s voice is working in this selected passage. Name one phrase that sounds distinctively theirs and one possible voice risk, if present. Quote exact words only; do not rewrite.'
+            instruction: 'Check how the student’s voice develops across this entire passage. Name one phrase that sounds distinctively theirs and one possible voice risk, if present. Consider later sentences before diagnosing the opening. Quote exact words only; do not rewrite.'
         }
     };
 
@@ -3391,7 +3428,8 @@ function submitChat() {
         const prompt =
             '[STUDENT-SELECTED PASSAGE]\n' + sel +
             '\n[END SELECTED PASSAGE]\n\n' +
-            action.instruction;
+            PASSAGE_READING_PROTOCOL +
+            '\n\nREQUESTED PASSAGE ACTION:\n' + action.instruction;
         const displayMessage = action.label + '\n“' + _passageExcerpt(sel, 240) + '”';
         hideMenu();
         if (window.innerWidth <= 480) switchMobileTab('chat');
@@ -3399,7 +3437,8 @@ function submitChat() {
         sendCoachMessage({
             message: prompt,
             displayMessage,
-            stageId: getStageId(state.stage)
+            stageId: getStageId(state.stage),
+            requestKind: 'passage_analysis'
         });
     });
 

@@ -55,8 +55,10 @@ const clarityPassage = 'I learned that data is useful only when it changes how w
 await selectPassage(page, clarityPassage);
 check('selecting text opens the passage action bar',
     await page.locator('#passageCoachMenu').isVisible());
-check('action bar offers Strength, Clarity, Voice, and Ask',
-    await page.locator('#passageCoachMenu [data-passage-action]').count() === 4);
+check('action bar separates What works from Strengthen',
+    await page.locator('#passageCoachMenu [data-passage-action]').count() === 5 &&
+    await page.locator('[data-passage-action="works"]').isVisible() &&
+    await page.locator('[data-passage-action="strengthen"]').isVisible());
 
 await page.locator('[data-passage-action="clarity"]').click();
 await page.waitForTimeout(500);
@@ -66,6 +68,13 @@ check('request contains the exact selected passage',
 check('request asks for one clarity issue and preserves authorship',
     requests[0]?.prompt?.includes('single most important clarity issue') &&
     requests[0]?.prompt?.includes('Do not rewrite'));
+check('request requires full-passage reading before diagnosis',
+    requests[0]?.prompt?.includes('Read the entire selected passage') &&
+    requests[0]?.prompt?.includes('Never ask for information the selection already provides') &&
+    requests[0]?.prompt?.includes('what rhetorical job the proposed change would serve'));
+check('passage analysis uses full Flash outside the Revision stage',
+    requests[0]?.model === 'gemini-2.5-flash' &&
+    requests[0]?.requestKind === 'passage_analysis');
 const quickBubble = await page.locator('.msg.user .msg-bubble').last().textContent();
 check('student sees a compact anchored action, not hidden instructions',
     /Claridad · Clarity/.test(quickBubble) &&
@@ -88,8 +97,70 @@ await page.waitForTimeout(500);
 check('custom question sends with the selected passage', requests.length === 2 &&
     requests[1]?.prompt?.includes(questionPassage) &&
     requests[1]?.prompt?.includes('What should I do to explain this connection more clearly?'));
+check('custom passage questions inherit the reading protocol and full Flash',
+    requests[1]?.prompt?.includes('WHOLE-PASSAGE READING PROTOCOL') &&
+    requests[1]?.model === 'gemini-2.5-flash' &&
+    requests[1]?.requestKind === 'passage_analysis');
 check('passage chip clears after sending',
     await page.locator('#passageContextChip').evaluate(el => el.hidden));
+
+console.log('Directly pasted passage');
+const directlyPastedPassage =
+    'Information technologies shape many areas of contemporary life. ' +
+    'My interest became more concrete while watching my mother use operations research to organize scarce family time. ' +
+    'That experience taught me to see computing as a way of connecting mathematical reasoning with human needs. ' +
+    'Can you help me make this passage stronger?';
+await page.locator('#chatInput').fill(directlyPastedPassage);
+await page.locator('#sendBtn').click();
+await page.waitForTimeout(500);
+check('a directly pasted multi-sentence passage uses full Flash',
+    requests.length === 3 &&
+    requests[2]?.model === 'gemini-2.5-flash' &&
+    requests[2]?.requestKind === 'passage_analysis');
+check('direct-paste review receives the global whole-passage rule',
+    requests[2]?.prompt?.includes('WHOLE-PASSAGE REVIEW RULE') &&
+    requests[2]?.prompt?.includes('never ask for information the student already supplied later') &&
+    requests[2]?.prompt?.includes(directlyPastedPassage));
+
+console.log('Cross-genre shared behavior');
+const genreUrls = [
+    ['Autobiographical mixed genre', 'http://127.0.0.1:3001/'],
+    ['Service learning', 'http://127.0.0.1:3001/?assignment=cap200-bronx-beautiful-service-learning'],
+    ['Research paper', 'http://127.0.0.1:3001/?assignment=research-paper'],
+    ['STEM', 'http://127.0.0.1:3001/?assignment=stem-lab-report'],
+    ['College admissions', 'http://127.0.0.1:3001/?assignment=college-personal-statement'],
+    ['Graduate SOP', BASE]
+];
+for (const [genreName, genreUrl] of genreUrls) {
+    const genreContext = await browser.newContext({ viewport: { width: 1100, height: 800 } });
+    const genrePage = await genreContext.newPage();
+    let genreRequest = null;
+    await genrePage.route(PROXY, async route => {
+        genreRequest = JSON.parse(route.request().postData() || '{}');
+        await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            headers: { 'Access-Control-Allow-Origin': '*' },
+            body: JSON.stringify({ text: 'Genre-aware passage response.', truncated: false })
+        });
+    });
+    await genrePage.goto(genreUrl);
+    await genrePage.evaluate(() => {
+        localStorage.setItem('tupana_lab_done', 'true');
+        localStorage.setItem('tupana_onboarding_complete', 'true');
+    });
+    await genrePage.reload();
+    await genrePage.waitForTimeout(350);
+    await selectPassage(genrePage, clarityPassage);
+    await genrePage.locator('[data-passage-action="strengthen"]').click();
+    await genrePage.waitForTimeout(350);
+    check(`${genreName}: Strengthen uses the shared whole-passage contract`,
+        genreRequest?.prompt?.includes('WHOLE-PASSAGE READING PROTOCOL') &&
+        genreRequest?.prompt?.includes('single highest-impact way') &&
+        genreRequest?.model === 'gemini-2.5-flash' &&
+        genreRequest?.requestKind === 'passage_analysis');
+    await genreContext.close();
+}
 
 console.log('Phone fit');
 const phone = await browser.newPage({ viewport: { width: 390, height: 844 } });
@@ -105,6 +176,11 @@ await selectPassage(phone, clarityPassage);
 const box = await phone.locator('#passageCoachMenu').boundingBox();
 check('phone action bar stays inside the viewport',
     box && box.x >= 0 && box.x + box.width <= 390);
+check('phone action bar keeps all five actions comfortably tappable',
+    await phone.locator('#passageCoachMenu [data-passage-action]').count() === 5 &&
+    await phone.locator('#passageCoachMenu [data-passage-action]').evaluateAll(buttons =>
+        buttons.every(button => button.getBoundingClientRect().height >= 44)
+    ));
 check('phone has no horizontal overflow',
     await phone.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
 await phone.close();

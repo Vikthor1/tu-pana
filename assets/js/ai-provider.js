@@ -41,10 +41,14 @@ function buildCoachPrompt({
 // ════════════════════════════════════════════════════════
 
 // Stages 7 (revision) and 10 (capstone) use Flash for stronger paragraph-level
-// reasoning and reliable JSON generation. All other stages use Flash-Lite.
-function selectGeminiModel(stageId) {
+// reasoning and reliable JSON generation. Passage analysis also uses Flash at
+// every stage because it must reason across relationships among multiple
+// sentences; ordinary early-stage conversation remains on Flash-Lite.
+function selectGeminiModel(stageId, requestKind) {
     const FLASH_STAGE_IDS = new Set([7, 10, 'stage.revision', 'stage.reflection']);
-    return FLASH_STAGE_IDS.has(stageId) ? 'gemini-2.5-flash' : (CONFIG.geminiModel || 'gemini-2.5-flash-lite');
+    return requestKind === 'passage_analysis' || FLASH_STAGE_IDS.has(stageId)
+        ? 'gemini-2.5-flash'
+        : (CONFIG.geminiModel || 'gemini-2.5-flash-lite');
 }
 
 // ── Gemini error helpers ──────────────────────────────────
@@ -115,8 +119,9 @@ async function _callGeminiOnce(coachPayload) {
                 // Worker; removed so no unneeded fields travel over the wire.
                 prompt:           coachPayload.prompt  || '',
                 stageId:          coachPayload.stageId || null,
+                requestKind:      coachPayload.requestKind || null,
                 responseFormat:   'text',
-                model:            selectGeminiModel(coachPayload.stageId)
+                model:            selectGeminiModel(coachPayload.stageId, coachPayload.requestKind)
             })
         });
     } catch (_) {
@@ -184,10 +189,10 @@ async function callGeminiProviderViaProxy(coachPayload) {
 //  Returns raw AI response text, or null for async/iframe providers.
 //  Used by sendCoachMessage() and requestCoachPerspective().
 // ════════════════════════════════════════════════════════
-async function generateCoachResponse({ prompt, stageId, studentContext, assignmentConfig, responseFormat = 'text' } = {}) {
+async function generateCoachResponse({ prompt, stageId, requestKind, studentContext, assignmentConfig, responseFormat = 'text' } = {}) {
     // Gemini via Cloudflare Worker proxy
     if (FEATURES.geminiProvider && AI_PROVIDER === 'gemini') {
-        return await callGeminiProviderViaProxy({ prompt, stageId, studentContext, assignmentConfig, responseFormat });
+        return await callGeminiProviderViaProxy({ prompt, stageId, requestKind, studentContext, assignmentConfig, responseFormat });
     }
 
     // Ollama: synchronously returns raw text
@@ -205,7 +210,7 @@ async function generateCoachResponse({ prompt, stageId, studentContext, assignme
 //  PROVIDER ROUTER — coaching UI entry point
 //  All providers currently route through sendMsg() in ui.js.
 // ════════════════════════════════════════════════════════
-async function sendCoachMessage({ message, displayMessage, stageId, studentContext, assignmentConfig } = {}) {
+async function sendCoachMessage({ message, displayMessage, stageId, requestKind, studentContext, assignmentConfig } = {}) {
     // Authorship gate secondary check (primary enforcement is in ui.js updateDraftControls)
     if (AUTHORSHIP_GATE && AUTHORSHIP_GATE.requiredBefore.includes(stageId)) {
         const draftSaved = (() => {
@@ -216,6 +221,8 @@ async function sendCoachMessage({ message, displayMessage, stageId, studentConte
         }
     }
 
-    if (typeof sendMsg === 'function') return sendMsg(message, { displayText: displayMessage });
+    if (typeof sendMsg === 'function') {
+        return sendMsg(message, { displayText: displayMessage, requestKind });
+    }
     console.error('[Tu Pana] sendMsg not available — check script load order.');
 }

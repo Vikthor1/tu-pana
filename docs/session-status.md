@@ -1,6 +1,23 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-05-25 (Phase 1 AI memory architecture complete; talks dissemination layer added)
+Last updated: 2026-07-30 (Fall 2026 polishing sprint: shared whole-passage coaching)
+
+## Fall 2026 polishing sprint — shared passage coaching
+
+- Branch: `experiment/redesign-v1`
+- The ambiguous **Strength** action is split into **What works** and
+  **Strengthen**; Clarity, Voice, and Ask remain shared across all genre layers.
+- Selected passages and directly pasted multi-sentence writing follow one
+  mandatory whole-passage protocol: read later sentences, do not ask for
+  information already supplied, distinguish sentence-level from passage-level
+  issues, and state the rhetorical purpose of opening-focused advice.
+- Passage analysis uses Gemini 2.5 Flash at every stage. Worker
+  `requestKind: "passage_analysis"` uses a 1,536-token ceiling with thinking
+  disabled so the visible answer completes.
+- Worker version `5284786b-34fc-40e6-bd84-19ae96c697c0` is deployed. Live
+  synthetic verification returned `200`, `truncated:false`.
+- Verification: passage coaching 25/25; Worker 22/22; all 29 regression files
+  passed; 390-pixel phone layout retains five 44-pixel actions without overflow.
 
 ---
 

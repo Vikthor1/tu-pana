@@ -64,22 +64,27 @@ function isStage10(stageId) {
 
 // Per-request generation config.
 //
-// Stages 7 and 10 run on gemini-2.5-flash, a *thinking* model, where maxOutputTokens
-// caps thinking + visible tokens COMBINED. Default thinking consumed almost the entire
+// Stages 7 and 10 plus shared passage analysis run on gemini-2.5-flash, a
+// *thinking* model, where maxOutputTokens caps thinking + visible tokens COMBINED.
+// Default thinking consumed almost the entire
 // 600-token budget (~573 thought vs 23 visible → finishReason MAX_TOKENS), starving
 // the visible output. Disabling thinking (thinkingBudget:0) frees the whole budget for
 // the reply. Each ceiling is a VALIDATED SAFETY CEILING sized from a faithful probe of
 // that stage's real prompt, not a verbosity target; billing is on tokens generated, so
 // a ceiling above the real output adds no normal-case cost and only bounds a runaway:
+//   - Passage analysis: whole-passage reading across every genre → 1536.
 //   - Stage 7 (revision, prose coaching): self-terminated (STOP) at ~269 tokens → 1536.
 //   - Stage 10 (capstone: valid JSON, 8 rubric dimensions x rating/observation/
 //     suggestion + limitations): self-terminated (STOP) at ~643 tokens → 2048. Thinking
 //     MUST be off here too — with thinking on, 2048 was consumed by ~1964 thought tokens
 //     and the JSON came back truncated/invalid (0/8 dimensions).
 //
-// Every other stage/model is intentionally UNCHANGED (Flash 600, Flash-Lite 400,
-// default thinking).
-function buildGenerationConfig(model, stageId) {
+// Every other stage/model is intentionally UNCHANGED (Flash 600, Flash-Lite
+// 400, default thinking).
+function buildGenerationConfig(model, stageId, requestKind) {
+    if (model === 'gemini-2.5-flash' && requestKind === 'passage_analysis') {
+        return { maxOutputTokens: 1536, thinkingConfig: { thinkingBudget: 0 } };
+    }
     if (model === 'gemini-2.5-flash' && isStage7(stageId)) {
         return { maxOutputTokens: 1536, thinkingConfig: { thinkingBudget: 0 } };
     }
@@ -89,14 +94,14 @@ function buildGenerationConfig(model, stageId) {
     return { maxOutputTokens: model === 'gemini-2.5-flash' ? 600 : 400 };
 }
 
-async function callGemini({ model, stageId, systemPrompt, userMessage, apiKey }) {
+async function callGemini({ model, stageId, requestKind, systemPrompt, userMessage, apiKey }) {
     const endpoint =
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     const body = {
         systemInstruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined,
         contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-        generationConfig: buildGenerationConfig(model, stageId),
+        generationConfig: buildGenerationConfig(model, stageId, requestKind),
     };
 
     const resp = await fetch(endpoint, {
@@ -202,12 +207,18 @@ export default {
 
         // Model selection — allowlist only
         const model = (reqModel && ALLOWED_MODELS.has(reqModel)) ? reqModel : DEFAULT_MODEL;
+        // The only request-specific generation path currently supported. Treat
+        // all unknown values as ordinary requests.
+        const requestKind = payload.requestKind === 'passage_analysis'
+            ? 'passage_analysis'
+            : null;
 
         // Call Gemini
         try {
             const { text, finishReason } = await callGemini({
                 model,
                 stageId,              // selects the Stage 7 / Stage 10 generation config
+                requestKind,          // selects complete cross-genre passage coaching
                 systemPrompt: null,   // system prompt assembly happens in the frontend pipeline
                 userMessage:  prompt,
                 apiKey:       env.GEMINI_API_KEY,

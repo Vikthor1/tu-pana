@@ -7,6 +7,7 @@
 //   - Stage 7 (stageId 'stage.revision' AND numeric 7) on gemini-2.5-flash:
 //       generationConfig = { maxOutputTokens: 1536, thinkingConfig:{thinkingBudget:0} }
 //   - Stage 10 ('stage.reflection'/10) on flash: 2048 + thinkingBudget:0 (Batch 4)
+//   - Cross-genre passage analysis: Flash 1536 + thinkingBudget:0 at any stage
 //   - Flash-Lite + other flash stages: UNCHANGED (400 / 600, no thinkingConfig)
 //   - upstream finishReason MAX_TOKENS  -> response { truncated: true }
 //   - upstream finishReason STOP        -> response { truncated: false }
@@ -67,6 +68,30 @@ try {
     r = await callWorker({ prompt: 'x', model: 'gemini-2.5-flash', stageId: 10 });
     check('Stage 10 (numeric 10): maxOutputTokens = 2048 + thinkingBudget 0',
           r.gen?.maxOutputTokens === 2048 && r.gen?.thinkingConfig?.thinkingBudget === 0);
+
+    // ── Whole-passage analysis at an ordinary early stage ──
+    console.log('\n── Passage-analysis config ──');
+    mockUpstream({ finishReason: 'STOP' });
+    r = await callWorker({
+        prompt: 'multi-sentence passage',
+        model: 'gemini-2.5-flash',
+        stageId: 'stage.frame_requirements',
+        requestKind: 'passage_analysis'
+    });
+    check('Passage analysis: maxOutputTokens = 1536',
+          r.gen?.maxOutputTokens === 1536);
+    check('Passage analysis: thinkingBudget = 0',
+          r.gen?.thinkingConfig?.thinkingBudget === 0);
+
+    mockUpstream({ finishReason: 'STOP' });
+    r = await callWorker({
+        prompt: 'ordinary early-stage message',
+        model: 'gemini-2.5-flash',
+        stageId: 'stage.frame_requirements',
+        requestKind: 'unrecognized'
+    });
+    check('Unknown request kind cannot change generation config',
+          r.gen?.maxOutputTokens === 600 && r.gen?.thinkingConfig === undefined);
 
     // ── Flash-Lite + all other stages UNCHANGED ──
     console.log('\n── Flash-Lite / other stages unchanged ──');

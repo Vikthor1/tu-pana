@@ -6627,12 +6627,15 @@ img, video, embed, object { max-width: 100%; height: auto; }
     }
     .passage-coach-actions {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     .passage-coach-actions button {
         min-height: 44px;
         padding-inline: 5px;
         font-size: var(--text-micro);
+    }
+    .passage-coach-actions .passage-coach-ask {
+        grid-column: span 2;
     }
 }
 

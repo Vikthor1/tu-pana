@@ -57,11 +57,22 @@ signal for returning students.
   Statement of Purpose instructions plus long-form student writing.
 - Added a precise `prompt_too_large` error category for the exceptional request
   that still exceeds the new ceiling.
-- Replaced the two-step selection transfer with a contextual passage toolbar:
-  **Strength**, **Clarity**, and **Voice** send an authorship-safe coaching
-  request immediately.
+- Replaced the two-step selection transfer with a contextual passage toolbar.
+  **What works** now unambiguously identifies an existing strength, while
+  **Strengthen**, **Clarity**, and **Voice** send distinct authorship-safe
+  coaching requests immediately.
 - **Ask…** carries the selected passage into the chat composer as a visible,
   removable context chip. The student types only the question.
+- Added one mandatory whole-passage reading contract across the autobiographical
+  mixed genre, service learning, research paper, STEM, college admissions, and
+  graduate SOP layers. The coach must account for later sentences, avoid asking
+  for information already present, distinguish sentence- from passage-level
+  problems, and state the rhetorical purpose of any opening-focused advice.
+- Directly pasted multi-sentence writing inherits the same system-level
+  whole-passage rule, even when the student does not use the contextual toolbar.
+- Every passage-analysis request now uses full Gemini Flash at any stage.
+  The Worker disables hidden thinking for this request type and provides a
+  1,536-token completion ceiling so visible coaching finishes cleanly.
 - Quick-action user messages show the intent and a short excerpt; internal
   coaching instructions are not exposed as clutter in the conversation.
 - The contextual toolbar fits within a 390-pixel phone viewport.
@@ -80,15 +91,20 @@ signal for returning students.
 ## Verification
 
 - New polishing-sprint regression: 20/20
-- Passage-coaching regression: 13/13
-- Gemini Worker regression, including long-form capacity: 19/19
+- Passage-coaching regression: 25/25, covering every current genre layer
+- Gemini Worker regression, including long-form capacity and passage response
+  completion: 22/22
 - Three-phase compatibility regression: 19/19
 - Storage-key and round-trip audit: 13/13
-- Full existing Tu Pana regression suite: passed
-- In-app browser visual review: welcome and editor-first desktop experience
-- Responsive assertions: 390 × 844 phone viewport, no horizontal overflow
+- Full existing Tu Pana regression suite: all 29 test files passed
+- In-app browser visual review: five-action desktop toolbar is clear and balanced
+- Responsive assertions: 390 × 844 phone viewport, five 44-pixel actions, no
+  horizontal overflow
 
 The Gemini Worker capacity update was deployed on 2026-07-30 and verified
 against the public endpoint with a synthetic 40,000-character request. The
+passage-analysis completion profile was deployed as Worker version
+`5284786b-34fc-40e6-bd84-19ae96c697c0` and returned a complete,
+non-truncated live response. The
 student-interface changes remain on `experiment/redesign-v1` for review before
 the Fall release is merged.

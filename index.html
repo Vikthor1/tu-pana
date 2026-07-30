@@ -127,7 +127,7 @@
 <main class="workspace" id="main">
 
     <!-- Left: Draft Panel -->
-    <section class="draft-panel" aria-label="Tu borrador · Your draft">
+    <section class="draft-panel" id="draftPanel" role="tabpanel" aria-labelledby="tabDraft" aria-label="Tu borrador · Your draft">
         <div class="draft-warning" id="draftWarning" role="status">
             <span class="draft-warning-icon"><span class="tp-icon" style="width:14px;height:14px"><svg viewBox="0 0 64 64" aria-hidden="true"><rect class="tp-fill-paper" x="14" y="8" width="36" height="48" rx="5"/><path d="M32 19v12"/><circle class="tp-fill-mango" cx="32" cy="35" r="4"/><path d="M22 20h20"/></svg></span></span>
             <div>
@@ -226,7 +226,7 @@
     </section>
 
     <!-- Right: Chat Panel -->
-    <section class="chat-panel" aria-label="Chat con Tu Pana de Escritura">
+    <section class="chat-panel" id="chatPanel" role="tabpanel" aria-labelledby="tabChat" aria-label="Chat con Tu Pana de Escritura">
         <div class="focus-hint" id="focusHint">
             <button onclick="toggleFocusMode()" aria-label="Mostrar panel del coach · Show coach panel"><span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64"><path class="tp-fill-sky" d="M24 12 9 5M40 12l15-7M24 17 7 18M40 17l17 1"/><path class="tp-fill-mango" d="M25 10h14v11H25z"/><path d="M28 10V7h8v3"/><path d="M25 21h14"/><path class="tp-fill-paper" d="M22 21h20l5 37H17z"/><path d="M26 21l-3 37M38 21l3 37"/><path d="M20 33h24M19 45h26M16 58h32"/><path class="tp-fill-teal" d="M29 33h6v9h-6z"/><path d="M32 21v37"/></svg></span> Mostrar coach</button>
         </div>
@@ -441,10 +441,10 @@
 
 <!-- ── Mobile Panel Tabs (phone only; below workspace for bottom-nav thumb reach) ── -->
 <div class="mobile-tabs" id="mobileTabs" role="tablist" aria-label="Cambiar panel · Switch panel">
-    <button class="mobile-tab mobile-tab-active" id="tabDraft" role="tab" aria-selected="true" onclick="switchMobileTab('draft')">
+    <button class="mobile-tab mobile-tab-active" id="tabDraft" role="tab" aria-selected="true" aria-controls="draftPanel" tabindex="0" onclick="switchMobileTab('draft')">
         <span class="show-es">Borrador</span><span class="show-en">Draft</span>
     </button>
-    <button class="mobile-tab" id="tabChat" role="tab" aria-selected="false" onclick="switchMobileTab('chat')">
+    <button class="mobile-tab" id="tabChat" role="tab" aria-selected="false" aria-controls="chatPanel" tabindex="-1" onclick="switchMobileTab('chat')">
         Tu Pana
     </button>
 </div>
@@ -452,7 +452,7 @@
 <!-- ════════════════════════════════════════
      PHASE CELEBRATION TOAST
 ════════════════════════════════════════ -->
-<div class="phase-toast" id="phaseToast" role="status" aria-live="polite">
+<div class="phase-toast" id="phaseToast" role="status" aria-live="polite" aria-hidden="true" inert>
     <button class="phase-toast-close" id="phaseToastClose" onclick="dismissPhaseToast()" aria-label="Cerrar celebración · Close celebration">✕</button>
     <div class="phase-toast-icon"><span class="tp-icon" style="width:36px;height:36px"><svg viewBox="0 0 64 64" aria-hidden="true"><path class="tp-fill-mango" d="M32 4l8 18 20 2-15 13 5 20-18-11-18 11 5-20L4 24l20-2z"/></svg></span></div>
     <div class="phase-toast-badge" id="phaseToastBadge">Fase completada · Phase complete</div>
@@ -470,12 +470,12 @@
 <!-- ════════════════════════════════════════
      TU CONOCIMIENTO — identity affirmation
 ════════════════════════════════════════ -->
-<div class="mani-bg" id="maniBg">
+<div class="mani-bg" id="maniBg" role="dialog" aria-modal="true" aria-labelledby="maniTitle" aria-hidden="true" inert>
   <div class="mani-card" id="maniCard">
 
     <div class="mani-header">
       <div class="mani-eyebrow">Antes de comenzar · Before we begin</div>
-      <h2 class="mani-title">Tú ya produces conocimiento.<br>You already produce knowledge.</h2>
+      <h2 class="mani-title" id="maniTitle">Tú ya produces conocimiento.<br>You already produce knowledge.</h2>
       <p class="mani-subtitle">
         Tus idiomas, tu historia, tu comunidad, tu manera de ver el mundo
         no son obstáculos para la escritura académica.
@@ -594,20 +594,20 @@
 <!-- ════════════════════════════════════════
      EL LABORATORIO — onboarding wizard
 ════════════════════════════════════════ -->
-<div class="lab-bg" id="labBg">
+<div class="lab-bg" id="labBg" role="dialog" aria-modal="true" aria-labelledby="labTitle" aria-hidden="true" inert>
   <div class="lab-card">
 
     <div class="lab-header">
       <div class="lab-icon"><span class="tp-icon" style="width:22px;height:22px"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="tp-fill-paper" cx="27" cy="27" r="16"/><path d="M39 39l15 15"/><path class="tp-fill-plum" d="M28 17l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/><path d="M22 44l-5 5M18 40l-5 5"/></svg></span></div>
       <div class="lab-title-wrap">
-        <h2>El Laboratorio</h2>
+        <h2 id="labTitle">El Laboratorio</h2>
         <p>Before you meet your coach · Antes de comenzar &nbsp;<span style="display:inline-block;padding:1px 8px;background:var(--bg-raised);border:1px solid var(--border-hi);border-radius:999px;font-size:0.7rem;font-weight:600;color:var(--text-sub);white-space:nowrap;vertical-align:middle;">3 min</span></p>
       </div>
       <div class="lab-progress" id="labProgress"></div>
     </div>
 
     <div class="lab-top-skip" style="text-align:right;padding:0 4px 8px;">
-      <span class="lab-skip" onclick="closeLab()" style="font-size:0.78rem;">Ya hice esto — empezar a escribir → &nbsp;·&nbsp; I've done this before — start writing →</span>
+      <button type="button" class="lab-skip" onclick="closeLab()" style="font-size:0.78rem;">Ya hice esto — empezar a escribir → &nbsp;·&nbsp; I've done this before — start writing →</button>
     </div>
 
     <div class="lab-body" id="labBody">
@@ -662,9 +662,9 @@
           <div class="lab-q-label q-accuracy">① Accuracy</div>
           <div class="lab-q-text">The AI mentions "sociological literature" on assimilation and cultural preservation. Can you trust this claim as written?</div>
           <div class="lab-choices">
-            <div class="lab-choice" onclick="labChoose(1,'a')">Yes — sounds reliable</div>
-            <div class="lab-choice" onclick="labChoose(1,'b')">No — needs a real source</div>
-            <div class="lab-choice" onclick="labChoose(1,'c')">Not sure</div>
+            <button type="button" class="lab-choice" onclick="labChoose(1,'a')">Yes — sounds reliable</button>
+            <button type="button" class="lab-choice" onclick="labChoose(1,'b')">No — needs a real source</button>
+            <button type="button" class="lab-choice" onclick="labChoose(1,'c')">Not sure</button>
           </div>
           <div class="lab-feedback guide-card" id="labFb1">
             <strong>The right move: flag it and verify.</strong>
@@ -678,9 +678,9 @@
           <div class="lab-q-label q-voice">② Voice</div>
           <div class="lab-q-text">Does this paragraph still sound like a specific person — with their own memory, language, and way of seeing things?</div>
           <div class="lab-choices">
-            <div class="lab-choice" onclick="labChoose(2,'a')">Yes — it sounds personal</div>
-            <div class="lab-choice" onclick="labChoose(2,'b')">No — it sounds generic</div>
-            <div class="lab-choice" onclick="labChoose(2,'c')">Somewhere in between</div>
+            <button type="button" class="lab-choice" onclick="labChoose(2,'a')">Yes — it sounds personal</button>
+            <button type="button" class="lab-choice" onclick="labChoose(2,'b')">No — it sounds generic</button>
+            <button type="button" class="lab-choice" onclick="labChoose(2,'c')">Somewhere in between</button>
           </div>
           <div class="lab-feedback guide-card" id="labFb2">
             <strong>This paragraph lost its voice.</strong>
@@ -694,8 +694,8 @@
           <div class="lab-q-label q-specificity">③ Specificity</div>
           <div class="lab-q-text">Can you picture a real scene, place, person, or moment from this paragraph?</div>
           <div class="lab-choices">
-            <div class="lab-choice" onclick="labChoose(3,'a')">Yes — I can picture it clearly</div>
-            <div class="lab-choice" onclick="labChoose(3,'b')">No — it stays abstract</div>
+            <button type="button" class="lab-choice" onclick="labChoose(3,'a')">Yes — I can picture it clearly</button>
+            <button type="button" class="lab-choice" onclick="labChoose(3,'b')">No — it stays abstract</button>
           </div>
           <div class="lab-feedback guide-card" id="labFb3">
             <strong>No scene, no person, no moment.</strong>
@@ -709,8 +709,8 @@
           <div class="lab-q-label q-thinking">④ Thinking</div>
           <div class="lab-q-text">Does this paragraph help the reader understand something new about the student's experience and its connection to a larger issue?</div>
           <div class="lab-choices">
-            <div class="lab-choice" onclick="labChoose(4,'a')">Yes — it makes a clear connection</div>
-            <div class="lab-choice" onclick="labChoose(4,'b')">No — it just describes, doesn't analyze</div>
+            <button type="button" class="lab-choice" onclick="labChoose(4,'a')">Yes — it makes a clear connection</button>
+            <button type="button" class="lab-choice" onclick="labChoose(4,'b')">No — it just describes, doesn't analyze</button>
           </div>
           <div class="lab-feedback guide-card" id="labFb4">
             <strong>Description without analysis.</strong>
@@ -724,8 +724,8 @@
           <div class="lab-q-label q-cultural">⑤ Conocimiento · Cultural Knowledge</div>
           <div class="lab-q-text">Does the AI respect what the student knows from their own community, family, or culture? Or does it generalize in ways that erase that knowledge?</div>
           <div class="lab-choices">
-            <div class="lab-choice" onclick="labChoose(5,'a')">Yes — it honors the student's specific knowledge</div>
-            <div class="lab-choice" onclick="labChoose(5,'b')">No — it generalizes and misses what the student knows</div>
+            <button type="button" class="lab-choice" onclick="labChoose(5,'a')">Yes — it honors the student's specific knowledge</button>
+            <button type="button" class="lab-choice" onclick="labChoose(5,'b')">No — it generalizes and misses what the student knows</button>
           </div>
           <div class="lab-feedback guide-card" id="labFb5">
             <strong>The AI generalized what the student knows.</strong>
@@ -774,7 +774,7 @@
     </div><!-- /lab-body -->
 
     <div class="lab-footer">
-      <span class="lab-skip" id="labSkip" onclick="closeLab()">Skip — I know the Five Questions &nbsp;→</span>
+      <button type="button" class="lab-skip" id="labSkip" onclick="closeLab()">Skip — I know the Five Questions &nbsp;→</button>
       <button class="lab-next-btn" id="labNextBtn" onclick="labNext()">Begin →</button>
     </div>
 
@@ -782,7 +782,7 @@
 </div><!-- /lab-bg -->
 
 <!-- ── Draft-Save Confirmation Modal ── -->
-<div class="confirm-bg" id="confirmBg" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+<div class="confirm-bg" id="confirmBg" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-hidden="true" inert>
     <div class="confirm-card">
         <div class="confirm-icon-lg"><span class="tp-icon" style="width:32px;height:32px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M14 7h33l7 7v43H14z"/><path d="M47 7v8h7M22 23h21M22 31h16"/><circle class="tp-fill-jade" cx="43" cy="45" r="10"/><path d="M38 45l4 4 7-8"/></svg></span></div>
         <div class="confirm-title" id="confirmTitle">
@@ -803,7 +803,7 @@
 </div>
 
 <!-- ── Draft-Saved Celebration ── -->
-<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true" inert>
     <div class="modal-card">
         <div class="modal-icon" aria-hidden="true">
             <span class="tp-icon" style="width:36px;height:36px"><svg viewBox="0 0 64 64" aria-hidden="true"><path class="tp-fill-jade" d="M32 6l7 17 17 7-17 7-7 17-7-17-17-7 17-7z"/></svg></span>
@@ -842,7 +842,7 @@
 </div>
 
 <!-- ── Stage Preview Modal ── -->
-<div class="stage-preview-bg" id="stagePreviewBg" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+<div class="stage-preview-bg" id="stagePreviewBg" role="dialog" aria-modal="true" aria-labelledby="previewTitle" aria-hidden="true" inert>
     <div class="stage-preview-card">
         <div class="stage-preview-header">
             <span class="stage-preview-num" id="previewStageNum">2</span>
@@ -895,11 +895,11 @@
 <!-- ════════════════════════════════════════
      PROCESS REPORT MODAL
 ════════════════════════════════════════ -->
-<div class="report-bg" id="reportBg">
+<div class="report-bg" id="reportBg" role="dialog" aria-modal="true" aria-labelledby="reportTitle" aria-hidden="true" inert>
   <div class="report-card">
     <div class="report-header">
       <div>
-        <div class="report-title"><span class="show-es">Guardar / Exportar trabajo</span><span class="lang-sep"> · </span><span class="show-en">Save / Export Work</span></div>
+        <div class="report-title" id="reportTitle"><span class="show-es">Guardar / Exportar trabajo</span><span class="lang-sep"> · </span><span class="show-en">Save / Export Work</span></div>
         <div class="report-sub"><span class="show-es">Guarda tu progreso</span><span class="lang-sep"> · </span><span class="show-en">Save your progress</span></div>
       </div>
       <button class="report-close" onclick="closeReport()" aria-label="Cerrar · Close">Cerrar</button>
@@ -959,11 +959,11 @@
 <!-- ════════════════════════════════════════
      PROCESS NOTE DEDICATED MODAL
 ════════════════════════════════════════ -->
-<div class="pn-modal-bg" id="pnModalBg">
+<div class="pn-modal-bg" id="pnModalBg" role="dialog" aria-modal="true" aria-labelledby="pnModalTitle" aria-hidden="true" inert>
   <div class="pn-modal-card">
     <div class="pn-modal-header">
       <div>
-        <div class="pn-modal-title">Nota de Proceso · Process Note</div>
+        <div class="pn-modal-title" id="pnModalTitle">Nota de Proceso · Process Note</div>
         <div class="pn-modal-sub">Reflexiona sobre tu proceso. Tu trabajo se guarda automáticamente. · Reflect on your process. Your work auto-saves.</div>
       </div>
       <button class="pn-modal-close" onclick="closeProcessNoteModal()" aria-label="Cerrar · Close">✕</button>
@@ -986,12 +986,12 @@
 <!-- ════════════════════════════════════════
      COMPLETION CELEBRATION MODAL
 ════════════════════════════════════════ -->
-<div class="completion-bg" id="completionBg">
+<div class="completion-bg" id="completionBg" role="dialog" aria-modal="true" aria-labelledby="completionTitle" aria-hidden="true" inert>
   <div class="completion-card">
     <button class="completion-close" onclick="dismissCompletionCelebration()" aria-label="Cerrar celebración · Close celebration">✕</button>
     <div class="completion-icon"><span class="tp-icon" style="width:44px;height:44px"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="tp-fill-paper" cx="32" cy="32" r="26"/><path class="tp-fill-mango" d="M32 10l8 20 20 2-16 12 6 20-18-13-18 13 6-20-16-12 20-2z"/><circle class="tp-fill-clay" cx="32" cy="32" r="5"/></svg></span></div>
     <div class="completion-badge">Proceso de escritura completo · Writing process complete</div>
-    <div class="completion-title">Llegaste al final con tu criterio y tu voz intactos.<br>You reached the end with your judgment and voice intact.</div>
+    <div class="completion-title" id="completionTitle">Llegaste al final con tu criterio y tu voz intactos.<br>You reached the end with your judgment and voice intact.</div>
     <div class="completion-body">
       Documentaste cómo usaste la IA con criterio. Protegiste tu conocimiento, tu propósito y las decisiones que hacen que este trabajo sea tuyo.<br><br>
       You documented how you used AI with judgment. You protected your knowledge, your purpose, and the decisions that make this work your own.
@@ -1006,13 +1006,13 @@
 <!-- ════════════════════════════════════════
      CAPSTONE MODAL — Mi cierre de proceso
 ════════════════════════════════════════ -->
-<div class="capstone-bg" id="capstoneBg" role="dialog" aria-modal="true" aria-labelledby="capstoneModalTitle">
+<div class="capstone-bg" id="capstoneBg" role="dialog" aria-modal="true" aria-labelledby="capstoneModalTitle" aria-hidden="true" inert>
   <div class="capstone-modal-card">
     <div class="capstone-modal-header">
       <div class="capstone-modal-header-title" id="capstoneModalTitle">
-        <span lang="es">Mi cierre de proceso</span>
+        <span class="show-es" lang="es">Mi cierre de proceso</span>
         <span class="lang-sep"> · </span>
-        <span lang="en">My Writing Snapshot</span>
+        <span class="show-en" lang="en">My Writing Snapshot</span>
       </div>
       <button class="capstone-modal-close" onclick="closeCapstoneModal()" aria-label="Cerrar · Close">✕</button>
     </div>

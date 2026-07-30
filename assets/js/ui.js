@@ -87,6 +87,59 @@ const D = {
     mobileStageSelect: el('mobileStageSelect')
 };
 
+// Static overlays stay mounted in the DOM so their visual transitions remain
+// smooth. Keep their accessibility state in sync with their visual state:
+// opacity and pointer-events alone do not hide content from assistive tech.
+const STATIC_OVERLAY_IDS = [
+    'phaseToast',
+    'maniBg',
+    'labBg',
+    'confirmBg',
+    'modalBg',
+    'stagePreviewBg',
+    'reportBg',
+    'pnModalBg',
+    'completionBg',
+    'capstoneBg'
+];
+const _overlayReturnFocus = new WeakMap();
+
+function setOverlayOpen(target, open, options = {}) {
+    const overlay = typeof target === 'string' ? document.getElementById(target) : target;
+    if (!overlay) return;
+    if (open) {
+        if (options.rememberFocus !== false && document.activeElement instanceof HTMLElement) {
+            _overlayReturnFocus.set(overlay, document.activeElement);
+        }
+        overlay.removeAttribute('inert');
+        overlay.setAttribute('aria-hidden', 'false');
+        overlay.classList.add('on');
+        return;
+    }
+    overlay.classList.remove('on');
+    overlay.setAttribute('inert', '');
+    overlay.setAttribute('aria-hidden', 'true');
+    if (options.restoreFocus) {
+        const targetToRestore = _overlayReturnFocus.get(overlay);
+        if (targetToRestore && document.contains(targetToRestore)) {
+            setTimeout(() => targetToRestore.focus(), 40);
+        }
+    }
+}
+
+function initStaticOverlayAccessibility() {
+    STATIC_OVERLAY_IDS.forEach(id => {
+        const overlay = document.getElementById(id);
+        if (overlay && !overlay.classList.contains('on')) setOverlayOpen(overlay, false);
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initStaticOverlayAccessibility);
+} else {
+    initStaticOverlayAccessibility();
+}
+
 // ════════════════════════════════════════════════════════
 //  READ-ALOUD / ESCUCHAR — Patch 11
 // ════════════════════════════════════════════════════════
@@ -189,6 +242,8 @@ function switchMobileTab(panel) {
     tabChat.classList.toggle('mobile-tab-active', toChat);
     tabDraft.setAttribute('aria-selected', String(!toChat));
     tabChat.setAttribute('aria-selected', String(toChat));
+    tabDraft.tabIndex = toChat ? -1 : 0;
+    tabChat.tabIndex = toChat ? 0 : -1;
     if (toChat) tabChat.classList.remove('has-notification');
     // Scroll to latest message after the panel becomes visible.
     // Uses inline scrollBehavior override (not scrollTo({behavior:'instant'})) because
@@ -211,6 +266,14 @@ function switchMobileTab(panel) {
         });
     }
 }
+
+el('mobileTabs')?.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const showChat = event.key === 'ArrowRight' || event.key === 'End';
+    switchMobileTab(showChat ? 'chat' : 'draft');
+    el(showChat ? 'tabChat' : 'tabDraft')?.focus();
+});
 
 // Called internally when the AI coach sends a message, to nudge student to look
 function notifyMobileChat() {
@@ -688,7 +751,7 @@ function openCapstoneModal() {
     const bg = el('capstoneBg');
     if (!bg) return;
     _capstoneReturnFocus = document.activeElement;
-    bg.classList.add('on');
+    setOverlayOpen(bg, true, { rememberFocus: false });
     setTimeout(() => bg.querySelector('.capstone-modal-close')?.focus(), 80);
 }
 
@@ -703,7 +766,7 @@ function openCapstoneModal() {
 let _completionPromptFired = false;
 let _capstoneReturnFocus = null;
 function closeCapstoneModal(options = {}) {
-    el('capstoneBg').classList.remove('on');
+    setOverlayOpen('capstoneBg', false);
     const returnTarget = _capstoneReturnFocus && document.contains(_capstoneReturnFocus)
         ? _capstoneReturnFocus
         : document.querySelector('.capstone-reopen-btn');
@@ -857,8 +920,8 @@ function injectCapstonePanel() {
         trigger.id = 'capstoneChatTrigger';
         trigger.className = 'capstone-chat-trigger';
         trigger.innerHTML =
-            `<span class="capstone-chat-trigger-label"><span lang="es">Tu reflexión de cierre está lista</span><span class="lang-sep"> · </span><span lang="en">Your writing snapshot is ready</span></span>` +
-            `<button class="capstone-reopen-btn" onclick="openCapstoneModal()" aria-label="Abrir mi cierre de proceso · Open my writing snapshot"><span lang="es">Mi cierre de proceso</span><span class="lang-sep"> · </span><span lang="en">Writing Snapshot</span> →</button>`;
+            `<span class="capstone-chat-trigger-label"><span class="show-es" lang="es">Tu reflexión de cierre está lista</span><span class="lang-sep"> · </span><span class="show-en" lang="en">Your writing snapshot is ready</span></span>` +
+            `<button class="capstone-reopen-btn" onclick="openCapstoneModal()" aria-label="Abrir mi cierre de proceso · Open my writing snapshot"><span class="show-es" lang="es">Mi cierre de proceso</span><span class="lang-sep"> · </span><span class="show-en" lang="en">Writing Snapshot</span> →</button>`;
         D.chatMessages.appendChild(trigger);
         D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
     }
@@ -1766,13 +1829,13 @@ function showStagePreview(targetId) {
     } else {
         D.previewExampleBox.setAttribute('hidden', '');
     }
-    D.stagePreviewBg.classList.add('on');
+    setOverlayOpen(D.stagePreviewBg, true);
     setTimeout(() => D.previewContinueBtn.focus(), 100);
 }
 
 function confirmStagePreview() {
     if (!pendingStageId) return;
-    D.stagePreviewBg.classList.remove('on');
+    setOverlayOpen(D.stagePreviewBg, false);
     const id = pendingStageId;
     pendingStageId = null;
 
@@ -1800,7 +1863,7 @@ function confirmStagePreview() {
 }
 
 function dismissStagePreview() {
-    D.stagePreviewBg.classList.remove('on');
+    setOverlayOpen(D.stagePreviewBg, false, { restoreFocus: true });
     pendingStageId = null;
 }
 
@@ -2294,15 +2357,17 @@ D.saveBtn.addEventListener('click', () => {
     if (state.draftSaved) return;
     D.saveBtn.classList.add('saving');
     setTimeout(() => D.saveBtn.classList.remove('saving'), 700);
-    D.confirmBg.classList.add('on');
+    setOverlayOpen(D.confirmBg, true);
     D.confirmOk.focus();
 });
 
-D.confirmCancel.addEventListener('click', () => D.confirmBg.classList.remove('on'));
-D.confirmBg.addEventListener('click', e => { if (e.target === D.confirmBg) D.confirmBg.classList.remove('on'); });
+D.confirmCancel.addEventListener('click', () => setOverlayOpen(D.confirmBg, false, { restoreFocus: true }));
+D.confirmBg.addEventListener('click', e => {
+    if (e.target === D.confirmBg) setOverlayOpen(D.confirmBg, false, { restoreFocus: true });
+});
 
 D.confirmOk.addEventListener('click', () => {
-    D.confirmBg.classList.remove('on');
+    setOverlayOpen(D.confirmBg, false);
     executeSave();
 });
 
@@ -2335,7 +2400,7 @@ function executeSave() {
     logProcessEvent('first_draft_saved', `Unassisted first draft saved. Word count: ${D.draftArea.value.trim().split(/\s+/).filter(Boolean).length}.`);
     unlockStageSkill(6); // Author-owned draft — gated on actual save, not stage entry
 
-    D.modalBg.classList.add('on');
+    setOverlayOpen(D.modalBg, true);
     // Move focus to the Continue button for keyboard/screen-reader users
     setTimeout(() => {
         const firstBtn = D.modalBg.querySelector('.save-ceremony-btn.primary');
@@ -2370,7 +2435,7 @@ function executeSave() {
 
 // Save ceremony next-step handler
 function saveCeremonyNext(choice) {
-    D.modalBg.classList.remove('on');
+    setOverlayOpen(D.modalBg, false);
     if (choice === 'revise') {
         goToStage(7);
         // Ask coach for initial feedback on the saved draft
@@ -3322,14 +3387,43 @@ D.chatInput.addEventListener('keydown', e => {
 });
 D.sendBtn.addEventListener('click', submitChat);
 
+function getOpenStaticDialog() {
+    const priority = [
+        'completionBg',
+        'pnModalBg',
+        'reportBg',
+        'capstoneBg',
+        'labBg',
+        'maniBg',
+        'modalBg',
+        'confirmBg',
+        'stagePreviewBg'
+    ];
+    return priority
+        .map(id => document.getElementById(id))
+        .find(overlay => overlay?.classList.contains('on')) || null;
+}
+
+function getDialogFocusables(dialog) {
+    return Array.from(dialog.querySelectorAll(
+        'button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), summary, a[href], [tabindex]:not([tabindex="-1"])'
+    )).filter(node => node.offsetParent !== null);
+}
+
 // Global keyboard shortcuts
 document.addEventListener('keydown', e => {
-    if (e.key === 'Tab' && document.getElementById('capstoneBg')?.classList.contains('on')) {
-        const focusable = Array.from(document.querySelectorAll(
-            '#capstoneBg button:not([disabled]), #capstoneBg textarea:not([disabled]), #capstoneBg input:not([disabled]), #capstoneBg summary, #capstoneBg [tabindex]:not([tabindex="-1"])'
-        )).filter(node => node.offsetParent !== null);
+    const openDialog = getOpenStaticDialog();
+    if (e.key === 'Tab' && openDialog) {
+        const focusable = getDialogFocusables(openDialog);
         const first = focusable[0], last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
+        if (!first) {
+            e.preventDefault();
+            return;
+        }
+        if (!openDialog.contains(document.activeElement)) {
+            e.preventDefault();
+            (e.shiftKey ? last : first).focus();
+        } else if (e.shiftKey && document.activeElement === first) {
             e.preventDefault();
             last?.focus();
         } else if (!e.shiftKey && document.activeElement === last) {
@@ -3339,7 +3433,7 @@ document.addEventListener('keydown', e => {
         return;
     }
     if (e.key === 'Escape') {
-        if (document.getElementById('capstoneBg')?.classList.contains('on')) {
+        if (openDialog?.id === 'capstoneBg') {
             closeCapstoneModal();
             return;
         }
@@ -3347,15 +3441,20 @@ document.addEventListener('keydown', e => {
         if (state.spotlightTarget === 'coach') { dismissCoachSpotlight(); return; }
         if (state.spotlightTarget === 'editor') { dismissEditorSpotlight(); return; }
         // Never close the stage preview modal via Escape — student must read and click Continue
-        if (D.stagePreviewBg.classList.contains('on')) return;
-        // Close save ceremony modal
-        D.modalBg.classList.remove('on');
-        D.confirmBg.classList.remove('on');
-        document.getElementById('labBg').classList.remove('on');
-        document.getElementById('maniBg').classList.remove('on');
-        document.getElementById('reportBg').classList.remove('on');
-        { const _pbg = D.pnModalBg || document.getElementById('pnModalBg'); if (_pbg) _pbg.classList.remove('on'); }
-        { const _cbg = D.completionBg || document.getElementById('completionBg'); if (_cbg) _cbg.classList.remove('on'); }
+        if (openDialog?.id === 'stagePreviewBg') return;
+        if (openDialog?.id === 'completionBg') { dismissCompletionCelebration(); return; }
+        if (openDialog?.id === 'pnModalBg') { closeProcessNoteModal(); return; }
+        if (openDialog?.id === 'reportBg') { closeReport(); return; }
+        if (openDialog?.id === 'labBg') { closeLab(); return; }
+        if (openDialog?.id === 'maniBg') {
+            _stopOnboardingAudio();
+            setOverlayOpen(openDialog, false, { restoreFocus: true });
+            return;
+        }
+        if (openDialog?.id === 'modalBg' || openDialog?.id === 'confirmBg') {
+            setOverlayOpen(openDialog, false, { restoreFocus: true });
+            return;
+        }
         // Exit focus mode
         const workspace = document.querySelector('.workspace');
         if (workspace && workspace.classList.contains('focus-mode')) {
@@ -4505,7 +4604,7 @@ function showWelcomeBack() {
 }
 
 function openMani() {
-    document.getElementById('maniBg').classList.add('on');
+    setOverlayOpen('maniBg', true);
     initManiPrompt();
     restoreManiClaims();
     const _maniAudioWrap = document.getElementById('maniIntroAudioWrap');
@@ -4522,7 +4621,8 @@ function openMani() {
             el.addEventListener('keydown', handleManiKey);
         });
         const active = grid.querySelector('.mani-asset--active');
-        if (active) setTimeout(() => active.focus(), 120);
+        const focusTarget = active || grid.querySelector('.mani-asset');
+        if (focusTarget) setTimeout(() => focusTarget.focus(), 120);
     }
 }
 
@@ -4589,7 +4689,7 @@ function maniProceed() {
     if (!maniBgEl.classList.contains('on')) return;  // already dismissed — Safari ghost-touch guard
     const proceedBtn = document.getElementById('maniProceedBtn');
     if (proceedBtn) { proceedBtn.disabled = true; proceedBtn.style.pointerEvents = 'none'; }
-    maniBgEl.classList.remove('on');
+    setOverlayOpen(maniBgEl, false);
     showManiCelebration(() => {
         if (localStorage.getItem('tupana_lab_done') !== 'true') openLab();
     });
@@ -4721,6 +4821,7 @@ function labChoose(qNum, val) {
     const choiceMap = { a: 0, b: 1, c: 2 };
     const chosen = allChoices[choiceMap[val]];
     chosen.classList.add(val === goodIdx[qNum] ? 'selected-good' : 'selected-warn');
+    allChoices.forEach(choice => { choice.disabled = true; });
 
     // show feedback
     el('labFb' + qNum).classList.add('on');
@@ -4753,8 +4854,9 @@ function labChoose(qNum, val) {
 
 function openLab() {
     if (el('labBg').classList.contains('on')) return;  // already open — don't reset progress
-    el('labBg').classList.add('on');
+    setOverlayOpen('labBg', true);
     labShowStep(0);
+    setTimeout(() => el('labBg')?.querySelector('.lab-top-skip .lab-skip')?.focus(), 80);
 }
 
 function flashChatFocus() {
@@ -4783,7 +4885,7 @@ function flashChatFocus() {
 
 function closeLab() {
     _stopOnboardingAudio();
-    el('labBg').classList.remove('on');
+    setOverlayOpen('labBg', false, { restoreFocus: true });
     try { localStorage.setItem('tupana_lab_done', 'true'); } catch(e) {}
     logProcessEvent('onboarding_guide_completed', 'Student completed or exited the optional AI-judgment guide.');
     finishFirstRun('tour');
@@ -5913,12 +6015,12 @@ function showPhaseCelebration(stageId) {
     D.phaseToastBadge.innerHTML = `${getIcon('luminous-page', 16)} ${cel.badge}`;
     D.phaseToastTitle.innerHTML = `${cel.titleEs} · ${cel.titleEn}`;
     D.phaseToastBody.innerHTML = cel.body;
-    D.phaseToast.classList.add('on');
+    setOverlayOpen(D.phaseToast, true);
     // No auto-dismiss — student must click Continue or the X to close
 }
 
 function dismissPhaseToast() {
-    if (D.phaseToast) D.phaseToast.classList.remove('on');
+    if (D.phaseToast) setOverlayOpen(D.phaseToast, false, { restoreFocus: true });
     // Trigger any spotlight that was deferred while the toast was showing
     if (state.pendingSpotlightStageId != null) {
         const id = state.pendingSpotlightStageId;
@@ -6291,10 +6393,11 @@ function openReport() {
     const bg = document.getElementById('reportBg');
     const body = document.getElementById('reportBody');
     body.innerHTML = buildPacketDiagnosticHTML() + buildAIActivitySummaryHTML() + buildReportHTML();
-    bg.classList.add('on');
+    setOverlayOpen(bg, true);
+    setTimeout(() => bg.querySelector('.report-close')?.focus(), 80);
 }
 function closeReport() {
-    document.getElementById('reportBg').classList.remove('on');
+    setOverlayOpen('reportBg', false, { restoreFocus: true });
 }
 
 function gatherProcessNoteData() {
@@ -6329,7 +6432,7 @@ function openProcessNoteModal() {
         ${buildProcessNoteHTML(data)}
       </div>
     `;
-    bg.classList.add('on');
+    setOverlayOpen(bg, true);
     // Focus the first textarea for accessibility
     setTimeout(() => {
         const firstTextarea = body.querySelector('.report-pn-text');
@@ -6339,7 +6442,7 @@ function openProcessNoteModal() {
 
 function closeProcessNoteModal() {
     const bg = D.pnModalBg || document.getElementById('pnModalBg');
-    if (bg) bg.classList.remove('on');
+    if (bg) setOverlayOpen(bg, false, { restoreFocus: true });
 }
 
 function finishProcessNote() {
@@ -6358,12 +6461,15 @@ function showCompletionCelebration() {
     // holds null — resolve at call time (pre-P4 this made the celebration a
     // silent no-op; root cause of the audit's "no done-state" finding).
     const bg = D.completionBg || document.getElementById('completionBg');
-    if (bg) bg.classList.add('on');
+    if (bg) {
+        setOverlayOpen(bg, true);
+        setTimeout(() => bg.querySelector('.completion-cta')?.focus(), 80);
+    }
 }
 
 function dismissCompletionCelebration() {
     const bg = D.completionBg || document.getElementById('completionBg');
-    if (bg) bg.classList.remove('on');
+    if (bg) setOverlayOpen(bg, false, { restoreFocus: true });
     injectJourneyCompleteCard();
 }
 
@@ -6384,15 +6490,15 @@ function injectJourneyCompleteCard() {
         card.setAttribute('role', 'region');
         card.setAttribute('aria-label', 'Proceso completo — cómo entregar tu paquete final · Journey complete — how to submit your Final Packet');
         card.innerHTML = `
-            <div class="journey-complete-badge"><span lang="es">Proceso completo</span><span class="lang-sep"> · </span><span lang="en">Journey Complete</span></div>
-            <div class="journey-complete-title"><span lang="es">Último paso: entrega tu paquete final</span><span class="lang-sep"> · </span><span lang="en">Last step: submit your Final Packet</span></div>
+            <div class="journey-complete-badge"><span class="show-es" lang="es">Proceso completo</span><span class="lang-sep"> · </span><span class="show-en" lang="en">Journey Complete</span></div>
+            <div class="journey-complete-title"><span class="show-es" lang="es">Último paso: entrega tu paquete final</span><span class="lang-sep"> · </span><span class="show-en" lang="en">Last step: submit your Final Packet</span></div>
             <ol class="journey-complete-steps">
                 <li><span lang="es">Abre <strong>Guardar / Exportar</strong> (botón abajo, o en el pie de página).</span><br><span lang="en">Open <strong>Save / Export</strong> (button below, or in the footer).</span></li>
                 <li><span lang="es">Toca <strong>Copiar mi paquete final</strong> — copia tu trabajo escrito y tu reporte de proceso juntos. Si las descargas funcionan en tu dispositivo, también puedes usar <strong>Descargar paquete final</strong>.</span><br><span lang="en">Tap <strong>Copy my Final Submission Packet</strong> — it copies your written work and process report together. If downloads work on your device, you can also use <strong>Download Final Packet</strong>.</span></li>
                 <li><span lang="es">Pega y entrega el paquete final en Brightspace, según las instrucciones de tu instructor/a.</span><br><span lang="en">Paste and submit the Final Packet in Brightspace, following your instructor's directions.</span></li>
             </ol>
             <button type="button" class="journey-complete-cta" onclick="openReport()" aria-label="Abrir Guardar / Exportar · Open Save / Export">
-                <span lang="es">Abrir Guardar / Exportar</span><span class="lang-sep"> · </span><span lang="en">Open Save / Export</span> →
+                <span class="show-es" lang="es">Abrir Guardar / Exportar</span><span class="lang-sep"> · </span><span class="show-en" lang="en">Open Save / Export</span> →
             </button>`;
         D.chatMessages.appendChild(card);
         D.chatMessages.scrollTop = D.chatMessages.scrollHeight;

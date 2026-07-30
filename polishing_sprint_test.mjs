@@ -4,6 +4,7 @@
 import { chromium } from 'playwright';
 
 const BASE = 'http://127.0.0.1:3001/?assignment=cap-200-first-draft';
+const PROXY = 'https://tupana-gemini-proxy.dr-torres-velez.workers.dev/';
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 const errors = [];
@@ -46,6 +47,94 @@ const completion = await page.evaluate(() => ({
 check('direct start records onboarding completion', completion.onboarding === 'true');
 check('direct start does not claim the optional guide was completed', completion.lab === null);
 check('draft receives focus after direct start', completion.activeElement === 'draftArea');
+
+await page.evaluate(() => {
+    localStorage.setItem('tupana_writing_s1', 'one two three four five six seven eight nine ten eleven twelve');
+});
+await page.reload();
+await page.evaluate(() => setLang('en'));
+check('a restored draft immediately shows its real word count',
+    (await page.locator('#wordCount').innerText()).trim() === '12 words');
+
+console.log('Optional pedagogy and honest completion records');
+await page.locator('.ctb-toolkit-btn').click();
+check('Tu Conocimiento is discoverable from Mi Toolkit',
+    await page.locator('#toolkitKnowledgeBtn').isVisible() &&
+    /optional activity|actividad opcional/i.test(await page.locator('.toolkit-claim-block').innerText()));
+await page.locator('#toolkitKnowledgeBtn').click();
+check('optional Tu Conocimiento returns students to writing rather than forcing the Lab',
+    await page.locator('#maniBg.on').count() === 1 &&
+    /return to writing/i.test(await page.locator('#maniProceedBtn').textContent()));
+await page.evaluate(() => {
+    setOverlayOpen('maniBg', false);
+    maniStandalone = false;
+});
+
+const guidePage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+await guidePage.goto(BASE);
+await guidePage.evaluate(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+});
+await guidePage.reload();
+await guidePage.waitForSelector('#landingMoment');
+await guidePage.locator('#landingTourBtn').click();
+await guidePage.waitForSelector('#labBg.on');
+await guidePage.evaluate(() => closeLab());
+check('exiting the guide records onboarding but not guide completion',
+    await guidePage.evaluate(() =>
+        localStorage.getItem('tupana_onboarding_complete') === 'true' &&
+        localStorage.getItem('tupana_lab_done') === null &&
+        JSON.parse(localStorage.getItem('tupana_process_log') || '[]')
+            .some(event => event.actionType === 'onboarding_guide_exited')
+    ));
+
+await guidePage.evaluate(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+});
+await guidePage.reload();
+await guidePage.waitForSelector('#landingMoment');
+await guidePage.locator('#landingTourBtn').click();
+await guidePage.waitForSelector('#labBg.on');
+await guidePage.evaluate(() => {
+    labShowStep(3);
+    labNext();
+});
+check('reaching the end records genuine guide completion',
+    await guidePage.evaluate(() =>
+        localStorage.getItem('tupana_lab_done') === 'true' &&
+        JSON.parse(localStorage.getItem('tupana_process_log') || '[]')
+            .some(event => event.actionType === 'onboarding_guide_completed')
+    ));
+await guidePage.close();
+
+console.log('Protected draft stays local when saved');
+const savePage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+let saveRequests = 0;
+await savePage.route(PROXY, async route => {
+    saveRequests += 1;
+    await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ text: 'Unexpected automatic response.', truncated: false })
+    });
+});
+await savePage.goto(BASE);
+await savePage.evaluate(() => {
+    localStorage.clear();
+    localStorage.setItem('tupana_onboarding_complete', 'true');
+    localStorage.setItem('tupana_project_chosen', 'true');
+    localStorage.setItem('tupana_stage', '6');
+    localStorage.setItem('tupana_coach_mode', 'gemini');
+});
+await savePage.reload();
+await savePage.locator('#draftArea').fill('This protected first draft has more than ten words and remains entirely student written.');
+await savePage.locator('#saveBtn').click();
+await savePage.locator('#confirmOk').click();
+await savePage.waitForTimeout(1200);
+check('saving the Stage 6 draft makes no AI request', saveRequests === 0);
+await savePage.close();
 
 console.log('Three-phase shell');
 check('exactly three student-facing phases render',

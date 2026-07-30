@@ -198,7 +198,7 @@ console.log('\n── D. Final packet + gate-tied attestation ──');
     check('packet: report generates end-to-end', typeof r.rep === 'string' && r.rep.includes('END OF REPORT'));
     check('packet: authorship gate PASSED + attestation ☑', /Authorship gate\s*:\s*PASSED/.test(r.rep) && /☑\s+I completed my first draft/.test(r.rep));
     check('packet: student CER content present as student work', r.rep.includes('My claim is that light increased growth'));
-    check('packet: revised draft recognized', r.revised === true && /Revised draft present/.test(r.rep));
+    check('packet: changed draft recognized', r.revised === true && /Changed draft present/.test(r.rep));
     check('packet: decision log shows CER coaching question', /Where is the evidence for this claim\?/.test(r.rep));
     check('packet: no correctness-verification language', !/scientifically (correct|verified|accurate)|verified the (science|results|data|experiment)/i.test(r.rep));
     check('packet: not auto-submitted (process evidence framing)', /has NOT been automatically submitted/.test(r.rep));

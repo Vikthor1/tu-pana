@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 
 const BASE = 'http://127.0.0.1:3001';
+const PROXY = 'https://tupana-gemini-proxy.dr-torres-velez.workers.dev/';
 let pass = 0, fail = 0;
 const check = (label, condition) => {
     const ok = !!condition;
@@ -11,7 +12,34 @@ const check = (label, condition) => {
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
 const errors = [];
+const capstoneRequests = [];
 page.on('pageerror', error => errors.push(String(error)));
+await page.route(PROXY, async route => {
+    capstoneRequests.push(JSON.parse(route.request().postData() || '{}'));
+    await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+            text: JSON.stringify({
+                coachPerspective: [{
+                    dimension: 'Opening / Point of Entry',
+                    rating: 'Taking shape',
+                    observation: 'The opening establishes a clear purpose.',
+                    suggestion: 'Check whether the final paragraph completes that purpose.'
+                }],
+                limitations: 'This is one limited coach perspective.'
+            }),
+            truncated: false,
+            usage: {
+                inputTokens: 900,
+                outputTokens: 120,
+                thoughtTokens: 0,
+                cachedTokens: 0,
+                totalTokens: 1020
+            }
+        })
+    });
+});
 
 async function seed(extra = {}, query = '') {
     await page.goto(BASE + '/' + query);
@@ -35,8 +63,8 @@ console.log('\n── Genuine revision checkpoint ──');
 await seed({ tupana_draft: firstDraft, tupana_writing_s9: firstDraft });
 const blocked = await page.evaluate(() => goToStage(10));
 check('identical first draft cannot enter Stage 10', blocked === false && await page.locator('#revisionCompletionGate').count() === 1);
-check('checkpoint explains that a revised version was not detected',
-      (await page.locator('#revisionCompletionGate').innerText()).includes('revised version'));
+check('checkpoint accurately explains that a changed version was not detected',
+      (await page.locator('#revisionCompletionGate').innerText()).includes('changed version'));
 await page.locator('.revision-gate-primary').click();
 await page.waitForTimeout(180);
 check('Return to revise closes checkpoint and focuses the editor',
@@ -62,7 +90,7 @@ check('real revision can enter Stage 10', await page.evaluate(() => goToStage(10
 check('Stage 10 does not show a premature completion celebration',
       await page.locator('#phaseToast.on').count() === 0);
 
-console.log('\n── Instructor-approved exception ──');
+console.log('\n── Student-reported instructor direction ──');
 await seed({ tupana_draft: firstDraft, tupana_writing_s9: firstDraft });
 await page.evaluate(() => goToStage(10));
 await page.locator('.revision-exception summary').click();
@@ -73,13 +101,17 @@ await page.locator('#revisionExceptionConfirm').check();
 await page.locator('.revision-gate-secondary').click();
 await page.waitForTimeout(250);
 check('documented exception permits Stage 10', await page.evaluate(() => state.stage) === 10);
-check('exception is visible in instructor report',
-      (await page.evaluate(() => generateInstructorReport())).includes('Instructor approval note: My instructor approved this version'));
+const exceptionReport = await page.evaluate(() => generateInstructorReport());
+check('exception is accurately labeled as an unverified student statement',
+      exceptionReport.includes('Student statement — not independently verified') &&
+      exceptionReport.includes('Student statement about instructor direction: My instructor approved this version') &&
+      !exceptionReport.includes('Instructor-approved revision exception'));
 
 console.log('\n── Evidence-first Stage 10 ──');
 await seed({
     tupana_draft: firstDraft,
     tupana_writing_s9: revisedDraft,
+    tupana_mani_sentence: 'PRIVATE TOOLKIT SENTENCE THAT IS NOT NEEDED FOR THE CAPSTONE',
     tupana_stage: '10'
 });
 await page.waitForTimeout(300);
@@ -103,6 +135,21 @@ check('ratings unlock after three evidence sentences',
 await page.locator('#capstoneSubmitBtn').click();
 check('self-assessment completes without requiring ratings',
       await page.evaluate(() => JSON.parse(localStorage.getItem('tupana_capstone')).completed) === true);
+check('Stage 10 discloses the draft and reflection transmission before Compare',
+      await page.locator('.capstone-ai-disclosure').isVisible() &&
+      /se enviarán al Coach IA|will be sent to the Live AI coach/i.test(
+          await page.locator('.capstone-ai-disclosure').textContent()
+      ));
+await page.locator('#capstoneCompareBtn').click();
+await page.waitForTimeout(400);
+const capstoneUsage = await page.evaluate(() => JSON.parse(localStorage.getItem('tupana_ai_usage') || '{}'));
+check('Stage 10 perspective uses a distinct disclosed request kind',
+      capstoneRequests.at(-1)?.requestKind === 'capstone_review' &&
+      capstoneUsage.byKind?.capstone_review?.requests === 1);
+check('Stage 10 sends the disclosed draft and reflections, but not unrelated Toolkit writing',
+      capstoneRequests.at(-1)?.prompt?.includes(revisedDraft) &&
+      capstoneRequests.at(-1)?.prompt?.includes('I clarified the purpose of my opening.') &&
+      !capstoneRequests.at(-1)?.prompt?.includes('PRIVATE TOOLKIT SENTENCE'));
 await page.locator('.capstone-modal-close').click();
 await page.locator('.capstone-reopen-btn').click();
 await page.keyboard.press('Escape');

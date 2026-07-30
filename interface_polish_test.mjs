@@ -126,6 +126,11 @@ await desktop.evaluate(() => closeLab());
 await desktop.waitForTimeout(80);
 check('guide closes with inert accessibility state',
     await desktop.locator('#labBg[aria-hidden="true"][inert]:not(.on)').count() === 1);
+check('exiting early does not claim the optional guide was completed',
+    await desktop.evaluate(() =>
+        localStorage.getItem('tupana_onboarding_complete') === 'true' &&
+        localStorage.getItem('tupana_lab_done') === null
+    ));
 
 console.log('\n── Phone tabs and shared genre layout ──');
 const phone = await browser.newPage({ viewport: { width: 390, height: 844 } });

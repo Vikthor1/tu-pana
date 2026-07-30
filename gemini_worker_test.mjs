@@ -110,6 +110,20 @@ try {
           r.body?.usage?.cachedTokens === 120 &&
           !('promptText' in (r.body?.usage || {})));
 
+    // ── Student-initiated Stage 10 coach perspective ──
+    console.log('\n── Capstone-review config ──');
+    mockUpstream({ finishReason: 'STOP' });
+    r = await callWorker({
+        prompt: 'a complete draft plus process evidence',
+        model: 'gemini-2.5-flash',
+        stageId: 'stage.reflection',
+        requestKind: 'capstone_review'
+    });
+    check('Capstone review: maxOutputTokens = 2048',
+          r.gen?.maxOutputTokens === 2048);
+    check('Capstone review: thinkingBudget = 0',
+          r.gen?.thinkingConfig?.thinkingBudget === 0);
+
     mockUpstream({ finishReason: 'STOP' });
     r = await callWorker({
         prompt: 'ordinary early-stage message',

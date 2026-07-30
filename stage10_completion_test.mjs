@@ -47,7 +47,7 @@ await seed({
     tupana_completion_shown: 'true',
     tupana_draft_saved: 'true',
     tupana_draft: 'This is the protected first draft.',
-    tupana_writing_s9: 'This is the meaningfully revised final draft.'
+    tupana_writing_s9: 'This is the changed final draft.'
 });
 
 check('Journey Complete card rendered on reload at Stage 10',
@@ -80,7 +80,7 @@ console.log('Negative path — no completion flag');
 await seed({
     tupana_draft_saved: 'true',
     tupana_draft: 'This is the protected first draft.',
-    tupana_writing_s9: 'This is the meaningfully revised final draft.'
+    tupana_writing_s9: 'This is the changed final draft.'
 });
 check('no card at Stage 10 when completion flag absent',
       await page.locator('#journeyCompleteCard').count() === 0);

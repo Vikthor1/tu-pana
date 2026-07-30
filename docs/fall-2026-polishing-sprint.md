@@ -27,6 +27,8 @@ selector instead of the full desktop route.
   welcome card.
 - Made **Start writing** the primary action.
 - Kept the Five Questions laboratory as an optional three-minute guide.
+- Kept Tu Conocimiento as an optional, no-AI activity available from Mi
+  Toolkit rather than as an entry barrier.
 - States the authorship contract before entry: the student writes and makes
   every change.
 - States the storage model before entry: the draft stays in the current
@@ -37,8 +39,11 @@ selector instead of the full desktop route.
 
 Added `tupana_onboarding_complete` so a student who chooses the direct path is
 not falsely recorded as having completed the optional laboratory.
-`tupana_lab_done` retains its original meaning and remains a backward-compatible
-signal for returning students.
+`tupana_lab_done` is written only after the student reaches the end of the
+laboratory. Exiting early records a distinct local process event while
+`tupana_onboarding_complete` still prevents the welcome from becoming a loop.
+Existing `tupana_lab_done` values remain a backward-compatible returning-student
+signal.
 
 ## Interface changes
 
@@ -76,23 +81,29 @@ signal for returning students.
 - Quick-action user messages show the intent and a short excerpt; internal
   coaching instructions are not exposed as clutter in the conversation.
 - The contextual toolbar fits within a 390-pixel phone viewport.
+- Saving the Stage 6 authorship draft never sends it to the live coach.
+  Whole-draft feedback is student-initiated and preceded by an in-app
+  disclosure naming the content sent to Gemini.
 
 ## Completion integrity and evidence-first reflection
 
-- Stage 10 now requires a meaningfully revised artifact. Whitespace-only
-  changes do not count, and a genuine Stage 7 or 8 revision is not hidden by a
-  later stage that merely contains the seeded first draft.
+- Stage 10 requires a changed artifact. Whitespace-only changes do not count,
+  and a changed Stage 7 or 8 version is not hidden by a later stage that merely
+  contains the seeded first draft. The app describes this honestly as change
+  detection; the student's evidence-first reflection explains its meaning.
 - The checkpoint is shared by every genre layer. Its primary action returns the
-  student to the editor; a documented instructor-approved exception is
-  available for assignments where revision is intentionally waived and is
-  recorded in the instructor report.
+  student to the editor. A student may report that an instructor waived the
+  revision requirement, but the report labels that statement as student
+  reported and not independently verified.
 - Stage 10 begins with three short evidence statements: what improved, what
   still needs work, and what the student protected. Optional ratings remain
   unavailable until those statements are present, preventing ratings from
   anchoring the reflection.
 - The Stage 10 coach perspective reads the latest complete draft (up to 18,000
   characters) plus the student's process evidence, rather than only the first
-  1,400 characters of the visible textarea.
+  1,400 characters of the visible textarea. The interface discloses this
+  transmission before the student chooses Compare, and usage is recorded
+  locally as `capstone_review`.
 - The premature Stage 10 “finished” interruption was removed. The completion
   celebration appears only after the revised artifact, reflection/report, and
   process-note sequence are complete.
@@ -109,6 +120,8 @@ signal for returning students.
   returns focus correctly.
 - Help and Stage 10 modals restore focus when closed; Help traps keyboard focus
   while open.
+- Whole-draft review and Mi Toolkit now trap keyboard focus and return it to the
+  opener when closed.
 
 ## Preserved commitments
 

@@ -78,6 +78,20 @@ check('first review has no arbitrary quota language',
 check('comfortable-length guidance keeps the review available',
     await page.locator('.full-review-length--comfortable').isVisible() &&
     await page.locator('#fullReviewSubmit').isDisabled());
+check('student sees an explicit whole-draft transmission disclosure before sending',
+    await page.locator('.full-review-privacy').isVisible() &&
+    /se enviarán al Coach IA|will be sent to the Live AI coach/i.test(
+        await page.locator('.full-review-privacy').textContent()
+    ));
+const fullReviewTrap = await page.evaluate(() => {
+    const modal = document.getElementById('fullDraftReviewModal');
+    const focusable = getDialogFocusables(modal);
+    focusable.at(-1)?.focus();
+    return document.activeElement === focusable.at(-1);
+});
+await page.keyboard.press('Tab');
+check('whole-draft dialog traps keyboard focus',
+    fullReviewTrap && await page.evaluate(() => document.activeElement?.id === 'fullReviewClose'));
 
 await page.locator('input[name="fullReviewLens"][value="structure"]').check();
 check('choosing a lens enables the first review',

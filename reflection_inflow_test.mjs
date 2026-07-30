@@ -54,10 +54,10 @@ console.log('Stage 9 / Stage 10 — remaining micro-reflections (via navigation)
 await openAt(8, {
   tupana_draft_saved: 'true',
   tupana_draft: 'word '.repeat(60),
-  // Stage 10 now requires evidence of meaningful revision. Seed a genuine
-  // revised version so this test reaches the reflection it is designed to
-  // inspect without bypassing the student-facing checkpoint.
-  tupana_writing_s7: 'A meaningfully revised draft with a clearer purpose, stronger evidence, and a deliberate conclusion.'
+  // Stage 10 requires a changed draft or a student-reported instructor
+  // exception. Seed a revised version so this test reaches the reflection it
+  // is designed to inspect without bypassing the student-facing checkpoint.
+  tupana_writing_s7: 'A changed draft with a clearer purpose, stronger evidence, and a deliberate conclusion.'
 });
 await page.evaluate(() => goToStage(9));
 await page.waitForTimeout(1000);

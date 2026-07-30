@@ -5,12 +5,12 @@ Last updated: 2026-07-30 (Fall 2026 polishing sprint: completion integrity)
 ## Fall 2026 polishing sprint — completion integrity and calm final flow
 
 - Branch: `experiment/redesign-v1`
-- Stage 10 now requires a meaningfully revised artifact across every genre
-  layer. Whitespace-only changes do not pass, and genuine earlier revisions
+- Stage 10 now requires a changed artifact across every genre layer.
+  Whitespace-only changes do not pass, and genuine earlier revisions
   take precedence over later seeded copies of the first draft.
 - The checkpoint returns students to revision without deleting work. A
-  documented instructor-approved exception is available when revision is not
-  required and is visible in the instructor report.
+  student-reported instructor exception is available when revision is not
+  required and is labeled in the report as not independently verified.
 - Stage 10 is evidence-first: students write three short process statements
   before optional ratings become available.
 - The capstone coach now reads the latest complete draft and process evidence,

@@ -61,7 +61,7 @@ r = await page.evaluate(() => {
 check('B: essay flagged as revised', r.revised === true);
 check('B: diagnostic OK (essay revised, gate passed, reflection done, decisions present)', r.ok === true);
 check('B: report contains the REVISED essay text (not just first draft)', /REVISEDESSAY beta/.test(r.rep));
-check('B: report marks "revised draft"', /revised draft/.test(r.rep));
+check('B: report marks "Changed draft present"', /Changed draft present/.test(r.rep));
 check('B: report SUBMISSION CHECK says ready', /Ready to submit/.test(r.rep));
 // H5: gate passed → Section 7 first-draft attestation is CHECKED.
 check('B: Section 7 first-draft attestation CHECKED when gate passed',

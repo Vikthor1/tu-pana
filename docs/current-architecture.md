@@ -114,7 +114,7 @@ All keys use the `tupana_` prefix. **Do not rename** — renaming breaks existin
 | `tupana_schema_version` | `'1.0'` — stamped on first load by `initSchemaVersion()` |
 | `tupana_template_id` | Active genre template ID (default: `'mixed_genre_autobiographical'`) |
 | `tupana_completion_shown` | Completion celebration shown flag |
-| `tupana_revision_checkpoint` | JSON — instructor-approved revision exception tied to assignment and first-draft signature |
+| `tupana_revision_checkpoint` | JSON — student-reported instructor direction, explicitly unverified, tied to assignment and first-draft signature |
 | `tupana_full_draft_reviews` | JSON — privacy-safe full-draft review metadata (never draft text) |
 | `tupana_ai_usage` | JSON — local aggregate AI request/token counts by request kind |
 | `tupana_eval_stats` | Evaluation streak stats (via `EVAL_STATS_KEY` in ui.js) |
@@ -171,7 +171,7 @@ All keys use the `tupana_` prefix. **Do not rename** — renaming breaks existin
 | `openMsgEvalDrawer(msgId)` | ui.js | Five Questions eval modal. Silent picks (no sendMsg). Centered overlay / bottom-sheet at ≤430px. |
 | `getActiveTemplate()` | genre-template.js | Returns active genre template (default: mixedGenreAutobiographicalEssay). |
 | `getStageId(stageNum)` | genre-template.js | Maps stage number (1–10) to stable string ID. |
-| `openToolkitPanel()` | ui.js | Opens Mi Toolkit modal. Reads `tupana_mani_claimed` + `tupana_mani_sentence` read-only; no new keys written. |
+| `openToolkitPanel()` | ui.js | Opens Mi Toolkit and provides the optional no-AI Tu Conocimiento entry point. Existing knowledge state remains local. |
 
 ## What this app is NOT
 

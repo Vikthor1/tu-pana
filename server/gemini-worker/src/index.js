@@ -87,6 +87,9 @@ function buildGenerationConfig(model, stageId, requestKind) {
     if (model === 'gemini-2.5-flash' && requestKind === 'full_draft_review') {
         return { maxOutputTokens: 3072, thinkingConfig: { thinkingBudget: 0 } };
     }
+    if (model === 'gemini-2.5-flash' && requestKind === 'capstone_review') {
+        return { maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } };
+    }
     if (model === 'gemini-2.5-flash' && requestKind === 'passage_analysis') {
         return { maxOutputTokens: 1536, thinkingConfig: { thinkingBudget: 0 } };
     }
@@ -230,7 +233,9 @@ export default {
             ? 'passage_analysis'
             : payload.requestKind === 'full_draft_review'
                 ? 'full_draft_review'
-                : null;
+                : payload.requestKind === 'capstone_review'
+                    ? 'capstone_review'
+                    : null;
 
         // Call Gemini
         try {

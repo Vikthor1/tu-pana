@@ -110,6 +110,8 @@ Drafts, chat history, revision decisions, and process notes are stored locally
 in the browser. When a student asks the live coach for help, the message and
 the writing explicitly included for that coaching request are sent through the
 Cloudflare proxy to Gemini; Tu Pana does not store that writing on a server.
+Writing or saving a draft never sends it automatically. Whole-draft coaching
+occurs only after the student opens a disclosed review action and confirms it.
 Local usage accounting stores aggregate token counts only.
 
 ---

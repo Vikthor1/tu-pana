@@ -567,7 +567,7 @@ const CAPSTONE_CRITERIA = [
     { key: 'connection', es: 'Conexión',                           en: 'Connection',                     text: 'I connect my experience or example to a larger issue, question, or context.' },
     { key: 'evidence',   es: 'Evidencia / Especificidad',          en: 'Evidence / Specificity',         text: 'I use details, examples, observations, or sources to support my ideas.' },
     { key: 'voice',      es: 'Voz',                                en: 'Voice',                          text: 'The writing still sounds like me.' },
-    { key: 'revision',   es: 'Revisión',                           en: 'Revision',                       text: 'I made at least one meaningful change, not just small corrections.' },
+    { key: 'revision',   es: 'Revisión',                           en: 'Revision',                       text: 'I made and can explain at least one revision beyond spacing or formatting.' },
     { key: 'ai',         es: 'Criterio sobre la IA',               en: 'AI Judgment',                    text: 'I accepted, changed, or rejected suggestions thoughtfully.' },
     { key: 'cultural',   es: 'Conocimiento / Conocimiento cultural', en: 'Conocimiento / Cultural Knowledge', text: 'I used knowledge from my life, language, community, or experience in a way that matters.' },
     { key: 'nextstep',   es: 'Próximo paso',                       en: 'Next Step',                      text: 'I know what still needs work.' }
@@ -654,9 +654,11 @@ function submitCapstone() {
     const done       = document.getElementById('capstoneDoneMsg');
     const btn        = document.getElementById('capstoneSubmitBtn');
     const compareBtn = document.getElementById('capstoneCompareBtn');
+    const disclosure = document.querySelector('.capstone-ai-disclosure');
     if (done) done.classList.add('on');
     if (btn)  btn.style.display = 'none';
     if (compareBtn) compareBtn.style.display = 'inline-flex';
+    if (disclosure) disclosure.style.display = 'block';
     state.done.add(10);
     buildMap();
     const data = loadCapstoneData();
@@ -903,6 +905,11 @@ function injectCapstonePanel() {
                 style="display:${compareVisible ? 'inline-flex' : 'none'}">
                 ⇄ Comparar con el coach · Compare with the Coach
             </button>
+        </div>
+        <div class="capstone-ai-disclosure" role="note" style="display:${compareVisible ? 'block' : 'none'}">
+            <span class="show-es">Si eliges comparar, tu borrador más reciente (hasta 18,000 caracteres) y tu autoevaluación de la Etapa 10 (estas tres reflexiones y cualquier valoración opcional) se enviarán al Coach IA para generar la perspectiva. Tu Pana no guarda ese contenido en un servidor.</span>
+            <span class="lang-sep"> · </span>
+            <span class="show-en">If you choose Compare, your latest draft (up to 18,000 characters) and your Stage 10 self-assessment (these three reflections and any optional ratings) will be sent to the Live AI coach to generate its perspective. Tu Pana does not store that content on a server.</span>
         </div>
 
         <div class="capstone-done-msg${selfDone ? ' on' : ''}" id="capstoneDoneMsg" role="status">
@@ -1162,14 +1169,19 @@ Required JSON format (fill in all 8 dimensions; use only these rating values: "S
         showTyping(true);
         try {
             const _gLang = getCurrentCoachLanguageLabel();
-            const _gCtx  = buildChannelData();
+            const { maniSentence: _unusedManiSentence, ..._gCtx } = buildChannelData();
             const geminiPrompt =
                 buildOllamaSystemPrompt(_gLang) +
                 '\n\n---\n\n' +
                 'Current interface language: ' + _gLang +
                 '\n\nCurrent Tu Pana context:\n' + JSON.stringify(_gCtx, null, 2) +
                 '\n\n' + prompt;
-            const reply = await generateCoachResponse({ prompt: geminiPrompt, stageId: getStageId(state.stage) });
+            maybeShowFirstAiSendCue();
+            const reply = await generateCoachResponse({
+                prompt: geminiPrompt,
+                stageId: getStageId(state.stage),
+                requestKind: 'capstone_review'
+            });
             handleCoachPerspectiveResponse(reply || '');
         } catch(err) {
             console.error('coachPerspective:gemini', err);
@@ -1261,6 +1273,8 @@ function renderCoachPerspectiveData(parsed, isRestore) {
     // Hide compare button in 10A now that 10B is here
     const compareBtn = document.getElementById('capstoneCompareBtn');
     if (compareBtn) compareBtn.style.display = 'none';
+    const disclosure = document.querySelector('.capstone-ai-disclosure');
+    if (disclosure) disclosure.style.display = 'none';
 
     el('capstoneModalBody').appendChild(panel);
     openCapstoneModal();
@@ -2118,7 +2132,7 @@ D.draftArea.addEventListener('input', () => {
     const w = D.draftArea.value.trim().split(/\s+/).filter(Boolean).length;
     D.wordCount.innerHTML = w < 10 && state.stage === 6 && !state.draftSaved
         ? `<span class="show-es">${w}/10 palabras para guardar</span><span class="lang-sep"> · </span><span class="show-en">${w}/10 words to save</span>`
-        : `<span class="show-es">${w} palabras</span><span class="lang-sep"> · </span><span class="show-en">words</span>`;
+        : `<span class="show-es">${w} palabras</span><span class="lang-sep"> · </span><span class="show-en">${w} words</span>`;
     D.saveBtn.disabled = w < 10 || state.draftSaved;
     clearTimeout(_stepAdvanceTimer);
     _stepAdvanceTimer = setTimeout(() => autoAdvanceStepOnWordCount(w), 900);
@@ -2421,15 +2435,6 @@ function executeSave() {
     // first draft is locked in (Batch 4). Lightweight, autosaves, optional.
     setTimeout(() => injectMicroReflection('main_idea'), 1000);
 
-    if (state.connected) {
-        const draftText = D.draftArea.value.trim();
-        setTimeout(() => sendMsg(
-            `[DRAFT SAVED — UNASSISTED FIRST DRAFT]\n\n${draftText}\n\n` +
-            `[END OF DRAFT]\n\n` +
-            `This is my complete unassisted first draft. I wrote it without AI help. ` +
-            `Please tell me what you notice — what is working and where I might focus my revision.`
-        ), 900);
-    }
     renderBadges();
 }
 
@@ -2438,14 +2443,11 @@ function saveCeremonyNext(choice) {
     setOverlayOpen(D.modalBg, false);
     if (choice === 'revise') {
         goToStage(7);
-        // Ask coach for initial feedback on the saved draft
         setTimeout(() => {
-            if (state.connected) {
-                sendMsg(t(
-                    'Acabo de guardar mi primer borrador. ¿Qué notas en él? ¿Qué está funcionando y en qué debería enfocarme para la revisión? / I just saved my first draft. What do you notice? What is working, and what should I focus on for revision?',
-                    'I just saved my first draft. What do you notice? What is working, and what should I focus on for revision?'
-                ));
-            }
+            addSys(
+                'Tu primer borrador quedó guardado en este navegador y no se envió al Coach IA. Si quieres una lectura completa, usa “Revisar borrador” y elige un lente.\n' +
+                'Your first draft is saved in this browser and was not sent to the Live AI coach. If you want a whole-draft reading, use “Review draft” and choose one lens.'
+            );
         }, 600);
     } else if (choice === 'review') {
         addSys(t(
@@ -3813,7 +3815,27 @@ function closeFullDraftReview() {
 }
 
 function _fullReviewKeydown(event) {
-    if (event.key === 'Escape') closeFullDraftReview();
+    const modal = document.getElementById('fullDraftReviewModal');
+    if (!modal) return;
+    if (event.key === 'Escape') {
+        event.preventDefault();
+        closeFullDraftReview();
+    } else if (event.key === 'Tab') {
+        const focusable = getDialogFocusables(modal);
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (!first) {
+            event.preventDefault();
+        } else if (!modal.contains(document.activeElement)) {
+            event.preventDefault();
+            (event.shiftKey ? last : first).focus();
+        } else if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    }
 }
 
 function _updateFullDraftSubmitState(modal, sameDraft, needsPurpose) {
@@ -3874,6 +3896,11 @@ function openFullDraftReview() {
                 <button type="button" class="toolkit-close" id="fullReviewClose" aria-label="Cerrar · Close">×</button>
             </div>
             <p class="full-review-intro"><span class="show-es">El coach leerá las <strong>${words.toLocaleString()}</strong> palabras completas y responderá con prioridades, no con una reescritura.</span><span class="lang-sep"> / </span><span class="show-en">The coach will read all <strong>${words.toLocaleString()}</strong> words and respond with priorities—not a rewrite.</span></p>
+            <div class="full-review-privacy" role="note">
+                <span class="show-es">Al elegir “Revisar este borrador”, las <strong>${words.toLocaleString()}</strong> palabras completas se enviarán al Coach IA para esta lectura. Tu Pana no guarda el borrador ni la respuesta en un servidor.</span>
+                <span class="lang-sep"> · </span>
+                <span class="show-en">When you choose “Review this draft,” all <strong>${words.toLocaleString()}</strong> words will be sent to the Live AI coach for this reading. Tu Pana does not store the draft or response on a server.</span>
+            </div>
             <div class="full-review-length ${guidance.cls}">${guidance.html}</div>
             ${reviews.length >= 2 ? `
                 <div class="full-review-notice">
@@ -4090,6 +4117,10 @@ function restoreDraft() {
         // Load stage-specific content for the current stage
         const stageContent = loadStageWork(state.stage);
         if (stageContent) D.draftArea.value = stageContent;
+        const restoredWords = D.draftArea.value.trim().split(/\s+/).filter(Boolean).length;
+        D.wordCount.innerHTML = restoredWords < 10 && state.stage === 6 && !state.draftSaved
+            ? `<span class="show-es">${restoredWords}/10 palabras para guardar</span><span class="lang-sep"> · </span><span class="show-en">${restoredWords}/10 words to save</span>`
+            : `<span class="show-es">${restoredWords} palabras</span><span class="lang-sep"> · </span><span class="show-en">${restoredWords} words</span>`;
 
         // Restore authorship gate UI state if first draft was saved
         if (localStorage.getItem('tupana_draft_saved') === 'true') {
@@ -4097,8 +4128,6 @@ function restoreDraft() {
             D.saveBtn.classList.add('saved');
             D.saveBtnLabel.textContent = 'Primer borrador guardado · First draft saved';
             D.savedNotice.classList.add('on');
-            const w = D.draftArea.value.trim().split(/\s+/).filter(Boolean).length;
-            D.wordCount.innerHTML = `<span class="show-es">${w} palabras</span><span class="lang-sep"> · </span><span class="show-en">words</span>`;
             renderDecisionLog();
             if (state.stage >= 6) {
                 addSys('↩ Borrador anterior restaurado · Previous draft restored from this device.');
@@ -4116,6 +4145,7 @@ const MANI_TOTAL = 5;
 const MANI_ORDER = ['languages', 'community', 'journey', 'positionality', 'story'];
 let maniAwaitingNext  = false;
 let maniJustClaimedKey = null;
+let maniStandalone = false;
 
 const MANI_ASSET_DEFS = {
     languages: {
@@ -4603,10 +4633,19 @@ function showWelcomeBack() {
     addMsg(greeting + draftLine + humorLine, 'bot', false, 'welcome');
 }
 
-function openMani() {
+function openMani(options = {}) {
+    maniStandalone = options.standalone === true;
     setOverlayOpen('maniBg', true);
     initManiPrompt();
     restoreManiClaims();
+    const proceedBtn = document.getElementById('maniProceedBtn');
+    if (proceedBtn) {
+        proceedBtn.disabled = false;
+        proceedBtn.style.pointerEvents = '';
+        proceedBtn.textContent = maniStandalone
+            ? 'Guardar y volver a escribir · Save and return to writing'
+            : 'Continuar al Laboratorio →';
+    }
     const _maniAudioWrap = document.getElementById('maniIntroAudioWrap');
     if (_maniAudioWrap && !_maniAudioWrap.dataset.wired) {
         _maniAudioWrap.dataset.wired = '1';
@@ -4626,8 +4665,12 @@ function openMani() {
     }
 }
 
-function showManiCelebration(onDone) {
+function showManiCelebration(onDone, options = {}) {
     if (document.getElementById('maniCelebration')) return;  // already showing
+    const standalone = options.standalone === true;
+    const nextLabel = standalone
+        ? 'Volver a escribir · Return to writing'
+        : 'Continue to the Lab · Sigue al laboratorio';
     const overlay = document.createElement('div');
     overlay.id = 'maniCelebration';
     overlay.style.cssText = `
@@ -4659,8 +4702,8 @@ function showManiCelebration(onDone) {
                 background: rgba(184,92,26,0.85); color:#fff; border:none; border-radius:40px;
                 padding: 10px 28px; cursor:pointer; letter-spacing:0.03em;
                 transition: background 0.2s ease;
-            " aria-label="Continue to the Lab · Sigue al laboratorio">
-                Continue to the Lab · Sigue al laboratorio
+            " aria-label="${nextLabel}">
+                ${nextLabel}
             </button>
         </div>`;
     document.body.appendChild(overlay);
@@ -4690,9 +4733,17 @@ function maniProceed() {
     const proceedBtn = document.getElementById('maniProceedBtn');
     if (proceedBtn) { proceedBtn.disabled = true; proceedBtn.style.pointerEvents = 'none'; }
     setOverlayOpen(maniBgEl, false);
+    const standalone = maniStandalone;
+    maniStandalone = false;
     showManiCelebration(() => {
-        if (localStorage.getItem('tupana_lab_done') !== 'true') openLab();
-    });
+        if (standalone) {
+            logProcessEvent('knowledge_activity_completed', 'Student completed the optional Tu Conocimiento activity.');
+            addSys('Tu Conocimiento quedó guardado en Mi Toolkit. · Tu Conocimiento is saved in My Toolkit.');
+            D.draftArea?.focus();
+        } else if (localStorage.getItem('tupana_lab_done') !== 'true') {
+            openLab();
+        }
+    }, { standalone });
 }
 
 // ── Tu Conocimiento writing prompt ──
@@ -4798,7 +4849,7 @@ function labNext() {
     if (labCurrent < LAB_TOTAL_STEPS - 1) {
         labShowStep(labCurrent + 1);
     } else {
-        closeLab();
+        closeLab({ completed: true });
     }
 }
 
@@ -4883,11 +4934,16 @@ function flashChatFocus() {
     setTimeout(() => document.addEventListener('click', clearFocus), 300);
 }
 
-function closeLab() {
+function closeLab(options = {}) {
+    const completed = options.completed === true;
     _stopOnboardingAudio();
     setOverlayOpen('labBg', false, { restoreFocus: true });
-    try { localStorage.setItem('tupana_lab_done', 'true'); } catch(e) {}
-    logProcessEvent('onboarding_guide_completed', 'Student completed or exited the optional AI-judgment guide.');
+    if (completed) {
+        try { localStorage.setItem('tupana_lab_done', 'true'); } catch(e) {}
+        logProcessEvent('onboarding_guide_completed', 'Student completed the optional AI-judgment guide.');
+    } else {
+        logProcessEvent('onboarding_guide_exited', `Student exited the optional AI-judgment guide at step ${labCurrent + 1} of ${LAB_TOTAL_STEPS}.`);
+    }
     finishFirstRun('tour');
 }
 
@@ -6728,7 +6784,7 @@ function buildAIActivitySummaryHTML() {
         </summary>
         <div class="ai-activity-body">
             <p><span class="show-es">Resumen privado guardado solo en este navegador; no es una cuota ni una calificación.</span><span class="lang-sep"> · </span><span class="show-en">Private summary stored only on this browser; it is not a quota or a grade.</span></p>
-            <div>Conversación · Conversation: ${count('conversation')} &nbsp;·&nbsp; Pasajes · Passages: ${count('passage_analysis')} &nbsp;·&nbsp; Borradores completos · Whole drafts: ${count('full_draft_review')}</div>
+            <div>Conversación · Conversation: ${count('conversation')} &nbsp;·&nbsp; Pasajes · Passages: ${count('passage_analysis')} &nbsp;·&nbsp; Borradores completos · Whole drafts: ${count('full_draft_review')} &nbsp;·&nbsp; Perspectiva final · Final perspective: ${count('capstone_review')}</div>
             <div class="ai-activity-tokens">Uso agregado · Aggregate use: ${inputTokens.toLocaleString()} input tokens · ${outputTokens.toLocaleString()} output tokens</div>
         </div>
       </details>`;
@@ -6965,17 +7021,17 @@ function getRevisionCheckpoint() {
     try { return JSON.parse(localStorage.getItem(REVISION_CHECKPOINT_KEY) || 'null'); } catch(e) { return null; }
 }
 
-function hasInstructorRevisionException() {
+function hasStudentReportedRevisionException() {
     const record = getRevisionCheckpoint();
     return !!(record &&
-        record.mode === 'instructor_exception' &&
+        ['student_reported_instructor_exception', 'instructor_exception'].includes(record.mode) &&
         String(record.note || '').trim().length >= 12 &&
         record.draftSignature === _revisionDraftSignature() &&
         String(record.assignmentId || '') === String((state && state.assignmentId) || ''));
 }
 
 function hasCompletionRevisionEvidence() {
-    return getFinalEssay().revised || hasInstructorRevisionException();
+    return getFinalEssay().revised || hasStudentReportedRevisionException();
 }
 
 let _revisionGateReturnFocus = null;
@@ -7019,15 +7075,15 @@ function openRevisionCompletionGate(continueAction) {
                 </div>
                 <button class="toolkit-close" type="button" aria-label="Cerrar · Close">×</button>
             </div>
-            <p><strong>No encontramos una versión revisada todavía.</strong> Tu primer borrador sigue protegido; solo necesitamos que tu versión más reciente incluya al menos un cambio significativo.</p>
-            <p class="revision-gate-en">We have not detected a revised version yet. Your first draft remains protected; your latest version simply needs at least one meaningful change.</p>
+            <p><strong>No encontramos una versión diferente todavía.</strong> Tu primer borrador sigue protegido. Para continuar, guarda una versión con cambios que puedas explicar en tu reflexión final.</p>
+            <p class="revision-gate-en">We have not detected a changed version yet. Your first draft remains protected. To continue, save a version with changes you can explain in your final reflection.</p>
             <button class="revision-gate-primary" type="button">Volver a revisar · Return to revise</button>
             <details class="revision-exception">
-                <summary>Mi instructor/a aprobó una excepción · My instructor approved an exception</summary>
-                <p>Usa esta opción solo si tu instructor/a indicó que no se requiere una versión revisada para esta tarea. La excepción aparecerá en tu reporte.</p>
+                <summary>Mi instructor/a indicó que no necesito una versión revisada · My instructor said I do not need a revised version</summary>
+                <p>Usa esta opción solo si recibiste esa indicación. Tu reporte la mostrará como una declaración tuya, no como una aprobación verificada por Tu Pana.</p>
                 <label for="revisionExceptionNote">Nota breve · Brief note</label>
-                <textarea id="revisionExceptionNote" rows="2" placeholder="Ej.: Mi instructor aprobó entregar esta versión."></textarea>
-                <label class="revision-exception-check"><input id="revisionExceptionConfirm" type="checkbox"> Confirmo que mi instructor/a aprobó esta excepción. · I confirm that my instructor approved this exception.</label>
+                <textarea id="revisionExceptionNote" rows="2" placeholder="Ej.: Mi instructor me indicó que entregue esta versión."></textarea>
+                <label class="revision-exception-check"><input id="revisionExceptionConfirm" type="checkbox"> Confirmo que esta es mi declaración y que Tu Pana no la verifica. · I confirm this is my statement and Tu Pana does not verify it.</label>
                 <div class="revision-exception-error" role="alert" hidden>Escribe una nota breve y marca la confirmación. · Add a brief note and check the confirmation.</div>
                 <button class="revision-gate-secondary" type="button">Registrar excepción y continuar · Record exception and continue</button>
             </details>
@@ -7048,14 +7104,14 @@ function openRevisionCompletionGate(continueAction) {
         }
         try {
             localStorage.setItem(REVISION_CHECKPOINT_KEY, JSON.stringify({
-                mode: 'instructor_exception',
+                mode: 'student_reported_instructor_exception',
                 note,
                 timestamp: new Date().toISOString(),
                 assignmentId: String((state && state.assignmentId) || ''),
                 draftSignature: _revisionDraftSignature()
             }));
         } catch(e) {}
-        logProcessEvent('revision_exception_recorded', 'Instructor-approved revision exception recorded before Stage 10.');
+        logProcessEvent('revision_exception_recorded', 'Student reported an instructor-directed revision exception before Stage 10; not independently verified.');
         closeRevisionCompletionGate(false);
         if (typeof continueAction === 'function') continueAction();
     });
@@ -7094,7 +7150,7 @@ function buildSubmissionDiagnostic() {
         // Milestone 4's name resolves through msLabel so CAP 200 / Research students
         // are pointed at THEIR revision milestone, not the default essay name.
         const _m4 = msLabel(MILESTONES[3]);
-        if (!hasInstructorRevisionException()) {
+        if (!hasStudentReportedRevisionException()) {
             warnings.push({ es: `Solo se encontró tu PRIMER borrador — tu versión revisada no aparece. Revisa en "${_m4.es}" antes de entregar.`, en: `Only your FIRST draft was found — your revised version is missing. Revise in "${_m4.en}" before submitting.` });
         }
     }
@@ -7188,7 +7244,7 @@ function generateInstructorReport() {
     const ratings      = capstone.ratings        || {};
     const reflections  = capstone.reflections    || {};
     const studentResp  = capstone.studentResponse || {};
-    const revisionException = hasInstructorRevisionException() ? getRevisionCheckpoint() : null;
+    const revisionException = hasStudentReportedRevisionException() ? getRevisionCheckpoint() : null;
 
     const line = (n) => '='.repeat(n);
 
@@ -7208,7 +7264,7 @@ function generateInstructorReport() {
     r += `${line(40)}\n`;
     r += `Process report present : Yes\n`;
     r += `Authorship gate        : ${_sumDraftSaved ? 'PASSED' : 'NOT DOCUMENTED'}\n`;
-    r += `Final written work     : ${_sumDiag.essay.text.trim() ? (_sumDiag.essay.revised ? 'Revised draft present' : (revisionException ? 'Instructor-approved revision exception' : 'First draft only')) : 'Not found'}\n`;
+    r += `Final written work     : ${_sumDiag.essay.text.trim() ? (_sumDiag.essay.revised ? 'Changed draft present' : (revisionException ? 'Student-reported instructor exception' : 'First draft only')) : 'Not found'}\n`;
     r += `Milestones completed   : ${milestonesCompletedCount()} of ${TOTAL_MILESTONES}\n`;
     r += `Internal stages done   : ${_sumStages.length} of 10${_sumStages.length ? ' (' + _sumStages.join(',') + ')' : ''}\n`;
     r += `Reflection             : ${_sumRs.status} (${_sumRs.filled}/${_sumRs.total})\n`;
@@ -7237,14 +7293,14 @@ function generateInstructorReport() {
     }
 
     r += `${line(72)}\n`;
-    r += `FINAL WRITTEN WORK  [Student work — ${_essay.revised ? 'revised draft' : (revisionException ? 'instructor-approved revision exception' : (_essay.stage === 6 ? 'FIRST DRAFT ONLY — not yet revised' : 'none found'))}]\n`;
+    r += `FINAL WRITTEN WORK  [Student work — ${_essay.revised ? 'changed draft detected' : (revisionException ? 'student-reported instructor exception' : (_essay.stage === 6 ? 'FIRST DRAFT ONLY — no changed version detected' : 'none found'))}]\n`;
     r += `${line(72)}\n`;
     r += (_essay.text.trim()
         ? `${_essay.text.trim()}\n\n`
         : `[No written work found — student has not written or saved draft text]\n\n`);
     if (revisionException) {
-        r += `REVISION EXCEPTION  [Student-recorded]\n`;
-        r += `Instructor approval note: ${revisionException.note}\n`;
+        r += `REVISION EXCEPTION  [Student statement — not independently verified]\n`;
+        r += `Student statement about instructor direction: ${revisionException.note}\n`;
         r += `Recorded: ${revisionException.timestamp || 'timestamp unavailable'}\n\n`;
     }
 
@@ -7613,11 +7669,12 @@ function downloadInstructorReportMd() { _downloadInstrAs('md',  'text/plain'); }
 
 /* ─────────────────────────────────────────────────────────────
    Mi Toolkit · My Writing Toolkit
-   Read-only panel. Reads existing data only — no new storage keys,
-   no stage logic, no provider changes.
+   Shows locally stored learning artifacts and provides the optional,
+   no-AI Tu Conocimiento entry point. No provider changes.
 ───────────────────────────────────────────────────────────── */
 function openToolkitPanel() {
     document.getElementById('toolkitModal')?.remove();
+    const returnFocus = document.activeElement;
 
     const claimed = getClaimedAssets();
     let sentence = '';
@@ -7645,8 +7702,10 @@ function openToolkitPanel() {
     }).join('');
 
     const claimHtml = sentence
-        ? `<blockquote class="toolkit-claim-text">${escapeHtml(sentence)}</blockquote>`
-        : `<p class="toolkit-claim-empty"><span class="show-es">Tu punto de partida aparecerá aquí después de la introducción.</span><span class="lang-sep"> · </span><span class="show-en">Your knowledge claim will appear here after onboarding.</span></p>`;
+        ? `<blockquote class="toolkit-claim-text">${escapeHtml(sentence)}</blockquote>
+           <button type="button" class="toolkit-knowledge-btn" id="toolkitKnowledgeBtn"><span class="show-es">Volver a Tu Conocimiento</span><span class="lang-sep"> · </span><span class="show-en">Revisit Tu Conocimiento</span></button>`
+        : `<p class="toolkit-claim-empty"><span class="show-es">Esta actividad opcional te ayuda a nombrar los idiomas, experiencias y conocimientos que traes a tu escritura. No usa IA.</span><span class="lang-sep"> · </span><span class="show-en">This optional activity helps you name the languages, experiences, and knowledge you bring to your writing. It does not use AI.</span></p>
+           <button type="button" class="toolkit-knowledge-btn" id="toolkitKnowledgeBtn"><span class="show-es">Explorar Tu Conocimiento</span><span class="lang-sep"> · </span><span class="show-en">Explore Tu Conocimiento</span></button>`;
 
     // Build Skills HTML from tupana_skills_acquired — writing-process skills by stage entry.
     // Stage 6 requires executeSave(); all others unlock on first entry.
@@ -7718,10 +7777,28 @@ function openToolkitPanel() {
         </div>
     </div>`;
 
-    const closeModal = () => { overlay.remove(); document.removeEventListener('keydown', onEsc); };
-    const onEsc = e => { if (e.key === 'Escape') closeModal(); };
+    const closeModal = (restoreFocus = true) => {
+        overlay.remove();
+        document.removeEventListener('keydown', onEsc);
+        if (restoreFocus && returnFocus && document.contains(returnFocus)) returnFocus.focus();
+    };
+    const onEsc = e => {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeModal();
+        } else if (e.key === 'Tab') {
+            const focusable = getDialogFocusables(overlay);
+            const first = focusable[0], last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+        }
+    };
     overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
     overlay.querySelector('.toolkit-close').addEventListener('click', closeModal);
+    overlay.querySelector('#toolkitKnowledgeBtn')?.addEventListener('click', () => {
+        closeModal(false);
+        openMani({ standalone: true });
+    });
     document.addEventListener('keydown', onEsc);
 
     document.body.appendChild(overlay);
@@ -7806,7 +7883,7 @@ function openHelpPanel() {
         </details>
         <details class="help-section">
             <summary class="help-section-title"><span class="show-es">¿Qué pasa al inicio?</span><span class="lang-sep"> · </span><span class="show-en">What happens at the start?</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
-            <div class="help-section-body"><span class="show-es">Antes de llegar al coach, pasas por una introducción breve:<br><br><strong>Tu Conocimiento</strong> — Identificas los recursos culturales que traes: tu comunidad, idioma, historia y experiencias. Reclamas tus activos y escribes una oración sobre lo que sabes.<br><br><strong>El Laboratorio</strong> — Practicas evaluar una respuesta de IA real usando cinco preguntas. Esto te prepara para usar el coach de manera crítica.<br><br>Después de eso, el coach está listo para guiarte etapa por etapa.</span><span class="lang-sep"> · </span><span class="show-en">Before reaching the coach, you go through a brief introduction:<br><br><strong>Tu Conocimiento</strong> — You identify the cultural resources you bring: your community, language, history, and experiences. You claim your assets and write a sentence about what you know.<br><br><strong>El Laboratorio</strong> — You practice evaluating a real AI response using five questions. This prepares you to use the coach critically.<br><br>After that, the coach is ready to guide you stage by stage.</span></div>
+            <div class="help-section-body"><span class="show-es">En tu primera visita verás una bienvenida breve y podrás empezar a escribir de inmediato. La guía de las Cinco Preguntas es opcional y te permite practicar cómo evaluar una respuesta de IA.<br><br><strong>Tu Conocimiento</strong> también es opcional. Puedes abrirlo en <strong>Mi Toolkit</strong> cuando quieras para nombrar los idiomas, experiencias y conocimientos que traes a tu escritura. Esta actividad no usa IA.</span><span class="lang-sep"> · </span><span class="show-en">On your first visit, you will see a short welcome and may start writing immediately. The Five Questions guide is optional and lets you practice evaluating an AI response.<br><br><strong>Tu Conocimiento</strong> is optional too. Open it from <strong>My Toolkit</strong> whenever you want to name the languages, experiences, and knowledge you bring to your writing. This activity does not use AI.</span></div>
         </details>
         <details class="help-section">
             <summary class="help-section-title"><span class="show-es">¿Cómo envío un mensaje?</span><span class="lang-sep"> · </span><span class="show-en">How do I send a message?</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
@@ -7818,7 +7895,7 @@ function openHelpPanel() {
         </details>
         <details class="help-section">
             <summary class="help-section-title"><span class="show-es">Narración de audio</span><span class="lang-sep"> · </span><span class="show-en">Audio narration</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
-            <div class="help-section-body"><span class="show-es">Durante la introducción (Tu Conocimiento y El Laboratorio), verás botones <strong>Escuchar</strong>. Haz clic para escuchar una narración grabada. Haz clic de nuevo para detenerla. El audio solo aparece cuando el idioma está en Español.</span><span class="lang-sep"> · </span><span class="show-en">During the introduction (Tu Conocimiento and El Laboratorio), you will see <strong>Escuchar</strong> (Listen) buttons. Click to hear a recorded narration. Click again to stop. Audio only appears when the language is set to Español.</span></div>
+            <div class="help-section-body"><span class="show-es">En la bienvenida y las actividades opcionales Tu Conocimiento y Cinco Preguntas, verás botones <strong>Escuchar</strong>. Haz clic para escuchar una narración grabada y de nuevo para detenerla. El audio aparece cuando el idioma está en Español.</span><span class="lang-sep"> · </span><span class="show-en">In the welcome and the optional Tu Conocimiento and Five Questions activities, you will see <strong>Escuchar</strong> (Listen) buttons. Click to hear a recorded narration and again to stop it. Audio appears when the language is set to Español.</span></div>
         </details>
         <details class="help-section">
             <summary class="help-section-title"><span class="show-es">¿Cómo avanzo de etapa?</span><span class="lang-sep"> · </span><span class="show-en">How do I move to the next stage?</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
@@ -7862,7 +7939,7 @@ function openHelpPanel() {
         </details>
         <details class="help-section" open>
             <summary class="help-section-title"><span class="show-es">Tu trabajo y tu privacidad</span><span class="lang-sep"> · </span><span class="show-en">Your work and your privacy</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>
-            <div class="help-section-body"><span class="show-es">Tu borrador, tus reflexiones y tu Toolkit se guardan en este navegador. Si borras el historial del navegador o usas un dispositivo diferente, no estarán disponibles.<br><br>Cuando usas el Coach IA en vivo, tu mensaje se envía al servicio de IA para generar una respuesta. Tu borrador no se envía automáticamente.<br><br>Tu instructor/a solo ve lo que tú decides exportar, copiar o compartir. Tu Pana no comparte tu trabajo con nadie de forma automática.</span><span class="lang-sep"> · </span><span class="show-en">Your draft, reflections, and Toolkit are saved in this browser. If you clear browser history or use a different device, they won't be available.<br><br>When you use the Live AI coach, your message is sent to the AI service to generate a response. Your draft is not sent automatically.<br><br>Your instructor only sees what you choose to export, copy, or share. Tu Pana does not share your work with anyone automatically.</span></div>
+            <div class="help-section-body"><span class="show-es">Tu borrador, tus reflexiones y tu Toolkit se guardan en este navegador. Si borras el historial o usas otro dispositivo, no estarán disponibles.<br><br>Tu borrador nunca se envía al Coach IA solo por escribirlo o guardarlo. Cuando envías un mensaje, se envía ese mensaje y cualquier pasaje que adjuntaste. El borrador completo solo se envía cuando eliges explícitamente <strong>Revisar borrador</strong> o <strong>Comparar con el coach</strong>; antes verás qué contenido se enviará. Tu Pana no guarda ese contenido en un servidor.<br><br>Tu instructor/a solo ve lo que tú decides exportar, copiar o compartir. Tu Pana no comparte tu trabajo automáticamente.</span><span class="lang-sep"> · </span><span class="show-en">Your draft, reflections, and Toolkit are saved in this browser. If you clear browser history or use another device, they will not be available.<br><br>Your draft is never sent to the Live AI coach merely because you write or save it. When you send a message, that message and any passage you attached are sent. The full draft is sent only when you explicitly choose <strong>Review draft</strong> or <strong>Compare with the Coach</strong>; first, you will see what content will be sent. Tu Pana does not store that content on a server.<br><br>Your instructor sees only what you choose to export, copy, or share. Tu Pana does not share your work automatically.</span></div>
         </details>
         <details class="help-section">
             <summary class="help-section-title"><span class="show-es">Preguntas para tu instructor/a</span><span class="lang-sep"> · </span><span class="show-en">Questions for your instructor</span><span class="help-sum-arrow" aria-hidden="true">▾</span></summary>

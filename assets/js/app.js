@@ -61,6 +61,7 @@ editHistoryInit(D.draftArea.value);
 updateDraftControls();
 initChatProgress();
 initManiPrompt();
+initStuckTriageKeyboard();
 
 // Restore Five Questions strip if returning to Stage 7+
 if (state.stage >= 7) {

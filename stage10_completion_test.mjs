@@ -43,7 +43,12 @@ async function seed(extra) {
 
 // ── Reload path: completed student returns at Stage 10 ───────────────────
 console.log('Reload path — flag set, card persists');
-await seed({ tupana_completion_shown: 'true' });
+await seed({
+    tupana_completion_shown: 'true',
+    tupana_draft_saved: 'true',
+    tupana_draft: 'This is the protected first draft.',
+    tupana_writing_s9: 'This is the meaningfully revised final draft.'
+});
 
 check('Journey Complete card rendered on reload at Stage 10',
       await page.locator('#journeyCompleteCard').count() === 1);
@@ -72,7 +77,11 @@ check('re-injection is a no-op (still exactly one card)',
 
 // ── Negative path: no flag, no card, no premature trigger ────────────────
 console.log('Negative path — no completion flag');
-await seed({});
+await seed({
+    tupana_draft_saved: 'true',
+    tupana_draft: 'This is the protected first draft.',
+    tupana_writing_s9: 'This is the meaningfully revised final draft.'
+});
 check('no card at Stage 10 when completion flag absent',
       await page.locator('#journeyCompleteCard').count() === 0);
 
@@ -88,7 +97,10 @@ check('closing capstone modal without report generated does NOT open process not
 console.log('Live path — real student flow via button clicks only');
 await page.click('.capstone-reopen-btn');               // reopen capstone modal
 await page.waitForTimeout(300);
-await page.locator('.capstone-rating-btn').first().click();  // rate a criterion
+await page.locator('#capstoneR1').fill('I clarified the central purpose.');
+await page.locator('#capstoneR2').fill('The conclusion still needs attention.');
+await page.locator('#capstoneR3').fill('I protected the wording that sounds like me.');
+await page.locator('.capstone-rating-btn').first().click();  // optional rating
 await page.click('#capstoneSubmitBtn');                 // 10A: "Nombré mi proceso"
 await page.waitForTimeout(400);
 check('report trigger button appears after 10A submit',

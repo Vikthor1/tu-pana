@@ -114,6 +114,9 @@ All keys use the `tupana_` prefix. **Do not rename** — renaming breaks existin
 | `tupana_schema_version` | `'1.0'` — stamped on first load by `initSchemaVersion()` |
 | `tupana_template_id` | Active genre template ID (default: `'mixed_genre_autobiographical'`) |
 | `tupana_completion_shown` | Completion celebration shown flag |
+| `tupana_revision_checkpoint` | JSON — instructor-approved revision exception tied to assignment and first-draft signature |
+| `tupana_full_draft_reviews` | JSON — privacy-safe full-draft review metadata (never draft text) |
+| `tupana_ai_usage` | JSON — local aggregate AI request/token counts by request kind |
 | `tupana_eval_stats` | Evaluation streak stats (via `EVAL_STATS_KEY` in ui.js) |
 | `tupana_progress_collapsed` | Progress panel collapsed state (UI preference — survives reset) |
 | `tupana_spotlight_off` | Spotlight feature disabled preference (UI preference — survives reset) |

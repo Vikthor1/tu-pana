@@ -500,7 +500,7 @@ const HUMOR = {
 // ════════════════════════════════════════════════════════
 
 const CAPSTONE_CRITERIA = [
-    { key: 'opening',    es: 'Apertura / Anécdota',               en: 'Opening / Anecdote',             text: 'My opening gives the reader a specific moment, image, or situation to enter.' },
+    { key: 'opening',    es: 'Apertura / Punto de entrada',       en: 'Opening / Point of Entry',       text: 'My opening gives the reader a clear situation, purpose, question, or point of entry.' },
     { key: 'connection', es: 'Conexión',                           en: 'Connection',                     text: 'I connect my experience or example to a larger issue, question, or context.' },
     { key: 'evidence',   es: 'Evidencia / Especificidad',          en: 'Evidence / Specificity',         text: 'I use details, examples, observations, or sources to support my ideas.' },
     { key: 'voice',      es: 'Voz',                                en: 'Voice',                          text: 'The writing still sounds like me.' },
@@ -546,9 +546,48 @@ function saveCapstoneReflection(key, value) {
     if (!data.reflections) data.reflections = {};
     data.reflections[key] = value;
     _saveCapstoneRaw(data);
+    updateCapstoneEvidenceState();
+}
+
+function _capstoneEvidenceReady(reflections) {
+    const r = reflections || {};
+    return ['improved', 'needs', 'voice'].every(key => String(r[key] || '').trim().length >= 8);
+}
+
+function updateCapstoneEvidenceState() {
+    const ready = _capstoneEvidenceReady((loadCapstoneData().reflections || {}));
+    document.querySelectorAll('.capstone-rating-btn').forEach(btn => {
+        btn.disabled = !ready;
+    });
+    const status = document.getElementById('capstoneEvidenceStatus');
+    if (status) {
+        status.classList.toggle('ready', ready);
+        status.textContent = ready
+            ? '✓ Evidencia lista. Ahora puedes hacer la autoevaluación opcional. · Evidence ready. You may now use the optional self-check.'
+            : 'Escribe una oración breve en cada espacio para abrir la autoevaluación. · Write one short sentence in each space to open the self-check.';
+    }
+    return ready;
 }
 
 function submitCapstone() {
+    if (!updateCapstoneEvidenceState()) {
+        const fields = [
+            document.getElementById('capstoneR1'),
+            document.getElementById('capstoneR2'),
+            document.getElementById('capstoneR3')
+        ];
+        const missing = fields.find(field => !field || field.value.trim().length < 8);
+        if (missing) {
+            missing.setAttribute('aria-invalid', 'true');
+            missing.focus();
+        }
+        const error = document.getElementById('capstoneEvidenceError');
+        if (error) error.hidden = false;
+        return;
+    }
+    document.querySelectorAll('.capstone-reflection-text').forEach(field => field.removeAttribute('aria-invalid'));
+    const evidenceError = document.getElementById('capstoneEvidenceError');
+    if (evidenceError) evidenceError.hidden = true;
     const done       = document.getElementById('capstoneDoneMsg');
     const btn        = document.getElementById('capstoneSubmitBtn');
     const compareBtn = document.getElementById('capstoneCompareBtn');
@@ -601,14 +640,15 @@ function exportCapstone() {
     text += `Este cierre de proceso incluye mi autoevaluación, una perspectiva limitada del coach y mi respuesta a esa perspectiva. No es una calificación.\n`;
     text += `This writing snapshot includes my self-assessment, a limited coach perspective, and my response to that perspective. It is not a grade.\n\n`;
 
-    text += `---\n## 10A — My Self-Assessment / Mi autoevaluación\n\n`;
+    text += `---\n## 10A — My Evidence and Self-Assessment / Mi evidencia y autoevaluación\n\n`;
+    text += `**One thing I improved / Una cosa que mejoré:**\n${reflections.improved || '—'}\n\n`;
+    text += `**One thing that still needs work / Una cosa que todavía necesita trabajo:**\n${reflections.needs || '—'}\n\n`;
+    text += `**One decision I made to protect my voice / Una decisión que tomé para proteger mi voz:**\n${reflections.voice || '—'}\n\n`;
+    text += `### Optional Self-Check / Autoevaluación opcional\n\n`;
     CAPSTONE_CRITERIA.forEach(c => {
         text += `**${c.en} / ${c.es}**\n"${c.text}"\n`;
         text += `My rating: ${ratingLabel(ratings[c.key])}\n\n`;
     });
-    text += `**One thing I improved / Una cosa que mejoré:**\n${reflections.improved || '—'}\n\n`;
-    text += `**One thing that still needs work / Una cosa que todavía necesita trabajo:**\n${reflections.needs || '—'}\n\n`;
-    text += `**One decision I made to protect my voice / Una decisión que tomé para proteger mi voz:**\n${reflections.voice || '—'}\n\n`;
 
     if (coach && Array.isArray(coach.coachPerspective)) {
         text += `---\n## 10B — Coach Perspective / Perspectiva del coach\n`;
@@ -645,7 +685,11 @@ function exportCapstone() {
 }
 
 function openCapstoneModal() {
-    el('capstoneBg').classList.add('on');
+    const bg = el('capstoneBg');
+    if (!bg) return;
+    _capstoneReturnFocus = document.activeElement;
+    bg.classList.add('on');
+    setTimeout(() => bg.querySelector('.capstone-modal-close')?.focus(), 80);
 }
 
 // P4 follow-up (Option A, founder decision 2026-06-12): the Stage 10 completion
@@ -657,9 +701,14 @@ function openCapstoneModal() {
 // download. Once per page load (in-memory guard, no new storage key); re-arms
 // on reload until the process note is completed (tupana_completion_shown).
 let _completionPromptFired = false;
-function closeCapstoneModal() {
+let _capstoneReturnFocus = null;
+function closeCapstoneModal(options = {}) {
     el('capstoneBg').classList.remove('on');
-    if (_completionPromptFired) return;
+    const returnTarget = _capstoneReturnFocus && document.contains(_capstoneReturnFocus)
+        ? _capstoneReturnFocus
+        : document.querySelector('.capstone-reopen-btn');
+    if (returnTarget) setTimeout(() => returnTarget.focus(), 40);
+    if (_completionPromptFired || options.suppressCompletion) return;
     try {
         const done = localStorage.getItem('tupana_completion_shown') === 'true';
         if (!done && loadCapstoneData().instrReportGenerated) {
@@ -675,7 +724,8 @@ function injectCapstonePanel() {
     const data             = loadCapstoneData();
     const savedRatings     = data.ratings     || {};
     const savedReflections = data.reflections || {};
-    const selfDone         = !!data.completed;
+    const evidenceReady    = _capstoneEvidenceReady(savedReflections);
+    const selfDone         = !!data.completed && evidenceReady;
     const coachGenerated   = !!(data.coachPerspective);
 
     const criteriaHTML = CAPSTONE_CRITERIA.map(c => {
@@ -683,6 +733,7 @@ function injectCapstonePanel() {
             const sel = savedRatings[c.key] === r.val;
             return `<button class="capstone-rating-btn${sel ? ' selected' : ''}"
                 aria-pressed="${sel}"
+                ${evidenceReady ? '' : 'disabled'}
                 onclick="setCapstoneRating('${c.key}','${r.val}',this)"
             ><span lang="es">${r.es}</span></button>`;
         }).join('');
@@ -725,13 +776,9 @@ function injectCapstonePanel() {
             </p>
         </div>
 
-        <div class="capstone-section-label">Auto-evaluación · Self-Check</div>
-        ${criteriaHTML}
-
-        <hr class="capstone-divider">
         <div class="capstone-section-label">
-            Reflexiones cortas · Short Reflections
-            <span style="font-weight:400;text-transform:none;font-size:0.71rem"> — opcional · optional</span>
+            Empieza con evidencia · Start with evidence
+            <span class="capstone-required-note"> — una oración en cada espacio · one sentence in each space</span>
         </div>
 
         <div class="capstone-reflection-field">
@@ -763,6 +810,22 @@ function injectCapstonePanel() {
                 oninput="saveCapstoneReflection('voice',this.value)"
             >${escapeHtml(savedReflections.voice || '')}</textarea>
         </div>
+
+        <div class="capstone-evidence-status${evidenceReady ? ' ready' : ''}" id="capstoneEvidenceStatus" role="status">
+            ${evidenceReady
+                ? '✓ Evidencia lista. Ahora puedes hacer la autoevaluación opcional. · Evidence ready. You may now use the optional self-check.'
+                : 'Escribe una oración breve en cada espacio para abrir la autoevaluación. · Write one short sentence in each space to open the self-check.'}
+        </div>
+        <div class="capstone-evidence-error" id="capstoneEvidenceError" role="alert" hidden>
+            Completa los tres espacios con una oración breve antes de continuar. · Complete all three spaces with one short sentence before continuing.
+        </div>
+
+        <hr class="capstone-divider">
+        <div class="capstone-section-label">
+            Autoevaluación opcional · Optional Self-Check
+        </div>
+        <p class="capstone-reflection-hint">Primero nombraste la evidencia de tu proceso. Ahora, si te ayuda, puedes valorar cada dimensión. · You named evidence from your process first. Now, if useful, you may rate each dimension.</p>
+        ${criteriaHTML}
 
         <div class="capstone-action-row">
             <button class="capstone-submit-btn" id="capstoneSubmitBtn"
@@ -986,7 +1049,8 @@ async function requestCoachPerspective() {
 
     const data        = loadCapstoneData();
     const ratings     = data.ratings || {};
-    const draft       = D.draftArea ? D.draftArea.value.trim() : '';
+    const reflections = data.reflections || {};
+    const draft       = getFinalEssay().text.trim();
     const ratingLabel = val => {
         const r = CAPSTONE_RATINGS.find(r => r.val === val);
         return r ? r.en : 'Not rated';
@@ -1001,11 +1065,16 @@ async function requestCoachPerspective() {
 STUDENT SELF-ASSESSMENT:
 ${ratingsText}
 
-STUDENT DRAFT (excerpt, up to 1400 characters):
-${draft.slice(0, 1400)}
+STUDENT PROCESS EVIDENCE:
+- One thing improved: ${reflections.improved || 'Not provided'}
+- One thing that still needs work: ${reflections.needs || 'Not provided'}
+- One decision made to protect voice: ${reflections.voice || 'Not provided'}
 
-Required JSON format (fill in all 8 dimensions; use only these rating values: "Still developing", "Taking shape", "Strong", "Very strong"):
-{"coachPerspective":[{"dimension":"Opening / Anecdote","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Connection","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Evidence / Specificity","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Voice","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Revision","rating":"...","observation":"...","suggestion":"..."},{"dimension":"AI Judgment","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Conocimiento / Cultural Knowledge","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Next Step","rating":"...","observation":"...","suggestion":"..."}],"limitations":"I cannot fully judge the cultural, community, or lived meaning of your examples. You and your professor are better positioned to decide whether those examples represent your experience accurately and respectfully."}`;
+STUDENT'S LATEST COMPLETE DRAFT:
+${draft.slice(0, 18000)}
+
+Required JSON format (fill in all 8 dimensions; use only these rating values: "Still developing", "Taking shape", "Strong", "Very strong"; keep each observation and suggestion to one concise sentence):
+{"coachPerspective":[{"dimension":"Opening / Point of Entry","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Connection","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Evidence / Specificity","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Voice","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Revision","rating":"...","observation":"...","suggestion":"..."},{"dimension":"AI Judgment","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Conocimiento / Cultural Knowledge","rating":"...","observation":"...","suggestion":"..."},{"dimension":"Next Step","rating":"...","observation":"...","suggestion":"..."}],"limitations":"I cannot fully judge the cultural, community, or lived meaning of your examples. You and your professor are better positioned to decide whether those examples represent your experience accurately and respectfully."}`;
 
     // Ollama path: raw text via shared generateCoachResponse(), then route to
     // handleCoachPerspectiveResponse() instead of addMsg().
@@ -1711,7 +1780,7 @@ function confirmStagePreview() {
     const prevStage = state.stage;
     const prevText  = (D.draftArea ? D.draftArea.value : '').trim();
 
-    goToStage(id);
+    if (goToStage(id) === false) return;
     scheduleCoachSpotlight(id);
     // Mobile: bring student to coach tab so new stage instructions / cards are visible
     if (window.innerWidth <= 480) switchMobileTab('chat');
@@ -1749,7 +1818,11 @@ function injectStageEntryWelcome(id) {
     addMsg(msg, 'bot', false, 'stage-intro');
 }
 
-function goToStage(id) {
+function goToStage(id, options = {}) {
+    if (id === 10 && !options.skipRevisionGate && !hasCompletionRevisionEvidence()) {
+        openRevisionCompletionGate(() => goToStage(10, { skipRevisionGate: true }));
+        return false;
+    }
     exitDraftFocus();   // stage transition — coach takes visual priority
     const prev = state.stage;
 
@@ -1860,6 +1933,7 @@ function goToStage(id) {
     // Auto-open AI literacy reflection checkpoint at key stage entries (once per stage ever)
     maybeOpenStageEntryReflectionCheckpoint(id);
 
+    return true;
 }
 
 function onStageClick(s) {
@@ -3078,6 +3152,9 @@ RESPONSE SCOPE:
 - Offer no more than 2 improvement areas per response. Pick the single most impactful one. Do not list every possible improvement.
 - Ask no more than 1–2 questions per response. Prefer one strong guiding question. Do not stack multiple questions in a single response. If the student appears uncertain or is early in the stage, ask exactly one question. Zero questions is sometimes the right response when the student has done enough and needs to move forward, not reflect further.
 - If the student asks what to focus on first, name one specific priority area and stop.
+- For ordinary coaching, use three compact moves and then stop: one observation anchored in the student's exact words, one highest-impact next move, and at most one guiding question.
+- Keep an ordinary response near 120–220 words. If the student asks a direct, narrow question, prefer 120 words or fewer. Exceed this only when the student explicitly asks for more detail, starts the separate whole-draft review workflow, or the structured Stage 10 coach-perspective request explicitly requires all rubric dimensions.
+- Do not restate the assignment, summarize the entire draft, or repeat context the student already supplied unless that context is necessary to explain the one chosen next move.
 
 REVISION-CYCLE AWARENESS:
 The student context includes a field called stageCoachResponses — the count of coach responses given in the current stage only. This count resets to 0 each time the student advances to a new stage.
@@ -3247,7 +3324,25 @@ D.sendBtn.addEventListener('click', submitChat);
 
 // Global keyboard shortcuts
 document.addEventListener('keydown', e => {
+    if (e.key === 'Tab' && document.getElementById('capstoneBg')?.classList.contains('on')) {
+        const focusable = Array.from(document.querySelectorAll(
+            '#capstoneBg button:not([disabled]), #capstoneBg textarea:not([disabled]), #capstoneBg input:not([disabled]), #capstoneBg summary, #capstoneBg [tabindex]:not([tabindex="-1"])'
+        )).filter(node => node.offsetParent !== null);
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first?.focus();
+        }
+        return;
+    }
     if (e.key === 'Escape') {
+        if (document.getElementById('capstoneBg')?.classList.contains('on')) {
+            closeCapstoneModal();
+            return;
+        }
         // Dismiss spotlight before other modal checks
         if (state.spotlightTarget === 'coach') { dismissCoachSpotlight(); return; }
         if (state.spotlightTarget === 'editor') { dismissEditorSpotlight(); return; }
@@ -5658,12 +5753,16 @@ function restoreChatLog() {
 // ════════════════════════════════════════════════════════
 function showStuckTriage() {
     D.stuckTriage.classList.add('on');
+    D.stuckBtn?.setAttribute('aria-expanded', 'true');
+    setTimeout(() => D.stuckTriage.querySelector('.stuck-option')?.focus(), 20);
 }
-function hideStuckTriage() {
+function hideStuckTriage(returnFocus = true) {
     D.stuckTriage.classList.remove('on');
+    D.stuckBtn?.setAttribute('aria-expanded', 'false');
+    if (returnFocus) D.stuckBtn?.focus();
 }
 function handleStuckOption(option) {
-    hideStuckTriage();
+    hideStuckTriage(false);
     const stage = state.stage;
     if (option === 'prompt') {
         showStuckMini();
@@ -5758,34 +5857,53 @@ function handleStuckOption(option) {
     }
 }
 
+function initStuckTriageKeyboard() {
+    if (!D.stuckTriage || !D.stuckBtn || D.stuckTriage.dataset.keyboardReady) return;
+    D.stuckTriage.dataset.keyboardReady = 'true';
+    D.stuckTriage.addEventListener('keydown', event => {
+        const items = Array.from(D.stuckTriage.querySelectorAll('.stuck-option, .stuck-triage-close'));
+        const current = items.indexOf(document.activeElement);
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            hideStuckTriage(true);
+        } else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+            event.preventDefault();
+            let next = current;
+            if (event.key === 'Home') next = 0;
+            else if (event.key === 'End') next = items.length - 1;
+            else if (event.key === 'ArrowDown') next = (current + 1 + items.length) % items.length;
+            else next = (current - 1 + items.length) % items.length;
+            items[next]?.focus();
+        }
+    });
+    document.addEventListener('pointerdown', event => {
+        if (!D.stuckTriage.classList.contains('on')) return;
+        if (!D.stuckTriage.contains(event.target) && event.target !== D.stuckBtn) hideStuckTriage(false);
+    });
+}
+
 // ════════════════════════════════════════════════════════
 //  ENGAGEMENT: PHASE CELEBRATIONS, BADGES, SESSIONS
 // ════════════════════════════════════════════════════════
 const PHASE_CELEBRATIONS = {
     4:  {
         badge:   'Encontrar · Discovery',
-        titleEs: 'Encontraste tu historia',
-        titleEn: 'You found your story',
-        body:    'Has identificado una memoria específica y conectado tu experiencia personal con un contexto más grande. Ese movimiento — de <em>mi historia</em> a <em>nuestro mundo</em> — es donde comienza tu trabajo. / You have identified a specific memory and connected your personal experience to a larger context. That move — from <em>my story</em> to <em>our world</em> — is where your writing begins.'
+        titleEs: 'Encontraste una dirección',
+        titleEn: 'You found a direction',
+        body:    'Ya nombraste el enfoque, el propósito y el contexto que orientan tu trabajo. Esa dirección te permite investigar y construir con intención. / You have named the focus, purpose, and context guiding your work. That direction lets you research and build with intention.'
     },
     6:  {
         badge:   'Construir · Building',
         titleEs: 'Lo preparaste todo',
         titleEn: 'You built the foundation',
-        body:    'Investigaste, conectaste y organizaste. Ahora llegas al momento más importante: escribir sin ayuda. Nadie puede escribir este borrador por ti — y Tu Pana no lo intentará. Este borrador será tuyo de una manera que nada más lo será. / You researched, connected, and outlined. Now comes the most important moment: writing without help. No one can write this draft for you — and Tu Pana will not try. This draft will be yours in a way nothing else will be.'
+        body:    'Exploraste, conectaste y organizaste tus ideas. Ahora llega el momento más importante: escribir sin ayuda. Nadie puede escribir este borrador por ti — y Tu Pana no lo intentará. / You explored, connected, and organized your ideas. Now comes the most important moment: writing without help. No one can write this draft for you — and Tu Pana will not try.'
     },
     // Stage 7: the draft-saved modal handles this milestone with more depth and a required read pause.
     9:  {
         badge:   'Afinar · Refining',
-        titleEs: 'Dos rondas de revisión',
-        titleEn: 'Two rounds of revision done',
-        body:    'Revisaste con criterio y recibiste retroalimentación. Ahora viene la revisión más importante: la de tu voz. Pregúntate qué cambió, qué se perdió, y qué solo tú sabes que debe quedarse. Esta etapa no trata de corregir — trata de proteger. / You revised with judgment and received feedback. Now comes the most important revision: your voice. Ask what changed, what was lost, and what only you know must stay. This stage is not about correcting — it is about protecting.'
-    },
-    10: {
-        badge:   'Completar · Completing',
-        titleEs: 'Llegaste al final con dignidad',
-        titleEn: 'You reached the end with dignity',
-        body:    'Tu trabajo escrito, tu nota de proceso, y tu registro de decisiones están listos. No solo completaste una tarea — documentaste cómo usaste la IA con criterio. / Your written work, your process note, and your decision log are ready. You did not just complete an assignment — you documented how you used AI with judgment.'
+        titleEs: 'Tu revisión va tomando forma',
+        titleEn: 'Your revision is taking shape',
+        body:    'Revisaste ideas, evidencia, estructura y voz con criterio. Ahora haz una auditoría final: confirma los requisitos, protege lo que debe quedarse y decide qué todavía necesita atención. / You revised ideas, evidence, structure, and voice with judgment. Now make a final audit: confirm the requirements, protect what should stay, and decide what still needs attention.'
     }
 };
 
@@ -6172,7 +6290,7 @@ function _disableSpotlight() {
 function openReport() {
     const bg = document.getElementById('reportBg');
     const body = document.getElementById('reportBody');
-    body.innerHTML = buildPacketDiagnosticHTML() + buildReportHTML();
+    body.innerHTML = buildPacketDiagnosticHTML() + buildAIActivitySummaryHTML() + buildReportHTML();
     bg.classList.add('on');
 }
 function closeReport() {
@@ -6225,6 +6343,11 @@ function closeProcessNoteModal() {
 }
 
 function finishProcessNote() {
+    if (!hasCompletionRevisionEvidence()) {
+        closeProcessNoteModal();
+        openRevisionCompletionGate(() => openProcessNoteModal());
+        return;
+    }
     closeProcessNoteModal();
     try { localStorage.setItem('tupana_completion_shown', 'true'); } catch(e) {}
     setTimeout(showCompletionCelebration, 300);
@@ -6253,6 +6376,7 @@ function dismissCompletionCelebration() {
 function injectJourneyCompleteCard() {
     try {
         if (localStorage.getItem('tupana_completion_shown') !== 'true') return;
+        if (!hasCompletionRevisionEvidence()) return;
         if (document.getElementById('journeyCompleteCard')) return;
         const card = document.createElement('div');
         card.id = 'journeyCompleteCard';
@@ -6481,6 +6605,29 @@ Decisiones de revisión · Revision decisions: ${decisions.length} total (${acce
     `;
 }
 
+function buildAIActivitySummaryHTML() {
+    let usage = null;
+    try { usage = JSON.parse(localStorage.getItem('tupana_ai_usage') || 'null'); } catch(e) {}
+    if (!usage || !Number(usage.requests)) return '';
+    const byKind = usage.byKind || {};
+    const count = key => Math.max(0, Number(byKind[key]?.requests || 0));
+    const inputTokens = Math.max(0, Number(usage.inputTokens || 0));
+    const outputTokens = Math.max(0, Number(usage.outputTokens || 0));
+    return `
+      <details class="ai-activity-summary">
+        <summary>
+            <span class="show-es">Actividad del Coach IA en este navegador: ${Number(usage.requests)} solicitudes</span>
+            <span class="lang-sep"> · </span>
+            <span class="show-en">Live AI activity on this browser: ${Number(usage.requests)} requests</span>
+        </summary>
+        <div class="ai-activity-body">
+            <p><span class="show-es">Resumen privado guardado solo en este navegador; no es una cuota ni una calificación.</span><span class="lang-sep"> · </span><span class="show-en">Private summary stored only on this browser; it is not a quota or a grade.</span></p>
+            <div>Conversación · Conversation: ${count('conversation')} &nbsp;·&nbsp; Pasajes · Passages: ${count('passage_analysis')} &nbsp;·&nbsp; Borradores completos · Whole drafts: ${count('full_draft_review')}</div>
+            <div class="ai-activity-tokens">Uso agregado · Aggregate use: ${inputTokens.toLocaleString()} input tokens · ${outputTokens.toLocaleString()} output tokens</div>
+        </div>
+      </details>`;
+}
+
 function generateProcessNoteScaffold(data) {
     const { draftSaved, wordCount, stage, stageName, maniSentence, accepted, questioned, thinking, botMsgs, dateStr } = data;
     const answers = data.answers || {};
@@ -6675,20 +6822,158 @@ function saveReportMeta(meta) {
 function getFinalEssay() {
     const read = k => { try { return localStorage.getItem(k) || ''; } catch(e) { return ''; } };
     const draft = read('tupana_draft');
+    const normalizedDraft = normalizeRevisionText(draft);
     const candidates = [];
     for (const s of [7, 8, 9]) { const v = read('tupana_writing_s' + s); if (v.trim()) candidates.push({ text: v, stage: s }); }
-    // Live textarea captures unsaved edits while ON a revision stage (7/8 only —
-    // stages 9/10 show a fallback copy of the first draft, not fresh revision).
-    try { if (D.draftArea && (state.stage === 7 || state.stage === 8) && D.draftArea.value.trim()) candidates.push({ text: D.draftArea.value, stage: state.stage }); } catch(e) {}
+    // Include unsaved work at every revision/finalization stage.
+    try { if (D.draftArea && [7, 8, 9].includes(state.stage) && D.draftArea.value.trim()) candidates.push({ text: D.draftArea.value, stage: state.stage }); } catch(e) {}
     if (candidates.length) {
-        candidates.sort((a, b) => (b.stage - a.stage) || (b.text.length - a.text.length));
+        // Prefer a genuine revision over a later stage that merely contains the
+        // seeded first draft. Within that group, prefer the latest stage.
+        candidates.forEach(c => { c.revised = normalizeRevisionText(c.text) !== normalizedDraft; });
+        candidates.sort((a, b) => (Number(b.revised) - Number(a.revised)) || (b.stage - a.stage) || (b.text.length - a.text.length));
         const top = candidates[0];
-        // "Revised" = genuinely different from the first draft (guards the
-        // fallback case where a revision-stage textarea just mirrors the draft).
-        return { text: top.text, stage: top.stage, revised: top.text.trim() !== draft.trim() };
+        return { text: top.text, stage: top.stage, revised: top.revised };
     }
     if (draft.trim()) return { text: draft, stage: 6, revised: false };
     return { text: '', stage: 0, revised: false };
+}
+
+const REVISION_CHECKPOINT_KEY = 'tupana_revision_checkpoint';
+
+function normalizeRevisionText(text) {
+    return String(text || '').normalize('NFC').replace(/\s+/g, ' ').trim();
+}
+
+function _revisionDraftSignature() {
+    const text = normalizeRevisionText((() => { try { return localStorage.getItem('tupana_draft') || ''; } catch(e) { return ''; } })());
+    let hash = 2166136261;
+    for (let i = 0; i < text.length; i++) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+    }
+    return `${text.length}:${(hash >>> 0).toString(16)}`;
+}
+
+function getRevisionCheckpoint() {
+    try { return JSON.parse(localStorage.getItem(REVISION_CHECKPOINT_KEY) || 'null'); } catch(e) { return null; }
+}
+
+function hasInstructorRevisionException() {
+    const record = getRevisionCheckpoint();
+    return !!(record &&
+        record.mode === 'instructor_exception' &&
+        String(record.note || '').trim().length >= 12 &&
+        record.draftSignature === _revisionDraftSignature() &&
+        String(record.assignmentId || '') === String((state && state.assignmentId) || ''));
+}
+
+function hasCompletionRevisionEvidence() {
+    return getFinalEssay().revised || hasInstructorRevisionException();
+}
+
+let _revisionGateReturnFocus = null;
+let _revisionGateKeydown = null;
+function closeRevisionCompletionGate(returnFocus = true) {
+    document.getElementById('revisionCompletionGate')?.remove();
+    if (_revisionGateKeydown) {
+        document.removeEventListener('keydown', _revisionGateKeydown);
+        _revisionGateKeydown = null;
+    }
+    if (returnFocus && _revisionGateReturnFocus && document.contains(_revisionGateReturnFocus)) {
+        _revisionGateReturnFocus.focus();
+    }
+}
+
+function returnToRevisionFromGate() {
+    closeRevisionCompletionGate(false);
+    if (state.stage === 10) goToStage(9, { skipRevisionGate: true });
+    if (window.innerWidth <= 480) switchMobileTab('draft');
+    setTimeout(() => {
+        D.draftArea?.focus();
+        D.draftArea?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 120);
+}
+
+function openRevisionCompletionGate(continueAction) {
+    document.getElementById('revisionCompletionGate')?.remove();
+    _revisionGateReturnFocus = document.activeElement;
+    const overlay = document.createElement('div');
+    overlay.id = 'revisionCompletionGate';
+    overlay.className = 'toolkit-modal-bg revision-gate-bg';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'revisionGateTitle');
+    overlay.innerHTML = `
+        <div class="toolkit-modal-card revision-gate-card">
+            <div class="toolkit-modal-top">
+                <div>
+                    <div class="revision-gate-eyebrow">Pausa de revisión · Revision checkpoint</div>
+                    <h2 class="toolkit-modal-title" id="revisionGateTitle">Antes de tu cierre de proceso · Before your writing snapshot</h2>
+                </div>
+                <button class="toolkit-close" type="button" aria-label="Cerrar · Close">×</button>
+            </div>
+            <p><strong>No encontramos una versión revisada todavía.</strong> Tu primer borrador sigue protegido; solo necesitamos que tu versión más reciente incluya al menos un cambio significativo.</p>
+            <p class="revision-gate-en">We have not detected a revised version yet. Your first draft remains protected; your latest version simply needs at least one meaningful change.</p>
+            <button class="revision-gate-primary" type="button">Volver a revisar · Return to revise</button>
+            <details class="revision-exception">
+                <summary>Mi instructor/a aprobó una excepción · My instructor approved an exception</summary>
+                <p>Usa esta opción solo si tu instructor/a indicó que no se requiere una versión revisada para esta tarea. La excepción aparecerá en tu reporte.</p>
+                <label for="revisionExceptionNote">Nota breve · Brief note</label>
+                <textarea id="revisionExceptionNote" rows="2" placeholder="Ej.: Mi instructor aprobó entregar esta versión."></textarea>
+                <label class="revision-exception-check"><input id="revisionExceptionConfirm" type="checkbox"> Confirmo que mi instructor/a aprobó esta excepción. · I confirm that my instructor approved this exception.</label>
+                <div class="revision-exception-error" role="alert" hidden>Escribe una nota breve y marca la confirmación. · Add a brief note and check the confirmation.</div>
+                <button class="revision-gate-secondary" type="button">Registrar excepción y continuar · Record exception and continue</button>
+            </details>
+        </div>`;
+
+    const close = () => closeRevisionCompletionGate(true);
+    overlay.querySelector('.toolkit-close').addEventListener('click', close);
+    overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+    overlay.querySelector('.revision-gate-primary').addEventListener('click', returnToRevisionFromGate);
+    overlay.querySelector('.revision-gate-secondary').addEventListener('click', () => {
+        const note = overlay.querySelector('#revisionExceptionNote').value.trim();
+        const confirmed = overlay.querySelector('#revisionExceptionConfirm').checked;
+        const error = overlay.querySelector('.revision-exception-error');
+        if (note.length < 12 || !confirmed) {
+            error.hidden = false;
+            (note.length < 12 ? overlay.querySelector('#revisionExceptionNote') : overlay.querySelector('#revisionExceptionConfirm')).focus();
+            return;
+        }
+        try {
+            localStorage.setItem(REVISION_CHECKPOINT_KEY, JSON.stringify({
+                mode: 'instructor_exception',
+                note,
+                timestamp: new Date().toISOString(),
+                assignmentId: String((state && state.assignmentId) || ''),
+                draftSignature: _revisionDraftSignature()
+            }));
+        } catch(e) {}
+        logProcessEvent('revision_exception_recorded', 'Instructor-approved revision exception recorded before Stage 10.');
+        closeRevisionCompletionGate(false);
+        if (typeof continueAction === 'function') continueAction();
+    });
+
+    const onKey = event => {
+        if (!document.getElementById('revisionCompletionGate')) {
+            document.removeEventListener('keydown', onKey);
+            return;
+        }
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            document.removeEventListener('keydown', onKey);
+            close();
+        } else if (event.key === 'Tab') {
+            const focusable = Array.from(overlay.querySelectorAll('button, summary, textarea, input')).filter(node => !node.disabled);
+            const first = focusable[0], last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        }
+    };
+    _revisionGateKeydown = onKey;
+    document.addEventListener('keydown', _revisionGateKeydown);
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.querySelector('.revision-gate-primary')?.focus(), 80);
 }
 
 function buildSubmissionDiagnostic() {
@@ -6703,7 +6988,9 @@ function buildSubmissionDiagnostic() {
         // Milestone 4's name resolves through msLabel so CAP 200 / Research students
         // are pointed at THEIR revision milestone, not the default essay name.
         const _m4 = msLabel(MILESTONES[3]);
-        warnings.push({ es: `Solo se encontró tu PRIMER borrador — tu versión revisada no aparece. Revisa en "${_m4.es}" antes de entregar.`, en: `Only your FIRST draft was found — your revised version is missing. Revise in "${_m4.en}" before submitting.` });
+        if (!hasInstructorRevisionException()) {
+            warnings.push({ es: `Solo se encontró tu PRIMER borrador — tu versión revisada no aparece. Revisa en "${_m4.es}" antes de entregar.`, en: `Only your FIRST draft was found — your revised version is missing. Revise in "${_m4.en}" before submitting.` });
+        }
     }
     if (!draftSaved) warnings.push({ es: 'La puerta de autoría no está documentada: no guardaste tu primer borrador sin ayuda.', en: 'Authorship gate not documented: your unassisted first draft was not saved.' });
     if (rs.status === 'BLANK') warnings.push({ es: 'No completaste ninguna reflexión del proceso.', en: 'No process reflection completed yet.' });
@@ -6795,6 +7082,7 @@ function generateInstructorReport() {
     const ratings      = capstone.ratings        || {};
     const reflections  = capstone.reflections    || {};
     const studentResp  = capstone.studentResponse || {};
+    const revisionException = hasInstructorRevisionException() ? getRevisionCheckpoint() : null;
 
     const line = (n) => '='.repeat(n);
 
@@ -6814,7 +7102,7 @@ function generateInstructorReport() {
     r += `${line(40)}\n`;
     r += `Process report present : Yes\n`;
     r += `Authorship gate        : ${_sumDraftSaved ? 'PASSED' : 'NOT DOCUMENTED'}\n`;
-    r += `Final written work     : ${_sumDiag.essay.text.trim() ? (_sumDiag.essay.revised ? 'Revised draft present' : 'First draft only') : 'Not found'}\n`;
+    r += `Final written work     : ${_sumDiag.essay.text.trim() ? (_sumDiag.essay.revised ? 'Revised draft present' : (revisionException ? 'Instructor-approved revision exception' : 'First draft only')) : 'Not found'}\n`;
     r += `Milestones completed   : ${milestonesCompletedCount()} of ${TOTAL_MILESTONES}\n`;
     r += `Internal stages done   : ${_sumStages.length} of 10${_sumStages.length ? ' (' + _sumStages.join(',') + ')' : ''}\n`;
     r += `Reflection             : ${_sumRs.status} (${_sumRs.filled}/${_sumRs.total})\n`;
@@ -6843,11 +7131,16 @@ function generateInstructorReport() {
     }
 
     r += `${line(72)}\n`;
-    r += `FINAL WRITTEN WORK  [Student work — ${_essay.revised ? 'revised draft' : (_essay.stage === 6 ? 'FIRST DRAFT ONLY — not yet revised' : 'none found')}]\n`;
+    r += `FINAL WRITTEN WORK  [Student work — ${_essay.revised ? 'revised draft' : (revisionException ? 'instructor-approved revision exception' : (_essay.stage === 6 ? 'FIRST DRAFT ONLY — not yet revised' : 'none found'))}]\n`;
     r += `${line(72)}\n`;
     r += (_essay.text.trim()
         ? `${_essay.text.trim()}\n\n`
         : `[No written work found — student has not written or saved draft text]\n\n`);
+    if (revisionException) {
+        r += `REVISION EXCEPTION  [Student-recorded]\n`;
+        r += `Instructor approval note: ${revisionException.note}\n`;
+        r += `Recorded: ${revisionException.timestamp || 'timestamp unavailable'}\n\n`;
+    }
 
     r += `${line(72)}\n`;
     r += `SECTION 1 — FIRST DRAFT GATE  [System-recorded]\n`;
@@ -6922,14 +7215,15 @@ function generateInstructorReport() {
     r += `${line(72)}\n`;
     r += `SECTION 6 — SELF-ASSESSMENT  [Student-written, Stage 10]\n`;
     r += `${line(72)}\n`;
-    r += `10A — Self-Check Ratings\n`;
-    CAPSTONE_CRITERIA.forEach(c => {
-        r += `  ${c.en.padEnd(36)} : ${ratingLabel(ratings[c.key])}\n`;
-    });
-    r += `\n10A — Short Reflections (optional)\n`;
+    r += `10A — Evidence-First Reflections (required)\n`;
     r += `One thing I improved:\n${naOpt(reflections.improved)}\n\n`;
     r += `One thing that still needs work:\n${naOpt(reflections.needs)}\n\n`;
     r += `One decision I made to protect my voice:\n${naOpt(reflections.voice)}\n\n`;
+    r += `10A — Optional Self-Check Ratings\n`;
+    CAPSTONE_CRITERIA.forEach(c => {
+        r += `  ${c.en.padEnd(36)} : ${ratingLabel(ratings[c.key])}\n`;
+    });
+    r += `\n`;
 
     const has10C = studentResp.agree || studentResp.disagree || studentResp.missing;
     r += `10C — My Response to the Coach Perspective\n`;
@@ -6974,6 +7268,14 @@ function generateInstructorReport() {
 }
 
 function injectInstructorReportPanel(scrollTo) {
+    if (!hasCompletionRevisionEvidence()) {
+        closeCapstoneModal({ suppressCompletion: true });
+        openRevisionCompletionGate(() => {
+            openCapstoneModal();
+            injectInstructorReportPanel(scrollTo);
+        });
+        return;
+    }
     if (document.getElementById('instrReportPanel')) {
         if (scrollTo) {
             openCapstoneModal();
@@ -7327,6 +7629,7 @@ function openToolkitPanel() {
 ───────────────────────────────────────────────────────────── */
 function openHelpPanel() {
     document.getElementById('helpModal')?.remove();
+    const returnFocus = document.activeElement;
 
     // Current-position line in journey vocabulary (IA Sprint Batch 4): milestone
     // (the journey view) + step, both profile-aware via msLabel/stLabel.
@@ -7461,8 +7764,22 @@ function openHelpPanel() {
         </details>
     </div>`;
 
-    const closeHelp = () => { overlay.remove(); document.removeEventListener('keydown', onEscHelp); };
-    const onEscHelp = e => { if (e.key === 'Escape') closeHelp(); };
+    const closeHelp = () => {
+        overlay.remove();
+        document.removeEventListener('keydown', onEscHelp);
+        if (returnFocus && document.contains(returnFocus)) returnFocus.focus();
+    };
+    const onEscHelp = e => {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeHelp();
+        } else if (e.key === 'Tab') {
+            const focusable = Array.from(overlay.querySelectorAll('button, summary, a[href], input, textarea, [tabindex]:not([tabindex="-1"])')).filter(node => !node.disabled);
+            const first = focusable[0], last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+    };
     overlay.addEventListener('click', e => { if (e.target === overlay) closeHelp(); });
     overlay.querySelector('.toolkit-close').addEventListener('click', closeHelp);
     document.addEventListener('keydown', onEscHelp);

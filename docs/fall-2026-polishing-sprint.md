@@ -1,7 +1,7 @@
 # Tu Pana Fall 2026 Polishing Sprint
 
 **Branch:** `experiment/redesign-v1`  
-**Status:** Implemented, verified, and Worker capacity deployed
+**Status:** Implemented and verified locally; Worker capacity deployed
 **Purpose:** Reduce student friction without weakening Tu Pana's authorship,
 critical-AI-literacy, or process-documentation commitments.
 
@@ -77,6 +77,39 @@ signal for returning students.
   coaching instructions are not exposed as clutter in the conversation.
 - The contextual toolbar fits within a 390-pixel phone viewport.
 
+## Completion integrity and evidence-first reflection
+
+- Stage 10 now requires a meaningfully revised artifact. Whitespace-only
+  changes do not count, and a genuine Stage 7 or 8 revision is not hidden by a
+  later stage that merely contains the seeded first draft.
+- The checkpoint is shared by every genre layer. Its primary action returns the
+  student to the editor; a documented instructor-approved exception is
+  available for assignments where revision is intentionally waived and is
+  recorded in the instructor report.
+- Stage 10 begins with three short evidence statements: what improved, what
+  still needs work, and what the student protected. Optional ratings remain
+  unavailable until those statements are present, preventing ratings from
+  anchoring the reflection.
+- The Stage 10 coach perspective reads the latest complete draft (up to 18,000
+  characters) plus the student's process evidence, rather than only the first
+  1,400 characters of the visible textarea.
+- The premature Stage 10 “finished” interruption was removed. The completion
+  celebration appears only after the revised artifact, reflection/report, and
+  process-note sequence are complete.
+- Completion and milestone language is now genre-neutral.
+
+## Calm coaching, usage visibility, and keyboard access
+
+- Ordinary coaching now follows one anchored observation, one highest-impact
+  next move, and at most one question, normally within 120–220 words.
+- Save/Export includes a collapsed, private browser-only AI activity summary.
+  It is explicitly framed as neither a quota nor a grade.
+- The **I'm stuck** menu now exposes expanded state, moves focus into the menu,
+  supports arrow/Home/End/Escape keys, closes on outside interaction, and
+  returns focus correctly.
+- Help and Stage 10 modals restore focus when closed; Help traps keyboard focus
+  while open.
+
 ## Preserved commitments
 
 - Ten internal stages and all stage routing
@@ -97,14 +130,23 @@ signal for returning students.
 - Three-phase compatibility regression: 19/19
 - Storage-key and round-trip audit: 13/13
 - Full existing Tu Pana regression suite: all 29 test files passed
+- Revision/completion integrity: 26/26
+- Existing Stage 10 completion: 22/22
+- Stage 10 reflection: 28/28
+- Final packet: 22/22
+- Cross-genre routing: 65/65
+- Full-draft review: 32/32
+- Keyboard stuck-menu regression: 14/14
 - In-app browser visual review: five-action desktop toolbar is clear and balanced
+- In-app browser visual review: revision checkpoint is calm, scannable, and
+  unobstructed; Help focus return and stuck-menu arrow/Escape behavior verified
 - Responsive assertions: 390 × 844 phone viewport, five 44-pixel actions, no
   horizontal overflow
 
 The Gemini Worker capacity update was deployed on 2026-07-30 and verified
 against the public endpoint with a synthetic 40,000-character request. The
-passage-analysis completion profile was deployed as Worker version
-`5284786b-34fc-40e6-bd84-19ae96c697c0` and returned a complete,
-non-truncated live response. The
+passage-analysis completion profile was superseded by Worker version
+`b3cf5571-bdca-477d-9112-fc7f537b870d`, which also supports guided whole-draft
+reviews and returned a complete, non-truncated live response. The
 student-interface changes remain on `experiment/redesign-v1` for review before
 the Fall release is merged.

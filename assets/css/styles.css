@@ -709,6 +709,29 @@
         .packet-diag-title { font-weight: 800; margin-bottom: 6px; color: var(--amber-text); }
         .packet-diag-list { margin: 0; padding-left: 20px; }
         .packet-diag-list li { margin: 3px 0; }
+        .ai-activity-summary {
+            margin: 0 0 14px;
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--bg-panel);
+            color: var(--text-sub);
+            font-size: var(--text-note);
+        }
+        .ai-activity-summary summary {
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+        .ai-activity-body {
+            padding-top: 7px;
+            line-height: 1.5;
+        }
+        .ai-activity-body p { margin: 0 0 5px; }
+        .ai-activity-tokens { margin-top: 4px; color: var(--text-muted); }
         .report-action-btn {
             padding: 10px 20px;
             border-radius: var(--radius-full);
@@ -5263,6 +5286,15 @@
             border-color: var(--jade);
             color: var(--jade-text);
         }
+        .capstone-rating-btn:disabled {
+            opacity: 0.48;
+            cursor: not-allowed;
+            border-style: dashed;
+        }
+        .capstone-rating-btn:disabled:hover {
+            border-color: var(--border);
+            color: var(--text-sub);
+        }
         .capstone-rating-btn[aria-pressed="true"],
         .capstone-rating-btn.selected {
             background: var(--jade);
@@ -5307,6 +5339,127 @@
             outline: none;
             border-color: var(--jade);
             box-shadow: 0 0 0 2px var(--jade-glow);
+        }
+        .capstone-reflection-text[aria-invalid="true"] {
+            border-color: var(--rose);
+            box-shadow: 0 0 0 2px var(--rose-glow);
+        }
+        .capstone-required-note {
+            font-weight: 400;
+            text-transform: none;
+            font-size: var(--text-label);
+        }
+        .capstone-evidence-status,
+        .capstone-evidence-error {
+            margin-top: 5px;
+            padding: 9px 11px;
+            border-radius: var(--radius-sm);
+            font-size: var(--text-note);
+            line-height: 1.45;
+        }
+        .capstone-evidence-status {
+            color: var(--text-sub);
+            background: var(--bg-raised);
+            border: 1px solid var(--border);
+        }
+        .capstone-evidence-status.ready {
+            color: var(--jade-text);
+            background: var(--jade-glow);
+            border-color: var(--jade);
+        }
+        .capstone-evidence-error {
+            color: var(--rose);
+            background: var(--rose-glow);
+            border: 1px solid var(--rose);
+        }
+
+        /* Revision checkpoint */
+        .revision-gate-card { max-width: 580px; }
+        .revision-gate-eyebrow {
+            margin-bottom: 5px;
+            color: var(--jade-text);
+            font-size: var(--text-caption);
+            font-weight: 800;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+        .revision-gate-card > p {
+            color: var(--text-primary);
+            font-size: var(--text-body);
+            line-height: 1.6;
+        }
+        .revision-gate-card .revision-gate-en {
+            margin-top: -5px;
+            color: var(--text-sub);
+        }
+        .revision-gate-primary,
+        .revision-gate-secondary {
+            width: 100%;
+            min-height: 44px;
+            border-radius: var(--radius-full);
+            padding: 10px 16px;
+            font: 700 var(--text-body) var(--font-body);
+            cursor: pointer;
+        }
+        .revision-gate-primary {
+            margin: 7px 0 16px;
+            border: 0;
+            color: #fff;
+            background: var(--grad-success);
+        }
+        .revision-gate-secondary {
+            margin-top: 10px;
+            border: 1px solid var(--border-hi);
+            color: var(--text-primary);
+            background: var(--bg-raised);
+        }
+        .revision-exception {
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+            color: var(--text-sub);
+            font-size: var(--text-note);
+        }
+        .revision-exception summary {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            color: var(--text-sub);
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .revision-exception label:not(.revision-exception-check) {
+            display: block;
+            margin: 10px 0 5px;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+        .revision-exception textarea {
+            width: 100%;
+            min-height: 72px;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font: var(--text-ui) var(--font-body);
+            resize: vertical;
+        }
+        .revision-exception-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            margin-top: 10px;
+            line-height: 1.45;
+        }
+        .revision-exception-check input {
+            width: 20px;
+            height: 20px;
+            flex: 0 0 auto;
+        }
+        .revision-exception-error {
+            margin-top: 9px;
+            color: var(--rose);
+            font-weight: 700;
         }
         .capstone-action-row {
             display: flex;

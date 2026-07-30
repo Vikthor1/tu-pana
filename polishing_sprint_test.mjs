@@ -64,7 +64,12 @@ check('route toggle reports its state accessibly',
 await page.evaluate(() => goToStage(7));
 check('Stage 7 maps to Revise',
     await page.locator('#calmPhase2[aria-current="step"]').count() === 1);
-await page.evaluate(() => goToStage(10));
+await page.evaluate(() => {
+    localStorage.setItem('tupana_draft', 'Protected first draft.');
+    localStorage.setItem('tupana_writing_s7', 'Meaningfully revised draft.');
+    state.draftSaved = true;
+    goToStage(10);
+});
 check('Stage 10 maps to Finish',
     await page.locator('#calmPhase3[aria-current="step"]').count() === 1);
 check('no page JavaScript errors', errors.length === 0);

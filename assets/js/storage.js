@@ -34,7 +34,7 @@
 //     tupana_eval_hint_seen, tupana_progress_collapsed,
 //     tupana_fiveq_stage7_opened_once, tupana_spotlight_off,
 //     tupana_assignment_id, tupana_project_chosen, tupana_ai_cue_seen,
-//     tupana_full_draft_reviews, tupana_ai_usage
+//     tupana_full_draft_reviews, tupana_ai_usage, tupana_revision_checkpoint
 //   Dynamic (localStorage): tupana_writing_s<N>, tupana_step_<stageId>,
 //     tupana_reflect_shown_<stageId>
 //   sessionStorage (transient): tupana_warn_dismissed, tupana_persist_warn,

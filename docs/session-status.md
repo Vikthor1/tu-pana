@@ -1,6 +1,34 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-07-30 (Fall 2026 polishing sprint: guided full-draft review)
+Last updated: 2026-07-30 (Fall 2026 polishing sprint: completion integrity)
+
+## Fall 2026 polishing sprint — completion integrity and calm final flow
+
+- Branch: `experiment/redesign-v1`
+- Stage 10 now requires a meaningfully revised artifact across every genre
+  layer. Whitespace-only changes do not pass, and genuine earlier revisions
+  take precedence over later seeded copies of the first draft.
+- The checkpoint returns students to revision without deleting work. A
+  documented instructor-approved exception is available when revision is not
+  required and is visible in the instructor report.
+- Stage 10 is evidence-first: students write three short process statements
+  before optional ratings become available.
+- The capstone coach now reads the latest complete draft and process evidence,
+  not a 1,400-character visible-textarea excerpt.
+- The premature Stage 10 completion interruption was removed. Genre-neutral
+  completion language appears only after the real final sequence.
+- Ordinary coach replies now use one anchored observation, one priority next
+  move, and at most one question, normally within 120–220 words.
+- Save/Export exposes a collapsed, local-only AI activity summary without
+  quota language.
+- Keyboard polish: the stuck menu supports focus entry, arrow/Home/End/Escape,
+  outside dismissal, and focus return; Help and capstone modals restore focus.
+- Verification: revision completion 26/26; Stage 10 completion 22/22; Stage 10
+  reflection 28/28; final packet 22/22; shared routing 65/65; full-draft review
+  32/32; stuck menu 14/14; storage 13/13. Live browser visual and keyboard
+  checks passed.
+- No Worker change was required for this pass. Frontend remains local on the
+  experiment branch pending release review.
 
 ## Fall 2026 polishing sprint — guided full-draft review
 

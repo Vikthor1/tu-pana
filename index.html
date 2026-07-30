@@ -386,7 +386,8 @@
                     aria-label="Quitar pasaje seleccionado · Remove selected passage">×</button>
             </div>
             <div class="stuck-row" style="position:relative;">
-                <button class="stuck-btn" id="stuckBtn" disabled onclick="showStuckTriage()" aria-label="Estoy atascado · I'm stuck">
+                <button class="stuck-btn" id="stuckBtn" disabled onclick="showStuckTriage()" aria-label="Estoy atascado · I'm stuck"
+                    aria-haspopup="menu" aria-controls="stuckTriage" aria-expanded="false">
                     <span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64"><ellipse class="tp-fill-teal" cx="23" cy="39" rx="7" ry="11" transform="rotate(-18 23 39)"/><circle class="tp-fill-teal" cx="16" cy="25" r="2.3"/><circle class="tp-fill-teal" cx="21" cy="23" r="2.4"/><circle class="tp-fill-teal" cx="26" cy="24" r="2.2"/><circle class="tp-fill-teal" cx="30" cy="27" r="2"/><ellipse class="tp-fill-mango" cx="42" cy="25" rx="7" ry="11" transform="rotate(18 42 25)"/><circle class="tp-fill-mango" cx="35" cy="11" r="2"/><circle class="tp-fill-mango" cx="39" cy="8" r="2.2"/><circle class="tp-fill-mango" cx="44" cy="8" r="2.3"/><circle class="tp-fill-mango" cx="49" cy="10" r="2.1"/><path d="M16 55c8-3 18-3 31 0"/></svg></span><span class="show-es"> Estoy atascado</span><span class="lang-sep"> · </span><span class="show-en">I'm stuck</span>
                 </button>
                 <div class="stuck-triage" id="stuckTriage" role="menu" aria-label="Opciones de ayuda · Help options">
@@ -989,11 +990,11 @@
   <div class="completion-card">
     <button class="completion-close" onclick="dismissCompletionCelebration()" aria-label="Cerrar celebración · Close celebration">✕</button>
     <div class="completion-icon"><span class="tp-icon" style="width:44px;height:44px"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="tp-fill-paper" cx="32" cy="32" r="26"/><path class="tp-fill-mango" d="M32 10l8 20 20 2-16 12 6 20-18-13-18 13 6-20-16-12 20-2z"/><circle class="tp-fill-clay" cx="32" cy="32" r="5"/></svg></span></div>
-    <div class="completion-badge">Trabajo escrito completo · Written work complete</div>
-    <div class="completion-title">Llegaste al final con tu voz intacta.<br>You reached the end with your voice intact.</div>
+    <div class="completion-badge">Proceso de escritura completo · Writing process complete</div>
+    <div class="completion-title">Llegaste al final con tu criterio y tu voz intactos.<br>You reached the end with your judgment and voice intact.</div>
     <div class="completion-body">
-      Documentaste cómo usaste la IA con criterio. Protegiste tu conocimiento lingüístico, familiar y comunitario. Tu trabajo escrito no es solo una tarea — es un acto de <em>narrar tu propia historia con propósito</em>.<br><br>
-      You documented how you used AI with judgment. You protected your linguistic, family, and community knowledge. Your written work is not just an assignment — it is an act of <em>narrating your own story with purpose</em>.
+      Documentaste cómo usaste la IA con criterio. Protegiste tu conocimiento, tu propósito y las decisiones que hacen que este trabajo sea tuyo.<br><br>
+      You documented how you used AI with judgment. You protected your knowledge, your purpose, and the decisions that make this work your own.
     </div>
     <button class="completion-cta" onclick="dismissCompletionCelebration()">
       <span class="tp-icon" style="width:14px;height:14px"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 32h36"/><path d="M36 20l14 12-14 12"/></svg></span>
@@ -1005,10 +1006,10 @@
 <!-- ════════════════════════════════════════
      CAPSTONE MODAL — Mi cierre de proceso
 ════════════════════════════════════════ -->
-<div class="capstone-bg" id="capstoneBg">
+<div class="capstone-bg" id="capstoneBg" role="dialog" aria-modal="true" aria-labelledby="capstoneModalTitle">
   <div class="capstone-modal-card">
     <div class="capstone-modal-header">
-      <div class="capstone-modal-header-title">
+      <div class="capstone-modal-header-title" id="capstoneModalTitle">
         <span lang="es">Mi cierre de proceso</span>
         <span class="lang-sep"> · </span>
         <span lang="en">My Writing Snapshot</span>

@@ -310,7 +310,8 @@ Files changed: `index.html` · `assets/js/ui.js` · `assets/css/styles.css`
 - ✓ Full guardrail prompt (all rules) assembled and sent through Gemini path
 - ✓ `FEATURES.geminiProvider = true`; `AI_PROVIDER = 'gemini'`; default mode is `'gemini'`
 - ✓ `requestCoachPerspective()` Gemini branch — Stage 10 coach perspective works on Gemini
-- ✓ Worker `MAX_PROMPT_CHARS` raised to 32000 (system prompt is ~14–16k chars)
+- ✓ Worker `MAX_PROMPT_CHARS` raised to 128000 so long-form genre instructions
+  and student passages fit without approaching Gemini 2.5's model capacity
 - ✓ All legacy providers removed — valid modes: `offline | ollama | gemini`
 - ✓ No API key in any frontend file
 

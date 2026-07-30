@@ -50,6 +50,22 @@ signal for returning students.
 - Simplified the header and hid the redundant marketing subtitle.
 - Added responsive first-visit and progress treatments for phone layouts.
 
+## Passage coaching and long-form reliability
+
+- Raised the Gemini proxy prompt ceiling from 32,000 to 128,000 characters.
+  This preserves an abuse-protection boundary while accommodating the graduate
+  Statement of Purpose instructions plus long-form student writing.
+- Added a precise `prompt_too_large` error category for the exceptional request
+  that still exceeds the new ceiling.
+- Replaced the two-step selection transfer with a contextual passage toolbar:
+  **Strength**, **Clarity**, and **Voice** send an authorship-safe coaching
+  request immediately.
+- **Ask…** carries the selected passage into the chat composer as a visible,
+  removable context chip. The student types only the question.
+- Quick-action user messages show the intent and a short excerpt; internal
+  coaching instructions are not exposed as clutter in the conversation.
+- The contextual toolbar fits within a 390-pixel phone viewport.
+
 ## Preserved commitments
 
 - Ten internal stages and all stage routing
@@ -64,6 +80,8 @@ signal for returning students.
 ## Verification
 
 - New polishing-sprint regression: 20/20
+- Passage-coaching regression: 13/13
+- Gemini Worker regression, including long-form capacity: 19/19
 - Three-phase compatibility regression: 19/19
 - Storage-key and round-trip audit: 13/13
 - Full existing Tu Pana regression suite: passed

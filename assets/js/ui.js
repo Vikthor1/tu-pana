@@ -2785,10 +2785,10 @@ function maybeShowFirstAiSendCue() {
     );
 }
 
-async function sendMsg(text) {
+async function sendMsg(text, options) {
     if (!state.connected || state.waiting) return;
     if (text !== '__INIT__') {
-        addMsg(text, 'user');
+        addMsg((options && options.displayText) || text, 'user');
         logProcessEvent('coach_message_sent', 'Student sent message to coach.');
         if (state.coachMode === 'gemini') maybeShowFirstAiSendCue();
     }
@@ -3165,6 +3165,30 @@ function getOllamaFriendlyError(err) {
 // ════════════════════════════════════════════════════════
 //  CHAT INPUT
 // ════════════════════════════════════════════════════════
+let _pendingPassageContext = null;
+
+function _passageExcerpt(text, limit) {
+    const clean = String(text || '').replace(/\s+/g, ' ').trim();
+    const max = limit || 180;
+    return clean.length > max ? clean.slice(0, max - 1).trimEnd() + '…' : clean;
+}
+
+function setPassageCoachContext(text) {
+    const clean = String(text || '').trim();
+    if (!clean) return;
+    _pendingPassageContext = clean;
+    const chip = document.getElementById('passageContextChip');
+    const excerpt = document.getElementById('passageContextExcerpt');
+    if (excerpt) excerpt.textContent = '“' + _passageExcerpt(clean, 150) + '”';
+    if (chip) chip.hidden = false;
+}
+
+function clearPassageCoachContext() {
+    _pendingPassageContext = null;
+    const chip = document.getElementById('passageContextChip');
+    if (chip) chip.hidden = true;
+}
+
 D.chatInput.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 110) + 'px';
@@ -3216,7 +3240,10 @@ function submitChat() {
         'ayuda con la app', 'cómo funciona', 'no entiendo cómo', 'qué hago aquí',
         'qué tengo que hacer aquí', 'no sé cómo usar', 'no funciona la app'
     ];
-    if (CONFUSED_KEYWORDS.some(kw => lower.includes(kw))) {
+    // A question attached to a selected passage is unambiguously about the
+    // student's writing, even if it begins with "What should I do…".
+    if (!_pendingPassageContext && CONFUSED_KEYWORDS.some(kw => lower.includes(kw))) {
+        clearPassageCoachContext();
         addMsg(t, 'user');
         const isEs = state.lang !== 'en';
         let stageNote = '';
@@ -3241,39 +3268,64 @@ function submitChat() {
         return;
     }
 
-    sendCoachMessage({ message: t, stageId: getStageId(state.stage) });
+    let message = t;
+    let displayMessage = t;
+    if (_pendingPassageContext) {
+        const passage = _pendingPassageContext;
+        message =
+            '[STUDENT-SELECTED PASSAGE]\n' + passage +
+            '\n[END SELECTED PASSAGE]\n\n' +
+            'Student question: ' + t +
+            '\n\nDiscuss only this passage. Do not rewrite it or provide replacement prose. ' +
+            'Use the student’s exact words when referring to the passage.';
+        displayMessage = t + '\n\n↳ “' + _passageExcerpt(passage, 220) + '”';
+        clearPassageCoachContext();
+    }
+    sendCoachMessage({
+        message,
+        displayMessage,
+        stageId: getStageId(state.stage)
+    });
 }
 
 // ════════════════════════════════════════════════════════
-//  SELECTION-TO-COACH
-//  Floating action appears when text is selected in the
-//  draft editor. Inserts selected text into chat input
-//  with stage-aware framing. Never auto-sends.
+//  PASSAGE COACH
+//  Selecting text reveals contextual, authorship-safe actions.
+//  Quick actions send in one step; "Ask" carries the passage
+//  into the composer as a removable context chip.
 // ════════════════════════════════════════════════════════
 (function initSelectionToCoach() {
-    const btn = document.createElement('button');
-    btn.id    = 'sendSelToCoachBtn';
-    btn.className = 'sel-to-coach-btn';
-    btn.setAttribute('aria-label', 'Enviar texto seleccionado al coach · Send selected text to coach');
-    btn.innerHTML =
-        '<span class="show-es">Enviar al coach</span>' +
-        '<span class="lang-sep"> · </span>' +
-        '<span class="show-en">Send to Coach</span>';
-    btn.style.display = 'none';
-    document.body.appendChild(btn);
+    const menu = document.createElement('div');
+    menu.id = 'passageCoachMenu';
+    menu.className = 'passage-coach-menu';
+    menu.setAttribute('role', 'toolbar');
+    menu.setAttribute('aria-label', 'Consultar este pasaje · Ask about this passage');
+    menu.innerHTML = `
+        <span class="passage-coach-title"><span class="show-es">Consultar pasaje</span><span class="lang-sep"> · </span><span class="show-en">Ask about passage</span></span>
+        <div class="passage-coach-actions">
+            <button type="button" data-passage-action="strength"><span class="show-es">Fortaleza</span><span class="lang-sep"> · </span><span class="show-en">Strength</span></button>
+            <button type="button" data-passage-action="clarity"><span class="show-es">Claridad</span><span class="lang-sep"> · </span><span class="show-en">Clarity</span></button>
+            <button type="button" data-passage-action="voice"><span class="show-es">Voz</span><span class="lang-sep"> · </span><span class="show-en">Voice</span></button>
+            <button type="button" data-passage-action="ask" class="passage-coach-ask"><span class="show-es">Preguntar…</span><span class="lang-sep"> · </span><span class="show-en">Ask…</span></button>
+        </div>`;
+    menu.style.display = 'none';
+    document.body.appendChild(menu);
 
-    // Stage-aware framing — never asks the coach to rewrite
-    const FRAMES = {
-        2: 'Can you help me connect this to a larger issue — without rewriting it?\n\n',
-        3: 'Can you help me check the tension or argument here — without rewriting it?\n\n',
-        4: 'Can you help me turn this into search terms or source types? Do not invent sources or citations.\n\n',
-        7: 'Can you help me revise this passage — without rewriting it for me?\n\n',
-        8: 'Can you help me polish this sentence — without giving me a replacement version?\n\n',
-        9: 'Can you help me check this before my final reflection?\n\n',
+    const ACTIONS = {
+        strength: {
+            label: 'Fortaleza · Strength',
+            instruction: 'Name one specific strength in this selected passage and explain briefly why it works. Quote the student’s exact words. Do not rewrite the passage.'
+        },
+        clarity: {
+            label: 'Claridad · Clarity',
+            instruction: 'Identify the single most important clarity issue in this selected passage. Ask one focused question that helps the student revise it. Do not rewrite the passage or offer replacement prose.'
+        },
+        voice: {
+            label: 'Voz · Voice',
+            instruction: 'Check how the student’s voice is working in this selected passage. Name one phrase that sounds distinctively theirs and one possible voice risk, if present. Quote exact words only; do not rewrite.'
+        }
     };
-    const DEFAULT_FRAME = 'Can you help me think about this — without rewriting it?\n\n';
 
-    function getFrame()        { return FRAMES[state.stage] || DEFAULT_FRAME; }
     function getSelectedText() {
         return D.draftArea.value.substring(
             D.draftArea.selectionStart,
@@ -3281,50 +3333,79 @@ function submitChat() {
         ).trim();
     }
 
-    function positionBtn() {
+    function positionMenu() {
         const rect = D.draftArea.getBoundingClientRect();
-        const bw   = btn.offsetWidth || 160;
-        btn.style.top  = (rect.top + 8) + 'px';
-        btn.style.left = Math.max(8, rect.right - bw - 8) + 'px';
+        const menuWidth = menu.offsetWidth || 470;
+        menu.style.top = Math.max(8, rect.top + 10) + 'px';
+        menu.style.left = Math.max(8, Math.min(rect.right - menuWidth - 10, window.innerWidth - menuWidth - 8)) + 'px';
     }
 
     let _pendingSel = '';
 
-    function showBtn(sel) {
+    function showMenu(sel) {
         _pendingSel = sel;
-        btn.style.display = '';
-        requestAnimationFrame(positionBtn);   // measure after paint so offsetWidth is real
+        menu.style.display = '';
+        menu.querySelectorAll('[data-passage-action]').forEach(actionBtn => {
+            actionBtn.disabled = actionBtn.dataset.passageAction !== 'ask' && (!state.connected || state.waiting);
+        });
+        requestAnimationFrame(positionMenu);
     }
 
-    function hideBtn() { btn.style.display = 'none'; _pendingSel = ''; }
+    function hideMenu() {
+        menu.style.display = 'none';
+        _pendingSel = '';
+    }
 
     function onSelChange() {
         const sel = getSelectedText();
-        sel.length > 0 ? showBtn(sel) : hideBtn();
+        sel.length > 0 ? showMenu(sel) : hideMenu();
     }
 
     D.draftArea.addEventListener('mouseup', onSelChange);
     D.draftArea.addEventListener('keyup',   onSelChange);
+    D.draftArea.addEventListener('select',  onSelChange);
 
-    // Delay hide so click on the button fires before blur hides it
     let _hideTimer = null;
-    D.draftArea.addEventListener('blur',   () => { _hideTimer = setTimeout(hideBtn, 200); });
-    btn.addEventListener('mousedown', () => clearTimeout(_hideTimer));
-    btn.addEventListener('focus',     () => clearTimeout(_hideTimer));
-    btn.addEventListener('blur', hideBtn);
+    D.draftArea.addEventListener('blur', () => { _hideTimer = setTimeout(hideMenu, 240); });
+    menu.addEventListener('mousedown', () => clearTimeout(_hideTimer));
+    menu.addEventListener('focusin', () => clearTimeout(_hideTimer));
+    menu.addEventListener('focusout', () => { _hideTimer = setTimeout(hideMenu, 180); });
 
-    btn.addEventListener('click', () => {
+    menu.addEventListener('click', event => {
+        const actionBtn = event.target.closest('[data-passage-action]');
+        if (!actionBtn) return;
         const sel = _pendingSel || getSelectedText();
         if (!sel) return;
-        D.chatInput.value = getFrame() + '“' + sel + '”';
-        D.chatInput.dispatchEvent(new Event('input'));  // update send-btn state + height
-        hideBtn();
+        const actionKey = actionBtn.dataset.passageAction;
+
+        if (actionKey === 'ask') {
+            setPassageCoachContext(sel);
+            hideMenu();
+            if (window.innerWidth <= 480) switchMobileTab('chat');
+            D.chatInput.focus();
+            return;
+        }
+
+        const action = ACTIONS[actionKey];
+        if (!action || !state.connected || state.waiting) return;
+        const prompt =
+            '[STUDENT-SELECTED PASSAGE]\n' + sel +
+            '\n[END SELECTED PASSAGE]\n\n' +
+            action.instruction;
+        const displayMessage = action.label + '\n“' + _passageExcerpt(sel, 240) + '”';
+        hideMenu();
         if (window.innerWidth <= 480) switchMobileTab('chat');
-        D.chatInput.focus();
+        logProcessEvent('passage_coach_action', `Student requested ${actionKey} feedback on a selected passage (${sel.length} chars).`);
+        sendCoachMessage({
+            message: prompt,
+            displayMessage,
+            stageId: getStageId(state.stage)
+        });
     });
 
-    // Reposition if window resizes while button is visible
-    window.addEventListener('resize', () => { if (btn.style.display !== 'none') positionBtn(); });
+    window.addEventListener('resize', () => {
+        if (menu.style.display !== 'none') positionMenu();
+    });
 })();
 
 // ════════════════════════════════════════════════════════

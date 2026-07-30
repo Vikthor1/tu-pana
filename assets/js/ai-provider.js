@@ -83,7 +83,10 @@ function getGeminiErrorMessage(err) {
         return 'Hay un problema de configuración con el coach. Por favor, avisa a tu instructor/a.\nThere is a configuration issue with the coach. Please notify your instructor.';
     }
     if (cat === 'bad_request') {
-        return 'El coach no pudo procesar ese mensaje. Intenta de nuevo o acorta tu mensaje.\nThe coach could not process that message. Try again or shorten your message.';
+        return 'El coach no pudo procesar la solicitud. Intenta de nuevo; si continúa, avisa a tu instructor/a.\nThe coach could not process the request. Try again; if it continues, notify your instructor.';
+    }
+    if (cat === 'prompt_too_large') {
+        return 'Esta selección es demasiado extensa para enviarla de una vez. Elige la sección que quieres trabajar primero.\nThis selection is too extensive to send at once. Choose the section you want to work on first.';
     }
     if (cat === 'invalid_response') {
         return 'El coach devolvió una respuesta inesperada. Intenta de nuevo.\nThe coach returned an unexpected response. Try again.';
@@ -202,7 +205,7 @@ async function generateCoachResponse({ prompt, stageId, studentContext, assignme
 //  PROVIDER ROUTER — coaching UI entry point
 //  All providers currently route through sendMsg() in ui.js.
 // ════════════════════════════════════════════════════════
-async function sendCoachMessage({ message, stageId, studentContext, assignmentConfig } = {}) {
+async function sendCoachMessage({ message, displayMessage, stageId, studentContext, assignmentConfig } = {}) {
     // Authorship gate secondary check (primary enforcement is in ui.js updateDraftControls)
     if (AUTHORSHIP_GATE && AUTHORSHIP_GATE.requiredBefore.includes(stageId)) {
         const draftSaved = (() => {
@@ -213,6 +216,6 @@ async function sendCoachMessage({ message, stageId, studentContext, assignmentCo
         }
     }
 
-    if (typeof sendMsg === 'function') return sendMsg(message);
+    if (typeof sendMsg === 'function') return sendMsg(message, { displayText: displayMessage });
     console.error('[Tu Pana] sendMsg not available — check script load order.');
 }

@@ -370,6 +370,14 @@
         </div>
 
         <div class="chat-input-wrap">
+            <div class="passage-context-chip" id="passageContextChip" hidden>
+                <div class="passage-context-copy">
+                    <span class="passage-context-label"><span class="show-es">Pasaje seleccionado</span><span class="lang-sep"> · </span><span class="show-en">Selected passage</span></span>
+                    <span class="passage-context-excerpt" id="passageContextExcerpt"></span>
+                </div>
+                <button type="button" onclick="clearPassageCoachContext()"
+                    aria-label="Quitar pasaje seleccionado · Remove selected passage">×</button>
+            </div>
             <div class="stuck-row" style="position:relative;">
                 <button class="stuck-btn" id="stuckBtn" disabled onclick="showStuckTriage()" aria-label="Estoy atascado · I'm stuck">
                     <span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64"><ellipse class="tp-fill-teal" cx="23" cy="39" rx="7" ry="11" transform="rotate(-18 23 39)"/><circle class="tp-fill-teal" cx="16" cy="25" r="2.3"/><circle class="tp-fill-teal" cx="21" cy="23" r="2.4"/><circle class="tp-fill-teal" cx="26" cy="24" r="2.2"/><circle class="tp-fill-teal" cx="30" cy="27" r="2"/><ellipse class="tp-fill-mango" cx="42" cy="25" rx="7" ry="11" transform="rotate(18 42 25)"/><circle class="tp-fill-mango" cx="35" cy="11" r="2"/><circle class="tp-fill-mango" cx="39" cy="8" r="2.2"/><circle class="tp-fill-mango" cx="44" cy="8" r="2.3"/><circle class="tp-fill-mango" cx="49" cy="10" r="2.1"/><path d="M16 55c8-3 18-3 31 0"/></svg></span><span class="show-es"> Estoy atascado</span><span class="lang-sep"> · </span><span class="show-en">I'm stuck</span>

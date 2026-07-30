@@ -62,7 +62,11 @@ Optional fields accepted but not yet used: `stageId`, `studentContext`, `assignm
 ## Response shape
 
 Success: `{ "text": "..." }`
-Error: `{ "error": "..." }`
+Error: `{ "error": "...", "category": "..." }`
+
+The Worker accepts prompts up to 128,000 characters. This application ceiling
+accommodates Tu Pana's longest genre layer plus long-form student writing while
+retaining a bounded request size.
 
 ---
 

@@ -91,6 +91,27 @@ try {
     r = await callWorker({ prompt: 'x', model: 'gemini-2.5-flash', stageId: 'stage.revision' });
     check('STOP upstream → response truncated: false', r.body?.truncated === false);
     check('STOP: text returned normally', r.body?.text === 'complete coaching.');
+
+    // ── Input capacity: legitimate long-form writing must reach Gemini ──
+    console.log('\n── Long-form input capacity ──');
+    mockUpstream({ finishReason: 'STOP', text: 'long-form coaching.' });
+    r = await callWorker({
+        prompt: 'x'.repeat(40000),
+        model: 'gemini-2.5-flash-lite',
+        stageId: 'stage.frame_requirements'
+    });
+    check('40k-character SOP-sized prompt is accepted', r.status === 200);
+    check('accepted long-form prompt reaches Gemini', captured?.contents?.[0]?.parts?.[0]?.text?.length === 40000);
+
+    mockUpstream({ finishReason: 'STOP' });
+    r = await callWorker({
+        prompt: 'x'.repeat(128001),
+        model: 'gemini-2.5-flash-lite',
+        stageId: 'stage.frame_requirements'
+    });
+    check('request above 128k safety ceiling is rejected', r.status === 400);
+    check('oversize response has a precise category', r.body?.category === 'prompt_too_large');
+    check('oversize request is rejected before spending Gemini quota', captured === null);
 } finally {
     globalThis.fetch = origFetch;
 }

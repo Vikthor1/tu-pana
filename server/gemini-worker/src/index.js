@@ -9,7 +9,11 @@
  * Student writing is never logged.
  */
 
-const MAX_PROMPT_CHARS = 32000;  // accommodates full Tu Pana system prompt (~14-16k) + context + student message
+// Gemini 2.5 Flash supports a 1,048,576-token input context. Keep a generous
+// application-side ceiling for abuse protection without rejecting legitimate
+// genre instructions plus a full student draft. 128k characters is still only
+// a small fraction of the model context window.
+const MAX_PROMPT_CHARS = 128000;
 
 const ALLOWED_MODELS = new Set([
     'gemini-2.5-flash-lite',
@@ -187,7 +191,11 @@ export default {
         }
         if (prompt.length > MAX_PROMPT_CHARS) {
             return Response.json(
-                { error: 'Prompt too large' },
+                {
+                    error: 'Prompt too large',
+                    category: 'prompt_too_large',
+                    maxPromptChars: MAX_PROMPT_CHARS,
+                },
                 { status: 400, headers: corsHeaders(origin) }
             );
         }

@@ -844,19 +844,19 @@ function updateCurrentTaskBar() {
         ? getStageStepOverride(state.stage, step - 1, state.assignmentId) : null;
     const stepData = stepOverride || steps[step - 1] || steps[0];
 
-    const ms = milestoneForStage(state.stage);
-    const mL = msLabel(ms);
+    const sL = stLabel(state.stage);
     const ctbStage = document.getElementById('ctbStage');
     if (ctbStage) ctbStage.innerHTML =
-        `<span class="show-es">Paso ${ms.n}<span class="ctb-of-total"> de ${TOTAL_MILESTONES}</span> · ${escapeHtml(mL.es)}</span>` +
+        `<span class="show-es">Enfoque · ${escapeHtml(sL.es)}</span>` +
         `<span class="lang-sep"> / </span>` +
-        `<span class="show-en">Step ${ms.n}<span class="ctb-of-total"> of ${TOTAL_MILESTONES}</span> · ${escapeHtml(mL.en)}</span>`;
+        `<span class="show-en">Focus · ${escapeHtml(sL.en)}</span>`;
 
-    // Mobile progress strip — set CSS variable consumed by ::after on current-task-bar.
-    // Driven by the 5-milestone student-facing model (M1=20% … M5=100%) so the strip
-    // matches the "Paso N de 5 / Step N of 5" label. Internal 10-stage engine unchanged.
+    // The student-facing strip follows the same three-phase model as the calm
+    // progress bar. The detailed ten-stage engine remains unchanged.
+    const phase = phaseForStage(state.stage);
     const ctbBar = document.getElementById('currentTaskBar');
-    if (ctbBar) ctbBar.style.setProperty('--ctb-progress', `${(ms.n / TOTAL_MILESTONES) * 100}%`);
+    if (ctbBar) ctbBar.style.setProperty('--ctb-progress', `${phase * (100 / 3)}%`);
+    updateCalmProgress();
 
     const ctbInstr = document.getElementById('ctbInstruction');
     if (ctbInstr) {
@@ -886,6 +886,45 @@ function updateCurrentTaskBar() {
             count.textContent = `${Math.min(step, total)}/${total}`;
             ctbDots.appendChild(count);
         }
+    }
+}
+
+function phaseForStage(stageId) {
+    if (stageId <= 6) return 1;
+    if (stageId <= 9) return 2;
+    return 3;
+}
+
+function updateCalmProgress() {
+    const phase = phaseForStage(state.stage);
+    document.querySelectorAll('.calm-phase').forEach(item => {
+        const itemPhase = Number(item.dataset.phase);
+        item.classList.toggle('active', itemPhase === phase);
+        item.classList.toggle('done', itemPhase < phase);
+        if (itemPhase === phase) item.setAttribute('aria-current', 'step');
+        else item.removeAttribute('aria-current');
+    });
+    const progress = document.getElementById('calmProgress');
+    if (progress) progress.style.setProperty('--calm-progress', `${(phase - 1) * 50}%`);
+}
+
+function toggleDetailedPath() {
+    const isOpen = document.body.classList.toggle('path-details-open');
+    const btn = document.getElementById('calmPathToggle');
+    const label = document.getElementById('calmPathToggleText');
+    if (btn) {
+        btn.setAttribute('aria-expanded', String(isOpen));
+        btn.setAttribute(
+            'aria-label',
+            isOpen
+                ? 'Ocultar la ruta detallada · Hide detailed path'
+                : 'Mostrar la ruta detallada · Show detailed path'
+        );
+    }
+    if (label) {
+        label.innerHTML = isOpen
+            ? '<span class="show-es">Ocultar ruta</span><span class="lang-sep"> · </span><span class="show-en">Hide path</span>'
+            : '<span class="show-es">Ver ruta</span><span class="lang-sep"> · </span><span class="show-en">View path</span>';
     }
 }
 
@@ -2648,9 +2687,10 @@ function setCoachMode(mode) {
 
 function _injectStartupMsg() {
     try {
-        const maniDone = localStorage.getItem('tupana_mani_done') === 'true';
-        const labDone  = localStorage.getItem('tupana_lab_done')  === 'true';
-        if (!maniDone || !labDone) return;
+        const onboardingDone =
+            localStorage.getItem('tupana_onboarding_complete') === 'true' ||
+            localStorage.getItem('tupana_lab_done') === 'true';
+        if (!onboardingDone) return;
         const log = JSON.parse(localStorage.getItem('tupana_chatlog') || '[]');
         if (log.length > 0) return;
         addMsg(
@@ -3744,50 +3784,47 @@ function chooseProject(assignmentId) {
 function showLandingMoment() {
     const overlay = document.createElement('div');
     overlay.id = 'landingMoment';
+    overlay.className = 'welcome-bg';
     const langEsPressed   = state.lang === 'es'   ? 'true' : 'false';
     const langEnPressed   = state.lang === 'en'   ? 'true' : 'false';
     const langBothPressed = state.lang === 'both' ? 'true' : 'false';
-    overlay.style.cssText = `
-        position:fixed; inset:0; z-index:999;
-        background: rgba(42,33,28,0.78);
-        backdrop-filter: blur(14px) saturate(1.2);
-        display:flex; align-items:center; justify-content:center;
-        opacity:0; transition: opacity 0.6s ease;
-        padding: 40px 24px;
-    `;
     overlay.innerHTML = `
-        <div style="
-            max-width:680px; width:100%;
-            background: var(--bg-raised);
-            border: 1px solid var(--border-hi);
-            border-radius: var(--radius-lg);
-            padding: 48px 52px 44px;
-            text-align: center;
-            box-shadow: var(--shadow-lg);
-        ">
-            <div style="margin-bottom:24px; display:flex; gap:10px; justify-content:center;">
+        <div class="welcome-card">
+            <div class="welcome-topline">
+                <span class="welcome-eyebrow"><span class="show-es">Tu espacio de escritura</span><span class="lang-sep"> · </span><span class="show-en">Your writing space</span></span>
+                <div class="welcome-languages" role="group" aria-label="Idioma · Language">
                 <button class="lang-btn" data-lang="es" onclick="setLang('es')" aria-pressed="${langEsPressed}">Español</button>
                 <button class="lang-btn" data-lang="en" onclick="setLang('en')" aria-pressed="${langEnPressed}">English</button>
                 <button class="lang-btn" data-lang="both" onclick="setLang('both')" aria-pressed="${langBothPressed}">ES–EN</button>
+                </div>
             </div>
-            <div style="font-family:'Literata',Georgia,serif; font-size:2.0rem; font-style:italic; color:var(--text-primary); line-height:1.4; margin-bottom:20px;">
-                "Tu historia es donde comienza el argumento."
+
+            <div class="welcome-copy">
+                <h2><span class="show-es">Trae tus palabras. Conserva tu voz.</span><span class="lang-sep"> · </span><span class="show-en">Bring your words. Keep your voice.</span></h2>
+                <p><span class="show-es">Tu Pana te ayuda a tomar decisiones de revisión. Tú haces la escritura.</span><span class="lang-sep"> · </span><span class="show-en">Tu Pana helps you make revision decisions. You do the writing.</span></p>
             </div>
-            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:1.05rem; color:var(--text-sub); letter-spacing:0.04em; margin-bottom:16px;">
-                "Your story is where the argument begins."
+
+            <ol class="welcome-steps" aria-label="Cómo funciona · How it works">
+                <li><span class="welcome-step-num">1</span><span><strong><span class="show-es">Escribe</span><span class="lang-sep"> · </span><span class="show-en">Write</span></strong><small><span class="show-es">Empieza con tus propias palabras.</span><span class="lang-sep"> · </span><span class="show-en">Start with your own words.</span></small></span></li>
+                <li><span class="welcome-step-num">2</span><span><strong><span class="show-es">Decide</span><span class="lang-sep"> · </span><span class="show-en">Decide</span></strong><small><span class="show-es">Cuestiona, usa o rechaza la orientación.</span><span class="lang-sep"> · </span><span class="show-en">Question, use, or reject guidance.</span></small></span></li>
+                <li><span class="welcome-step-num">3</span><span><strong><span class="show-es">Revisa</span><span class="lang-sep"> · </span><span class="show-en">Revise</span></strong><small><span class="show-es">Haz y guarda los cambios tú mismo/a.</span><span class="lang-sep"> · </span><span class="show-en">Make and save the changes yourself.</span></small></span></li>
+            </ol>
+
+            <div class="welcome-trust">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5L2.5 4v4.5C2.5 11.7 5 14.2 8 15c3-.8 5.5-3.3 5.5-6.5V4L8 1.5z"/><path d="M5.5 8.5l2 2 3-3"/></svg>
+                <span><span class="show-es">Tu borrador se guarda en este navegador. Tu Pana nunca cambia tu texto sin que tú lo hagas.</span><span class="lang-sep"> · </span><span class="show-en">Your draft stays in this browser. Tu Pana never changes your text unless you do it.</span></span>
             </div>
-            <div style="font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.78rem; color:var(--text-sub); margin-bottom:28px; line-height:1.5;">
-                <span class="show-es">Tu trabajo se guarda en este navegador. Si usas el Coach IA en vivo, tu mensaje se envía al servicio de IA para responderte. Tu profesor solo ve lo que tú decidas exportar, copiar o compartir.</span><span class="lang-sep"> · </span><span class="show-en">Your work is saved in this browser. If you use the Live AI coach, your message is sent to the AI service so it can respond. Your instructor only sees what you choose to export, copy, or share.</span>
+
+            <div class="welcome-actions">
+                <button id="landingContinueBtn" class="welcome-primary" aria-label="Empezar a escribir · Start writing">
+                    <span class="show-es">Empezar a escribir</span><span class="lang-sep"> · </span><span class="show-en">Start writing</span>
+                    <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9h11M10 5l4 4-4 4"/></svg>
+                </button>
+                <button id="landingTourBtn" class="welcome-secondary" aria-label="Ver la guía opcional de tres minutos · View optional three-minute guide">
+                    <span class="show-es">Ver guía de 3 minutos</span><span class="lang-sep"> · </span><span class="show-en">View 3-minute guide</span>
+                </button>
+                <div id="landingTtsWrap"></div>
             </div>
-            <div id="landingTtsWrap" style="margin-bottom:12px;"></div>
-            <button id="landingContinueBtn" style="
-                font-family:'Source Sans 3',system-ui,sans-serif; font-size:0.95rem; font-weight:600;
-                background: rgba(184,92,26,0.85); color:#fff; border:none; border-radius:40px;
-                padding: 10px 28px; cursor:pointer; letter-spacing:0.03em;
-                transition: background 0.2s ease;
-            " aria-label="Continuar · Continue">
-                Continuar · Continue
-            </button>
         </div>`;
     document.body.appendChild(overlay);
     const _landingTtsWrap = overlay.querySelector('#landingTtsWrap');
@@ -3797,18 +3834,52 @@ function showLandingMoment() {
     }
     requestAnimationFrame(() => { overlay.style.opacity = '1'; });
 
-    function dismissLanding() {
+    function dismissLanding(next) {
         _stopOnboardingAudio();
         overlay.style.opacity = '0';
-        setTimeout(() => { overlay.remove(); openMani(); }, 600);
+        setTimeout(() => {
+            overlay.remove();
+            if (next === 'tour') {
+                openLab();
+            } else {
+                logProcessEvent('onboarding_quick_start', 'Student chose the direct start-writing path.');
+                finishFirstRun('quick');
+            }
+        }, 320);
     }
 
-    // Manual dismiss via button only — no auto-dismiss
+    // Direct writing is the primary path. The authorship/AI-judgment lesson is
+    // still available, but it no longer blocks the student's first sentence.
     const btn = overlay.querySelector('#landingContinueBtn');
     if (btn) {
-        btn.addEventListener('click', dismissLanding);
-        setTimeout(() => btn.focus(), 700);
+        btn.addEventListener('click', () => dismissLanding('quick'));
+        setTimeout(() => btn.focus(), 450);
     }
+    const tourBtn = overlay.querySelector('#landingTourBtn');
+    if (tourBtn) tourBtn.addEventListener('click', () => dismissLanding('tour'));
+}
+
+function finishFirstRun(path) {
+    try { localStorage.setItem('tupana_onboarding_complete', 'true'); } catch(e) {}
+    if (window.innerWidth <= 480) switchMobileTab('draft');
+
+    const wOverride = (typeof getWelcomeOverride === 'function') ? getWelcomeOverride(state.assignmentId) : null;
+    let welcomeMsg;
+    if (wOverride) {
+        welcomeMsg = state.connected ? wOverride.connected : wOverride.offline;
+    } else if (path === 'tour') {
+        welcomeMsg = state.connected
+            ? 'Listo. Empieza en tu borrador con tus propias palabras. Cuando quieras orientación, selecciona un pasaje o hazle una pregunta al coach.\nReady. Begin in your draft with your own words. When you want guidance, select a passage or ask the coach a question.'
+            : 'Listo. Empieza en tu borrador con tus propias palabras. La Guía sin IA estará disponible cuando la necesites.\nReady. Begin in your draft with your own words. Built-in guidance is available whenever you need it.';
+    } else {
+        welcomeMsg = state.connected
+            ? 'Empieza en el borrador. Tus palabras van primero; el coach espera hasta que tú pidas ayuda.\nStart in the draft. Your words come first; the coach waits until you ask for help.'
+            : 'Empieza en el borrador con tus propias palabras. Tu trabajo se guarda automáticamente en este navegador.\nStart in the draft with your own words. Your work saves automatically in this browser.';
+    }
+    setTimeout(() => addMsg(welcomeMsg, 'bot', false, 'welcome'), 300);
+    setTimeout(() => {
+        if (D.draftArea) D.draftArea.focus();
+    }, 480);
 }
 
 function showWelcomeBack() {
@@ -4142,23 +4213,8 @@ function closeLab() {
     _stopOnboardingAudio();
     el('labBg').classList.remove('on');
     try { localStorage.setItem('tupana_lab_done', 'true'); } catch(e) {}
-    if (window.innerWidth <= 480) switchMobileTab('chat');
-    flashChatFocus();
-
-    // Post-onboarding welcome from the coach, resolved by ASSIGNMENT IDENTITY
-    // (getWelcomeOverride) — never by stage-entry presence, which mislabeled every
-    // profile with a stage-1 entry as CAP 200 (IA Sprint Batch 1). A profile
-    // without its own welcome, and the default flow, get the bilingual default.
-    const wOverride = (typeof getWelcomeOverride === 'function') ? getWelcomeOverride(state.assignmentId) : null;
-    let welcomeMsg;
-    if (wOverride) {
-        welcomeMsg = state.connected ? wOverride.connected : wOverride.offline;
-    } else {
-        welcomeMsg = state.connected
-            ? '¡Bienvenido/a! Completaste Tu Conocimiento y El Laboratorio. Puedo ver los activos que reclamaste y la oración que escribiste sobre tu propio conocimiento. Estamos en la Etapa 1 — Anécdota. Escribe unas oraciones en el panel del borrador sobre un recuerdo específico, y luego cuéntame qué estás pensando. Tu voz importa.\nWelcome! You\'ve completed Tu Conocimiento and El Laboratorio. I can see the assets you claimed and the sentence you wrote about your own knowledge. We\'re at Stage 1 — Anecdote. Write a few sentences in the draft panel about a specific memory, then tell me what you\'re thinking. Your voice matters.'
-            : '¡Bienvenido/a! Completaste la orientación. Ve a la Etapa 1 y empieza a escribir en el panel del borrador a la izquierda — escribe tus primeras ideas en tus propias palabras. Tu coach estará listo cuando el instructor conecte la IA.\nWelcome! You\'ve completed the orientation. Head to Stage 1 and start writing in the draft panel on the left — write your first ideas in your own words. Your coach will be ready once the instructor connects the AI.';
-    }
-    setTimeout(() => addMsg(welcomeMsg, 'bot', false, 'welcome'), 600);
+    logProcessEvent('onboarding_guide_completed', 'Student completed or exited the optional AI-judgment guide.');
+    finishFirstRun('tour');
 }
 
 // ════════════════════════════════════════════════════════

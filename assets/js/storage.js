@@ -23,7 +23,8 @@
 // Known keys at time of audit (documentation aid — runtime does not depend
 // on this list; storage_keys_test.mjs checks source code against it):
 //   Static (localStorage): tupana_draft, tupana_draft_saved, tupana_chatlog,
-//     tupana_mani_done, tupana_lab_done, tupana_mani_sentence,
+//     tupana_mani_done, tupana_lab_done, tupana_onboarding_complete,
+//     tupana_mani_sentence,
 //     tupana_decisions, tupana_theme, tupana_lang, tupana_tone,
 //     tupana_stage, tupana_process_note, tupana_process_log,
 //     tupana_journey_expand, tupana_protected, tupana_report_meta,

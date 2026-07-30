@@ -1,17 +1,11 @@
-// milestone_simplification_test.mjs — Batch 1 regression coverage
-// Verifies the student-facing milestone layer (5 milestones over the internal
-// 10 stages) renders correctly while the internal stage machine is untouched:
-//   - journey map shows exactly 5 milestone groups with the 5 milestone names
-//   - current-task bar reads "Paso N de 5 · <name>" / "Step N of 5 · <name>"
-//     (never "of 10")
-//   - stage circles carry NO raw 1–10 numbers (clean upcoming / check / gate)
-//   - the Stage-6 authorship-gate icon is preserved (gate stays its own milestone)
-//   - stage→milestone mapping: S1→M1, S6→M3, S10→M5
+// milestone_simplification_test.mjs — calm-shell regression coverage
+// Verifies the student-facing three-phase layer over the intact ten-stage
+// engine. The legacy five-milestone detailed route remains available on demand.
 //   - no page JS errors across stages
 // Run with the local test server up:  node test-server.js  (port 3001)
 
 import { chromium } from 'playwright';
-const BASE = 'http://localhost:3001';
+const BASE = 'http://127.0.0.1:3001';
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 const errs = [];
@@ -34,22 +28,25 @@ async function openAt(stage, extra) {
 // #ctbStage holds both .show-es and .show-en spans; read textContent (not
 // innerText) so the assertion is language-mode-independent.
 const ctbText = () => page.locator('#ctbStage').evaluate(el => el.textContent);
-// H2: the mobile progress strip width var must track the 5-milestone model
-// (M1=20% … M5=100%), never the internal /10 stage scale.
+// The mobile progress strip follows the three student-facing phases.
 const stripPct = () => page.locator('#currentTaskBar')
       .evaluate(el => el.style.getPropertyValue('--ctb-progress').trim());
 
-// ── Milestone 1: Find Your Story (stages 1–3) ──
-console.log('Stage 1 → Milestone 1');
+// ── Phase 1: Start (stages 1–6) ──
+console.log('Stage 1 → Start');
 await openAt(1);
+check('calm shell renders exactly 3 phases',
+      await page.locator('.calm-phase').count() === 3);
+check('Start is the current phase',
+      await page.locator('#calmPhase1[aria-current="step"]').count() === 1);
+check('detailed journey is hidden by default',
+      await page.locator('#detailedJourney').evaluate(el => getComputedStyle(el).display) === 'none');
 check('journey renders exactly 5 milestone groups',
       await page.locator('.journey-track .milestone-group').count() === 5);
 const ctb1 = await ctbText();
-check('task bar: Paso 1 / Step 1', /Paso 1/.test(ctb1) && /Step 1/.test(ctb1));
-check('task bar: milestone name "Find Your Story"', /Find Your Story/.test(ctb1));
-check('task bar: "of 5 / de 5", never "of 10"',
-      /of 5/.test(ctb1) && /de 5/.test(ctb1) && !/of 10/.test(ctb1));
-check('progress strip = 20% at M1 (milestone scale, not /10)', await stripPct() === '20%');
+check('task bar identifies the immediate focus, not a stage count',
+      /Enfoque/.test(ctb1) && /Focus/.test(ctb1) && !/of 10|de 10|of 5|de 5/.test(ctb1));
+check('progress strip = one third in Start', (await stripPct()).startsWith('33.33'));
 const hdr = await page.locator('.journey-track .milestone-group .phase-label.show-en').allTextContents();
 check('the 5 milestone names appear as headers',
       ['Find Your Story','Research & Plan','Write Your First Draft','Refine Your Essay','Reflect & Submit']
@@ -60,26 +57,34 @@ check('stage circles carry NO raw numeric labels', !circleNums.some(t => /^\d+$/
 check('active milestone highlighted (.ms-active)',
       await page.locator('.milestone-group.ms-active').count() === 1);
 
-// ── Milestone 3: Write Your First Draft (stage 6 — authorship gate) ──
-console.log('Stage 6 → Milestone 3 (authorship gate)');
+// ── Stage 6 remains in Start and preserves the authorship gate ──
+console.log('Stage 6 → Start (authorship gate)');
 await openAt(6, { tupana_draft: 'word '.repeat(60), tupana_writing_s6: 'word '.repeat(60) });
 const ctb6 = await ctbText();
-check('task bar: Paso 3 / Step 3', /Paso 3/.test(ctb6) && /Step 3/.test(ctb6));
-check('task bar: "Write Your First Draft"', /Write Your First Draft/.test(ctb6));
+check('Stage 6 remains in Start',
+      await page.locator('#calmPhase1[aria-current="step"]').count() === 1);
+check('task bar stays focus-oriented at Stage 6',
+      /Enfoque/.test(ctb6) && /Focus/.test(ctb6) && !/Paso 3|Step 3/.test(ctb6));
 check('Stage-6 authorship-gate icon preserved',
       await page.locator('.stage-node[data-id="6"] .stage-circle svg').count() === 1);
-check('progress strip = 60% at M3 (stage 6; not 60%≠stage/10=60% coincidence guarded at M1/M5)',
-      await stripPct() === '60%');
+check('progress strip stays at one third through Stage 6', (await stripPct()).startsWith('33.33'));
 
-// ── Milestone 5: Reflect & Submit (stage 10) ──
-console.log('Stage 10 → Milestone 5');
+// ── Phase 2: Revise (stages 7–9) ──
+console.log('Stage 7 → Revise');
+await openAt(7);
+check('Revise is the current phase',
+      await page.locator('#calmPhase2[aria-current="step"]').count() === 1);
+check('progress strip = two thirds in Revise', (await stripPct()).startsWith('66.66'));
+
+// ── Phase 3: Finish (stage 10) ──
+console.log('Stage 10 → Finish');
 await openAt(10);
 const ctb10 = await ctbText();
-check('task bar: Paso 5 / Step 5 · Reflect & Submit',
-      /Paso 5/.test(ctb10) && /Step 5/.test(ctb10) && /Reflect & Submit/.test(ctb10));
-// At stage 10 the old /10 formula gave 100% too, but M5 must also give 100% on the
-// milestone scale; M1 (20% vs stage/10=10%) is the discriminating assertion above.
-check('progress strip = 100% at M5 (stage 10)', await stripPct() === '100%');
+check('Finish is the current phase',
+      await page.locator('#calmPhase3[aria-current="step"]').count() === 1);
+check('task bar stays focus-oriented at Stage 10',
+      /Enfoque/.test(ctb10) && /Focus/.test(ctb10) && !/Paso 5|Step 5/.test(ctb10));
+check('progress strip = 100% in Finish', await stripPct() === '100%');
 
 check('no page JS errors across all stages', errs.length === 0);
 if (errs.length) console.log('  errors:', errs);

@@ -45,8 +45,46 @@
     <button class="bug-report-btn is-unavailable" onclick="openBugReport()" aria-disabled="true" aria-label="Formulario de reporte no disponible todavía · Bug report form not available yet" title="Formulario de reporte próximamente · Bug report form coming soon">🐞<span class="bug-report-label"> <span class="show-es">Problema</span><span class="lang-sep"> · </span><span class="show-en">Problem?</span></span></button>
 </header>
 
-<!-- ── Stage Journey Map ── -->
-<nav class="journey-wrap" aria-label="Progreso de escritura · Writing progress">
+<!-- ── Three-phase student journey ──
+     The ten-stage instructional engine remains intact. Students see the
+     simpler Start → Revise → Finish path unless they request the detail. -->
+<nav class="calm-progress" id="calmProgress" aria-label="Tres fases de escritura · Three writing phases">
+    <ol class="calm-progress-list">
+        <li class="calm-phase" id="calmPhase1" data-phase="1">
+            <span class="calm-phase-marker" aria-hidden="true">1</span>
+            <span class="calm-phase-copy">
+                <strong><span class="show-es">Comenzar</span><span class="lang-sep"> · </span><span class="show-en">Start</span></strong>
+                <small><span class="show-es">Ideas y borrador</span><span class="lang-sep"> · </span><span class="show-en">Ideas &amp; draft</span></small>
+            </span>
+        </li>
+        <li class="calm-progress-connector" aria-hidden="true"></li>
+        <li class="calm-phase" id="calmPhase2" data-phase="2">
+            <span class="calm-phase-marker" aria-hidden="true">2</span>
+            <span class="calm-phase-copy">
+                <strong><span class="show-es">Revisar</span><span class="lang-sep"> · </span><span class="show-en">Revise</span></strong>
+                <small><span class="show-es">Decide y mejora</span><span class="lang-sep"> · </span><span class="show-en">Decide &amp; strengthen</span></small>
+            </span>
+        </li>
+        <li class="calm-progress-connector" aria-hidden="true"></li>
+        <li class="calm-phase" id="calmPhase3" data-phase="3">
+            <span class="calm-phase-marker" aria-hidden="true">3</span>
+            <span class="calm-phase-copy">
+                <strong><span class="show-es">Finalizar</span><span class="lang-sep"> · </span><span class="show-en">Finish</span></strong>
+                <small><span class="show-es">Reflexiona y entrega</span><span class="lang-sep"> · </span><span class="show-en">Reflect &amp; submit</span></small>
+            </span>
+        </li>
+    </ol>
+    <button class="calm-path-toggle" id="calmPathToggle" type="button"
+        onclick="toggleDetailedPath()" aria-expanded="false"
+        aria-controls="detailedJourney"
+        aria-label="Mostrar la ruta detallada · Show detailed path">
+        <span id="calmPathToggleText"><span class="show-es">Ver ruta</span><span class="lang-sep"> · </span><span class="show-en">View path</span></span>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5"/></svg>
+    </button>
+</nav>
+
+<!-- ── Detailed Stage Journey (available on demand) ── -->
+<nav class="journey-wrap journey-wrap--details" id="detailedJourney" aria-label="Ruta detallada de escritura · Detailed writing path">
     <div class="journey-scroll">
         <div class="journey-track" id="journeyTrack"></div>
     </div>

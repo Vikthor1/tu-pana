@@ -132,10 +132,11 @@ if (_reviewMode) {
     try { renderReviewBadge(); } catch(e) {}
 }
 
-// Onboarding sequence: Tu Conocimiento → El Laboratorio (each runs once)
+// First-run entry: one welcome card, then the editor. The optional guide
+// remains available from that card without blocking the first sentence.
 try {
-    const maniDone = localStorage.getItem('tupana_mani_done') === 'true';
-    const labDone  = localStorage.getItem('tupana_lab_done')  === 'true';
+    const labDone        = localStorage.getItem('tupana_lab_done') === 'true';
+    const onboardingDone = localStorage.getItem('tupana_onboarding_complete') === 'true' || labDone;
 
     const _reviewSelector = _reviewMode
         && !(new URLSearchParams(location.search).get('assignment'))
@@ -144,20 +145,15 @@ try {
         // Review hub: show the colleague selector instead of the normal
         // onboarding dispatch; card clicks navigate away, so nothing else runs.
         setTimeout(() => showProjectSelector(true), 400);
-    } else if (!maniDone) {
-        // First-ever visit. If no profile is active yet (regular link, no prior
-        // choice, no ?assignment= deep link), show the minimal project selector
-        // first; it chains into the landing quote. A deep link or prior choice
-        // skips straight to the landing quote. (Stage B)
+    } else if (!onboardingDone) {
+        // First visit. If no profile is active yet, choose the writing project
+        // first; otherwise go directly to the streamlined welcome card.
         const _projectChosen = localStorage.getItem('tupana_project_chosen') === 'true' || !!state.assignmentId;
         if (!_projectChosen && typeof showProjectSelector === 'function') {
             setTimeout(showProjectSelector, 400);
         } else {
             setTimeout(showLandingMoment, 400);
         }
-    } else if (!labDone) {
-        // Returned after Conocimiento but Lab not yet done
-        setTimeout(openLab, 700);
     } else {
         // Returning session — show orientation message in chat after connection
         setTimeout(showWelcomeBack, 1800);

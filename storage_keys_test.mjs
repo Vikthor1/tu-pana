@@ -14,7 +14,7 @@
 import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 
-const BASE = 'http://localhost:3001';
+const BASE = 'http://127.0.0.1:3001';
 const results = [];
 let passed = 0, failed = 0;
 
@@ -29,7 +29,8 @@ function check(label, condition) {
 
 const DOCUMENTED_STATIC = new Set([
     'tupana_draft','tupana_draft_saved','tupana_chatlog','tupana_mani_done',
-    'tupana_lab_done','tupana_mani_sentence','tupana_decisions','tupana_theme',
+    'tupana_lab_done','tupana_onboarding_complete','tupana_mani_sentence',
+    'tupana_decisions','tupana_theme',
     'tupana_lang','tupana_tone','tupana_stage','tupana_process_note',
     'tupana_process_log','tupana_journey_expand','tupana_protected',
     'tupana_report_meta','tupana_mani_claimed','tupana_completion_shown',

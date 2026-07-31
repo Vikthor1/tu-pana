@@ -68,6 +68,9 @@
 # ── Allow Review Council (C1/C2) tests ───────────────────
 !council_kernel_test.mjs
 !council_ui_test.mjs
+# ── Allow Start Here onboarding tutorial + its test ──────
+!start-here.html
+!tutorial_page_test.mjs
 !gemini_truncation_test.mjs
 !gemini_fallback_test.mjs
 !stuck_menu_reachability_test.mjs

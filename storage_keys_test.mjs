@@ -40,7 +40,7 @@ const DOCUMENTED_STATIC = new Set([
     'tupana_fiveq_stage7_opened_once','tupana_spotlight_off',
     'tupana_assignment_id','tupana_project_chosen','tupana_ai_cue_seen',
     'tupana_full_draft_reviews','tupana_ai_usage','tupana_revision_checkpoint',
-    'tupana_council_runs',
+    'tupana_council_runs','tupana_tutorial_done',
 ]);
 const DOCUMENTED_SESSION = new Set([
     'tupana_warn_dismissed','tupana_persist_warn','tupana_voice_challenge_shown',
@@ -55,7 +55,7 @@ const DOCUMENTED_DYNAMIC = [
 const SOURCES = ['index.html','assets/js/ui.js','assets/js/app.js',
                  'assets/js/storage.js','assets/js/config.js','assets/js/prompts.js',
                  'assets/js/ai-provider.js','assets/js/data.js','assets/js/genre-template.js',
-                 'assets/js/council.js'];
+                 'assets/js/council.js','start-here.html'];
 
 console.log('Part 1 — source-code key audit');
 const found = new Set();

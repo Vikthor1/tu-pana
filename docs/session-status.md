@@ -1,6 +1,35 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-07-31 (Review Council: admissions layer enabled by founder override)
+Last updated: 2026-07-31 (Start Here onboarding tutorial for the admissions layer)
+
+## Start Here tutorial — `start-here.html` (2026-07-31)
+
+- Standalone, self-contained interactive onboarding page (single file, inline
+  CSS/JS, no dependencies, works offline once served). Built as the intended
+  first touch for the admissions layer: share `start-here.html` as the entry
+  link; the finale and the always-visible skip link both land on
+  `index.html?assignment=college-personal-statement`.
+- Form: the tutorial IS a coach conversation — Tu Pana bubbles with a typing
+  cadence, and the student answers by tapping (questions, three myth-or-real
+  calls, and an accept/adapt/reject rehearsal on a sample sentence where every
+  choice — including Reject — is validated). Teaches the app's core
+  interaction by being it.
+- Content beats: the authorship rule card · why generic AI essays fail ·
+  10-stage route map with Stage 6 marked as the lock · the three feedback
+  levels (passage / full-draft / Council) · Council behavior incl. surfaced
+  disagreement · a mandatory privacy bubble (nothing sent unless explicitly
+  asked; local-first) · five ground rules · finale with start button + replay.
+- Voice: English-primary with natural Spanish (the app's register), teen-direct,
+  no predictions, no prestige coaching. Phone-first layout, reduced-motion
+  respected, keyboard focus visible, skippable at all times.
+- Sets `tupana_tutorial_done` locally (documented in the storage inventory;
+  start-here.html added to the storage-key source audit).
+- Verification: `tutorial_page_test.mjs` 14/14 on a phone viewport (auto-start,
+  rule card first, full tap-through, route lock, myth counters, Reject
+  validated, no prediction language, privacy beat mandatory-path, CTA/skip
+  targets, completion flag, replay, no page errors). One content defect caught
+  by the suite and fixed: the privacy explanation originally lived behind an
+  optional tap; it is now a mandatory bubble.
 
 ## Review Council — admissions enablement (2026-07-31, founder override)
 

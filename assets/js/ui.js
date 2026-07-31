@@ -44,6 +44,7 @@ const D = {
     fullDraftReviewBtn: el('fullDraftReviewBtn'),
     savedNotice:  el('savedNotice'),
     continueBtn:  el('continueBtn'),
+    backBtn:      el('backBtn'),
     chatMessages: el('chatMessages'),
     typingRow:    el('typingRow'),
     chatInput:    el('chatInput'),
@@ -1549,6 +1550,43 @@ function stLabel(stageId) {
         ? getStageLabelOverride(stageId, state.assignmentId) : null;
     return o ? { es: o.es, en: o.en } : { es: s.es, en: s.en };
 }
+
+// ════════════════════════════════════════════════════════
+//  NAVIGATION CONTRACT (UX remediation F2) — one predictable rule for every
+//  genre: forward navigation is always "Continuar a: <next-stage name>", with
+//  the stage name resolved through the ACTIVE genre layer (stLabel), never
+//  from a hard-coded default-genre verb. STAGE_TRANSITIONS' task-verb CTAs
+//  ("Connect to History", …) and its completed-milestone copy belong to the
+//  default autobiographical essay only; any active assignment layer gets the
+//  layer's own stage names and neutral, truthful completed text.
+// ════════════════════════════════════════════════════════
+function _stageOneLine(label) {
+    return { es: label.es.replace('\n', ' '), en: label.en.replace('\n', ' ') };
+}
+
+function getStageNavCta(targetId) {
+    const label = _stageOneLine(stLabel(targetId));
+    return {
+        es: `Continuar a: ${label.es}`,
+        en: `Continue to: ${label.en}`
+    };
+}
+
+// Completed-milestone line shown in the stage-preview modal. Default genre
+// keeps its richer STAGE_TRANSITIONS copy (accurate there); any active layer
+// gets a neutral statement built from the layer's own previous-stage name.
+function getStageCompletedText(targetId) {
+    const layered = !!(state.assignmentId &&
+        typeof getAssignmentLayer === 'function' && getAssignmentLayer(state.assignmentId));
+    const tr = STAGE_TRANSITIONS[targetId];
+    if (!layered && tr) return { es: tr.completedEs, en: tr.completedEn };
+    if (targetId <= 1) return null;
+    const prev = _stageOneLine(stLabel(targetId - 1));
+    return {
+        es: `Completaste la etapa anterior: ${prev.es}.`,
+        en: `You completed the previous stage: ${prev.en}.`
+    };
+}
 // Stage B.1 add-on: set the draft-area placeholder from the active profile's
 // override, else restore the original (cached from the DOM). Default flow keeps
 // its personal-essay placeholder; CAP 200 cues the service-learning project.
@@ -1815,26 +1853,24 @@ function showStagePreview(targetId) {
     D.previewTitle.innerHTML = `<span class="show-es">${escapeHtml(pL.es.replace('\n', ' '))}</span><span class="lang-sep"> / </span><span class="show-en">${escapeHtml(pL.en)}</span>`;
     D.previewDesc.textContent = pStep ? (pStep.es + ' / ' + pStep.en) : s.desc;
 
-    // Completed milestone text (what the student just finished)
-    const tr = STAGE_TRANSITIONS[targetId];
-    if (tr) {
+    // Completed milestone text (what the student just finished) + nav-contract
+    // CTA: the destination is always named truthfully (F2 remediation).
+    const completed = (targetId > state.stage) ? getStageCompletedText(targetId) : null;
+    if (completed) {
         D.previewCompletedText.innerHTML =
-            `<span class="show-es">${escapeHtml(tr.completedEs)}</span>` +
+            `<span class="show-es">${escapeHtml(completed.es)}</span>` +
             `<span class="lang-sep"> · </span>` +
-            `<span class="show-en">${escapeHtml(tr.completedEn)}</span>`;
+            `<span class="show-en">${escapeHtml(completed.en)}</span>`;
         D.previewCompleted.removeAttribute('hidden');
-        D.previewCtaLabel.innerHTML =
-            `<span class="show-es">${escapeHtml(tr.ctaEs)}</span>` +
-            `<span class="lang-sep"> · </span>` +
-            `<span class="show-en">${escapeHtml(tr.ctaEn)}</span>`;
-        D.previewContinueBtn.setAttribute('aria-label',
-            `${tr.ctaEs} · ${tr.ctaEn}`);
     } else {
         D.previewCompleted.setAttribute('hidden', '');
-        D.previewCtaLabel.innerHTML =
-            '<span class="show-es">Continuar</span><span class="lang-sep"> · </span><span class="show-en">Continue</span>';
-        D.previewContinueBtn.setAttribute('aria-label', 'Continuar · Continue');
     }
+    const navCta = getStageNavCta(targetId);
+    D.previewCtaLabel.innerHTML =
+        `<span class="show-es">${escapeHtml(navCta.es)}</span>` +
+        `<span class="lang-sep"> · </span>` +
+        `<span class="show-en">${escapeHtml(navCta.en)}</span>`;
+    D.previewContinueBtn.setAttribute('aria-label', `${navCta.es} · ${navCta.en}`);
 
     if (s.example) {
         D.previewExampleText.textContent = s.example;
@@ -1862,18 +1898,11 @@ function confirmStagePreview() {
     // Mobile: bring student to coach tab so new stage instructions / cards are visible
     if (window.innerWidth <= 480) switchMobileTab('chat');
 
-    // Queue import offer (Patch 26). Fires AFTER coach spotlight so the guidance
-    // order is: stage instructions → import choice → drafting space.
-    _pendingImport = null;
+    // F3 remediation: import-offer arming moved INTO goToStage so every
+    // forward-navigation path gets the same bring-your-work-forward offer.
+    // (Previously armed only here in the preview path — map navigation and
+    // back-then-forward moves silently stranded work.)
     _importCompletionAction = null;
-    if (prevText.length >= 30) {
-        const nextText = (D.draftArea ? D.draftArea.value : '').trim();
-        _pendingImport = { prevText, nextStage: id, nextText };
-        // If the coach spotlight won't show (already seen), fire import directly.
-        if (!shouldShowSpotlight(id)) {
-            setTimeout(_showPendingImport, 600);
-        }
-    }
 }
 
 function dismissStagePreview() {
@@ -1943,6 +1972,20 @@ function goToStage(id, options = {}) {
     D.draftArea.value = _newContent;
     editHistoryInit(_newContent);
     D.draftArea.dispatchEvent(new Event('input'));
+
+    // F3 remediation: the bring-your-work-forward offer fires on EVERY forward
+    // transition (map, preview, back-then-forward — not only the preview
+    // modal), and an empty editor is never left unexplained when earlier-stage
+    // writing exists.
+    const _prevSaved = (id > prev) ? (loadStageWork(prev) || '').trim() : '';
+    _pendingImport = null;
+    if (id > prev && _prevSaved.length >= 30) {
+        _pendingImport = { prevText: _prevSaved, nextStage: id, nextText: (_newContent || '').trim() };
+        if (typeof shouldShowSpotlight !== 'function' || !shouldShowSpotlight(id)) {
+            setTimeout(_showPendingImport, 600);
+        }
+    }
+    updatePriorWorkStrip();
 
     // Stage-entry welcome (Patch 3): canned one-time orientation in the chat stream.
     // H4 (Stage A.2 polish): this is the SINGLE automatic stage-entry guidance channel.
@@ -2072,9 +2115,30 @@ function updateDraftControls() {
         D.continueBtn.disabled = false;
     }
 
-    // Stage-specific continue button label
+    // Back control — nav contract (F2): always present from Stage 2 on, in the
+    // same location, always naming its destination. Going back never gates.
+    if (D.backBtn) {
+        if (state.stage >= 2) {
+            const prevL = _stageOneLine(stLabel(state.stage - 1));
+            D.backBtn.hidden = false;
+            D.backBtn.innerHTML =
+                `← <span class="show-es">Volver a: ${escapeHtml(prevL.es)}</span>` +
+                `<span class="lang-sep"> · </span>` +
+                `<span class="show-en">Back to: ${escapeHtml(prevL.en)}</span>`;
+            D.backBtn.setAttribute('aria-label', `Volver a: ${prevL.es} · Back to: ${prevL.en}`);
+            if (!D.backBtn.dataset.wired) {
+                D.backBtn.dataset.wired = '1';
+                D.backBtn.addEventListener('click', () => goToStage(state.stage - 1));
+            }
+        } else {
+            D.backBtn.hidden = true;
+        }
+    }
+
+    // Stage-specific continue button label — nav contract (F2): the button
+    // always names its destination stage through the active genre layer.
     const nextStage = state.stage + 1;
-    const tr = STAGE_TRANSITIONS[nextStage];
+    const tr = nextStage <= 10 ? getStageNavCta(nextStage) : null;
 
     // Stage-readiness cue (Patch 2): subtle signal when enough stage work is present.
     // stageCoachResponses >= 3 mirrors the coach's own "move forward" threshold.
@@ -2092,11 +2156,11 @@ function updateDraftControls() {
         const ctaArrow = '<span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 32h36"/><path d="M36 20l14 12-14 12"/></svg></span>';
         const pfx = _isReady ? '✓ ' : '';
         D.continueBtn.innerHTML =
-            `${ctaArrow}<span class="show-es">${pfx}${escapeHtml(tr.ctaEs)}</span>` +
+            `${ctaArrow}<span class="show-es">${pfx}${escapeHtml(tr.es)}</span>` +
             `<span class="lang-sep"> · </span>` +
-            `<span class="show-en">${pfx}${escapeHtml(tr.ctaEn)}</span>`;
+            `<span class="show-en">${pfx}${escapeHtml(tr.en)}</span>`;
         const ariaPrefix = _isReady ? 'Listo/a · Ready — ' : '';
-        D.continueBtn.setAttribute('aria-label', `${ariaPrefix}${tr.ctaEs} · ${tr.ctaEn}`);
+        D.continueBtn.setAttribute('aria-label', `${ariaPrefix}${tr.es} · ${tr.en}`);
     } else if (!isS10) {
         D.continueBtn.innerHTML =
             '<span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 32h36"/><path d="M36 20l14 12-14 12"/></svg></span>' +
@@ -2136,6 +2200,7 @@ D.draftArea.addEventListener('input', () => {
     D.saveBtn.disabled = w < 10 || state.draftSaved;
     clearTimeout(_stepAdvanceTimer);
     _stepAdvanceTimer = setTimeout(() => autoAdvanceStepOnWordCount(w), 900);
+    updatePriorWorkStrip();
     if (!_editHistory.restoring) editHistorySchedule();
     if (state.spotlightTarget === 'editor') dismissEditorSpotlight();
     enterDraftFocus();
@@ -2184,7 +2249,7 @@ function _setAutosaveStatus(mode) {
         }, 2600);
     } else if (mode === 'error') {
         elS.classList.add('autosave-status--error');
-        elS.innerHTML = '<span class="show-es">⚠ No se pudo guardar — descarga tu trabajo (Guardar / Exportar)</span><span class="lang-sep"> · </span><span class="show-en">Could not save — download your work (Save / Export)</span>';
+        elS.innerHTML = '<span class="show-es">⚠ No se pudo guardar — descarga una copia en “Mi trabajo”</span><span class="lang-sep"> · </span><span class="show-en">Could not save — download a backup in “My work”</span>';
     } else {
         elS.innerHTML = '';
     }
@@ -3043,14 +3108,15 @@ function buildOllamaSystemPrompt(lang) {
     // Swapping templates automatically updates coaching rules for the new genre.
     const _stageRules = getActiveTemplate().stages
         .map(s => {
-            // A.2a: profile-aware per-stage coachFocus. When the active assignment
-            // profile supplies a stage override (currently research-paper only), it
-            // REPLACES the default essay coachFocus line for that stage; otherwise
-            // the default template line is used exactly as before. Null-safe: no
-            // assignment / no override => byte-identical default behavior.
-            const _ov = (typeof getCoachFocusOverride === 'function')
-                ? getCoachFocusOverride(s.number, state && state.assignmentId) : null;
-            return `Stage ${s.number}: ${_ov || s.coachFocus}`;
+            // F4 remediation: per-stage coachFocus resolves genre-first with an
+            // explicit NEUTRAL fallback. Order: active layer's own stage focus →
+            // (no layer) default-essay focus → (layer present but stage missing)
+            // NEUTRAL_STAGE_FOCUS. A non-autobiographical layer never inherits
+            // the default essay's autobiographical stage coaching.
+            const _focus = (typeof resolveCoachFocus === 'function')
+                ? resolveCoachFocus(s.number, state && state.assignmentId, s.coachFocus)
+                : s.coachFocus;
+            return `Stage ${s.number}: ${_focus}`;
         })
         .join('\n');
 
@@ -3063,9 +3129,18 @@ function buildOllamaSystemPrompt(lang) {
         ? `\n\nASSIGNMENT CONTEXT — ${_activeLayer.name}\n(Additive guidance only. It does NOT relax or override any rule above — the authorship gate, voice protection, and no-copyable-prose rules always win.)\n${_activeLayer.context}`
         : '';
 
-    return `You are Tu Pana de Escritura, a bilingual writing-process coach for multilingual students writing autobiographical mixed-genre essays.
+    // F4 remediation: the coach's identity line names the ACTIVE genre. The
+    // autobiographical framing belongs only to the default essay.
+    const _genreIdentity = _activeLayer
+        ? `working on: ${_activeLayer.name}`
+        : 'writing autobiographical mixed-genre essays';
+
+    return `You are Tu Pana de Escritura, a bilingual writing-process coach for multilingual students ${_genreIdentity}.
 
 You help students think, revise, reflect, and improve their own writing. The student writes first; you respond second.
+
+FIVE QUESTIONS PRESENTATION RULE — this is mandatory:
+The interface already presents the Five Questions evaluation framework (Accuracy, Voice, Specificity, Thinking, Conocimiento) to the student. Apply the framework silently when it shapes your feedback. Never enumerate, list, or restate the five questions themselves inside a reply — name at most the single dimension your feedback is about.
 
 ABSOLUTE AUTHORSHIP RULE — this overrides everything else:
 Do not produce any sentence, phrase, outline item, paragraph, bridge sentence, thesis sentence, introduction sentence, conclusion sentence, topic sentence, or revised sentence that could be copied into the student's essay.
@@ -3757,7 +3832,10 @@ function _saveFullDraftReview(record) {
 
 function updateFullDraftReviewButton() {
     if (!D.fullDraftReviewBtn || !D.draftArea) return;
-    const availableStage = state.stage === 7 || state.stage === 9;
+    // F5 remediation: review access is available across the whole Revise phase
+    // (7–9), not only at 7 and 9 — a student mid-polish must not have to
+    // navigate backward to rediscover it.
+    const availableStage = state.stage >= 7 && state.stage <= 9;
     D.fullDraftReviewBtn.hidden = !availableStage;
     if (!availableStage) return;
 
@@ -3854,7 +3932,7 @@ function _updateFullDraftSubmitState(modal, sameDraft, needsPurpose) {
 }
 
 function openFullDraftReview() {
-    if (state.stage !== 7 && state.stage !== 9) return;
+    if (state.stage < 7 || state.stage > 9) return;   // F5: whole Revise phase
     const draft = D.draftArea.value.trim();
     const words = _fullDraftWordCount(draft);
     if (words < 50) {
@@ -4028,8 +4106,46 @@ async function submitFullDraftReview({ modal, draft, words, signature, needsPurp
         });
         logProcessEvent('full_draft_review_completed',
             `Coach completed a ${lensKey} whole-draft review at Stage ${state.stage} (${words} words).`);
+        _appendReviewNextActions();
     }
     updateFullDraftReviewButton();
+}
+
+// F5 remediation: after any whole-draft review, the way back in is explicit —
+// the student never has to guess that an earlier stage would reopen the
+// chooser. One compact action card, appended after the review reply.
+function _appendReviewNextActions() {
+    const existing = document.getElementById('reviewNextActions');
+    if (existing) existing.remove();
+    const card = document.createElement('div');
+    card.id = 'reviewNextActions';
+    card.className = 'review-next-actions';
+    card.setAttribute('role', 'region');
+    card.setAttribute('aria-label', '¿Y ahora qué? · What next?');
+    const lastCouncil = _councilLastRun();
+    card.innerHTML =
+        '<span class="rna-label"><span class="show-es">¿Y ahora?</span><span class="lang-sep"> · </span><span class="show-en">What next?</span></span>' +
+        '<button type="button" class="rna-btn" data-act="another"><span class="show-es">Otra revisión u otro lente</span><span class="lang-sep"> · </span><span class="show-en">Another review / change focus</span></button>' +
+        '<button type="button" class="rna-btn" data-act="council"><span class="show-es">Consejo de revisión</span><span class="lang-sep"> · </span><span class="show-en">Review Council</span></button>' +
+        (lastCouncil ? '<button type="button" class="rna-btn" data-act="lastCouncil"><span class="show-es">Ver último informe del consejo</span><span class="lang-sep"> · </span><span class="show-en">View last Council report</span></button>' : '') +
+        '<button type="button" class="rna-btn rna-btn-draft" data-act="draft"><span class="show-es">Volver a mi borrador</span><span class="lang-sep"> · </span><span class="show-en">Return to my draft</span></button>';
+    card.addEventListener('click', (event) => {
+        const btn = event.target.closest('.rna-btn');
+        if (!btn) return;
+        const act = btn.dataset.act;
+        if (act === 'another' || act === 'council') {
+            openFullDraftReview();
+            if (act === 'council') setTimeout(() => document.getElementById('councilOffer')?.scrollIntoView({ block: 'center' }), 60);
+        } else if (act === 'lastCouncil') {
+            openFullDraftReview();
+            setTimeout(() => document.getElementById('councilViewLast')?.click(), 80);
+        } else if (act === 'draft') {
+            if (window.innerWidth <= 480) switchMobileTab('draft');
+            D.draftArea?.focus();
+        }
+    });
+    D.chatMessages.appendChild(card);
+    card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 // ════════════════════════════════════════════════════════
@@ -4474,6 +4590,7 @@ function restoreDraft() {
         D.wordCount.innerHTML = restoredWords < 10 && state.stage === 6 && !state.draftSaved
             ? `<span class="show-es">${restoredWords}/10 palabras para guardar</span><span class="lang-sep"> · </span><span class="show-en">${restoredWords}/10 words to save</span>`
             : `<span class="show-es">${restoredWords} palabras</span><span class="lang-sep"> · </span><span class="show-en">${restoredWords} words</span>`;
+        updatePriorWorkStrip();
 
         // Restore authorship gate UI state if first draft was saved
         if (localStorage.getItem('tupana_draft_saved') === 'true') {
@@ -5308,7 +5425,7 @@ const EVAL_QUESTIONS = [
     { key: 'accuracy',    cls: 'q-accuracy',    icon: 'accuracy-target',       label: 'Accuracy',           abbr: 'A',  hint: 'Any factual or academic claim here that needs a real source?' },
     { key: 'voice',       cls: 'q-voice',       icon: 'voice-thread',          label: 'Voice',               abbr: 'V',  hint: 'Does this still sound like the specific person who wrote it?' },
     { key: 'specificity', cls: 'q-specificity', icon: 'specificity-highlighter', label: 'Specificity',      abbr: 'S',  hint: 'Are there concrete details, or does it stay too abstract?' },
-    { key: 'thinking',    cls: 'q-thinking',    icon: 'thinking-brain',        label: 'Thinking',            abbr: 'T',  hint: 'Does this deepen the connection to the larger issue?' }
+    { key: 'thinking',    cls: 'q-thinking',    icon: 'thinking-brain',        label: 'Thinking',            abbr: 'T',  hint: 'Does this deepen the thinking this piece of writing is trying to do?' }
 ];
 
 // Immediate feedback shown when a student picks an eval choice on a message
@@ -6798,10 +6915,93 @@ function _disableSpotlight() {
 // ════════════════════════════════════════════════════════
 //  PROCESS REPORT GENERATION
 // ════════════════════════════════════════════════════════
-function openReport() {
+// ════════════════════════════════════════════════════════
+//  MY WORK hub (F1 remediation) — saving, process documentation, submission,
+//  backup, and destructive controls are DISTINCT concerns:
+//    openReport()          → 'work' hub: truthful save status + backup access;
+//                            Process Note only once its questions can mean
+//                            something (authorship draft saved); submission
+//                            entry only when the student is genuinely near
+//                            the end (Stage 9+).
+//    openReport('submit')  → the explicit final-review flow: readiness
+//                            diagnostic, AI-activity summary, full report,
+//                            Process Note, and the Final Submission Packet.
+//  Routine saving never shows submission-readiness warnings.
+// ════════════════════════════════════════════════════════
+function _workStageInventory() {
+    const rows = [];
+    for (let s = 1; s <= 10; s++) {
+        let text = '';
+        try { text = localStorage.getItem(`tupana_writing_s${s}`) || ''; } catch(e) {}
+        const words = text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
+        if (words > 0) rows.push({ stage: s, words });
+    }
+    return rows;
+}
+
+function buildWorkStatusHTML() {
+    const draftSaved = (() => { try { return localStorage.getItem('tupana_draft_saved') === 'true'; } catch(e) { return false; } })();
+    const current = D.draftArea ? D.draftArea.value.trim() : '';
+    const currentWords = current ? current.split(/\s+/).filter(Boolean).length : 0;
+    const curLabel = _stageOneLine(stLabel(state.stage));
+    const inventory = _workStageInventory();
+    const inventoryRows = inventory.map(r => {
+        const l = _stageOneLine(stLabel(r.stage));
+        return `<li><span class="show-es">Etapa ${r.stage} — ${escapeHtml(l.es)}: ${r.words} palabras guardadas</span><span class="lang-sep"> · </span><span class="show-en">Stage ${r.stage} — ${escapeHtml(l.en)}: ${r.words} words saved</span></li>`;
+    }).join('');
+    return `
+      <div class="report-section">
+        <div class="report-section-header"><span class="show-es">Estado de guardado</span><span class="lang-sep"> · </span><span class="show-en">Save status</span></div>
+        <div class="report-section-body">
+          <p><span class="show-es">Tu escritura se guarda automáticamente en este navegador mientras escribes. Nada se envía ni se entrega desde aquí.</span><span class="lang-sep"> · </span><span class="show-en">Your writing saves automatically in this browser as you write. Nothing is sent or submitted from here.</span></p>
+          <p><strong><span class="show-es">Ahora mismo — Etapa ${state.stage} (${escapeHtml(curLabel.es)}): ${currentWords} palabras en el editor.</span><span class="lang-sep"> · </span><span class="show-en">Right now — Stage ${state.stage} (${escapeHtml(curLabel.en)}): ${currentWords} words in the editor.</span></strong></p>
+          ${inventory.length ? `<ul class="work-inventory">${inventoryRows}</ul>` : ''}
+          <p>${draftSaved
+              ? '<span class="show-es">✓ Tu primer borrador (Etapa 6) está guardado y protegido.</span><span class="lang-sep"> · </span><span class="show-en">✓ Your first draft (Stage 6) is saved and protected.</span>'
+              : '<span class="show-es">Tu primer borrador de la Etapa 6 aún no se ha guardado — eso llega cuando llegues a esa etapa. Todo lo demás ya está guardado aquí.</span><span class="lang-sep"> · </span><span class="show-en">Your Stage 6 first draft has not been saved yet — that happens when you reach that stage. Everything else above is already saved here.</span>'}</p>
+        </div>
+      </div>
+      ${draftSaved ? `
+      <div class="report-section">
+        <div class="report-section-header"><span class="show-es">Nota de proceso</span><span class="lang-sep"> · </span><span class="show-en">Process Note</span></div>
+        <div class="report-section-body">
+          <p><span class="show-es">Documenta cómo usaste (y decidiste sobre) la ayuda del coach. Puedes completarla poco a poco.</span><span class="lang-sep"> · </span><span class="show-en">Document how you used (and decided about) the coach's help. You can complete it gradually.</span></p>
+          <button type="button" class="report-action-btn secondary" onclick="openProcessNoteModal()">
+            <span class="show-es">Abrir mi nota de proceso</span><span class="lang-sep"> · </span><span class="show-en">Open my Process Note</span>
+          </button>
+        </div>
+      </div>` : ''}
+      ${(draftSaved && state.stage >= 9) ? `
+      <div class="report-section">
+        <div class="report-section-header"><span class="show-es">Entrega</span><span class="lang-sep"> · </span><span class="show-en">Submission</span></div>
+        <div class="report-section-body">
+          <p><span class="show-es">Cuando estés listo/a para revisar todo y preparar tu paquete final:</span><span class="lang-sep"> · </span><span class="show-en">When you are ready to review everything and prepare your final packet:</span></p>
+          <button type="button" class="report-action-btn primary" onclick="openReport('submit')">
+            <span class="show-es">Preparar entrega →</span><span class="lang-sep"> · </span><span class="show-en">Prepare submission →</span>
+          </button>
+        </div>
+      </div>` : ''}`;
+}
+
+function openReport(mode) {
+    const submitMode = mode === 'submit';
     const bg = document.getElementById('reportBg');
     const body = document.getElementById('reportBody');
-    body.innerHTML = buildPacketDiagnosticHTML() + buildAIActivitySummaryHTML() + buildReportHTML();
+    const title = document.getElementById('reportTitle');
+    const sub = document.getElementById('reportSub');
+    if (title) title.innerHTML = submitMode
+        ? '<span class="show-es">Preparar entrega</span><span class="lang-sep"> · </span><span class="show-en">Prepare submission</span>'
+        : '<span class="show-es">Mi trabajo</span><span class="lang-sep"> · </span><span class="show-en">My work</span>';
+    if (sub) sub.innerHTML = submitMode
+        ? '<span class="show-es">Revisa, documenta y arma tu paquete final</span><span class="lang-sep"> · </span><span class="show-en">Review, document, and build your final packet</span>'
+        : '<span class="show-es">Tu progreso en este dispositivo</span><span class="lang-sep"> · </span><span class="show-en">Your progress on this device</span>';
+    body.innerHTML = submitMode
+        ? buildPacketDiagnosticHTML() + buildAIActivitySummaryHTML() + buildReportHTML()
+        : buildWorkStatusHTML();
+    const packet = document.getElementById('packetRecommended');
+    if (packet) packet.hidden = !submitMode;
+    const reportOnly = document.getElementById('reportOnlyGroup');
+    if (reportOnly) reportOnly.hidden = !submitMode;
     setOverlayOpen(bg, true);
     setTimeout(() => bg.querySelector('.report-close')?.focus(), 80);
 }
@@ -6906,7 +7106,7 @@ function injectJourneyCompleteCard() {
                 <li><span lang="es">Toca <strong>Copiar mi paquete final</strong> — copia tu trabajo escrito y tu reporte de proceso juntos. Si las descargas funcionan en tu dispositivo, también puedes usar <strong>Descargar paquete final</strong>.</span><br><span lang="en">Tap <strong>Copy my Final Submission Packet</strong> — it copies your written work and process report together. If downloads work on your device, you can also use <strong>Download Final Packet</strong>.</span></li>
                 <li><span lang="es">Pega y entrega el paquete final en Brightspace, según las instrucciones de tu instructor/a.</span><br><span lang="en">Paste and submit the Final Packet in Brightspace, following your instructor's directions.</span></li>
             </ol>
-            <button type="button" class="journey-complete-cta" onclick="openReport()" aria-label="Abrir Guardar / Exportar · Open Save / Export">
+            <button type="button" class="journey-complete-cta" onclick="openReport('submit')" aria-label="Preparar entrega · Prepare submission">
                 <span class="show-es" lang="es">Abrir Guardar / Exportar</span><span class="lang-sep"> · </span><span class="show-en" lang="en">Open Save / Export</span> →
             </button>`;
         D.chatMessages.appendChild(card);
@@ -8384,6 +8584,58 @@ function _showPendingImport(completionAction) {
     _importCompletionAction = typeof completionAction === 'function' ? completionAction : null;
     _offerTransitionImport(prevText, nextStage, nextText);
 }
+// F3 remediation: persistent prior-work strip. Whenever the editor is empty
+// but earlier-stage writing exists, the student sees where that work lives and
+// how to bring it forward — an empty editor is never unexplained. Quietly
+// disappears as soon as the editor has content (or the student dismisses it
+// for this stage visit).
+const _priorStripDismissed = new Set();
+function _nearestEarlierWork(stage) {
+    for (let s = stage - 1; s >= 1; s--) {
+        const text = (loadStageWork(s) || '').trim();
+        if (text.length >= 30) return { stage: s, text };
+    }
+    return null;
+}
+
+function updatePriorWorkStrip() {
+    if (!D.draftArea) return;
+    let strip = document.getElementById('priorWorkStrip');
+    const editorEmpty = !D.draftArea.value.trim();
+    const cardOpen = !!document.getElementById('transitionImportCard');
+    const found = editorEmpty && !cardOpen && !_priorStripDismissed.has(state.stage)
+        ? _nearestEarlierWork(state.stage) : null;
+    if (!found) { if (strip) strip.remove(); return; }
+    const l = _stageOneLine(stLabel(found.stage));
+    const words = found.text.split(/\s+/).filter(Boolean).length;
+    if (!strip) {
+        strip = document.createElement('div');
+        strip.id = 'priorWorkStrip';
+        strip.className = 'prior-work-strip';
+        strip.setAttribute('role', 'note');
+        D.draftArea.parentNode.insertBefore(strip, D.draftArea);
+    }
+    strip.innerHTML =
+        `<span class="pws-text"><span class="show-es">Tu escritura de la Etapa ${found.stage} (${escapeHtml(l.es)}, ${words} palabras) está guardada. Esta etapa empieza vacía.</span><span class="lang-sep"> · </span><span class="show-en">Your Stage ${found.stage} writing (${escapeHtml(l.en)}, ${words} words) is saved. This stage starts empty.</span></span>` +
+        `<span class="pws-actions">` +
+        `<button type="button" class="pws-bring"><span class="show-es">Traerla aquí</span><span class="lang-sep"> · </span><span class="show-en">Bring it here</span></button>` +
+        `<button type="button" class="pws-back"><span class="show-es">Ir a esa etapa</span><span class="lang-sep"> · </span><span class="show-en">Go to that stage</span></button>` +
+        `<button type="button" class="pws-dismiss" aria-label="Ocultar · Dismiss">×</button>` +
+        `</span>`;
+    strip.querySelector('.pws-bring').addEventListener('click', () => {
+        D.draftArea.value = found.text;
+        D.draftArea.dispatchEvent(new Event('input'));
+        saveStageWork(state.stage, found.text);
+        strip.remove();
+        D.draftArea.focus();
+    });
+    strip.querySelector('.pws-back').addEventListener('click', () => goToStage(found.stage));
+    strip.querySelector('.pws-dismiss').addEventListener('click', () => {
+        _priorStripDismissed.add(state.stage);
+        strip.remove();
+    });
+}
+
 // ════════════════════════════════════════════════════════
 function _offerTransitionImport(prevText, nextStage, nextText) {
     const existing = document.getElementById('transitionImportCard');

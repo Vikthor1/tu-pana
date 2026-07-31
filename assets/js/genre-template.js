@@ -1289,6 +1289,39 @@ function getCoachFocusOverride(stageId, assignmentId) {
     const o = p && p.coachFocus && p.coachFocus[stageId];
     return (typeof o === 'string' && o.trim()) ? o : null;
 }
+
+// ════════════════════════════════════════════════════════
+//  NEUTRAL STAGE FOCUS (F4 remediation) — genre-agnostic per-stage coaching
+//  used ONLY when an assignment layer is active but does not define its own
+//  coachFocus for a stage. A non-autobiographical genre must never silently
+//  inherit the default essay's autobiographical stage coaching; this is the
+//  explicit, neutral fallback. Keyed by engine stage number (stable core).
+// ════════════════════════════════════════════════════════
+const NEUTRAL_STAGE_FOCUS = {
+    1:  'Help the student find and describe the real starting material this assignment calls for, in their own words. Ask questions; never generate material they could copy.',
+    2:  'Help the student connect their starting material to the larger purpose or context of this assignment. Do not write the connection for them.',
+    3:  'Help the student articulate the direction or central claim of this piece in their own words. Do not write it for them.',
+    4:  'Help the student plan how to gather the real material, evidence, or information this assignment requires. Never invent sources, data, facts, or citations.',
+    5:  'If the student has not made their own plan or outline, ask them to draft one first. Give feedback on their plan; never generate one for them.',
+    6:  'This is the unassisted first-draft stage. Do not provide paragraph-level revision feedback until the student has saved a first draft. Encourage them to keep drafting in their own words.',
+    7:  'Give paragraph-level revision feedback grounded in the student\'s own draft and this assignment\'s purpose. Diagnose; never rewrite.',
+    8:  'Help the student polish clarity while protecting their own voice and phrasing. Never standardize or rewrite their prose.',
+    9:  'Help the student check their draft against this assignment\'s actual requirements. Never invent a requirement.',
+    10: 'Support the student\'s honest reflection on their process and decisions. Never write the reflection for them.'
+};
+
+// Genre-first coachFocus resolution with explicit neutral fallback:
+//   active layer defines the stage → layer text;
+//   no active layer               → default-template text (caller supplies);
+//   layer active, stage missing   → NEUTRAL_STAGE_FOCUS (never the default
+//                                    essay's autobiographical line).
+function resolveCoachFocus(stageId, assignmentId, defaultFocus) {
+    const layerActive = !!(assignmentId && getAssignmentLayer(assignmentId));
+    const override = getCoachFocusOverride(stageId, assignmentId);
+    if (override) return override;
+    if (!layerActive) return defaultFocus;
+    return NEUTRAL_STAGE_FOCUS[stageId] || defaultFocus;
+}
 // Post-onboarding welcome override → { connected, offline } | null (IA Sprint Batch 1).
 // Resolved by ASSIGNMENT IDENTITY (the active layer's profile), never by the mere
 // presence of a stage-entry override — a profile without `welcome` (and the default

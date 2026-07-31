@@ -211,13 +211,16 @@
                     <span class="tp-icon" style="width:14px;height:14px"><svg viewBox="0 0 64 64" aria-hidden="true"><path class="tp-fill-paper" d="M13 7h31l8 8v42H13z"/><path d="M44 7v9h9M21 25h23M21 33h19M21 41h14"/><circle class="tp-fill-jade" cx="45" cy="46" r="10"/><path d="M40 46l3 3 7-7"/></svg></span>
                     <span class="show-es">Revisar borrador</span><span class="lang-sep"> · </span><span class="show-en">Review draft</span>
                 </button>
-                <button class="footer-btn footer-btn-tertiary" id="reportBtn" onclick="openReport()" aria-label="Guardar y exportar mi trabajo · Save and export my work" title="Guardar y exportar mi trabajo · Save and export my work">
-                    <span class="tp-icon" style="width:14px;height:14px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M14 7h33l7 7v43H14z"/><path d="M47 7v8h7M22 23h21M22 31h16"/><circle class="tp-fill-jade" cx="43" cy="45" r="10"/><path d="M38 45l4 4 7-8"/></svg></span> <span class="show-es">Guardar / Exportar</span><span class="lang-sep"> · </span><span class="show-en">Save / Export</span>
+                <button class="footer-btn footer-btn-tertiary" id="reportBtn" onclick="openReport()" aria-label="Mi trabajo — estado de guardado, respaldo y entrega · My work — save status, backup, and submission" title="Mi trabajo — estado de guardado, respaldo y entrega · My work — save status, backup, and submission">
+                    <span class="tp-icon" style="width:14px;height:14px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M14 7h33l7 7v43H14z"/><path d="M47 7v8h7M22 23h21M22 31h16"/><circle class="tp-fill-jade" cx="43" cy="45" r="10"/><path d="M38 45l4 4 7-8"/></svg></span> <span class="show-es">Mi trabajo</span><span class="lang-sep"> · </span><span class="show-en">My work</span>
                 </button>
                 <button class="save-btn" id="saveBtn" disabled aria-label="Guardar mi primer borrador · Save my first draft" title="Escribe al menos 10 palabras para guardar · Write at least 10 words to save">
                     <span id="saveBtnLabel"><span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64"><path class="tp-fill-paper" d="M14 7h33l7 7v43H14z"/><path d="M47 7v8h7M22 23h21M22 31h16"/><circle class="tp-fill-jade" cx="43" cy="45" r="10"/><path d="M38 45l4 4 7-8"/></svg></span> <span class="show-es">Guardar</span><span class="lang-sep"> · </span><span class="show-en">Save</span></span>
                 </button>
             </div>
+            <button class="back-btn" id="backBtn" hidden aria-label="Volver a la etapa anterior · Back to the previous stage">
+                ← <span class="show-es">Volver</span><span class="lang-sep"> · </span><span class="show-en">Back</span>
+            </button>
             <button class="continue-btn" id="continueBtn" onclick="showStagePreview(state.stage + 1)" aria-label="Continuar · Continue">
                 <span class="tp-icon" style="width:16px;height:16px"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 32h36"/><path d="M36 20l14 12-14 12"/></svg></span><span class="show-es"> Continuar</span><span class="lang-sep"> · </span><span class="show-en">Continue</span>
             </button>
@@ -900,8 +903,8 @@
   <div class="report-card">
     <div class="report-header">
       <div>
-        <div class="report-title" id="reportTitle"><span class="show-es">Guardar / Exportar trabajo</span><span class="lang-sep"> · </span><span class="show-en">Save / Export Work</span></div>
-        <div class="report-sub"><span class="show-es">Guarda tu progreso</span><span class="lang-sep"> · </span><span class="show-en">Save your progress</span></div>
+        <div class="report-title" id="reportTitle"><span class="show-es">Mi trabajo</span><span class="lang-sep"> · </span><span class="show-en">My work</span></div>
+        <div class="report-sub" id="reportSub"><span class="show-es">Tu progreso en este dispositivo</span><span class="lang-sep"> · </span><span class="show-en">Your progress on this device</span></div>
       </div>
       <button class="report-close" onclick="closeReport()" aria-label="Cerrar · Close">Cerrar</button>
     </div>
@@ -909,8 +912,10 @@
       <!-- Populated by JS -->
     </div>
     <div class="report-actions">
-      <!-- Recommended: the one packet to submit for class (Batch 5) -->
-      <div class="packet-recommended">
+      <!-- Recommended: the one packet to submit for class (Batch 5).
+           F1 remediation: submission controls render ONLY in the explicit
+           submission flow (openReport('submit')), never on routine saving. -->
+      <div class="packet-recommended" id="packetRecommended" hidden>
         <div class="packet-recommended-label"><span class="show-es">Para entregar en clase — usa esto</span><span class="lang-sep"> · </span><span class="show-en">For class submission — use this</span></div>
         <button class="report-action-btn primary packet-btn" onclick="exportFinalPacket()">
           📦 <span class="show-es">Copiar mi paquete final</span><span class="lang-sep"> · </span><span class="show-en">Copy my Final Submission Packet</span>
@@ -934,17 +939,24 @@
         <button class="report-action-btn secondary" onclick="importData()">
           <span class="show-es">Importar trabajo guardado</span><span class="lang-sep"> · </span><span class="show-en">Import saved work</span>
         </button>
-        <div class="report-group-label"><span class="show-es">Solo el informe del proceso</span><span class="lang-sep"> · </span><span class="show-en">Process report only</span></div>
-        <button class="report-action-btn secondary" onclick="copyReport()">
-          <span class="show-es">Copiar (para revisar)</span><span class="lang-sep"> · </span><span class="show-en">Copy (for review)</span>
-        </button>
-        <button class="report-action-btn secondary" onclick="downloadReport()">
-          <span class="show-es">Descargar</span><span class="lang-sep"> · </span><span class="show-en">Download</span>
-        </button>
-        <button class="report-action-btn secondary" onclick="emailReport()">
-          <span class="show-es">Enviar por correo</span><span class="lang-sep"> · </span><span class="show-en">Email</span>
-        </button>
-        <div class="report-group-label report-group-danger"><span class="show-es">Cuidado — no se puede deshacer</span><span class="lang-sep"> · </span><span class="show-en">Careful — cannot be undone</span></div>
+        <div id="reportOnlyGroup" hidden>
+          <div class="report-group-label"><span class="show-es">Solo el informe del proceso</span><span class="lang-sep"> · </span><span class="show-en">Process report only</span></div>
+          <button class="report-action-btn secondary" onclick="copyReport()">
+            <span class="show-es">Copiar (para revisar)</span><span class="lang-sep"> · </span><span class="show-en">Copy (for review)</span>
+          </button>
+          <button class="report-action-btn secondary" onclick="downloadReport()">
+            <span class="show-es">Descargar</span><span class="lang-sep"> · </span><span class="show-en">Download</span>
+          </button>
+          <button class="report-action-btn secondary" onclick="emailReport()">
+            <span class="show-es">Enviar por correo</span><span class="lang-sep"> · </span><span class="show-en">Email</span>
+          </button>
+        </div>
+      </details>
+      <!-- F1 remediation: destructive controls live in their own unmistakable
+           danger area, separate from routine saving and backup. -->
+      <details class="report-danger-zone" id="dangerZone">
+        <summary><span class="show-es">Zona de peligro — no se puede deshacer</span><span class="lang-sep"> · </span><span class="show-en">Danger zone — cannot be undone</span></summary>
+        <p class="report-export-hint"><span class="show-es">Esto borra todo tu trabajo de este navegador. Descarga una copia de seguridad primero.</span><span class="lang-sep"> · </span><span class="show-en">This erases all your work from this browser. Download a backup first.</span></p>
         <button class="report-action-btn secondary" onclick="clearAllData()" style="border-color:var(--rose); color:var(--rose);">
           <span class="show-es">Borrar mis datos</span><span class="lang-sep"> · </span><span class="show-en">Clear my data</span>
         </button>

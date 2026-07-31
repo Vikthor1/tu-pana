@@ -1545,6 +1545,105 @@
 
         /* Visual Polish Q2: the continue action is THE primary action of the draft
            panel — filled amber so exactly one button leads; siblings stay ghost. */
+        /* Post-review action card (F5): explicit re-entry after any review. */
+        .review-next-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 12px;
+            margin: 6px 0 12px;
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-md);
+            background: var(--bg-surface);
+        }
+        .rna-label { font: 700 var(--text-caption)/1.2 var(--font-body); color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; }
+        .rna-btn {
+            min-height: 36px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            border: 1px solid var(--jade);
+            background: var(--bg-panel);
+            color: var(--jade-text);
+            font: 700 var(--text-caption)/1.2 var(--font-body);
+            cursor: pointer;
+        }
+        .rna-btn:hover { background: var(--jade); color: var(--bg-panel); }
+        .rna-btn-draft { border-color: var(--border-mid); color: var(--text-sub); }
+        .rna-btn:focus-visible { outline: 3px solid var(--jade); outline-offset: 2px; }
+        /* Prior-work strip (F3): empty editors are never unexplained. */
+        .prior-work-strip {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            margin-bottom: 8px;
+            border: 1px solid color-mix(in srgb, var(--jade) 38%, var(--border));
+            border-radius: var(--radius-md);
+            background: var(--jade-glow);
+            font-size: var(--text-note);
+            color: var(--text-sub);
+            line-height: 1.45;
+        }
+        .prior-work-strip .pws-text { flex: 1 1 220px; }
+        .prior-work-strip .pws-actions { display: flex; gap: 6px; align-items: center; }
+        .pws-bring, .pws-back {
+            min-height: 34px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--jade);
+            background: var(--bg-panel);
+            color: var(--jade-text);
+            font: 700 var(--text-caption)/1.2 var(--font-body);
+            cursor: pointer;
+        }
+        .pws-bring:hover, .pws-back:hover { background: var(--jade); color: var(--bg-panel); }
+        .pws-dismiss {
+            min-width: 30px; min-height: 30px;
+            border: none; background: none;
+            color: var(--text-sub);
+            font-size: 18px; cursor: pointer;
+        }
+        .pws-bring:focus-visible, .pws-back:focus-visible, .pws-dismiss:focus-visible {
+            outline: 3px solid var(--jade); outline-offset: 2px;
+        }
+        /* F1: hidden must win over any authored display on these groups. */
+        .packet-recommended[hidden], #reportOnlyGroup[hidden] { display: none !important; }
+        /* My Work hub (F1): inventory list + separated danger zone. */
+        .work-inventory { margin: 8px 0; padding-left: 20px; }
+        .work-inventory li { font-size: var(--text-note); color: var(--text-sub); line-height: 1.6; }
+        .report-danger-zone {
+            margin-top: 14px;
+            border: 1px solid var(--rose, #b3405a);
+            border-radius: var(--radius-md);
+            padding: 4px 12px 10px;
+            background: transparent;
+        }
+        .report-danger-zone summary {
+            cursor: pointer;
+            padding: 8px 0;
+            font-weight: 700;
+            font-size: var(--text-note);
+            color: var(--rose, #b3405a);
+        }
+        /* Back control (F2 nav contract): quiet, consistent location above Continue. */
+        .back-btn {
+            width: 100%;
+            min-height: 40px;
+            padding: 7px 10px;
+            margin-bottom: 6px;
+            background: var(--bg-raised);
+            color: var(--text-sub);
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: var(--text-note);
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .back-btn:hover { border-color: var(--jade); color: var(--jade-text); }
+        .back-btn:focus-visible { outline: 3px solid var(--jade); outline-offset: 2px; }
         .continue-btn {
             width: 100%; padding: 9px 10px;
             background: var(--grad-amber);

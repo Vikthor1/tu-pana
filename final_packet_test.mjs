@@ -85,7 +85,7 @@ check('C: Section 1 gate reads NOT DOCUMENTED (no self-contradiction)',
 // ── UI: modal shows diagnostic banner + recommended packet path ──
 console.log('UI — Save/Export modal');
 await seed(10, { tupana_draft: 'FIRSTDRAFT only', tupana_draft_saved: 'true' });
-await page.evaluate(() => openReport());
+await page.evaluate(() => openReport('submit'));
 await page.waitForTimeout(300);
 check('modal renders diagnostic banner', await page.locator('#reportBody .packet-diag').count() === 1);
 check('modal diagnostic is the WARN variant (first-draft-only)', await page.locator('#reportBody .packet-diag--warn').count() === 1);

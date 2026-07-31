@@ -71,6 +71,9 @@
 # ── Allow Start Here onboarding tutorial + its test ──────
 !start-here.html
 !tutorial_page_test.mjs
+# ── Allow UX remediation suite + nav-matrix generator ────
+!ux_remediation_test.mjs
+!scripts_build_nav_matrix.mjs
 !gemini_truncation_test.mjs
 !gemini_fallback_test.mjs
 !stuck_menu_reachability_test.mjs

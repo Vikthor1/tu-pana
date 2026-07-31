@@ -174,8 +174,11 @@ await page.evaluate(() => {
 });
 await page.reload();
 await page.waitForTimeout(350);
-check('full-draft action is intentionally hidden at Stage 8 passage polish',
-    await page.locator('#fullDraftReviewBtn').isHidden());
+// UX remediation F5 (founder brief 2026-07-31): review access is available
+// across the whole Revise phase (7–9) so a student never has to navigate
+// backward to rediscover it. Stage 8 now EXPOSES the whole-draft action.
+check('full-draft action stays available at Stage 8 (F5 re-entry contract)',
+    await page.locator('#fullDraftReviewBtn').isVisible());
 
 await page.evaluate(() => {
     localStorage.setItem('tupana_writing_s9', localStorage.getItem('tupana_draft') || '');

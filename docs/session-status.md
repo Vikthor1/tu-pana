@@ -20,11 +20,33 @@ Last updated: 2026-07-31 (Start Here tutorial generalized to all genre layers)
   genre's authenticity ground rule. Shared beats (rule card, Stage 6 lock,
   accept/adapt/reject rehearsal, Council, mandatory privacy bubble, finale)
   are identical across layers.
-- Worker dev origin added for family phone access:
-  `http://172.20.10.2:8000` (founder's Mac on LAN/hotspot), deployed as
-  version `4fe708bd` and probe-verified from that origin; flagged dev-only,
-  remove before production hardening. Phone use requires the phone and Mac on
-  the same network and the local server running.
+- ~~Worker dev origin `http://172.20.10.2:8000` (LAN phone access)~~ —
+  superseded the same day: the family member is out of state, so local-network
+  access could never work. Replaced by the family-preview deployment below;
+  the LAN origin was removed from the allowlist in the same change.
+
+## Family-preview deployment — Cloudflare Pages (2026-07-31)
+
+- Founder-authorized remote access for family use (son in Michigan, founder in
+  Puerto Rico): the branch's static app + tutorial deployed to Cloudflare
+  Pages project `tupana-preview` → **https://tupana-preview.pages.dev**
+  (same Cloudflare account as the Worker; deployed via
+  `wrangler pages deploy` from a staged copy of index.html, start-here.html,
+  and assets/ only — no tests, docs, or server code).
+- This is a bounded personal preview, NOT the release: Sprint 0 B3–B7 still
+  gate the real launch, the GitHub Pages production site is untouched, and
+  the project can be deleted when the preview retires. Re-deploying after new
+  branch commits requires re-staging + `wrangler pages deploy` (the preview
+  does NOT auto-track the branch).
+- Worker allowlist: added `https://tupana-preview.pages.dev`, removed the
+  LAN origin; deployed version `ce5538f8` and probe-verified from the new
+  origin. Pages pretty-URL 308 redirects preserve query strings
+  (`?assignment=` intact); tutorial, app, JS/CSS/audio assets all verified
+  live over HTTPS.
+- Entry link for the family user:
+  `https://tupana-preview.pages.dev/start-here?assignment=college-personal-statement`.
+  Work saves in that browser's localStorage under the pages.dev origin — same
+  browser + device rule applies; export/import backup available in the app.
 - Verification: `tutorial_page_test.mjs` 39/39 — deep admissions pass plus
   per-genre passes (chip, tap-through, integrity marker, CTA/skip targets)
   plus resolution boundaries (bare URL, remembered layer, unknown id).

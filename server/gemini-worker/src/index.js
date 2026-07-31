@@ -29,7 +29,10 @@ const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
 const ALLOWED_ORIGINS = new Set([
     'http://localhost:8000',    // dev only
     'http://localhost:3001',    // dev only
-    'http://172.20.10.2:8000',  // dev only — founder's Mac on LAN/hotspot, for family phone access (2026-07-31); remove before production hardening
+    // Family-preview deployment of the redesign branch (Cloudflare Pages,
+    // founder-authorized 2026-07-31). Bounded personal use; NOT the release —
+    // Sprint 0 B3–B7 still gate the real launch. Retire with the preview.
+    'https://tupana-preview.pages.dev',
     'https://vikthor1.github.io',
 ]);
 

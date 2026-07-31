@@ -1,6 +1,29 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-07-30 (Fall 2026 polishing sprint: completion integrity)
+Last updated: 2026-07-31 (Sprint 0 B2: Worker drift verification and redeploy)
+
+## Sprint 0 B2 — Worker/client drift verification (2026-07-31)
+
+- Question: does the deployed Worker match `server/gemini-worker/src/index.js`
+  at branch head `691d3e1`?
+- Finding: **drift confirmed.** The previously deployed version
+  (`b3cf5571`, 2026-07-30 18:41 UTC) predated commit `691d3e1`
+  (2026-07-30 22:30 UTC) and lacked the `capstone_review` request kind. A live
+  probe with `requestKind: "capstone_review"` returned `thoughtTokens: 243` —
+  the request fell through to the default Flash config (600-token ceiling,
+  thinking enabled), exactly the truncation failure mode the Stage 10 JSON
+  ceiling exists to prevent.
+- Impact before fix: none for the live site (the deployed `main` frontend never
+  sends `capstone_review`); the branch frontend's Stage 10 Compare would have
+  received thinking-starved, truncated output.
+- Fix: redeployed the Worker from the branch source. New version
+  `2e3c39b4-db34-4a3e-91d9-b610f5731dda`. The change is purely additive
+  (one generation-config branch + request-kind normalization); response shape
+  (`{text, truncated, usage}`) verified identical before and after.
+- Post-deploy probe: same `capstone_review` request now returns
+  `thoughtTokens: 0` with a complete reply — thinking disabled per spec.
+- All 32 local test suites pass at `691d3e1` (independent rerun, Node v26;
+  one suite requires a per-suite timeout guard when run in bulk).
 
 ## Fall 2026 polishing sprint — completion integrity and calm final flow
 

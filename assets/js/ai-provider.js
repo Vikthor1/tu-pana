@@ -41,12 +41,13 @@ function buildCoachPrompt({
 // ════════════════════════════════════════════════════════
 
 // Stages 7 (revision) and 10 (capstone) use Flash for stronger paragraph-level
-// reasoning and reliable JSON generation. Passage, full-draft, and capstone
-// analysis also use Flash because they must reason across relationships among
-// multiple sentences; ordinary early-stage conversation remains on Flash-Lite.
+// reasoning and reliable JSON generation. Passage, full-draft, capstone, and
+// Review Council analysis also use Flash because they must reason across
+// relationships among multiple sentences; ordinary early-stage conversation
+// remains on Flash-Lite.
 function selectGeminiModel(stageId, requestKind) {
     const FLASH_STAGE_IDS = new Set([7, 10, 'stage.revision', 'stage.reflection']);
-    const FLASH_REQUEST_KINDS = new Set(['passage_analysis', 'full_draft_review', 'capstone_review']);
+    const FLASH_REQUEST_KINDS = new Set(['passage_analysis', 'full_draft_review', 'capstone_review', 'council_reviewer', 'council_synthesis']);
     return FLASH_REQUEST_KINDS.has(requestKind) || FLASH_STAGE_IDS.has(stageId)
         ? 'gemini-2.5-flash'
         : (CONFIG.geminiModel || 'gemini-2.5-flash-lite');
@@ -127,7 +128,7 @@ function _recordGeminiUsage(usage, requestKind) {
             byKind: (saved.byKind && typeof saved.byKind === 'object') ? saved.byKind : {},
             updatedAt: new Date().toISOString()
         };
-        const kind = ['full_draft_review', 'passage_analysis', 'capstone_review'].includes(requestKind)
+        const kind = ['full_draft_review', 'passage_analysis', 'capstone_review', 'council_reviewer', 'council_synthesis'].includes(requestKind)
             ? requestKind
             : 'conversation';
         const priorKind = totals.byKind[kind] || {};

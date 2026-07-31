@@ -29,6 +29,7 @@
 !assets/js/storage.js
 !assets/js/ui.js
 !assets/js/app.js
+!assets/js/council.js
 
 # ── Allow Stage A regression tests (Playwright) ──────────
 !milestone_simplification_test.mjs
@@ -64,6 +65,8 @@
 !review_mode_test.mjs
 # ── Allow Stage 7/10 truncation-stabilization regression tests ──
 !gemini_worker_test.mjs
+# ── Allow Review Council (C1) kernel test ────────────────
+!council_kernel_test.mjs
 !gemini_truncation_test.mjs
 !gemini_fallback_test.mjs
 !stuck_menu_reachability_test.mjs

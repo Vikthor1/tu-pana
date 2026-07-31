@@ -1,6 +1,46 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-07-31 (Sprint 0 B2: Worker drift verification and redeploy)
+Last updated: 2026-07-31 (Review Council C1: kernel, Worker paths, tests — no UI)
+
+## Review Council C1 — kernel without UI (2026-07-31)
+
+- Governing design: VC-OS `01_projects/tupana/business/council-design-review.md`
+  (founder-approved 2026-07-31). Three fixed specialist reviewers (structure,
+  evidence, voice) plus one synthesizer over an existing draft; critique only,
+  never rewriting; findings capped and evidence-anchored.
+- New `assets/js/council.js` — pure kernel (no DOM, no direct provider calls):
+  - `COUNCIL_LIMITS` enforced in code: ≤5 findings per reviewer, ≤3 priorities,
+    ≤4 secondary, ≤3 preserve notes, ≤2 surfaced disagreements, run history 5.
+  - Evidence anchors are deterministic: every finding and preserve note must
+    quote the draft verbatim (whitespace/case/curly-quote normalized);
+    unverifiable quotes are dropped in validation, never rendered.
+  - Synthesis may only merge validated reviewer findings: items with unknown
+    `sourceIds` are discarded; corroboration is recomputed from source roles,
+    never trusted from the model; low confidence propagates.
+  - Genre configuration over forks: `COUNCIL_PROFILES` for default essay,
+    graduate SOP, CAP 200 service-learning, and research paper;
+    `college-personal-statement` is `enabled:false` pending the Sprint 1
+    provider/eligibility decision (blocked in code before any model call).
+  - Orchestration with injected `callFn`: parallel reviewers, one retry each,
+    failure isolation (run proceeds with ≥2 survivors, labeled `partial`;
+    fewer aborts), one synthesis call, graceful refusal for blocked genres and
+    <50-word drafts.
+  - Local-first history: `tupana_council_runs` stores metadata, findings,
+    accept/adapt/reject/defer/resolve decisions, and improved/partial/active
+    verification verdicts. No draft text beyond anchored quotes; storage.js
+    prefix export/import covers the key automatically.
+- Worker: `council_reviewer` (1536, thinking off) and `council_synthesis`
+  (2048, thinking off) generation configs; request-kind normalization moved to
+  an allowlist Set. NOT yet deployed — deploys with C2 when the first caller
+  exists (current live Worker `2e3c39b4` treats the kinds as ordinary
+  requests, which no shipped client sends).
+- `ai-provider.js`: both kinds route to Flash and are recorded distinctly in
+  `tupana_ai_usage.byKind`.
+- `index.html` loads `council.js` before `ui.js`; nothing calls it yet (C2).
+- Verification: new `council_kernel_test.mjs` 63/63 (pure node — profiles,
+  anchors, JSON parsing, reviewer/synthesis validation, orchestration failure
+  isolation, storage vocabulary); `gemini_worker_test.mjs` extended to 32/32
+  (council configs + Flash-Lite unchanged).
 
 ## Sprint 0 B2 — Worker/client drift verification (2026-07-31)
 

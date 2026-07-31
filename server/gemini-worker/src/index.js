@@ -90,6 +90,16 @@ function buildGenerationConfig(model, stageId, requestKind) {
     if (model === 'gemini-2.5-flash' && requestKind === 'capstone_review') {
         return { maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } };
     }
+    // Review Council (C1): one specialist reviewer returns ≤5 JSON findings
+    // (1536); the synthesizer merges all validated findings into one capped
+    // report (2048). Both are strict-JSON outputs, so thinking must be off —
+    // same starvation failure mode as Stage 10.
+    if (model === 'gemini-2.5-flash' && requestKind === 'council_reviewer') {
+        return { maxOutputTokens: 1536, thinkingConfig: { thinkingBudget: 0 } };
+    }
+    if (model === 'gemini-2.5-flash' && requestKind === 'council_synthesis') {
+        return { maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } };
+    }
     if (model === 'gemini-2.5-flash' && requestKind === 'passage_analysis') {
         return { maxOutputTokens: 1536, thinkingConfig: { thinkingBudget: 0 } };
     }
@@ -229,13 +239,16 @@ export default {
         const model = (reqModel && ALLOWED_MODELS.has(reqModel)) ? reqModel : DEFAULT_MODEL;
         // The only request-specific generation path currently supported. Treat
         // all unknown values as ordinary requests.
-        const requestKind = payload.requestKind === 'passage_analysis'
-            ? 'passage_analysis'
-            : payload.requestKind === 'full_draft_review'
-                ? 'full_draft_review'
-                : payload.requestKind === 'capstone_review'
-                    ? 'capstone_review'
-                    : null;
+        const KNOWN_REQUEST_KINDS = new Set([
+            'passage_analysis',
+            'full_draft_review',
+            'capstone_review',
+            'council_reviewer',
+            'council_synthesis',
+        ]);
+        const requestKind = KNOWN_REQUEST_KINDS.has(payload.requestKind)
+            ? payload.requestKind
+            : null;
 
         // Call Gemini
         try {

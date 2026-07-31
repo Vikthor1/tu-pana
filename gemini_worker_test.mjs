@@ -124,6 +124,42 @@ try {
     check('Capstone review: thinkingBudget = 0',
           r.gen?.thinkingConfig?.thinkingBudget === 0);
 
+    // ── Review Council (C1): reviewer + synthesis strict-JSON paths ──
+    console.log('\n── Review Council config ──');
+    mockUpstream({ finishReason: 'STOP' });
+    r = await callWorker({
+        prompt: 'one specialist reviewer over a complete draft',
+        model: 'gemini-2.5-flash',
+        stageId: 'stage.revision',
+        requestKind: 'council_reviewer'
+    });
+    check('Council reviewer: maxOutputTokens = 1536',
+          r.gen?.maxOutputTokens === 1536);
+    check('Council reviewer: thinkingBudget = 0',
+          r.gen?.thinkingConfig?.thinkingBudget === 0);
+
+    mockUpstream({ finishReason: 'STOP' });
+    r = await callWorker({
+        prompt: 'synthesize validated findings into one report',
+        model: 'gemini-2.5-flash',
+        stageId: 'stage.checklist',
+        requestKind: 'council_synthesis'
+    });
+    check('Council synthesis: maxOutputTokens = 2048',
+          r.gen?.maxOutputTokens === 2048);
+    check('Council synthesis: thinkingBudget = 0',
+          r.gen?.thinkingConfig?.thinkingBudget === 0);
+
+    mockUpstream({ finishReason: 'STOP' });
+    r = await callWorker({
+        prompt: 'x',
+        model: 'gemini-2.5-flash-lite',
+        stageId: 2,
+        requestKind: 'council_reviewer'
+    });
+    check('Council kind on Flash-Lite: default config unchanged (400, no thinkingConfig)',
+          r.gen?.maxOutputTokens === 400 && !('thinkingConfig' in (r.gen || {})));
+
     mockUpstream({ finishReason: 'STOP' });
     r = await callWorker({
         prompt: 'ordinary early-stage message',

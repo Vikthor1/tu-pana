@@ -3806,6 +3806,11 @@ let _fullReviewLastFocus = null;
 function closeFullDraftReview() {
     const modal = document.getElementById('fullDraftReviewModal');
     if (!modal) return;
+    if (_councilActive) {
+        _councilActive.cancelled = true;
+        _councilActive = null;
+        logProcessEvent('council_run_aborted', 'Student closed the review dialog while the Review Council was reading.');
+    }
     modal.remove();
     document.removeEventListener('keydown', _fullReviewKeydown);
     if (_fullReviewLastFocus && typeof _fullReviewLastFocus.focus === 'function') {
@@ -3933,6 +3938,7 @@ function openFullDraftReview() {
                 <button type="button" class="full-review-passage-btn" id="fullReviewPassage"><span class="show-es">Trabajar un pasaje</span><span class="lang-sep"> · </span><span class="show-en">Work with a passage</span></button>
                 <button type="button" class="full-review-submit" id="fullReviewSubmit" disabled><span class="show-es">Revisar este borrador</span><span class="lang-sep"> · </span><span class="show-en">Review this draft</span></button>
             </div>
+            ${_councilOfferHtml(words, signature)}
         </div>`;
     document.body.appendChild(modal);
 
@@ -3955,6 +3961,7 @@ function openFullDraftReview() {
         _updateFullDraftSubmitState(modal, sameDraft, needsPurpose));
     modal.querySelector('#fullReviewSubmit').addEventListener('click', () =>
         submitFullDraftReview({ modal, draft, words, signature, needsPurpose }));
+    _wireCouncilOffer(modal, { draft, words, signature });
 
     document.addEventListener('keydown', _fullReviewKeydown);
     setTimeout(() => modal.querySelector('input[name="fullReviewLens"]')?.focus(), 0);
@@ -4023,6 +4030,352 @@ async function submitFullDraftReview({ modal, draft, words, signature, needsPurp
             `Coach completed a ${lensKey} whole-draft review at Stage ${state.stage} (${words} words).`);
     }
     updateFullDraftReviewButton();
+}
+
+// ════════════════════════════════════════════════════════
+//  REVIEW COUNCIL — UI (C2)
+//  Three specialist perspectives + one synthesized, capped report, launched
+//  from the shared Review-draft dialog. Kernel logic lives in council.js;
+//  this section only renders, wires decisions, and injects the provider call.
+//  Availability: Live AI (gemini) mode + an enabled Council genre profile.
+// ════════════════════════════════════════════════════════
+let _councilActive = null;   // { cancelled } while a run is in flight
+
+function _councilProjectId() {
+    return _fullDraftProjectId();
+}
+
+function _councilLastRun() {
+    const runs = loadCouncilRuns(_councilProjectId());
+    return runs.length ? runs[runs.length - 1] : null;
+}
+
+const _COUNCIL_ROLE_LABELS = {
+    structure: { es: 'Estructura', en: 'Structure' },
+    evidence:  { es: 'Evidencia',  en: 'Evidence' },
+    voice:     { es: 'Voz',        en: 'Voice' }
+};
+
+function _councilOfferHtml(words, signature) {
+    if (state.coachMode !== 'gemini') return '';
+    const profile = getCouncilProfile(state.assignmentId || null);
+    if (!profile) return '';
+    const last = _councilLastRun();
+    const sameCouncil = !!(last && last.draftSignature === signature);
+    return `
+        <div class="council-offer" id="councilOffer">
+            <div class="council-offer-head">
+                <strong><span class="show-es">Consejo de revisión</span><span class="lang-sep"> · </span><span class="show-en">Review Council</span></strong>
+                <span class="council-offer-sub"><span class="show-es">Tres perspectivas — estructura, evidencia y voz — más una síntesis priorizada.</span><span class="lang-sep"> / </span><span class="show-en">Three perspectives — structure, evidence, and voice — plus one prioritized synthesis.</span></span>
+            </div>
+            <div class="council-disclosure" role="note">
+                <span class="show-es">Si convocas al consejo, tu borrador completo (<strong>${words.toLocaleString()}</strong> palabras) se enviará al Coach IA <strong>tres veces</strong> — una por perspectiva — y las observaciones validadas se enviarán una vez más para la síntesis. Tu Pana no guarda tu borrador ni las respuestas en un servidor.</span>
+                <span class="lang-sep"> · </span>
+                <span class="show-en">If you convene the Council, your complete draft (<strong>${words.toLocaleString()}</strong> words) will be sent to the Live AI coach <strong>three times</strong> — once per perspective — and the validated observations will be sent once more for the synthesis. Tu Pana does not store your draft or the responses on a server.</span>
+            </div>
+            ${sameCouncil ? `
+                <label class="council-same-draft">
+                    <input type="checkbox" id="councilSameDraftOverride">
+                    <span><span class="show-es">Este borrador no ha cambiado desde el último consejo. Quiero convocarlo de nuevo de todos modos.</span><span class="lang-sep"> · </span><span class="show-en">This draft has not changed since the last Council. I want to convene it again anyway.</span></span>
+                </label>` : ''}
+            <div class="council-offer-actions">
+                ${last ? `<button type="button" class="council-view-last" id="councilViewLast"><span class="show-es">Ver último informe</span><span class="lang-sep"> · </span><span class="show-en">View last report</span></button>` : ''}
+                <button type="button" class="council-launch" id="councilLaunch" ${sameCouncil ? 'disabled' : ''}><span class="show-es">Convocar al consejo</span><span class="lang-sep"> · </span><span class="show-en">Convene the Council</span></button>
+            </div>
+        </div>`;
+}
+
+function _wireCouncilOffer(modal, ctx) {
+    const launch = modal.querySelector('#councilLaunch');
+    if (!launch) return;
+    const override = modal.querySelector('#councilSameDraftOverride');
+    if (override) {
+        override.addEventListener('change', () => { launch.disabled = !override.checked; });
+    }
+    launch.addEventListener('click', () => launchCouncilRun(modal, ctx));
+    modal.querySelector('#councilViewLast')?.addEventListener('click', () => {
+        const last = _councilLastRun();
+        if (last) _renderCouncilReport(modal, last, { stale: last.draftSignature !== ctx.signature });
+    });
+}
+
+function _councilCard(modal) {
+    return modal.querySelector('.full-review-modal-card');
+}
+
+function _renderCouncilProgress(modal, words) {
+    const card = _councilCard(modal);
+    if (!card) return;
+    const chips = Object.entries(_COUNCIL_ROLE_LABELS).map(([key, l]) => `
+        <div class="council-chip" id="councilChip-${key}" data-status="reading">
+            <span class="council-chip-name"><span class="show-es">${l.es}</span><span class="lang-sep"> · </span><span class="show-en">${l.en}</span></span>
+            <span class="council-chip-status"><span class="show-es">leyendo…</span><span class="lang-sep"> · </span><span class="show-en">reading…</span></span>
+        </div>`).join('');
+    card.innerHTML = `
+        <div class="toolkit-modal-top full-review-modal-top">
+            <div>
+                <p class="full-review-eyebrow"><span class="show-es">Consejo de revisión</span><span class="lang-sep"> · </span><span class="show-en">Review Council</span></p>
+                <h2 class="toolkit-modal-title" id="fullReviewTitle"><span class="show-es">El consejo está leyendo tu borrador</span><span class="lang-sep"> · </span><span class="show-en">The Council is reading your draft</span></h2>
+            </div>
+            <button type="button" class="toolkit-close" id="fullReviewClose" aria-label="Cerrar · Close">×</button>
+        </div>
+        <p class="council-progress-note" role="status"><span class="show-es">Tres lecturas independientes de tus <strong>${words.toLocaleString()}</strong> palabras, después una síntesis. Suele tardar menos de un minuto.</span><span class="lang-sep"> / </span><span class="show-en">Three independent readings of your <strong>${words.toLocaleString()}</strong> words, then one synthesis. This usually takes under a minute.</span></p>
+        <div class="council-chips">${chips}</div>
+        <div class="council-synthesis-row" id="councilSynthesisRow" hidden>
+            <span class="show-es">Sintetizando las observaciones validadas…</span><span class="lang-sep"> · </span><span class="show-en">Synthesizing the validated observations…</span>
+        </div>
+        <div class="council-progress-actions">
+            <button type="button" class="council-cancel" id="councilCancel"><span class="show-es">Cancelar</span><span class="lang-sep"> · </span><span class="show-en">Cancel</span></button>
+        </div>`;
+    card.querySelector('#fullReviewClose').addEventListener('click', closeFullDraftReview);
+    card.querySelector('#councilCancel').addEventListener('click', () => {
+        if (_councilActive) { _councilActive.cancelled = true; _councilActive = null; }
+        logProcessEvent('council_run_aborted', 'Student cancelled the Review Council while it was reading.');
+        closeFullDraftReview();
+    });
+    setTimeout(() => card.querySelector('#councilCancel')?.focus(), 0);
+}
+
+function _setCouncilChip(modal, roleKey, status) {
+    const chip = modal.querySelector(`#councilChip-${roleKey}`);
+    if (!chip) return;
+    chip.dataset.status = status;
+    const label = chip.querySelector('.council-chip-status');
+    if (!label) return;
+    label.innerHTML = status === 'done'
+        ? '<span class="show-es">lectura completa</span><span class="lang-sep"> · </span><span class="show-en">reading complete</span>'
+        : status === 'failed'
+            ? '<span class="show-es">no disponible</span><span class="lang-sep"> · </span><span class="show-en">unavailable</span>'
+            : '<span class="show-es">leyendo…</span><span class="lang-sep"> · </span><span class="show-en">reading…</span>';
+}
+
+function _councilRoleFromPrompt(prompt) {
+    if (/YOUR ROLE — Structure/.test(prompt)) return 'structure';
+    if (/YOUR ROLE — Evidence/.test(prompt)) return 'evidence';
+    if (/YOUR ROLE — Voice/.test(prompt)) return 'voice';
+    return null;
+}
+
+async function launchCouncilRun(modal, { draft, words, signature }) {
+    if (_councilActive) return;
+    const token = { cancelled: false };
+    _councilActive = token;
+    maybeShowFirstAiSendCue();
+    logProcessEvent('council_run_requested',
+        `Student convened the Review Council at Stage ${state.stage} (${words} words).`);
+    _renderCouncilProgress(modal, words);
+
+    const callFn = async ({ prompt, requestKind }) => {
+        const roleKey = requestKind === 'council_reviewer' ? _councilRoleFromPrompt(prompt) : null;
+        if (requestKind === 'council_synthesis') {
+            const row = modal.querySelector('#councilSynthesisRow');
+            if (row) row.hidden = false;
+        }
+        try {
+            const reply = await generateCoachResponse({
+                prompt,
+                stageId: getStageId(state.stage),
+                requestKind
+            });
+            if (roleKey && !token.cancelled) _setCouncilChip(modal, roleKey, 'done');
+            if (!reply) throw new Error('empty council reply');
+            return reply;
+        } catch (err) {
+            if (roleKey && !token.cancelled) _setCouncilChip(modal, roleKey, 'failed');
+            throw err;
+        }
+    };
+
+    let result = null;
+    try {
+        result = await runCouncilKernel({
+            draftText: draft,
+            assignmentId: state.assignmentId || null,
+            stage: state.stage,
+            langLabel: getCurrentCoachLanguageLabel(),
+            callFn
+        });
+    } catch (err) {
+        console.error('council:run', err);
+        result = { status: 'aborted', reason: 'unexpected-error' };
+    }
+    if (token.cancelled) return;   // modal closed or cancelled; event already logged
+    _councilActive = null;
+
+    if (!result || result.status === 'blocked' || result.status === 'aborted') {
+        const reason = result?.reason || 'unknown';
+        logProcessEvent('council_run_aborted', `Review Council run did not complete (${reason}).`);
+        _renderCouncilAbort(modal, reason);
+        return;
+    }
+
+    const record = saveCouncilRun(_councilProjectId(), { ...result, draftSignature: signature });
+    logProcessEvent('council_run_completed',
+        `Review Council ${result.status} at Stage ${state.stage}: ${result.report.priorities.length} priorities, ${result.report.secondary.length} secondary, ${result.report.preserve.length} preserve notes.`);
+    _renderCouncilReport(modal, record || { ...result, id: null, decisions: {}, draftSignature: signature }, { stale: false });
+}
+
+function _renderCouncilAbort(modal, reason) {
+    const card = _councilCard(modal);
+    if (!card) return;
+    const message = reason === 'too-few-reviewers'
+        ? '<span class="show-es">El consejo no pudo completar suficientes lecturas. Tu borrador no cambió y no se guardó nada. Puedes intentarlo de nuevo o usar una revisión de un solo lente.</span><span class="lang-sep"> / </span><span class="show-en">The Council could not complete enough readings. Your draft is unchanged and nothing was saved. You can try again or use a single-lens review.</span>'
+        : '<span class="show-es">El consejo no pudo terminar esta vez. Tu borrador no cambió y no se guardó nada. Puedes intentarlo de nuevo en un momento.</span><span class="lang-sep"> / </span><span class="show-en">The Council could not finish this time. Your draft is unchanged and nothing was saved. You can try again in a moment.</span>';
+    card.innerHTML = `
+        <div class="toolkit-modal-top full-review-modal-top">
+            <div>
+                <p class="full-review-eyebrow"><span class="show-es">Consejo de revisión</span><span class="lang-sep"> · </span><span class="show-en">Review Council</span></p>
+                <h2 class="toolkit-modal-title" id="fullReviewTitle"><span class="show-es">El consejo no pudo completar la lectura</span><span class="lang-sep"> · </span><span class="show-en">The Council could not complete its reading</span></h2>
+            </div>
+            <button type="button" class="toolkit-close" id="fullReviewClose" aria-label="Cerrar · Close">×</button>
+        </div>
+        <div class="council-abort-note" role="alert">${message}</div>
+        <div class="council-progress-actions">
+            <button type="button" class="council-cancel" id="councilAbortClose"><span class="show-es">Volver a escribir</span><span class="lang-sep"> · </span><span class="show-en">Return to writing</span></button>
+        </div>`;
+    card.querySelector('#fullReviewClose').addEventListener('click', closeFullDraftReview);
+    card.querySelector('#councilAbortClose').addEventListener('click', closeFullDraftReview);
+    setTimeout(() => card.querySelector('#councilAbortClose')?.focus(), 0);
+}
+
+const _COUNCIL_DECISIONS = [
+    { key: 'accepted', es: 'Aceptar',         en: 'Accept' },
+    { key: 'adapted',  es: 'Adaptar',         en: 'Adapt' },
+    { key: 'rejected', es: 'Rechazar',        en: 'Reject' },
+    { key: 'deferred', es: 'Decidir después', en: 'Decide later' }
+];
+
+function _councilRolesLine(roles, corroborated) {
+    const names = (roles || []).map(r => {
+        const l = _COUNCIL_ROLE_LABELS[r];
+        return l ? `${l.es} · ${l.en}` : r;
+    }).join(' + ');
+    return corroborated
+        ? `<span class="council-corroboration" title="Más de una perspectiva señaló esto · More than one perspective flagged this">✓✓ ${escapeHtml(names)}</span>`
+        : `<span class="council-single-role">${escapeHtml(names)}</span>`;
+}
+
+function _councilFindingHtml(finding, key, decisions) {
+    const chosen = decisions && decisions[key] ? decisions[key].decision : null;
+    const buttons = _COUNCIL_DECISIONS.map(d => `
+        <button type="button" class="council-decision-btn${chosen === d.key ? ' council-decision-btn--chosen' : ''}"
+                data-finding="${key}" data-decision="${d.key}" aria-pressed="${chosen === d.key}">
+            <span class="show-es">${d.es}</span><span class="lang-sep"> · </span><span class="show-en">${d.en}</span>
+        </button>`).join('');
+    return `
+        <div class="council-finding" data-finding-key="${key}">
+            <div class="council-finding-head">
+                <span class="council-dimension">${escapeHtml(finding.dimension)}</span>
+                ${_councilRolesLine(finding.roles, finding.corroborated)}
+                ${finding.confidence === 'low' ? '<span class="council-low-confidence"><span class="show-es">lectura tentativa</span><span class="lang-sep"> · </span><span class="show-en">tentative reading</span></span>' : ''}
+            </div>
+            <p class="council-claim">${escapeHtml(finding.claim)}</p>
+            <blockquote class="council-quote">“${escapeHtml(finding.evidenceQuote)}”</blockquote>
+            ${finding.whyItMatters ? `<p class="council-why">${escapeHtml(finding.whyItMatters)}</p>` : ''}
+            ${finding.revisionMove ? `<p class="council-move"><strong><span class="show-es">Estrategia sugerida:</span><span class="lang-sep"> · </span><span class="show-en">Suggested strategy:</span></strong> ${escapeHtml(finding.revisionMove)}</p>` : ''}
+            ${finding.voiceNote ? `<p class="council-voice-note" role="note"><strong><span class="show-es">Protege tu voz:</span><span class="lang-sep"> · </span><span class="show-en">Protect your voice:</span></strong> ${escapeHtml(finding.voiceNote)}</p>` : ''}
+            <div class="council-decisions" role="group" aria-label="Tu decisión sobre esta observación · Your decision on this finding">${buttons}</div>
+        </div>`;
+}
+
+function _renderCouncilReport(modal, record, { stale }) {
+    const card = _councilCard(modal);
+    if (!card) return;
+    const report = record.report || { priorities: [], secondary: [], preserve: [], disagreements: [], summary: '' };
+    const failed = (record.reviewers || []).filter(r => r.status !== 'ok').map(r => {
+        const l = _COUNCIL_ROLE_LABELS[r.roleKey];
+        return l ? `${l.es} · ${l.en}` : r.roleKey;
+    });
+    const priorities = report.priorities.map((f, i) => _councilFindingHtml(f, `p${i + 1}`, record.decisions)).join('');
+    const secondary = report.secondary.map((f, i) => _councilFindingHtml(f, `s${i + 1}`, record.decisions)).join('');
+    const preserve = report.preserve.map(p => `
+        <div class="council-preserve-item">
+            <blockquote class="council-quote">“${escapeHtml(p.quote)}”</blockquote>
+            ${p.why ? `<p>${escapeHtml(p.why)}</p>` : ''}
+        </div>`).join('');
+    const disagreements = report.disagreements.map(d => `
+        <div class="council-disagreement">
+            <p class="council-disagreement-q">${escapeHtml(d.question)}</p>
+            ${(d.positions || []).map(p => `<p class="council-disagreement-pos">— ${escapeHtml(p)}</p>`).join('')}
+        </div>`).join('');
+    const empty = !report.priorities.length && !report.secondary.length && !report.preserve.length;
+
+    card.innerHTML = `
+        <div class="toolkit-modal-top full-review-modal-top">
+            <div>
+                <p class="full-review-eyebrow"><span class="show-es">Consejo de revisión</span><span class="lang-sep"> · </span><span class="show-en">Review Council</span></p>
+                <h2 class="toolkit-modal-title" id="fullReviewTitle"><span class="show-es">Informe del consejo</span><span class="lang-sep"> · </span><span class="show-en">Council report</span></h2>
+            </div>
+            <button type="button" class="toolkit-close" id="fullReviewClose" aria-label="Cerrar · Close">×</button>
+        </div>
+        ${stale ? `
+            <div class="council-stale-note" role="note">
+                <span class="show-es">Este informe corresponde a una versión anterior de tu borrador.</span>
+                <span class="lang-sep"> · </span>
+                <span class="show-en">This report is from an earlier version of your draft.</span>
+            </div>` : ''}
+        ${failed.length ? `
+            <div class="council-partial-note" role="note">
+                <span class="show-es">${failed.length === 1 ? 'Una perspectiva no estuvo disponible' : 'Perspectivas no disponibles'}: ${escapeHtml(failed.join(', '))}. El informe se basa en las lecturas completadas.</span>
+                <span class="lang-sep"> / </span>
+                <span class="show-en">${failed.length === 1 ? 'One perspective was unavailable' : 'Unavailable perspectives'}: ${escapeHtml(failed.join(', '))}. The report is based on the completed readings.</span>
+            </div>` : ''}
+        ${report.summary ? `<p class="council-summary">${escapeHtml(report.summary)}</p>` : ''}
+        ${empty ? `
+            <div class="council-empty-note" role="note">
+                <span class="show-es">El consejo no encontró problemas prioritarios en sus mandatos. Eso también es información: tu borrador sostiene esta lectura.</span>
+                <span class="lang-sep"> / </span>
+                <span class="show-en">The Council found no priority problems within its mandates. That is information too: your draft holds up to this reading.</span>
+            </div>` : ''}
+        ${preserve ? `
+            <section class="council-section council-section--preserve">
+                <h3><span class="show-es">Lo que ya funciona — protégelo</span><span class="lang-sep"> · </span><span class="show-en">What is working — protect it</span></h3>
+                ${preserve}
+            </section>` : ''}
+        ${priorities ? `
+            <section class="council-section">
+                <h3><span class="show-es">Revisa primero</span><span class="lang-sep"> · </span><span class="show-en">Fix first</span></h3>
+                ${priorities}
+            </section>` : ''}
+        ${secondary ? `
+            <details class="council-secondary">
+                <summary><span class="show-es">Observaciones adicionales (${report.secondary.length})</span><span class="lang-sep"> · </span><span class="show-en">Additional observations (${report.secondary.length})</span></summary>
+                ${secondary}
+            </details>` : ''}
+        ${disagreements ? `
+            <section class="council-section council-section--disagreement">
+                <h3><span class="show-es">Tu decisión — el consejo no coincide</span><span class="lang-sep"> · </span><span class="show-en">Your call — the Council does not agree</span></h3>
+                ${disagreements}
+            </section>` : ''}
+        <div class="council-report-actions">
+            <button type="button" class="council-return" id="councilReturn"><span class="show-es">Volver a escribir</span><span class="lang-sep"> · </span><span class="show-en">Return to writing</span></button>
+        </div>`;
+
+    card.querySelector('#fullReviewClose').addEventListener('click', closeFullDraftReview);
+    card.querySelector('#councilReturn').addEventListener('click', () => {
+        closeFullDraftReview();
+        if (window.innerWidth <= 480) switchMobileTab('draft');
+        D.draftArea?.focus();
+    });
+    if (record.id) {
+        card.querySelectorAll('.council-decision-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const findingKey = btn.dataset.finding;
+                const decision = btn.dataset.decision;
+                if (!recordCouncilDecision(_councilProjectId(), record.id, findingKey, decision)) return;
+                record.decisions[findingKey] = { decision };
+                logProcessEvent('council_decision_recorded',
+                    `Student marked Council finding ${findingKey} as ${decision}.`);
+                const group = btn.closest('.council-decisions');
+                group.querySelectorAll('.council-decision-btn').forEach(b => {
+                    const on = b === btn;
+                    b.classList.toggle('council-decision-btn--chosen', on);
+                    b.setAttribute('aria-pressed', String(on));
+                });
+            });
+        });
+    }
+    setTimeout(() => card.querySelector('#fullReviewClose')?.focus(), 0);
 }
 
 // ════════════════════════════════════════════════════════
@@ -6784,7 +7137,7 @@ function buildAIActivitySummaryHTML() {
         </summary>
         <div class="ai-activity-body">
             <p><span class="show-es">Resumen privado guardado solo en este navegador; no es una cuota ni una calificación.</span><span class="lang-sep"> · </span><span class="show-en">Private summary stored only on this browser; it is not a quota or a grade.</span></p>
-            <div>Conversación · Conversation: ${count('conversation')} &nbsp;·&nbsp; Pasajes · Passages: ${count('passage_analysis')} &nbsp;·&nbsp; Borradores completos · Whole drafts: ${count('full_draft_review')} &nbsp;·&nbsp; Perspectiva final · Final perspective: ${count('capstone_review')}</div>
+            <div>Conversación · Conversation: ${count('conversation')} &nbsp;·&nbsp; Pasajes · Passages: ${count('passage_analysis')} &nbsp;·&nbsp; Borradores completos · Whole drafts: ${count('full_draft_review')} &nbsp;·&nbsp; Perspectiva final · Final perspective: ${count('capstone_review')} &nbsp;·&nbsp; Consejo de revisión · Review Council: ${count('council_reviewer') + count('council_synthesis')}</div>
             <div class="ai-activity-tokens">Uso agregado · Aggregate use: ${inputTokens.toLocaleString()} input tokens · ${outputTokens.toLocaleString()} output tokens</div>
         </div>
       </details>`;

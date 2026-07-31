@@ -3404,6 +3404,178 @@
             outline: var(--focus-ring-alt);
             outline-offset: 2px;
         }
+        /* ── Review Council (C2) ── */
+        .council-offer {
+            margin-top: 16px;
+            padding: 14px;
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-md);
+            background: var(--bg-surface);
+        }
+        .council-offer-head { display: flex; flex-direction: column; gap: 3px; margin-bottom: 10px; }
+        .council-offer-head strong { font-size: var(--text-ui); color: var(--text-main); }
+        .council-offer-sub { font-size: var(--text-note); color: var(--text-sub); line-height: 1.45; }
+        .council-disclosure {
+            padding: 11px 13px;
+            border: 1px solid color-mix(in srgb, var(--jade) 38%, var(--border));
+            border-radius: var(--radius-md);
+            background: var(--jade-glow);
+            color: var(--text-sub);
+            font-size: var(--text-note);
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        .council-same-draft {
+            display: flex; align-items: flex-start; gap: 9px;
+            font-size: var(--text-note); color: var(--text-sub);
+            margin-bottom: 10px; cursor: pointer;
+        }
+        .council-same-draft input {
+            width: 18px; height: 18px; margin: 1px 0 0;
+            accent-color: var(--jade); flex-shrink: 0;
+        }
+        .council-offer-actions { display: flex; justify-content: flex-end; gap: 9px; flex-wrap: wrap; }
+        .council-launch, .council-view-last, .council-cancel, .council-return {
+            min-height: 44px;
+            padding: 10px 15px;
+            border-radius: var(--radius-md);
+            font: 700 var(--text-note)/1.25 var(--font-body);
+            cursor: pointer;
+        }
+        .council-launch, .council-return {
+            border: 1px solid var(--jade);
+            background: var(--jade);
+            color: var(--bg-panel);
+        }
+        .council-launch:disabled { opacity: 0.44; cursor: not-allowed; }
+        .council-view-last, .council-cancel {
+            border: 1px solid var(--border-mid);
+            background: var(--bg-raised);
+            color: var(--text-sub);
+        }
+        .council-launch:focus-visible, .council-view-last:focus-visible,
+        .council-cancel:focus-visible, .council-return:focus-visible,
+        .council-decision-btn:focus-visible {
+            outline: var(--focus-ring-alt);
+            outline-offset: 2px;
+        }
+        .council-progress-note { font-size: var(--text-note); color: var(--text-sub); line-height: 1.5; margin-bottom: 14px; }
+        .council-chips { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+        .council-chip {
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
+            padding: 10px 13px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--bg-surface);
+            font-size: var(--text-note);
+        }
+        .council-chip-name { font-weight: 700; color: var(--text-main); }
+        .council-chip-status { color: var(--text-sub); }
+        .council-chip[data-status="done"] { border-color: color-mix(in srgb, var(--jade) 45%, var(--border)); background: var(--jade-glow); }
+        .council-chip[data-status="failed"] { border-color: color-mix(in srgb, var(--clay, #b85c1a) 45%, var(--border)); opacity: 0.8; }
+        .council-synthesis-row { font-size: var(--text-note); color: var(--text-sub); margin-bottom: 12px; }
+        .council-progress-actions, .council-report-actions {
+            display: flex; justify-content: flex-end; gap: 9px;
+            margin-top: 16px; padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+        .council-stale-note, .council-partial-note, .council-abort-note, .council-empty-note {
+            padding: 11px 13px;
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-md);
+            background: var(--bg-raised);
+            color: var(--text-sub);
+            font-size: var(--text-note);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .council-summary { font-size: var(--text-ui); color: var(--text-main); line-height: 1.55; margin-bottom: 14px; }
+        .council-section { margin-bottom: 18px; }
+        .council-section h3 {
+            font-size: var(--text-caption); font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--jade-text);
+            margin-bottom: 10px;
+        }
+        .council-section--preserve .council-preserve-item {
+            padding: 10px 13px;
+            border: 1px solid color-mix(in srgb, var(--jade) 38%, var(--border));
+            border-radius: var(--radius-md);
+            background: var(--jade-glow);
+            margin-bottom: 8px;
+            font-size: var(--text-note);
+            color: var(--text-sub);
+        }
+        .council-finding {
+            padding: 12px 13px;
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-md);
+            background: var(--bg-surface);
+            margin-bottom: 10px;
+        }
+        .council-finding-head {
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+            margin-bottom: 7px;
+            font-size: var(--text-caption);
+        }
+        .council-dimension {
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+            color: var(--jade-text);
+        }
+        .council-corroboration { color: var(--jade-text); font-weight: 700; }
+        .council-single-role { color: var(--text-sub); }
+        .council-low-confidence { color: var(--amber-text); font-style: italic; }
+        .council-claim { font-size: var(--text-ui); color: var(--text-main); line-height: 1.5; margin-bottom: 7px; }
+        .council-quote {
+            margin: 0 0 7px;
+            padding: 7px 11px;
+            border-left: 3px solid var(--jade);
+            background: var(--bg-raised);
+            font-size: var(--text-note);
+            color: var(--text-sub);
+            font-style: italic;
+            line-height: 1.5;
+        }
+        .council-why, .council-move { font-size: var(--text-note); color: var(--text-sub); line-height: 1.5; margin-bottom: 6px; }
+        .council-voice-note {
+            font-size: var(--text-note);
+            color: var(--amber-text);
+            line-height: 1.5;
+            margin-bottom: 6px;
+        }
+        .council-decisions { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 9px; }
+        .council-decision-btn {
+            min-height: 36px;
+            padding: 7px 11px;
+            border: 1px solid var(--border-mid);
+            border-radius: var(--radius-full);
+            background: var(--bg-raised);
+            color: var(--text-sub);
+            font: 700 var(--text-caption)/1.2 var(--font-body);
+            cursor: pointer;
+        }
+        .council-decision-btn--chosen {
+            border-color: var(--jade);
+            background: var(--jade);
+            color: var(--bg-panel);
+        }
+        .council-secondary { margin-bottom: 18px; }
+        .council-secondary summary {
+            cursor: pointer;
+            font-size: var(--text-note);
+            font-weight: 700;
+            color: var(--text-sub);
+            padding: 8px 0;
+        }
+        .council-section--disagreement .council-disagreement {
+            padding: 11px 13px;
+            border: 1px solid color-mix(in srgb, var(--amber-text) 40%, var(--border));
+            border-radius: var(--radius-md);
+            background: var(--amber-glow, var(--bg-raised));
+            margin-bottom: 8px;
+        }
+        .council-disagreement-q { font-size: var(--text-ui); color: var(--text-main); font-weight: 700; line-height: 1.5; margin-bottom: 6px; }
+        .council-disagreement-pos { font-size: var(--text-note); color: var(--text-sub); line-height: 1.5; margin-bottom: 3px; }
         .toolkit-section { margin-bottom: 20px; }
         .toolkit-section-title {
             font-size: var(--text-caption); font-weight: 700;

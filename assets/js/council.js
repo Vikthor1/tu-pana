@@ -212,7 +212,7 @@ function buildCouncilReviewerPrompt({ role, profile, draftText, langLabel }) {
         `- revisionMove names the strategy the student should attempt in their own words — never replacement prose. If a short illustrative fragment is unavoidable, keep it under ${COUNCIL_LIMITS.fragmentWords} words and phrase it as a pattern, not a sentence to copy.`,
         '- If a recommendation would make the text more generic or flatten culturally meaningful language, set voiceNote explaining what must be preserved.',
         '- preserve lists passages that are working and should NOT be changed (with verbatim quotes).',
-        `- Student-facing text fields will be shown in a ${langLabel || 'bilingual Spanish/English'} interface; write them in clear, plain English.`,
+        `- Write every student-facing text field in clear, plain ${langLabel || 'English'} — the language of the student’s current interface. evidenceQuote is the exception: always copy it verbatim from the draft in whatever language the student wrote.`,
         '',
         'Respond with ONLY this JSON (no markdown fences, no commentary):',
         '{"role":"' + role.key + '","noFindings":false,"findings":[{"dimension":"...","severity":"priority","confidence":"high","claim":"...","evidenceQuote":"...","whyItMatters":"...","revisionMove":"...","voiceNote":""}],"preserve":[{"quote":"...","why":"..."}]}',
@@ -224,7 +224,7 @@ function buildCouncilReviewerPrompt({ role, profile, draftText, langLabel }) {
     ].join('\n');
 }
 
-function buildCouncilSynthesisPrompt({ profile, survivingFindings, preserveCandidates, reviewerRoles, draftWordCount }) {
+function buildCouncilSynthesisPrompt({ profile, survivingFindings, preserveCandidates, reviewerRoles, draftWordCount, langLabel }) {
     return [
         'You are the synthesizer of the Tu Pana Review Council. Three specialist reviewers have read one student draft independently. Your job is to turn their validated findings into ONE calm, prioritized report the student can act on.',
         '',
@@ -238,6 +238,7 @@ function buildCouncilSynthesisPrompt({ profile, survivingFindings, preserveCandi
         `- preserve: at most ${COUNCIL_LIMITS.preserveMax} notes on what is working and must not be revised away, chosen from the preserve candidates.`,
         `- disagreements: at most ${COUNCIL_LIMITS.disagreementMax}. When reviewers genuinely conflict — or a tradeoff (clarity vs voice, concision vs context) is real — do NOT resolve it. Phrase it as a neutral question only the writer can answer, with each position stated fairly.`,
         '- Do not inflate certainty: carry low confidence through as "low". Do not add praise, scores, predictions, or advice beyond the findings.',
+        `- Write every student-facing text field in clear, plain ${langLabel || 'English'}. evidenceQuote and preserve quotes stay verbatim from the draft in the student’s own language.`,
         '',
         'Respond with ONLY this JSON (no markdown fences, no commentary):',
         '{"summary":"2-3 sentences on the draft’s overall state","priorities":[{"sourceIds":["structure-1"],"dimension":"...","claim":"...","evidenceQuote":"...","whyItMatters":"...","revisionMove":"...","confidence":"high","voiceNote":""}],"secondary":[],"preserve":[{"sourceIds":["voice-p1"],"quote":"...","why":"..."}],"disagreements":[{"question":"...","positions":["...","..."]}]}',
@@ -437,7 +438,8 @@ async function runCouncilKernel({ draftText, assignmentId, stage, langLabel, cal
                     survivingFindings: allFindings,
                     preserveCandidates: allPreserve,
                     reviewerRoles: okRoles,
-                    draftWordCount: words
+                    draftWordCount: words,
+                    langLabel
                 }),
                 requestKind: 'council_synthesis'
             }, COUNCIL_LIMITS.retriesPerCall);

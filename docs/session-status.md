@@ -1,6 +1,41 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-07-31 (Review Council C1: kernel, Worker paths, tests — no UI)
+Last updated: 2026-07-31 (Review Council C2: UX inside the Review-draft dialog)
+
+## Review Council C2 — student experience (2026-07-31)
+
+- The shared **Review draft** dialog (Stages 7/9) now offers the Council below
+  the single-lens option: three perspectives (structure, evidence, voice) plus
+  one prioritized synthesis. Availability: Live AI (gemini) mode + an enabled
+  Council genre profile; the blocked admissions profile renders no offer.
+- Disclosure before launch (B1 doctrine): the full draft is sent three times —
+  once per perspective — and validated observations once more for synthesis;
+  nothing stored on a server.
+- Progress: three named perspective chips (reading → complete/unavailable),
+  a synthesis row, and Cancel; closing the dialog cancels the run.
+- Report: preserve-first ("what is working — protect it"), then ≤3 "fix first"
+  findings — each with role attribution, ✓✓ corroboration when two or more
+  perspectives agree, verbatim evidence quote, why-it-matters, a suggested
+  strategy (never replacement prose), tentative-reading marker for low
+  confidence, and a voice-protection note when set — then collapsed secondary
+  observations, then disagreements framed as "Your call" questions.
+- Decisions: Accept / Adapt / Reject / Decide later per finding, persisted to
+  the stored run and restored on reopen; every launch, completion, abort, and
+  decision writes a metadata-only process event.
+- Repeat friction: an unchanged draft requires an explicit override to convene
+  the Council again; "View last report" reopens the stored report, labeled as
+  from an earlier version when the draft has changed.
+- Failure isolation: one unavailable perspective → labeled partial report;
+  fewer than two survivors → calm abort, nothing saved.
+- Verification: new `council_ui_test.mjs` 27/27 (offer/disclosure, call
+  routing, report shape, decisions persistence, repeat friction, stale label,
+  partial + abort paths, genre/mode boundaries, no page errors); full sweep
+  green (see commit).
+- Worker with `council_reviewer`/`council_synthesis` configs DEPLOYED for the
+  founder lived-experience gate — version `15368cc4-ede9-4c56-b984-c0c2f5308649`;
+  post-deploy `council_reviewer` probe returned `thoughtTokens: 0` (thinking
+  off per spec). The live `main` frontend never sends these kinds, so no
+  shipped behavior changes.
 
 ## Review Council C1 — kernel without UI (2026-07-31)
 

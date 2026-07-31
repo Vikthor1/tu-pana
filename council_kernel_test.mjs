@@ -44,8 +44,15 @@ check('graduate-sop keeps its own synthesis order (evidence first)', sop.synthes
 check('graduate-sop adds role mandates', !!sop.roleMandates.voice);
 check('graduate-sop inherits + extends prohibited behaviors', sop.prohibitedExtra.some(p => /predict admission/i.test(p)));
 check('unknown assignment id inherits default', C.getCouncilProfile('no-such-genre').profileId === 'default');
-check('college-personal-statement is BLOCKED (eligibility)', C.getCouncilProfile('college-personal-statement') === null);
+const adm = C.getCouncilProfile('college-personal-statement');
+check('college-personal-statement enabled (founder override 2026-07-31), voice-first synthesis',
+    !!adm && adm.synthesisOrder[0] === 'voice');
+check('admissions profile hard-prohibits outcome prediction',
+    adm.prohibitedExtra.some(p => /Never predict admission outcomes/.test(p)));
 check('cap200 and research profiles enabled', !!C.getCouncilProfile('cap200-bronx-beautiful-service-learning') && !!C.getCouncilProfile('research-paper'));
+C.COUNCIL_PROFILES['__test-disabled'] = { enabled: false, labelEn: 'x', labelEs: 'x' };
+check('enabled:false mechanism still blocks a profile (returns null)', C.getCouncilProfile('__test-disabled') === null);
+delete C.COUNCIL_PROFILES['__test-disabled'];
 
 // ── Anchor validator ──
 console.log('\n── Evidence anchors ──');
@@ -199,8 +206,10 @@ r = await run(async ({ requestKind, prompt }) => {
 });
 check('transient reviewer failure recovered by retry → complete', r.status === 'complete');
 
-r = await run(async () => { throw new Error('never called'); }, 'college-personal-statement');
+C.COUNCIL_PROFILES['__test-disabled'] = { enabled: false, labelEn: 'x', labelEs: 'x' };
+r = await run(async () => { throw new Error('never called'); }, '__test-disabled');
 check('blocked genre refuses before any model call', r.status === 'blocked' && r.reason === 'genre-not-enabled');
+delete C.COUNCIL_PROFILES['__test-disabled'];
 r = await run(async () => { throw new Error('never called'); }, 'graduate-sop', 'too short');
 check('short draft refuses before any model call', r.status === 'blocked' && r.reason === 'draft-too-short');
 

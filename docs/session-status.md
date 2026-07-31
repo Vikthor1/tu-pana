@@ -1,6 +1,24 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-07-31 (Review Council C2: UX inside the Review-draft dialog)
+Last updated: 2026-07-31 (Review Council: admissions layer enabled by founder override)
+
+## Review Council — admissions enablement (2026-07-31, founder override)
+
+- `college-personal-statement` Council profile enabled by explicit founder
+  authorization (personal/family use of the link-only layer). The Sprint 1
+  provider/eligibility decision still governs **commercial** availability of
+  admissions Council access — that gate is a distribution decision recorded in
+  VC-OS decisions.log, not a code flag. The Council adds no new transmission
+  category: the admissions layer already sends drafts to Gemini via passage
+  coaching and full-draft review.
+- Admissions profile: voice-first synthesis order; structure reads for
+  moment→reflection movement (not five-paragraph form); evidence means lived
+  scenes, not credential lists; hard prohibitions in every reviewer prompt —
+  never predict outcomes or competitiveness, never suggest undisclosed
+  achievements, never push toward prestige-coded admissions-speak.
+- Verification: kernel 65/65 (enabled-profile assertions + the enabled:false
+  mechanism re-covered via an injected test profile); Council UI 29/29
+  (admissions offer + per-prompt safeguard assertions); full sweep green.
 
 ## Review Council C2 — student experience (2026-07-31)
 

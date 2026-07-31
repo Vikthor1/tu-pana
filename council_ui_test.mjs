@@ -12,7 +12,10 @@
 //   - stale label when the draft changed since the stored run
 //   - failure isolation: one failed reviewer → labeled partial report;
 //     two failed reviewers → graceful abort, nothing saved
-//   - blocked genre (college-personal-statement) hides the Council entirely
+//   - admissions genre (college-personal-statement) offers the Council with
+//     no-prediction and anti-normalization safeguards in every reviewer prompt
+//     (founder override 2026-07-31; commercial gating is a distribution
+//     decision, not a code flag)
 //   - non-gemini coach mode hides the Council
 //   - no page JavaScript errors
 
@@ -257,9 +260,18 @@ await page.locator('#councilAbortClose').click();
 console.log('\nAvailability boundaries');
 await prepareStage('college-personal-statement');
 await page.locator('#fullDraftReviewBtn').click();
-check('blocked admissions genre shows no Council offer',
-    await page.locator('#councilOffer').count() === 0 &&
-    await page.locator('#fullDraftReviewModal input[name="fullReviewLens"]').count() === 5);
+check('admissions genre offers the Council (founder override 2026-07-31)',
+    await page.locator('#councilOffer').isVisible());
+await page.locator('#councilLaunch').click();
+await page.waitForSelector('.council-section', { timeout: 20000 });
+const admissionsReviewerPrompts = requests
+    .filter(r => r.requestKind === 'council_reviewer')
+    .map(r => r.prompt);
+check('admissions reviewer prompts carry the no-prediction prohibition',
+    admissionsReviewerPrompts.length === 3 &&
+    admissionsReviewerPrompts.every(p => /Never predict admission outcomes/.test(p)));
+check('admissions reviewer prompts protect against admissions-speak normalization',
+    admissionsReviewerPrompts.every(p => /prestige-coded|admissions-speak/.test(p)));
 await page.locator('#fullReviewClose').click();
 
 await prepareStage('');

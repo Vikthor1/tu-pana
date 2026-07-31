@@ -129,13 +129,26 @@ const COUNCIL_PROFILES = {
             'Never invent sources, titles, authors, quotations, or citation details.'
         ]
     },
-    // Blocked pending the Sprint 1 provider/eligibility decision (decisions.log
-    // 2026-07-31 constraint d): admissions applicants are routinely minors.
+    // Enabled by founder override 2026-07-31 (personal/family use of the
+    // link-only layer). Commercial availability of admissions Council access
+    // remains gated on the Sprint 1 provider/eligibility decision — that gate
+    // is a distribution decision recorded in decisions.log, not a code flag.
     'college-personal-statement': {
-        enabled: false,
-        disabledReason: 'admissions-eligibility-pending',
+        enabled: true,
         labelEs: 'Ensayo de admisión universitaria',
-        labelEn: 'College Admissions Essay'
+        labelEn: 'College Admissions Essay',
+        audienceContext: 'A college admissions personal statement (e.g., Common App) read quickly by admissions readers looking for an authentic, specific human being. Narrative identity and voice carry the essay; polish that erases the writer’s distinctiveness is a loss, not a gain.',
+        synthesisOrder: ['voice', 'structure', 'evidence'],
+        roleMandates: {
+            structure: 'For a personal statement, assess whether the essay moves from a lived moment to reflection and meaning without losing momentum — not whether it follows a school five-paragraph form.',
+            evidence: 'For a personal statement, evidence means specific lived detail — scenes, actions, sensory particulars — not credential or activity lists. Flag summary where a scene would carry more weight.',
+            voice: 'For a personal statement, the writer’s authentic voice is the single most valuable element. Flag any passage at risk of being revised into generic admissions-speak, and protect culturally specific references, family language, and humor.'
+        },
+        prohibitedExtra: [
+            'Never predict admission outcomes, estimate competitiveness, or compare the writer to other applicants.',
+            'Never recommend adding achievements, activities, or experiences the writer has not described.',
+            'Never push the essay toward a prestige-coded or culturally narrow template of what admissions readers supposedly want.'
+        ]
     }
 };
 

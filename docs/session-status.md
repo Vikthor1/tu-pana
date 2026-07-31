@@ -1,6 +1,33 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-07-31 (Start Here onboarding tutorial for the admissions layer)
+Last updated: 2026-07-31 (Start Here tutorial generalized to all genre layers)
+
+## Start Here tutorial — cross-genre generalization (2026-07-31)
+
+- `start-here.html` now serves every genre layer from one conversation engine
+  with a per-genre configuration (same config-over-fork pattern as the app):
+  default essay · college-personal-statement · graduate-sop · CAP 200
+  service-learning · research-paper · stem-lab-report.
+- Genre resolution: `?assignment=` param → remembered `tupana_assignment_id`
+  (set by the app) → default essay. Unknown ids fall back to default. A genre
+  chip in the header names the active layer; CTA and skip carry its query.
+- Per-genre content: what-this-is intro · why-authenticity-matters framing ·
+  three myth-or-real checks (the authorship myth is shared; the other two are
+  the layer's own integrity hazards — e.g. research: fabricated citations and
+  summary-as-paper; STEM: adjusting results and jargon-as-rigor; service-
+  learning: padded hours and deficit framing; SOP: impressive-over-specific) ·
+  route-map stage labels · rehearsal sample sentence + coach note · the
+  genre's authenticity ground rule. Shared beats (rule card, Stage 6 lock,
+  accept/adapt/reject rehearsal, Council, mandatory privacy bubble, finale)
+  are identical across layers.
+- Worker dev origin added for family phone access:
+  `http://172.20.10.2:8000` (founder's Mac on LAN/hotspot), deployed as
+  version `4fe708bd` and probe-verified from that origin; flagged dev-only,
+  remove before production hardening. Phone use requires the phone and Mac on
+  the same network and the local server running.
+- Verification: `tutorial_page_test.mjs` 39/39 — deep admissions pass plus
+  per-genre passes (chip, tap-through, integrity marker, CTA/skip targets)
+  plus resolution boundaries (bare URL, remembered layer, unknown id).
 
 ## Start Here tutorial — `start-here.html` (2026-07-31)
 

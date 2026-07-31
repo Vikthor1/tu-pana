@@ -27,8 +27,9 @@ const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
 // NOTE: the two localhost entries are DEV-ONLY (local testing against this Worker).
 // For a production-only deployment they can be removed, leaving the GitHub Pages origin.
 const ALLOWED_ORIGINS = new Set([
-    'http://localhost:8000',   // dev only
-    'http://localhost:3001',   // dev only
+    'http://localhost:8000',    // dev only
+    'http://localhost:3001',    // dev only
+    'http://172.20.10.2:8000',  // dev only — founder's Mac on LAN/hotspot, for family phone access (2026-07-31); remove before production hardening
     'https://vikthor1.github.io',
 ]);
 

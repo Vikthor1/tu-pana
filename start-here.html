@@ -54,6 +54,16 @@
     }
     h1 em { font-style: italic; color: var(--jade); }
     .subtitle { color: var(--ink-soft); font-size: 16px; }
+    .genre-chip {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 6px 14px;
+        border: 1px solid var(--jade);
+        border-radius: 999px;
+        font: 700 13px/1.2 var(--font-body);
+        color: var(--jade-deep);
+        background: var(--jade-glow);
+    }
 
     /* ── Progress ── */
     .progress {
@@ -135,6 +145,10 @@
         font: 700 22px/1.3 var(--font-display);
         display: block;
     }
+    .rule-card .rule-list {
+        font: 600 17px/1.7 var(--font-body);
+        display: block;
+    }
     @keyframes rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
     @media (prefers-reduced-motion: reduce) { .msg { animation: none; } }
 
@@ -212,7 +226,7 @@
         font-weight: 700;
     }
 
-    /* ── Sample essay line used in demos ── */
+    /* ── Sample line used in the rehearsal ── */
     .sample {
         font: 400 17px/1.65 var(--font-display);
         font-style: italic;
@@ -278,7 +292,8 @@
 <header>
     <p class="brand">Tu Pana de Escritura</p>
     <h1>Before you write a word, <em>pana</em>…</h1>
-    <p class="subtitle">Two minutes. Then the essay is all yours. · Dos minutos y arrancamos.</p>
+    <p class="subtitle">Two minutes. Then the writing is all yours. · Dos minutos y arrancamos.</p>
+    <span class="genre-chip" id="genreChip"></span>
 </header>
 
 <div class="progress" role="presentation">
@@ -289,64 +304,212 @@
 <main id="chat" aria-live="polite"></main>
 
 <div class="skip-row">
-    <a href="index.html?assignment=college-personal-statement" id="skipLink">I've done this before — skip to the app · Ya lo conozco</a>
+    <a href="index.html" id="skipLink">I've done this before — skip to the app · Ya lo conozco</a>
 </div>
 
 <script>
 (function () {
     'use strict';
-    const APP_URL = 'index.html?assignment=college-personal-statement';
-    const chat = document.getElementById('chat');
-    const fill = document.getElementById('progressFill');
-    const chapterLabel = document.getElementById('progressChapter');
-    const countLabel = document.getElementById('progressCount');
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ════════════════════════════════════════════════════════
+    //  GENRE CONFIGURATION — one conversation engine, per-genre content.
+    //  Same config-over-fork pattern as the app's genre layers. Every genre
+    //  supplies: its label, why-it-matters intro, three myth checks, a route
+    //  map, a rehearsal sample + coach note, and its authenticity rule.
+    // ════════════════════════════════════════════════════════
+    const DEFAULT_GENRE = 'mixed-genre-autobiographical-essay';
+
+    // Shared myth #1 — the authorship myth, identical across genres.
+    const AI_MYTH = {
+        prompt: '“The move is: AI writes a draft, I just fix it up.”',
+        myth: '<strong>Myth</strong> — and not just here. Writing that starts as AI text stays hollow no matter how much you edit it, and readers can smell it. Here it’s also impossible: the deep tools stay locked until you’ve written your own first draft.',
+        real: 'That’s the myth, pana. Writing that starts as AI text stays hollow no matter how much you edit, and readers can smell it. Here it’s also impossible: the deep tools stay locked until you’ve written your own first draft.'
+    };
+
+    const GENRES = {
+        'mixed-genre-autobiographical-essay': {
+            label: 'Your Essay · Tu ensayo',
+            appQuery: '',
+            what: 'this essay: a real memory of yours, connected to something bigger — history, community, language, power. Memory plus analysis.',
+            whyStrict: 'Because the whole assignment is the connection between <strong>your</strong> life and the larger world. A generic essay about “overcoming challenges” says nothing. The only material that works is material only you have.',
+            myths: [
+                AI_MYTH,
+                { prompt: '“My personal story isn’t academic enough for a college essay.”',
+                  myth: '<strong>Myth.</strong> In this genre your story IS the evidence. The academic move isn’t dropping the memory — it’s connecting it to the bigger forces around it. That connection is exactly what we’ll build, stage by stage.',
+                  real: 'Other way around. In this genre your story IS the evidence. The academic move isn’t dropping the memory — it’s connecting it to the bigger forces around it. That’s exactly what we’ll build, stage by stage.' },
+                { prompt: '“If my family’s Spanish or my neighborhood shows up in my essay, that’s a weakness.”',
+                  myth: '<strong>Myth — hard myth.</strong> The details only you can write — the Spanish your family actually speaks, the block you grew up on, the thing your mom says — that’s not a weakness, that’s the essay. I’m literally programmed to protect that from being polished away.',
+                  real: 'Other way around. The details only you can write — the Spanish your family actually speaks, the block you grew up on — that’s not a weakness, that’s the essay. I’m literally programmed to protect that from being polished away.' }
+            ],
+            route: {
+                start: ['1 Memory', '2 Connection', '3 Pitch', '4 Dig deeper', '5 Outline'],
+                revise: ['7 Revision', '8 Voice polish', '9 Checklist']
+            },
+            sample: 'That summer taught me a lot about responsibility and the importance of family.',
+            coachNote: '“‘Taught me a lot about responsibility’ is the summary every reader has seen a thousand times. What’s one specific moment from that summer — a sound, a mistake, an argument — that could show it instead?”',
+            authenticityRule: 'Your Spanish, your neighborhood, your weird specific details: those STAY.'
+        },
+        'college-personal-statement': {
+            label: 'College Admissions Essay · Ensayo de admisión',
+            appQuery: '?assignment=college-personal-statement',
+            what: 'your college application essay — the one piece of the application where they hear <strong>you</strong>, not your transcript.',
+            whyStrict: 'Because admissions readers see thousands of essays, and the generic AI ones all sound the same — smooth, empty, forgettable. The only unfair advantage you have is that <strong>nobody else has your life</strong>. My job is to keep that on the page.',
+            myths: [
+                AI_MYTH,
+                { prompt: '“If my family’s Spanish or my neighborhood shows up in my essay, that’s a weakness.”',
+                  myth: '<strong>Myth — hard myth.</strong> The details only you can write — the Spanish your family actually speaks, the block you grew up on, the thing your mom says — that’s not a weakness, that’s the essay. I’m literally programmed to protect that from being polished away.',
+                  real: 'Other way around. The details only you can write — the Spanish your family actually speaks, the block you grew up on — that’s not a weakness, that’s the essay. I’m literally programmed to protect that from being polished away.' },
+                { prompt: '“Tu Pana can tell me my chances of getting in.”',
+                  myth: '<strong>Myth.</strong> Nobody can — not me, not any AI, not that one guy on YouTube. I refuse to even guess, because chasing “what admissions wants to hear” is exactly how essays go generic. We’re chasing <em>true and specific</em> instead.',
+                  real: 'Nope — nobody can. Not me, not any AI, not that one guy on YouTube. I refuse to even guess, because chasing “what admissions wants to hear” is exactly how essays go generic. We’re chasing <em>true and specific</em> instead.' }
+            ],
+            route: {
+                start: ['1 Memory', '2 Connection', '3 Pitch', '4 Dig deeper', '5 Outline'],
+                revise: ['7 Revision', '8 Voice polish', '9 Checklist']
+            },
+            sample: 'The summer I spent helping my uncle rebuild his car taught me a lot about responsibility and hard work.',
+            coachNote: '“‘Taught me a lot about responsibility and hard work’ is the summary every reader has seen a thousand times. What’s one specific moment from that garage — a sound, a mistake, an argument — that could show it instead?”',
+            authenticityRule: 'Your Spanish, your Bronx, your weird specific details: those STAY.'
+        },
+        'graduate-sop': {
+            label: 'Graduate Statement of Purpose · Carta de intención',
+            appQuery: '?assignment=graduate-sop',
+            what: 'your Statement of Purpose — the document where a committee of professors decides whether your trajectory fits their program.',
+            whyStrict: 'Because SOP readers are professors who’ve read hundreds of “I have always been passionate about…” openings. What convinces them is <strong>specifics</strong>: named projects, real methods, concrete reasons this program. Generic polish is the enemy; your actual intellectual story is the asset.',
+            myths: [
+                AI_MYTH,
+                { prompt: '“The goal is to sound as impressive as possible.”',
+                  myth: '<strong>Myth.</strong> The goal is to sound <em>specific</em>. “I developed strong research skills” impresses nobody; “I spent two semesters cleaning survey data and learned why question order matters” gets read twice. Specific beats impressive every time.',
+                  real: 'That’s the trap, actually. The goal is to sound <em>specific</em>. “I developed strong research skills” impresses nobody; “I spent two semesters cleaning survey data” gets read twice. Specific beats impressive every time.' },
+                { prompt: '“Tu Pana can tell me my chances of getting in.”',
+                  myth: '<strong>Myth.</strong> No one can, and I refuse to guess — chasing “what committees want to hear” is exactly how statements go generic. We chase <em>true, specific, and disciplinarily grounded</em> instead.',
+                  real: 'Nope — no one can, and I refuse to guess. Chasing “what committees want to hear” is exactly how statements go generic. We chase <em>true, specific, and disciplinarily grounded</em> instead.' }
+            ],
+            route: {
+                start: ['1 Origin moment', '2 Intellectual thread', '3 Pitch', '4 Program research', '5 Outline'],
+                revise: ['7 Revision', '8 Voice polish', '9 Checklist']
+            },
+            sample: 'I have always been passionate about science ever since I was a young child.',
+            coachNote: '“Every committee has read this sentence a thousand times. What’s the actual first moment your field became a question you couldn’t put down — a dataset, a lecture, a failure in lab?”',
+            authenticityRule: 'Your real intellectual voice stays. No “admissions-speak” — specific beats impressive.'
+        },
+        'cap200-bronx-beautiful-service-learning': {
+            label: 'Service-Learning Report · Informe de aprendizaje-servicio',
+            appQuery: '?assignment=cap200-bronx-beautiful-service-learning',
+            what: 'your service-learning report: what you actually did in the community, what you observed, and what it means — with academic structure.',
+            whyStrict: 'Because this report stands on two things at once: <strong>real service</strong> honestly documented, and <strong>real respect</strong> for the community you worked with. Invented hours or padded observations break the first; describing the community like a problem to be pitied breaks the second. I’ll push you on both.',
+            myths: [
+                AI_MYTH,
+                { prompt: '“If my hours or data are thin, I can round them up a little in the report.”',
+                  myth: '<strong>Myth — and a serious one.</strong> Your real logged hours, your real observations, your real data. If something didn’t happen, it doesn’t go in — and I will never help invent it. A thin, honest report can be revised; a padded one can’t be trusted at all.',
+                  real: 'Hard no on this one. Your real logged hours, your real observations, your real data. If something didn’t happen, it doesn’t go in — and I will never help invent it. A thin, honest report can be revised; a padded one can’t be trusted.' },
+                { prompt: '“Making the community sound worse off makes my service look more important.”',
+                  myth: '<strong>Myth.</strong> That’s called deficit framing, and it flattens real people into a backdrop for your growth. The strong report shows the community’s own knowledge and agency — and your service as participation, not rescue. I’ll flag deficit framing when I see it.',
+                  real: 'That’s deficit framing — and it flattens real people into a backdrop for your growth. The strong report shows the community’s own knowledge and agency, and your service as participation, not rescue. I’ll flag it when I see it.' }
+            ],
+            route: {
+                start: ['1 Project & partner', '2 Community need', '3 Proposal', '4 Service & data', '5 Outline'],
+                revise: ['7 Analysis revision', '8 Voice polish', '9 Checklist']
+            },
+            sample: 'Volunteering at the food pantry taught me the importance of giving back to the community.',
+            coachNote: '“This tells me what volunteering means in general — not what YOU did. What’s one concrete moment from your logged hours — a conversation, a task, something that surprised you — that your analysis could actually stand on?”',
+            authenticityRule: 'Real hours, real observations, community dignity. Nothing invented, no deficit framing.'
+        },
+        'research-paper': {
+            label: 'Research Paper · Trabajo de investigación',
+            appQuery: '?assignment=research-paper',
+            what: 'your research paper: a real question, real sources, and — the part that matters most — <strong>your</strong> analysis, distinguishable from your sources’.',
+            whyStrict: 'Because research writing runs on trust. Every claim needs to be traceable to a source or to your own reasoning, and your reader must always know which is which. AI that invents citations poisons exactly that — so I never supply sources, quotes, or citations. Not even “probably right” ones.',
+            myths: [
+                AI_MYTH,
+                { prompt: '“The AI can find or fill in citations for me.”',
+                  myth: '<strong>Myth — and the most dangerous one in research writing.</strong> I never invent or complete sources, titles, quotes, or page numbers, because fabricated citations are a form of academic dishonesty even when the AI did it. I’ll help you figure out what KIND of source you need and how to search — you find and verify the real thing.',
+                  real: 'This one ends academic careers, pana. I never invent or complete sources, titles, quotes, or page numbers — fabricated citations are academic dishonesty even when the AI did it. I help you plan the search; you find and verify the real thing.' },
+                { prompt: '“A good research paper is basically a summary of what the sources say.”',
+                  myth: '<strong>Myth.</strong> Summary is the floor, not the paper. The paper is your argument, with sources as evidence for it. If every paragraph could have been written by someone who never had your research question, it’s a book report. I’ll keep asking: where’s YOUR analysis in this paragraph?',
+                  real: 'Summary is the floor, not the paper. The paper is your argument, with sources as evidence for it. If every paragraph could’ve been written by someone without your research question, it’s a book report. I’ll keep asking where YOUR analysis is.' }
+            ],
+            route: {
+                start: ['1 Question', '2 Context', '3 Pitch', '4 Sources & evidence', '5 Outline'],
+                revise: ['7 Argument revision', '8 Voice polish', '9 Checklist']
+            },
+            sample: 'Many scholars have written about this topic for many years and it is very important to society.',
+            coachNote: '“This sentence could open any paper ever written. Which scholars? What do they disagree about? And what’s the specific gap YOUR question walks into?”',
+            authenticityRule: 'Every claim traceable. Your analysis always distinguishable from your sources’.'
+        },
+        'stem-lab-report': {
+            label: 'STEM Lab Report · Informe de laboratorio',
+            appQuery: '?assignment=stem-lab-report',
+            what: 'your lab report: what you did, what you measured, what it means — written so another scientist could follow and check it.',
+            whyStrict: 'Because science writing has one non-negotiable: <strong>report what actually happened</strong>. Your real procedure, your real numbers, including the messy ones. I’ll help you explain and interpret — I’ll never help you smooth, adjust, or invent data.',
+            myths: [
+                AI_MYTH,
+                { prompt: '“If my results look wrong, I should adjust them to match what was supposed to happen.”',
+                  myth: '<strong>Myth — the cardinal sin of science.</strong> Unexpected results aren’t failure; they’re findings. The move is to report them honestly and reason about WHY — error sources, limitations, next steps. That discussion section is where lab reports earn real credit.',
+                  real: 'That’s the cardinal sin of science, pana. Unexpected results aren’t failure — they’re findings. Report them honestly and reason about WHY: error sources, limitations, next steps. That discussion is where reports earn real credit.' },
+                { prompt: '“The more technical jargon, the more scientific it sounds.”',
+                  myth: '<strong>Myth.</strong> Clarity IS the scientific style. Jargon that hides meaning isn’t rigor — it’s camouflage, and graders see through it. Precise, plain sentences about real measurements beat impressive-sounding fog every time.',
+                  real: 'Clarity IS the scientific style. Jargon that hides meaning isn’t rigor — it’s camouflage, and graders see through it. Precise, plain sentences about real measurements beat impressive-sounding fog every time.' }
+            ],
+            route: {
+                start: ['1 Question', '2 Background', '3 Hypothesis', '4 Procedure & data', '5 Outline'],
+                revise: ['7 Analysis revision', '8 Clarity polish', '9 Checklist']
+            },
+            sample: 'The experiment was a success and the results proved our hypothesis completely.',
+            coachNote: '“‘Proved completely’ is a claim no real experiment makes. What did your data actually show, with what uncertainty — and what would you check next time?”',
+            authenticityRule: 'Honest data, stated uncertainty. Unexpected results are findings, not failures.'
+        }
+    };
+
+    // ── Genre resolution: ?assignment= param → remembered app layer → default ──
+    function resolveGenreId() {
+        try {
+            const fromUrl = new URLSearchParams(location.search).get('assignment');
+            if (fromUrl && GENRES[fromUrl]) return fromUrl;
+            const remembered = localStorage.getItem('tupana_assignment_id');
+            if (remembered && GENRES[remembered]) return remembered;
+        } catch (e) {}
+        return DEFAULT_GENRE;
+    }
+
+    const genreId = resolveGenreId();
+    const G = GENRES[genreId];
+    const APP_URL = 'index.html' + G.appQuery;
+    document.getElementById('genreChip').textContent = G.label;
+    document.getElementById('skipLink').href = APP_URL;
+    document.body.dataset.genre = genreId;
 
     // ── The script: coach bubbles + your choices ─────────────────────────
-    // step types:
-    //   coach   {html}                 one bubble from Tu Pana
-    //   block   {html}                 full-width card (rules, route map, samples)
-    //   ask     {options:[{label, reply}]}          tap → your bubble + coach reply
-    //   quiz    {options:[{label, right, reply}]}   myth-or-fact with feedback
-    //   finale  {}                     closing card with the start button
+    function routeBlock() {
+        const chip = (label, gate) => '<span class="route-stage' + (gate ? ' gate' : '') + '">' + label + '</span>';
+        return '<div class="route-phase"><span class="route-phase-name">Start · 1–6</span><div class="route-stages">' +
+            G.route.start.map(s => chip(s, false)).join('') + chip('6 First draft — the lock 🔒', true) + '</div></div>' +
+            '<div class="route-phase"><span class="route-phase-name">Revise · 7–9</span><div class="route-stages">' +
+            G.route.revise.map(s => chip(s, false)).join('') + '</div></div>' +
+            '<div class="route-phase"><span class="route-phase-name">Finish · 10</span><div class="route-stages">' +
+            chip('10 Reflection + report', false) + '</div></div>';
+    }
+
     const SCRIPT = [
         { chapter: 'The deal' },
-        { type: 'coach', html: 'Oye. I’m <strong>Tu Pana</strong> — your writing coach for this essay. Not your ghostwriter. There’s a difference, and it’s the whole point.' },
-        { type: 'block', html: '<span class="rule-eyebrow">La regla de oro · The one rule</span><span class="rule-big">You write every word. I ask questions, point at what’s working, and flag what’s not. I will never write your essay — even if you ask nicely.</span>', cls: 'rule-card' },
-        { type: 'coach', html: 'Why so strict? Because admissions readers see thousands of essays, and the generic AI ones all sound the same — smooth, empty, forgettable. The only unfair advantage you have is that <strong>nobody else has your life</strong>. My job is to keep that on the page.' },
+        { type: 'coach', html: 'Oye. I’m <strong>Tu Pana</strong> — your writing coach for ' + G.what + ' I’m not your ghostwriter. There’s a difference, and it’s the whole point.' },
+        { type: 'block', html: '<span class="rule-eyebrow">La regla de oro · The one rule</span><span class="rule-big">You write every word. I ask questions, point at what’s working, and flag what’s not. I will never write it for you — even if you ask nicely.</span>', cls: 'rule-card' },
+        { type: 'coach', html: G.whyStrict },
         { type: 'ask', options: [
-            { label: 'Fair. So what CAN you do?', reply: 'A lot. I read your draft like a smart, honest friend: I ask the question that unlocks a memory, tell you which sentence is carrying the essay, and which paragraph is hiding it. You decide what to do about it — every single time.' },
-            { label: 'What if I get stuck?', reply: 'Then you tell me and we talk it out — that’s literally what I’m for. Getting stuck is part of writing, not a malfunction. What I won’t do is hand you sentences to paste. Struggle a little; the essay comes out sounding like you.' }
+            { label: 'Fair. So what CAN you do?', reply: 'A lot. I read your draft like a smart, honest friend: I ask the question that unlocks what you actually know, tell you which sentence is carrying the piece, and which paragraph is hiding it. You decide what to do about it — every single time.' },
+            { label: 'What if I get stuck?', reply: 'Then you tell me and we talk it out — that’s literally what I’m for. Getting stuck is part of writing, not a malfunction. What I won’t do is hand you sentences to paste. Struggle a little; the writing comes out sounding like you.' }
         ]},
 
         { chapter: 'Myth check' },
         { type: 'coach', html: 'Quick round — call each one <strong>myth or real</strong>. No grade, just vibes.' },
-        { type: 'quiz', prompt: '“The move is: AI writes a draft, I just fix it up.”',
-          options: [
-            { label: 'Myth', right: true,  reply: '<strong>Myth</strong> — and not just here. An essay that starts as AI text stays hollow no matter how much you edit it, and readers can smell it. Here it’s also impossible: the deep tools stay locked until you’ve written your own first draft.' },
-            { label: 'Real', right: false, reply: 'That’s the myth, pana. An essay that starts as AI text stays hollow no matter how much you edit, and readers can smell it. Here it’s also impossible: the deep tools stay locked until you’ve written your own first draft.' }
-        ]},
-        { type: 'quiz', prompt: '“If my family’s Spanish or my neighborhood shows up in my essay, that’s a weakness.”',
-          options: [
-            { label: 'Myth', right: true,  reply: '<strong>Myth — hard myth.</strong> The details only you can write — the Spanish your family actually speaks, the block you grew up on, the thing your mom says — that’s not a weakness, that’s the essay. I’m literally programmed to protect that from being polished away.' },
-            { label: 'Real', right: false, reply: 'Other way around. The details only you can write — the Spanish your family actually speaks, the block you grew up on — that’s not a weakness, that’s the essay. I’m literally programmed to protect that from being polished away.' }
-        ]},
-        { type: 'quiz', prompt: '“Tu Pana can tell me my chances of getting in.”',
-          options: [
-            { label: 'Myth', right: true,  reply: '<strong>Myth.</strong> Nobody can — not me, not any AI, not that one guy on YouTube. I refuse to even guess, because chasing “what admissions wants to hear” is exactly how essays go generic. We’re chasing <em>true and specific</em> instead.' },
-            { label: 'Real', right: false, reply: 'Nope — nobody can. Not me, not any AI, not that one guy on YouTube. I refuse to even guess, because chasing “what admissions wants to hear” is exactly how essays go generic. We’re chasing <em>true and specific</em> instead.' }
-        ]},
+        ...G.myths.map(m => ({ type: 'quiz', prompt: m.prompt, options: [
+            { label: 'Myth', reply: m.myth },
+            { label: 'Real', reply: m.real }
+        ]})),
 
         { chapter: 'The route' },
         { type: 'coach', html: 'Here’s the whole journey. Ten stages, three phases. You can see where you are the entire time.' },
-        { type: 'block', html:
-            '<div class="route-phase"><span class="route-phase-name">Start · 1–6</span><div class="route-stages">' +
-            '<span class="route-stage">1 Memory</span><span class="route-stage">2 Connection</span><span class="route-stage">3 Pitch</span>' +
-            '<span class="route-stage">4 Dig deeper</span><span class="route-stage">5 Outline</span><span class="route-stage gate">6 First draft — the lock 🔒</span></div></div>' +
-            '<div class="route-phase"><span class="route-phase-name">Revise · 7–9</span><div class="route-stages">' +
-            '<span class="route-stage">7 Revision</span><span class="route-stage">8 Voice polish</span><span class="route-stage">9 Checklist</span></div></div>' +
-            '<div class="route-phase"><span class="route-phase-name">Finish · 10</span><div class="route-stages">' +
-            '<span class="route-stage">10 Reflection + report</span></div></div>', cls: 'route' },
+        { type: 'block', html: routeBlock(), cls: 'route' },
         { type: 'coach', html: 'Stage 6 is <strong>the lock</strong>: you write your first draft solo — no AI reading over your shoulder — and hit <em>Save</em>. That save is your proof of authorship, and it’s what unlocks the serious revision tools. Rough is fine. Rough is expected. First drafts are supposed to be a little embarrassing.' },
         { type: 'ask', options: [
             { label: 'What unlocks after the draft?', reply: 'Three levels of feedback. <strong>Passage coaching</strong>: select a few sentences in your draft and I read just that, closely. <strong>Full-draft review</strong>: I read everything through one lens you pick — structure, evidence, or voice. And the big one… the Council. More on that in a sec.' },
@@ -355,17 +518,17 @@
 
         { chapter: 'You’re the boss' },
         { type: 'coach', html: 'Now the most important skill in the whole app. When I give you feedback, you never just obey it. Try it — here’s a line from a (fake) draft:' },
-        { type: 'block', html: 'The summer I spent helping my uncle rebuild his car taught me a lot about responsibility and hard work.', cls: 'sample' },
-        { type: 'coach', html: 'My note would be: <em>“‘Taught me a lot about responsibility and hard work’ is the summary every reader has seen a thousand times. What’s one specific moment from that garage — a sound, a mistake, an argument — that could show it instead?”</em><br><br>You’d have three moves. Pick one — there’s no wrong answer:' },
+        { type: 'block', html: G.sample, cls: 'sample' },
+        { type: 'coach', html: 'My note would be: <em>' + G.coachNote + '</em><br><br>You’d have three moves. Pick one — there’s no wrong answer:' },
         { type: 'ask', options: [
-            { label: '✅ Accept — rewrite with a real moment', reply: 'Solid. You’d swap the summary for the moment the jack slipped, or the first time the engine turned over. <strong>You</strong> write the new version — I never hand you the sentence.' },
+            { label: '✅ Accept — revise along that line', reply: 'Solid. You’d replace the summary with the real, specific thing — and <strong>you</strong> write the new version. I never hand you the sentence.' },
             { label: '🔧 Adapt — take the idea, my way', reply: 'That’s the pro move honestly. Take the direction, ignore the framing, make it yours. Most good revision is adaptation, not obedience.' },
-            { label: '❌ Reject — the line stays', reply: 'A power move — seriously. Sometimes I’m wrong, or the line matters for reasons I can’t see. It’s your essay. In the app, rejecting feedback is a recorded, respected decision — not a failure.' }
+            { label: '❌ Reject — the line stays', reply: 'A power move — seriously. Sometimes I’m wrong, or the line matters for reasons I can’t see. It’s your work. In the app, rejecting feedback is a recorded, respected decision — not a failure.' }
         ]},
-        { type: 'coach', html: 'That’s the rhythm for every piece of feedback in the app: <strong>accept, adapt, or reject</strong> — and the app keeps score of your <em>decisions</em>, not your obedience. That decision log is actually evidence the essay is yours.' },
+        { type: 'coach', html: 'That’s the rhythm for every piece of feedback in the app: <strong>accept, adapt, or reject</strong> — and the app keeps score of your <em>decisions</em>, not your obedience. That decision log is actually evidence the work is yours.' },
 
         { chapter: 'The Council' },
-        { type: 'coach', html: 'When your draft is genuinely drafted — not perfect, just real — you can convene the <strong>Review Council</strong>: three readers go through your whole essay at once. <strong>Structure</strong> checks how it moves. <strong>Evidence</strong> checks if your moments are specific enough. <strong>Voice</strong> checks that it still sounds like you — and flags anything that’s drifting into generic “admissions-speak.”' },
+        { type: 'coach', html: 'When your draft is genuinely drafted — not perfect, just real — you can convene the <strong>Review Council</strong>: three readers go through the whole piece at once. <strong>Structure</strong> checks how it moves. <strong>Evidence</strong> checks if your material is specific enough. <strong>Voice</strong> checks that it still sounds like you — and flags anything drifting toward generic.' },
         { type: 'coach', html: 'Then a synthesis boils it down: <strong>what’s working (protect it)</strong>, at most three things to fix first, and — when the readers disagree — the question comes to <em>you</em> to settle. Every point quotes your actual words as evidence. No scores. No predictions. Ever.' },
         { type: 'ask', options: [
             { label: 'When should I use it?', reply: 'After Stage 6, once you’ve got a full draft you’ve pushed as far as you can alone. Council first, then work the priorities one at a time with passage coaching. Don’t re-convene after every comma — revise for real, then check again.' },
@@ -374,11 +537,16 @@
         { type: 'coach', html: 'One thing you should know either way, because it matters: nothing is ever sent to the AI while you’re just writing. Your words leave this browser <strong>only when you explicitly ask</strong> — a chat message, a passage, a review — and the app tells you exactly what’s being sent before it goes. Nothing is stored on a server; your work lives here, on this device.' },
 
         { chapter: 'Ground rules' },
-        { type: 'block', html: '<span class="rule-eyebrow">Cinco reglas · The five rules</span><span class="rule-big" style="font-size:17px; line-height:1.7; font-family:var(--font-body); font-weight:600;">1 — You write every word. The AI never does.<br>2 — Stage 6 first draft: solo, then save. That’s the key that unlocks everything.<br>3 — Accept, adapt, or reject every note. Rejecting is allowed and respected.<br>4 — Your Spanish, your Bronx, your weird specific details: those STAY.<br>5 — Same browser, same device, don’t clear data. Export a backup sometimes.</span>', cls: 'rule-card' },
+        { type: 'block', html: '<span class="rule-eyebrow">Cinco reglas · The five rules</span><span class="rule-list">1 — You write every word. The AI never does.<br>2 — Stage 6 first draft: solo, then save. That’s the key that unlocks everything.<br>3 — Accept, adapt, or reject every note. Rejecting is allowed and respected.<br>4 — ' + G.authenticityRule + '<br>5 — Same browser, same device, don’t clear data. Export a backup sometimes.</span>', cls: 'rule-card' },
         { type: 'finale' }
     ];
 
     // ── Engine ───────────────────────────────────────────────────────────
+    const chat = document.getElementById('chat');
+    const fill = document.getElementById('progressFill');
+    const chapterLabel = document.getElementById('progressChapter');
+    const countLabel = document.getElementById('progressCount');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const totalSteps = SCRIPT.filter(s => s.type).length;
     let done = 0;
     let index = 0;
@@ -409,7 +577,7 @@
         setTimeout(() => { t.remove(); fn(); }, 620);
     }
 
-    function offerChoices(options, isQuiz, prompt) {
+    function offerChoices(options, prompt) {
         if (prompt) bubble(prompt);
         const row = document.createElement('div');
         row.className = 'choices';
@@ -444,8 +612,8 @@
         div.className = 'msg finale';
         div.innerHTML =
             '<h2>Ya estás listo. · You’re ready.</h2>' +
-            '<p>Ten stages. Your words. One essay only you could write.</p>' +
-            '<a class="start-btn" id="startBtn" href="' + APP_URL + '">Empecemos — Start my essay →</a><br>' +
+            '<p>Ten stages. Your words. Work only you could write.</p>' +
+            '<a class="start-btn" id="startBtn" href="' + APP_URL + '">Empecemos — Start writing →</a><br>' +
             '<button type="button" class="replay-btn" id="replayBtn">Replay this intro · Repasar</button>';
         chat.appendChild(div);
         try { localStorage.setItem('tupana_tutorial_done', 'true'); } catch (e) {}
@@ -476,9 +644,9 @@
             bump();
             next();
         } else if (step.type === 'ask') {
-            offerChoices(step.options, false);
+            offerChoices(step.options);
         } else if (step.type === 'quiz') {
-            offerChoices(step.options, true, step.prompt);
+            offerChoices(step.options, step.prompt);
         } else if (step.type === 'finale') {
             finale();
         }

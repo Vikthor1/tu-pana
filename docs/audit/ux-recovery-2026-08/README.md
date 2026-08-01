@@ -1,14 +1,15 @@
 # Writing Studio UX Recovery Audit — package index
 
-**Branch `audit/ux-recovery-v1` · Baseline commit `84182d3` · Evidence-gathering dates
+**Authoritative audit commit `3462156` · Baseline commit `84182d3` · Evidence-gathering dates
 2026-07-31 → 2026-08-01 · Final QA/operational closeout 2026-08-01 · Founder-authorized UX
-Recovery and Exploration Mode.**
+Recovery and Exploration Mode · Founder R0 acceptance addendum 2026-08-01.**
 
-Boundaries honored: production untouched (Pages still serves `main`); no deploys, no merges, no
-SaaS backend work; no real student data anywhere in this package (all walk text is synthetic);
-no destructive migrations; prototype/tooling code confined to this branch. SaaS Sprint 1 remains
-paused. **Nothing in this package is approved for implementation until the founder rules on the
-exit-condition items below.**
+Boundaries honored: production untouched (Pages still serves `main`); no merges or SaaS backend
+work; no real student data anywhere in this package (all walk text is synthetic); no destructive
+migrations. After audit closeout, R0 commit `1462aea` was pushed and deployed only to the bounded
+Cloudflare family preview; deployment identity and founder results are recorded in
+`founder-r0-acceptance-2026-08-01.md`. SaaS Sprint 1 remains paused. **Nothing in this package
+approves a future architecture or production implementation.**
 
 ## Deliverables (brief item → file)
 
@@ -43,7 +44,10 @@ Supporting: `inventory/ai-interaction-model.md` (AI touchpoint/disclosure invent
 desktop, 2 mobile, tutorial) · `journeys/audit_walk.mjs` (the observational walker — promoted to
 a CI artifact in the validation plan) · `closeout/validate-audit.mjs` (read-only package and
 traceability validator) · `closeout/test-results-2026-08-01.md` (38-suite consolidated result) ·
-`closeout/closeout-report.md` (final QA decision summary).
+`closeout/closeout-report.md` (final QA decision summary) ·
+`founder-r0-acceptance-2026-08-01.md` (R0 PASS-with-concerns record) ·
+`evidence/founder-ux-exploration-evidence-2026-08-01.md` (physical-device P1 and binding
+exploration evidence).
 
 ## Evidence status and provenance
 
@@ -58,7 +62,7 @@ These rendered walks and code inspections are **expert evidence, not student usa
 research**. Student research remains pending under `usability-testing-protocol.md` and is
 required before any future-state direction or release can pass its lived-experience gate.
 
-Known coverage limits (stated, not silent): the tutorial walk captured only its opening beats
+Known original-audit coverage limits (stated, not silent): the tutorial walk captured only its opening beats
 (its own suite covers the flow 39/39; its language gap is confirmed by both code and rendered
 evidence); live-Gemini behavior (tone, latency, the founder-observed five-questions repetition
 under real replies) was NOT reproduced — mock-mode only; validation plan §3.4 assigns it a
@@ -66,6 +70,10 @@ manual live spot-check. Device-switching beyond viewport emulation and Brightspa
 were not exercised. Only the admissions tutorial variant was walked; the remaining tutorial
 variants were not. Device switching was reasoned from origin-scoped storage and viewport
 emulation, not exercised on two physical devices. Brightspace embedding was not exercised.
+
+Post-audit founder evidence adds a physical iPhone 17 Pro Max observation: passage coaching is
+present but unreliable because its actions are offscreen and native selection collapses while
+scrolling. This is the independent P1 release blocker defined in the founder acceptance addendum.
 
 ## Exit condition — what the founder must rule on (nothing proceeds without this)
 
@@ -77,8 +85,9 @@ emulation, not exercised on two physical devices. Brightspace embedding was not 
 5. Coach/review/Council experience incl. the maniSentence strip-vs-disclose choice
    (`proposed-ai-experience-model.md`).
 6. Bilingual strategy (`bilingual-content-strategy.md`).
-7. Remediation sequence — including whether R0 (11 immediate safety/trust corrections) ships
-   independently ahead of the direction decision (`remediation-roadmap.md`).
+7. R0 is deployed to the bounded preview and accepted **PASS-with-concerns**; its completion does
+   not lift the independent mobile-passage-coaching P1 release block
+   (`founder-r0-acceptance-2026-08-01.md`).
 8. Acceptance criteria (`acceptance-criteria.md`).
 9. VC-OS tuning: the permanent UX Exploration Mode proposal + test-tier split + invariant-vs-
    revisable decision markers (`vcos-governance-assessment.md` §7).

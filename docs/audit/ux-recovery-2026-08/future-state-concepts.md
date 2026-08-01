@@ -31,6 +31,14 @@ evidence or implementation approval.**
    default profile still speak essay (inventory/genre-stage-matrix.md).
 8. **Trust leaks**: navigation recorded as completion; "saved" celebrations styled differently
    in every surface; destructive reset one native confirm away from the header.
+9. **Mobile passage coaching is physically unreliable**: on iPhone 17 Pro Max the actions appear
+   but sit far above a bottom-of-draft selection; scrolling to them collapses or truncates the
+   native selection. Every candidate must preserve the captured passage and keep app-owned coach
+   actions inside the visual viewport (evidence/founder-ux-exploration-evidence-2026-08-01.md).
+10. **Reflection is duplicated and report truth is inconsistent**: the current finish flow
+    end-loads many overlapping prompts, omits Council decisions, and can report readiness or
+    completion without the underlying reflection/completion evidence. Every candidate must test
+    concise evidence-assisted reflection without inventing student reasoning (same evidence).
 
 ---
 
@@ -184,4 +192,6 @@ scope. Use the usability protocol's unaided tasks and ten-question probes; selec
 student comprehension and work-trust evidence first, then migration/governance cost. If B does
 not let first-time students immediately identify one real home and one current version, its
 retained artifact model fails the gate and should not proceed merely because it is easier to
-batch.
+batch. Every candidate must also satisfy the ten mobile passage-coaching acceptance requirements
+in `evidence/founder-ux-exploration-evidence-2026-08-01.md`, including validation on physical
+iPhone hardware; viewport simulation alone cannot close that P1.

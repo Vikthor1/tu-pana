@@ -58,7 +58,8 @@ function selectGeminiModel(stageId, requestKind) {
 function _statusToGeminiCategory(status) {
     if (status === 429) return 'rate_limited';
     if (status === 400) return 'bad_request';
-    if (status === 401 || status === 403) return 'auth_error';
+    if (status === 403) return 'origin_forbidden';
+    if (status === 401) return 'auth_error';
     if (status === 503 || status === 504) return 'service_unavailable';
     if (status >= 500) return 'upstream_error';
     return 'unknown_error';
@@ -87,6 +88,9 @@ function getGeminiErrorMessage(err) {
     }
     if (cat === 'auth_error') {
         return 'Hay un problema de configuración con el coach. Por favor, avisa a tu instructor/a.\nThere is a configuration issue with the coach. Please notify your instructor.';
+    }
+    if (cat === 'origin_forbidden') {
+        return 'Este sitio no está autorizado para usar el Coach IA. No intentes de nuevo: abre Tu Pana desde el enlace oficial o avisa a tu instructor/a.\nThis site is not authorized to use the Live AI coach. Do not retry: open Tu Pana from the official link or notify your instructor.';
     }
     if (cat === 'bad_request') {
         return 'El coach no pudo procesar la solicitud. Intenta de nuevo; si continúa, avisa a tu instructor/a.\nThe coach could not process the request. Try again; if it continues, notify your instructor.';
@@ -206,6 +210,12 @@ async function _callGeminiOnce(coachPayload) {
 async function callGeminiProviderViaProxy(coachPayload) {
     if (!CONFIG.geminiProxyUrl) {
         throw _mkGeminiErr('[Tu Pana] Gemini not configured: CONFIG.geminiProxyUrl is empty.', 'auth_error');
+    }
+    const allowedOrigins = Array.isArray(CONFIG.geminiAllowedOrigins) ? CONFIG.geminiAllowedOrigins : [];
+    if (typeof location !== 'undefined' && allowedOrigins.length && !allowedOrigins.includes(location.origin)) {
+        const err = _mkGeminiErr('[Tu Pana] Current origin is not authorized for the Gemini proxy.', 'origin_forbidden');
+        err.status = 403;
+        throw err;
     }
 
     let lastErr;

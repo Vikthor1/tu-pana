@@ -297,7 +297,7 @@ function t(gentle, direct) {
 
 function toggleTone() {
     state.tone = state.tone === 'gentle' ? 'direct' : 'gentle';
-    try { localStorage.setItem('tupana_tone', state.tone); } catch(e) {}
+    tupanaSafeSetItem('tupana_tone', state.tone, 'coach preference');
     if (D.toneToggleLabel) {
         D.toneToggleLabel.innerHTML = state.tone === 'direct'
             ? '<span class="show-es">Directo</span><span class="lang-sep"> · </span><span class="show-en">Direct</span>'
@@ -332,7 +332,7 @@ function initTone() {
 function setLang(pref) {
     state.lang = pref;
     document.documentElement.dataset.lang = pref;
-    try { localStorage.setItem('tupana_lang', pref); } catch(e) {}
+    tupanaSafeSetItem('tupana_lang', pref, 'language preference');
     document.querySelectorAll('.lang-btn').forEach(b => {
         const active = b.dataset.lang === pref;
         b.setAttribute('aria-pressed', active ? 'true' : 'false');
@@ -408,7 +408,7 @@ function loadProtected() {
     try { return JSON.parse(localStorage.getItem(PROTECTED_KEY) || '[]'); } catch(e) { return []; }
 }
 function saveProtected(arr) {
-    try { localStorage.setItem(PROTECTED_KEY, JSON.stringify(arr)); } catch(e) {}
+    return tupanaSafeSetItem(PROTECTED_KEY, JSON.stringify(arr), 'Voice Vault');
 }
 
 function injectVoiceVaultPanel() {
@@ -508,7 +508,9 @@ function protectSelectedPhrase() {
     }
     const id = Date.now();
     phrases.push({ text, id, savedAt: new Date().toISOString() });
-    saveProtected(phrases);
+    if (!saveProtected(phrases)) {
+        return vaultSay(t('No se guardó la frase — usa el respaldo de emergencia arriba. · Phrase not saved — use the emergency backup above.', 'Phrase not saved — use the emergency backup above.'), false);
+    }
     renderVoiceVault();
     updateProtectBtn();
     logProcessEvent('voice_vault_phrase_added', `Voice Vault: phrase protected (${text.length} chars). Total: ${phrases.length}.`);
@@ -678,7 +680,7 @@ function loadCapstoneData() {
 }
 
 function _saveCapstoneRaw(data) {
-    try { localStorage.setItem('tupana_capstone', JSON.stringify(data)); } catch(e) {}
+    return tupanaSafeSetItem('tupana_capstone', JSON.stringify(data), 'final reflection');
 }
 
 function setCapstoneRating(criterion, val, btn) {
@@ -1045,7 +1047,7 @@ function setStep(n) {
     const clamped = Math.max(1, Math.min(n, steps.length));
     if (clamped === state.step) return;
     state.step = clamped;
-    try { localStorage.setItem(`tupana_step_${state.stage}`, String(clamped)); } catch(e) {}
+    tupanaSafeSetItem(`tupana_step_${state.stage}`, String(clamped), `Step ${state.stage} progress`);
     updateCurrentTaskBar();
 }
 
@@ -1262,7 +1264,7 @@ Required JSON format (fill in all 8 dimensions; use only these rating values: "S
         showTyping(true);
         try {
             const _gLang = getCurrentCoachLanguageLabel();
-            const { maniSentence: _unusedManiSentence, ..._gCtx } = buildChannelData();
+            const _gCtx = buildChannelData();
             const geminiPrompt =
                 buildOllamaSystemPrompt(_gLang) +
                 '\n\n---\n\n' +
@@ -1567,7 +1569,7 @@ function submitCapstone10C() {
                 skill: 'AI advice evaluation / reflective decision-making',
                 written: true
             });
-            localStorage.setItem('tupana_decisions', JSON.stringify(log.slice(-50)));
+            tupanaSafeSetItem('tupana_decisions', JSON.stringify(log.slice(-50)), 'revision decisions');
         }
     } catch(e) {}
     logProcessEvent('capstone_ai_reflection_completed', 'Stage 10 AI use reflection submitted.');
@@ -1862,7 +1864,7 @@ if (D.mobileStageSelect) {
 function toggleJourneyView() {
     state.showAllJourney = !state.showAllJourney;
     try {
-        localStorage.setItem('tupana_journey_expand', state.showAllJourney ? 'true' : 'false');
+        tupanaSafeSetItem('tupana_journey_expand', state.showAllJourney ? 'true' : 'false', 'journey preference');
     } catch(e) {}
     D.journeyToggle.classList.toggle('expanded', state.showAllJourney);
     buildMap();
@@ -1878,7 +1880,7 @@ function toggleChatProgress() {
     const _cpToggleBtn = document.getElementById('chatProgressToggle');
     if (_cpToggleBtn) _cpToggleBtn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
     try {
-        localStorage.setItem('tupana_progress_collapsed', isCollapsed ? 'true' : 'false');
+        tupanaSafeSetItem('tupana_progress_collapsed', isCollapsed ? 'true' : 'false', 'progress preference');
     } catch(e) {}
 }
 
@@ -2053,7 +2055,7 @@ function goToStage(id, options = {}) {
         const mL = msLabel(ms);
         D.headerSub.innerHTML = `<span class="show-es">TU COACH DE ESCRITURA</span><span class="lang-sep">&nbsp;·&nbsp;</span><span class="show-en">YOUR WRITING COACH</span>&nbsp;—&nbsp;<span class="header-stage-inline"><span class="show-es">Paso ${ms.n} de ${TOTAL_MILESTONES} · ${escapeHtml(mL.es)}</span><span class="lang-sep"> / </span><span class="show-en">Step ${ms.n} of ${TOTAL_MILESTONES} · ${escapeHtml(mL.en)}</span></span>`;
     }
-    try { localStorage.setItem('tupana_stage', String(id)); } catch(e) {}
+    tupanaSafeSetItem('tupana_stage', String(id), 'current step');
     buildMap();
     updateCurrentTaskBar();
 
@@ -2126,7 +2128,7 @@ function goToStage(id, options = {}) {
             if (id === 7 && !localStorage.getItem('tupana_fiveq_stage7_opened_once')) {
                 const fqDetails = fqs.querySelector('.five-q-details');
                 if (fqDetails) fqDetails.open = true;
-                try { localStorage.setItem('tupana_fiveq_stage7_opened_once', '1'); } catch(e) {}
+                tupanaSafeSetItem('tupana_fiveq_stage7_opened_once', '1', 'review progress');
             }
         }
     }
@@ -2283,6 +2285,28 @@ function updateDraftControls() {
     }
     updateEditToolbarBtns();
     updateFullDraftReviewButton();
+    updateSavedNotice();
+}
+
+// R0 interim truth fix. This describes the artifact that actually exists in
+// the current stage and names revision availability only at the Stage 6 gate.
+function updateSavedNotice() {
+    if (!D.savedNotice) return;
+    const textEl = document.getElementById('savedNoticeText');
+    const content = (() => {
+        try { return localStorage.getItem(`tupana_writing_s${state.stage}`) || ''; } catch (e) { return ''; }
+    })();
+    if (!content.trim() && !(state.stage === 6 && state.draftSaved)) {
+        D.savedNotice.classList.remove('on');
+        return;
+    }
+    const label = _stageOneLine(stLabel(state.stage));
+    if (textEl) {
+        textEl.innerHTML = state.stage === 6 && state.draftSaved
+            ? '<span class="show-es">Primer borrador del Paso 6 guardado en este navegador — apoyo de revisión disponible.</span><span class="lang-sep"> · </span><span class="show-en">Step 6 first draft saved in this browser — revision support available.</span>'
+            : `<span class="show-es">Trabajo del Paso ${state.stage} (${escapeHtml(label.es)}) guardado en este navegador.</span><span class="lang-sep"> · </span><span class="show-en">Step ${state.stage} work (${escapeHtml(label.en)}) saved in this browser.</span>`;
+    }
+    D.savedNotice.classList.add('on');
 }
 
 function showTip(e, s) {
@@ -2347,7 +2371,8 @@ function _setAutosaveStatus(mode) {
     elS.classList.remove('autosave-status--saved', 'autosave-status--error');
     if (mode === 'saved') {
         elS.classList.add('autosave-status--saved');
-        elS.innerHTML = '<span class="show-es">✓ Guardado</span><span class="lang-sep"> · </span><span class="show-en">Saved</span>';
+        const label = _stageOneLine(stLabel(state.stage));
+        elS.innerHTML = `<span class="show-es">✓ Trabajo del Paso ${state.stage} (${escapeHtml(label.es)}) guardado</span><span class="lang-sep"> · </span><span class="show-en">Step ${state.stage} work (${escapeHtml(label.en)}) saved</span>`;
         clearTimeout(_setAutosaveStatus._fade);
         _setAutosaveStatus._fade = setTimeout(() => {
             if (elS.classList.contains('autosave-status--saved')) {
@@ -2377,12 +2402,8 @@ function autosaveFlush() {
     if (D.draftArea.disabled) { _autosaveSettle(); return true; }
     clearTimeout(_autosaveTimer);
     _autosaveTimer = null;
-    let ok = false;
-    try {
-        localStorage.setItem(`tupana_writing_s${state.stage}`, D.draftArea.value);
-        ok = true;
-    } catch(e) { ok = false; }
-    if (ok) { _autosaveDirty = false; _setAutosaveStatus('saved'); }
+    const ok = tupanaSafeSetItem(`tupana_writing_s${state.stage}`, D.draftArea.value, `Step ${state.stage} writing`);
+    if (ok) { _autosaveDirty = false; _setAutosaveStatus('saved'); updateSavedNotice(); }
     else    { _setAutosaveStatus('error'); }
     return ok;
 }
@@ -2564,6 +2585,15 @@ function executeSave() {
         addSys('Guarda tu borrador solo en la Etapa 6. / Save your draft only at Stage 6.');
         return;
     }
+    const saved = tupanaSafeWriteBatch([
+        ['tupana_draft', D.draftArea.value],
+        ['tupana_draft_saved', 'true'],
+        ['tupana_writing_s6', D.draftArea.value]
+    ], 'Stage 6 first draft');
+    if (!saved) {
+        _setAutosaveStatus('error');
+        return;
+    }
     state.draftSaved = true;
     setStep(3);
     D.draftArea.disabled = true;
@@ -2578,11 +2608,6 @@ function executeSave() {
     const footerNote = document.querySelector('.draft-footer-note');
     if (footerNote) footerNote.classList.add('hidden');
 
-    try {
-        localStorage.setItem('tupana_draft',       D.draftArea.value);
-        localStorage.setItem('tupana_draft_saved', 'true');
-        localStorage.setItem('tupana_writing_s6',  D.draftArea.value);
-    } catch(e) {}
     _autosaveSettle(); // ceremony save above just persisted s6; cancel any pending autosave
     logProcessEvent('first_draft_saved', `Unassisted first draft saved. Word count: ${D.draftArea.value.trim().split(/\s+/).filter(Boolean).length}.`);
     unlockStageSkill(6); // Author-owned draft — gated on actual save, not stage entry
@@ -2926,8 +2951,6 @@ function showTyping(on) {
 
 // Build channelData with full app context for AI stage awareness
 function buildChannelData() {
-    let maniSentence = '';
-    try { maniSentence = localStorage.getItem('tupana_mani_sentence') || ''; } catch(e) {}
     return {
         app: 'tupana',
         assignmentId: state.assignmentId || null,
@@ -2937,7 +2960,6 @@ function buildChannelData() {
         draftSaved: state.draftSaved,
         maniDone: localStorage.getItem('tupana_mani_done') === 'true',
         labDone: localStorage.getItem('tupana_lab_done') === 'true',
-        maniSentence: maniSentence.slice(0, 280),
         wordCount: D.draftArea ? D.draftArea.value.trim().split(/\s+/).filter(Boolean).length : 0,
         tone: state.tone,
         priorCoachResponses: (() => {
@@ -2958,7 +2980,7 @@ function buildChannelData() {
 function setCoachMode(mode) {
     if (!['offline', 'ollama', 'gemini'].includes(mode)) mode = 'offline';
     state.coachMode = mode;
-    localStorage.setItem('tupana_coach_mode', mode);
+    tupanaSafeSetItem('tupana_coach_mode', mode, 'coach preference');
     if (D.stuckBtn) D.stuckBtn.disabled = false;
 
     // Sync toggle button states
@@ -3095,7 +3117,7 @@ function maybeShowFirstAiSendCue() {
     _aiCueShownThisLoad = true;
     try {
         if (localStorage.getItem('tupana_ai_cue_seen') === 'true') return;
-        localStorage.setItem('tupana_ai_cue_seen', 'true');
+        tupanaSafeSetItem('tupana_ai_cue_seen', 'true', 'AI disclosure acknowledgement');
     } catch(e) {}
     addMsg(
         'Coach IA en vivo: tu mensaje y el texto relevante de tu escritura se envían a la IA para generar la respuesta. Tu Pana no guarda tu escritura en un servidor.\nLive AI coach: your message and the relevant text from your writing are sent to the AI to generate the response. Tu Pana does not store your writing on a server.',
@@ -3949,7 +3971,7 @@ function _saveFullDraftReview(record) {
         const prior = saved.projects[projectId];
         const reviews = prior && Array.isArray(prior.reviews) ? prior.reviews : [];
         saved.projects[projectId] = { reviews: reviews.concat(record).slice(-10) };
-        localStorage.setItem(FULL_DRAFT_REVIEW_KEY, JSON.stringify(saved));
+        tupanaSafeSetItem(FULL_DRAFT_REVIEW_KEY, JSON.stringify(saved), 'full-draft review history');
     } catch(e) {}
 }
 
@@ -4457,7 +4479,9 @@ async function launchCouncilRun(modal, { draft, words, signature }) {
 function _renderCouncilAbort(modal, reason) {
     const card = _councilCard(modal);
     if (!card) return;
-    const message = reason === 'too-few-reviewers'
+    const message = reason === 'permanent-config-error'
+        ? '<span class="show-es">Este sitio no está autorizado para usar el Coach IA. El consejo se detuvo y no volverá a intentarlo automáticamente. Abre Tu Pana desde el enlace oficial o avisa a tu instructor/a.</span><span class="lang-sep"> / </span><span class="show-en">This site is not authorized to use the Live AI coach. The Council stopped and will not retry automatically. Open Tu Pana from the official link or notify your instructor.</span>'
+        : reason === 'too-few-reviewers'
         ? '<span class="show-es">El consejo no pudo completar suficientes lecturas. Tu borrador no cambió y no se guardó nada. Puedes intentarlo de nuevo o usar una revisión de un solo lente.</span><span class="lang-sep"> / </span><span class="show-en">The Council could not complete enough readings. Your draft is unchanged and nothing was saved. You can try again or use a single-lens review.</span>'
         : '<span class="show-es">El consejo no pudo terminar esta vez. Tu borrador no cambió y no se guardó nada. Puedes intentarlo de nuevo en un momento.</span><span class="lang-sep"> / </span><span class="show-en">The Council could not finish this time. Your draft is unchanged and nothing was saved. You can try again in a moment.</span>';
     card.innerHTML = `
@@ -4625,7 +4649,7 @@ function _renderCouncilReport(modal, record, { stale }) {
 //  content exists yet (first time the student reaches revision).
 // ════════════════════════════════════════════════════════
 function saveStageWork(stageNum, text) {
-    try { localStorage.setItem(`tupana_writing_s${stageNum}`, text); } catch(e) {}
+    return tupanaSafeSetItem(`tupana_writing_s${stageNum}`, text, `Step ${stageNum} writing`);
 }
 
 function loadStageWork(stageNum) {
@@ -4664,7 +4688,7 @@ function unlockStageSkill(stageNum) {
     const acquired = getAcquiredSkills();
     if (acquired.includes(def.skillId)) return; // already unlocked — no toast
     acquired.push(def.skillId);
-    try { localStorage.setItem('tupana_skills_acquired', JSON.stringify(acquired)); } catch(e) {}
+    tupanaSafeSetItem('tupana_skills_acquired', JSON.stringify(acquired), 'skill evidence');
     showSkillToast(skillLabelFor(def));
 }
 
@@ -4707,7 +4731,7 @@ function logProcessEvent(actionType, summary) {
             actionType:  actionType,
             summary:     summary
         });
-        localStorage.setItem(PROCESS_LOG_KEY, JSON.stringify(log));
+        tupanaSafeSetItem(PROCESS_LOG_KEY, JSON.stringify(log), 'process history');
     } catch(e) {}
 }
 
@@ -4730,7 +4754,6 @@ function restoreDraft() {
             state.draftSaved = true;
             D.saveBtn.classList.add('saved');
             D.saveBtnLabel.textContent = 'Primer borrador guardado · First draft saved';
-            D.savedNotice.classList.add('on');
             renderDecisionLog();
             if (state.stage >= 6) {
                 addSys('↩ Borrador anterior restaurado · Previous draft restored from this device.');
@@ -4823,7 +4846,7 @@ function getClaimedAssets() {
 }
 
 function saveClaimedAssets(arr) {
-    try { localStorage.setItem('tupana_mani_claimed', JSON.stringify(arr)); } catch(e) {}
+    tupanaSafeSetItem('tupana_mani_claimed', JSON.stringify(arr), 'knowledge activity');
 }
 
 function updateProceedBtn() {
@@ -4844,7 +4867,7 @@ function updateManiCounter(count) {
         counter.textContent = `All ${MANI_TOTAL} claimed · Las ${MANI_TOTAL} reclamadas`;
         note.classList.add('on');
         card.classList.add('all-claimed');
-        try { localStorage.setItem('tupana_mani_done', 'true'); } catch(e) {}
+        tupanaSafeSetItem('tupana_mani_done', 'true', 'knowledge activity');
     } else {
         counter.classList.remove('all');
         counter.textContent = `Asset ${count + 1} of ${MANI_TOTAL} · Recurso ${count + 1} de ${MANI_TOTAL}`;
@@ -5109,10 +5132,10 @@ function showProjectSelector(review) {
 // stale assignment so the app is the generic coach. tupana_project_chosen makes
 // the selector idempotent across a mid-onboarding reload.
 function chooseProject(assignmentId) {
-    try { localStorage.setItem('tupana_project_chosen', 'true'); } catch(e) {}
+    tupanaSafeSetItem('tupana_project_chosen', 'true', 'project selection');
     if (assignmentId && typeof getAssignmentLayer === 'function' && getAssignmentLayer(assignmentId)) {
         state.assignmentId = assignmentId;
-        try { localStorage.setItem('tupana_assignment_id', assignmentId); } catch(e) {}
+        tupanaSafeSetItem('tupana_assignment_id', assignmentId, 'project selection');
     } else {
         state.assignmentId = null;
         try { localStorage.removeItem('tupana_assignment_id'); } catch(e) {}
@@ -5199,7 +5222,7 @@ function showLandingMoment() {
 }
 
 function finishFirstRun(path) {
-    try { localStorage.setItem('tupana_onboarding_complete', 'true'); } catch(e) {}
+    tupanaSafeSetItem('tupana_onboarding_complete', 'true', 'onboarding progress');
     if (window.innerWidth <= 480) switchMobileTab('draft');
 
     const wOverride = (typeof getWelcomeOverride === 'function') ? getWelcomeOverride(state.assignmentId) : null;
@@ -5401,10 +5424,8 @@ function initManiPrompt() {
 if (maniPromptInput) {
     maniPromptInput.addEventListener('input', () => {
         const text = maniPromptInput.value.trim();
-        try {
-            localStorage.setItem('tupana_mani_sentence', maniPromptInput.value);
-        } catch(e) {}
-        if (text.length > 0) {
+        const saved = tupanaSafeSetItem('tupana_mani_sentence', maniPromptInput.value, 'knowledge sentence');
+        if (text.length > 0 && saved) {
             maniPromptSaved.classList.add('on');
             clearTimeout(maniPromptSaveTimer);
             maniPromptSaveTimer = setTimeout(() => {
@@ -5578,7 +5599,7 @@ function closeLab(options = {}) {
     _stopOnboardingAudio();
     setOverlayOpen('labBg', false, { restoreFocus: true });
     if (completed) {
-        try { localStorage.setItem('tupana_lab_done', 'true'); } catch(e) {}
+        tupanaSafeSetItem('tupana_lab_done', 'true', 'AI literacy activity');
         logProcessEvent('onboarding_guide_completed', 'Student completed the optional AI-judgment guide.');
     } else {
         logProcessEvent('onboarding_guide_exited', `Student exited the optional AI-judgment guide at step ${labCurrent + 1} of ${LAB_TOTAL_STEPS}.`);
@@ -5803,7 +5824,7 @@ function openReflectionCheckpoint(cp) {
             try {
                 const log = JSON.parse(localStorage.getItem('tupana_decisions') || '[]');
                 log.push({ q: `${cp.reportLabel || cp.titleEn} (Stage ${cp.stageId})`, choice: `option_${idx + 1}`, t: new Date().toISOString(), checkpoint: true, stage: cp.stageId, skill: cp.skill });
-                localStorage.setItem('tupana_decisions', JSON.stringify(log.slice(-50)));
+                tupanaSafeSetItem('tupana_decisions', JSON.stringify(log.slice(-50)), 'revision decisions');
             } catch(e) {}
             logProcessEvent('feedback_evaluated', `Reflection checkpoint Stage ${cp.stageId} (${cp.skill}): option ${idx + 1}.`);
             renderBadges();
@@ -5845,7 +5866,7 @@ function maybeOpenStageEntryReflectionCheckpoint(stageId) {
         if (localStorage.getItem(key) === 'true') return;
         const cp = REFLECTION_CHECKPOINTS.find(c => c.stageId === stageId);
         if (!cp) return;
-        localStorage.setItem(key, 'true');
+        tupanaSafeSetItem(key, 'true', 'reflection progress');
         // 1200ms: after stage-specific cards (700–800ms) have rendered
         setTimeout(() => openReflectionCheckpoint(cp), 1200);
     } catch(e) {}
@@ -6000,7 +6021,7 @@ function renderMsgEvalBar(msgId, evals) {
             'Antes de usar la respuesta, revísala con estas preguntas. · ' +
             'Before using the response, review it with these questions.';
         msgWrap.appendChild(hint);
-        try { localStorage.setItem(EVAL_HINT_KEY, '1'); } catch(e) {}
+        tupanaSafeSetItem(EVAL_HINT_KEY, '1', 'review preference');
     }
 
     const bar = document.createElement('div');
@@ -6153,7 +6174,7 @@ function evalMsgPick(msgId, qKey, choice) {
         const log = JSON.parse(localStorage.getItem('tupana_decisions') || '[]');
         const q = EVAL_QUESTIONS.find(x => x.key === qKey);
         log.push({ q: q ? q.label : qKey, choice: choice, t: new Date().toISOString() });
-        localStorage.setItem('tupana_decisions', JSON.stringify(log.slice(-50)));
+        tupanaSafeSetItem('tupana_decisions', JSON.stringify(log.slice(-50)), 'revision decisions');
     } catch(e) {}
     const _evalQ = EVAL_QUESTIONS.find(x => x.key === qKey);
     logProcessEvent('feedback_evaluated', `Feedback evaluated: "${_evalQ ? _evalQ.label : qKey}" — ${choice}.`);
@@ -6170,7 +6191,7 @@ function updateMsgEval(msgId, qKey, choice) {
         if (entry) {
             if (!entry.evals) entry.evals = {};
             entry.evals[qKey] = choice;
-            localStorage.setItem(CHAT_LOG_KEY, JSON.stringify(log));
+            tupanaSafeSetItem(CHAT_LOG_KEY, JSON.stringify(log), 'coach conversation');
         }
     } catch(e) {}
 }
@@ -6187,7 +6208,7 @@ function loadEvalStats() {
 }
 
 function saveEvalStats(stats) {
-    try { localStorage.setItem(EVAL_STATS_KEY, JSON.stringify(stats)); } catch(e) {}
+    tupanaSafeSetItem(EVAL_STATS_KEY, JSON.stringify(stats), 'review evidence');
 }
 
 function updateEvalStats(msgId, qKey, choice) {
@@ -6289,7 +6310,7 @@ function evalPick(btn, type) {
     try {
         const log = JSON.parse(localStorage.getItem('tupana_decisions') || '[]');
         log.push({ q: label, choice: type, t: new Date().toISOString() });
-        localStorage.setItem('tupana_decisions', JSON.stringify(log.slice(-50)));
+        tupanaSafeSetItem('tupana_decisions', JSON.stringify(log.slice(-50)), 'revision decisions');
     } catch(e) {}
 
     // Update the visible decision log
@@ -6406,7 +6427,7 @@ function saveChatEntry(text, who, id, evals, msgType) {
         if (msgType) entry.msgType = msgType;
         log.push(entry);
         if (log.length > CHAT_LOG_MAX) log.splice(0, log.length - CHAT_LOG_MAX);
-        localStorage.setItem(CHAT_LOG_KEY, JSON.stringify(log));
+        tupanaSafeSetItem(CHAT_LOG_KEY, JSON.stringify(log), 'coach conversation');
     } catch(e) {}
 }
 
@@ -6422,7 +6443,7 @@ function restoreChatLog() {
             if (!entry.evals) { entry.evals = {}; needsSave = true; }
         });
         if (needsSave) {
-            localStorage.setItem(CHAT_LOG_KEY, JSON.stringify(log));
+            tupanaSafeSetItem(CHAT_LOG_KEY, JSON.stringify(log), 'coach conversation');
         }
 
         // Divider with timestamp of first restored message
@@ -6797,7 +6818,7 @@ function trackSession() {
         sessions.push(now);
         // Keep last 30 sessions
         if (sessions.length > 30) sessions = sessions.slice(-30);
-        try { localStorage.setItem('tupana_sessions', JSON.stringify(sessions)); } catch(e) {}
+        tupanaSafeSetItem('tupana_sessions', JSON.stringify(sessions), 'session history');
     }
 
     // Count sessions in last 7 days
@@ -6843,7 +6864,7 @@ function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
     const next = current === 'light' ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', next);
-    try { localStorage.setItem('tupana_theme', next); } catch(e) {}
+    tupanaSafeSetItem('tupana_theme', next, 'theme preference');
     updateThemeIcon(next);
 }
 function updateThemeIcon(theme) {
@@ -6854,9 +6875,7 @@ function updateThemeIcon(theme) {
     btn.innerHTML = theme === 'dark' ? moonSvg : sunSvg;
 }
 function resetApp() {
-    if (!confirm('¿Borrar todo el trabajo y empezar de nuevo? No hay forma de deshacer.\n\nErase all work and start over? This cannot be undone.')) return;
-    localStorage.clear();
-    location.reload();
+    clearAllData();
 }
 
 // ════════════════════════════════════════════════════════
@@ -6897,6 +6916,11 @@ function exitDraftFocus() {
 }
 
 function toggleDraftFocus() {
+    const workspace = document.querySelector('.workspace');
+    if (workspace && workspace.classList.contains('focus-mode')) {
+        toggleFocusMode();
+        return;
+    }
     if (state.draftFocus) { exitDraftFocus(); } else { enterDraftFocus(); }
 }
 
@@ -7086,7 +7110,7 @@ function _disableSpotlight() {
         state.spotlightTarget = 'editor';
     }
     dismissEditorSpotlight();
-    try { localStorage.setItem('tupana_spotlight_off', 'true'); } catch(e) {}
+    tupanaSafeSetItem('tupana_spotlight_off', 'true', 'focus preference');
     addSysTech('Las guías visuales han sido desactivadas. / Visual guides have been disabled.');
     // Import card still needed even when spotlight is disabled (Patch 26).
     if (_pendingImport) setTimeout(_showPendingImport, 200);
@@ -7242,7 +7266,7 @@ function finishProcessNote() {
         return;
     }
     closeProcessNoteModal();
-    try { localStorage.setItem('tupana_completion_shown', 'true'); } catch(e) {}
+    tupanaSafeSetItem('tupana_completion_shown', 'true', 'completion evidence');
     setTimeout(showCompletionCelebration, 300);
 }
 
@@ -7309,10 +7333,10 @@ function saveProcessNoteAnswer(key, value) {
     _pnSaveTimers[key] = setTimeout(() => {
         const answers = loadProcessNoteAnswers();
         answers[key] = value;
-        try { localStorage.setItem('tupana_process_note', JSON.stringify(answers)); } catch(e) {}
+        const saved = tupanaSafeSetItem('tupana_process_note', JSON.stringify(answers), 'process note');
         // Show saved indicator
         const indicator = document.getElementById('pn-saved-' + key);
-        if (indicator) {
+        if (indicator && saved) {
             indicator.classList.add('show');
             setTimeout(() => indicator.classList.remove('show'), 1200);
         }
@@ -7700,7 +7724,7 @@ function loadReportMeta() {
     try { return JSON.parse(localStorage.getItem(REPORT_META_KEY) || '{}'); } catch(e) { return {}; }
 }
 function saveReportMeta(meta) {
-    try { localStorage.setItem(REPORT_META_KEY, JSON.stringify(meta)); } catch(e) {}
+    return tupanaSafeSetItem(REPORT_META_KEY, JSON.stringify(meta), 'report information');
 }
 
 // ════════════════════════════════════════════════════════
@@ -7837,13 +7861,13 @@ function openRevisionCompletionGate(continueAction) {
             return;
         }
         try {
-            localStorage.setItem(REVISION_CHECKPOINT_KEY, JSON.stringify({
+            tupanaSafeSetItem(REVISION_CHECKPOINT_KEY, JSON.stringify({
                 mode: 'student_reported_instructor_exception',
                 note,
                 timestamp: new Date().toISOString(),
                 assignmentId: String((state && state.assignmentId) || ''),
                 draftSignature: _revisionDraftSignature()
-            }));
+            }), 'revision completion declaration');
         } catch(e) {}
         logProcessEvent('revision_exception_recorded', 'Student reported an instructor-directed revision exception before Stage 10; not independently verified.');
         closeRevisionCompletionGate(false);
@@ -7911,10 +7935,50 @@ function buildPacketDiagnosticHTML() {
         `<ul class="packet-diag-list">${items}</ul></div>`;
 }
 
+// R0 interim gate: the current heuristic remains temporary, but it can no longer
+// silently choose a packet draft. The student sees and confirms the exact result.
+function openFinalDraftConfirmation(confirmedAction) {
+    document.getElementById('finalDraftConfirmOverlay')?.remove();
+    const candidate = getFinalEssay();
+    const words = candidate.text.trim().split(/\s+/).filter(Boolean).length;
+    const overlay = document.createElement('div');
+    overlay.id = 'finalDraftConfirmOverlay';
+    overlay.className = 'r0-safety-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'finalDraftConfirmTitle');
+    overlay.innerHTML = `<div class="r0-safety-card">
+        <h2 id="finalDraftConfirmTitle">Confirma el borrador del paquete · Confirm the packet draft</h2>
+        <p><strong>Paso ${candidate.stage} · Step ${candidate.stage}</strong> — ${words.toLocaleString()} palabras · words. Esta es la versión seleccionada por la regla provisional actual. Revísala antes de crear el paquete. · This is the version selected by the current interim rule. Review it before creating the packet.</p>
+        <textarea class="r0-final-preview" readonly aria-label="Borrador seleccionado · Selected draft">${escapeHtml(candidate.text)}</textarea>
+        <label><input type="checkbox" id="finalDraftConfirmCheck"> Confirmo que esta es la versión que quiero incluir. · I confirm this is the version I want to include.</label>
+        <div class="r0-safety-actions">
+            <button type="button" data-action="cancel">Cancelar · Cancel</button>
+            <button type="button" class="r0-primary" data-action="confirm" disabled>Crear paquete con este borrador · Create packet with this draft</button>
+        </div>
+    </div>`;
+    const check = overlay.querySelector('#finalDraftConfirmCheck');
+    const confirmBtn = overlay.querySelector('[data-action="confirm"]');
+    const close = () => overlay.remove();
+    check.addEventListener('change', () => { confirmBtn.disabled = !check.checked; });
+    overlay.querySelector('[data-action="cancel"]').addEventListener('click', close);
+    overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+    overlay.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
+    confirmBtn.addEventListener('click', () => {
+        if (!check.checked) return;
+        close();
+        confirmedAction(candidate);
+    });
+    document.body.appendChild(overlay);
+    check.focus();
+}
+
 // One recommended export: the complete packet (essay + process report).
-// generateInstructorReport() now includes the Submission Check + Final Essay,
-// so it IS the packet; copy/download both use it.
+// Public actions always pass through explicit final-draft confirmation.
 function exportFinalPacket() {
+    openFinalDraftConfirmation(_copyFinalPacketNow);
+}
+function _copyFinalPacketNow() {
     const text = generateInstructorReport();
     const diag = buildSubmissionDiagnostic();
     const okMsg = 'Paquete final copiado. Pégalo y entrégalo en Brightspace.\nFinal packet copied. Paste and submit it in Brightspace.';
@@ -7925,6 +7989,9 @@ function exportFinalPacket() {
         .catch(() => window.prompt(t('Copia este texto · Copy this text:', 'Copy this text:'), text));
 }
 function downloadFinalPacket() {
+    openFinalDraftConfirmation(_downloadFinalPacketNow);
+}
+function _downloadFinalPacketNow() {
     const text = generateInstructorReport();
     const date = new Date().toISOString().slice(0, 10);
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });

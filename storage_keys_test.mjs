@@ -8,7 +8,7 @@
 //   - import restores the full exported state (round-trip)
 //   - import refuses non-tupana keys (backup files cannot write arbitrary keys)
 //   - legacy backups (no schema version) get schema/template seeded
-//   - cancelled clear (confirm=false) deletes nothing
+//   - cancelled typed-confirmation clear deletes nothing
 // Manual QA checklist at the bottom of this file.
 
 import { chromium } from 'playwright';
@@ -40,7 +40,8 @@ const DOCUMENTED_STATIC = new Set([
     'tupana_fiveq_stage7_opened_once','tupana_spotlight_off',
     'tupana_assignment_id','tupana_project_chosen','tupana_ai_cue_seen',
     'tupana_full_draft_reviews','tupana_ai_usage','tupana_revision_checkpoint',
-    'tupana_council_runs','tupana_tutorial_done',
+    'tupana_council_runs','tupana_tutorial_done','tupana_backup_manifest',
+    'tupana_pre_import_snapshot',
 ]);
 const DOCUMENTED_SESSION = new Set([
     'tupana_warn_dismissed','tupana_persist_warn','tupana_voice_challenge_shown',
@@ -125,6 +126,7 @@ const r = await page.evaluate((seed) => {
     const restored = _applyTupanaBackup(payload);
     out.roundTripRestoresAll = Object.keys(seed).every(k => localStorage.getItem(k) === seed[k]);
     out.restoredCount = restored;
+    out.expectedRestoredCount = Object.keys(payload).length;
 
     // import refuses arbitrary keys
     localStorage.clear();
@@ -141,13 +143,11 @@ const r = await page.evaluate((seed) => {
         localStorage.getItem('tupana_schema_version') === '1.0' &&
         localStorage.getItem('tupana_template_id') === 'mixed-genre-autobiographical-essay';
 
-    // cancelled clear deletes nothing
+    // cancelled typed-confirmation dialog deletes nothing
     localStorage.clear();
     Object.entries(seed).forEach(([k, v]) => localStorage.setItem(k, v));
-    const origConfirm = window.confirm;
-    window.confirm = () => false;
     clearAllData();
-    window.confirm = origConfirm;
+    document.querySelector('#clearDataOverlay [data-action="cancel"]').click();
     out.cancelledClearKeepsData = Object.keys(seed).every(k => localStorage.getItem(k) === seed[k]);
 
     return out;
@@ -160,11 +160,11 @@ check('clear leaves zero tupana_* ghosts in localStorage', r.clearLeavesNoLocalG
 check('clear leaves zero tupana_* ghosts in sessionStorage', r.clearLeavesNoSessionGhosts);
 check('clear does not touch non-tupana keys', r.clearKeepsUnrelated);
 check('export → clear → import round-trip restores full state', r.roundTripRestoresAll);
-check(`import restored expected key count (${r.restoredCount} = ${Object.keys(SEED).length})`,
-      r.restoredCount === Object.keys(SEED).length);
+check(`import restored expected key count (${r.restoredCount} = ${r.expectedRestoredCount})`,
+      r.restoredCount === r.expectedRestoredCount);
 check('import refuses non-tupana keys from backup file', r.importRefusesForeignKeys);
 check('legacy backup without schema version gets schema/template seeded', r.legacySeedsSchema);
-check('cancelled clear (confirm=false) deletes nothing', r.cancelledClearKeepsData);
+check('cancelled typed-confirmation clear deletes nothing', r.cancelledClearKeepsData);
 
 await browser.close();
 

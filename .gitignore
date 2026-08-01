@@ -86,6 +86,8 @@
 !college_personal_statement_test.mjs
 # ── Allow Graduate Statement of Purpose genre-layer regression test ──
 !graduate_sop_test.mjs
+# ── Allow Writing Studio R0 safety/trust regression test ──
+!r0_safety_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

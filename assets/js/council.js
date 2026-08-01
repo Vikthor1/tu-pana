@@ -129,6 +129,16 @@ const COUNCIL_PROFILES = {
             'Never invent sources, titles, authors, quotations, or citation details.'
         ]
     },
+    // R0: no autobiographical-essay fallback for genres without a reviewed
+    // Council profile. These can be enabled later only with explicit mandates.
+    'stem-lab-report': {
+        enabled: false,
+        disabledReason: 'Council profile not yet configured for STEM lab reports.'
+    },
+    'cap-200-first-draft': {
+        enabled: false,
+        disabledReason: 'Council profile not yet configured for legacy CAP 200.'
+    },
     // Enabled by founder override 2026-07-31 (personal/family use of the
     // link-only layer). Commercial availability of admissions Council access
     // remains gated on the Sprint 1 provider/eligibility decision — that gate
@@ -160,8 +170,14 @@ function getCouncilProfile(assignmentId) {
     const overlay = (assignmentId && Object.prototype.hasOwnProperty.call(COUNCIL_PROFILES, assignmentId))
         ? COUNCIL_PROFILES[assignmentId]
         : null;
-    if (overlay && overlay.enabled === false) return null;
-    if (!overlay) return { ...base, profileId: 'default' };
+    if (overlay && overlay.enabled === false) {
+        console.warn('[Tu Pana] Council unavailable for configured genre:', assignmentId, overlay.disabledReason || 'disabled');
+        return null;
+    }
+    if (!overlay) {
+        if (assignmentId) console.warn('[Tu Pana] Council config gap; blocking default-profile fallback for:', assignmentId);
+        return assignmentId ? null : { ...base, profileId: 'default' };
+    }
     return {
         ...base,
         ...overlay,
@@ -396,7 +412,11 @@ function validateSynthesisResult(parsed, findingsById, preserveById, draftText) 
 async function _councilCallWithRetry(callFn, args, retries) {
     let lastErr = null;
     for (let attempt = 0; attempt <= retries; attempt++) {
-        try { return await callFn(args); } catch (err) { lastErr = err; }
+        try { return await callFn(args); } catch (err) {
+            lastErr = err;
+            // Permanent configuration/request failures must never be retried.
+            if (['origin_forbidden', 'auth_error', 'bad_request'].includes(err && err.category)) break;
+        }
     }
     throw lastErr || new Error('council call failed');
 }
@@ -425,11 +445,15 @@ async function runCouncilKernel({ draftText, assignmentId, stage, langLabel, cal
             return validated;
         } catch (err) {
             state.status = 'failed';
+            state.errorCategory = err && err.category || null;
             return null;
         }
     }));
 
     const survivors = results.filter(Boolean);
+    if (reviewerStates.some(s => ['origin_forbidden', 'auth_error'].includes(s.errorCategory))) {
+        return { status: 'aborted', reason: 'permanent-config-error', reviewers: reviewerStates };
+    }
     if (survivors.length < COUNCIL_LIMITS.minReviewers) {
         return { status: 'aborted', reason: 'too-few-reviewers', reviewers: reviewerStates };
     }
@@ -513,8 +537,10 @@ function saveCouncilRun(projectId, run) {
         };
         runs.push(record);
         all[projectId] = runs.slice(-COUNCIL_LIMITS.historyMax);
-        store.setItem(COUNCIL_STORAGE_KEY, JSON.stringify(all));
-        return record;
+        const wrote = (typeof tupanaSafeSetItem === 'function')
+            ? tupanaSafeSetItem(COUNCIL_STORAGE_KEY, JSON.stringify(all), 'Review Council report')
+            : (() => { try { store.setItem(COUNCIL_STORAGE_KEY, JSON.stringify(all)); return true; } catch (e) { return false; } })();
+        return wrote ? record : null;
     } catch (e) { return null; }
 }
 
@@ -529,8 +555,9 @@ function recordCouncilDecision(projectId, runId, findingKey, decision) {
         const run = (all[projectId] || []).find(r => r.id === runId);
         if (!run) return false;
         run.decisions[findingKey] = { decision, timestamp: new Date().toISOString() };
-        store.setItem(COUNCIL_STORAGE_KEY, JSON.stringify(all));
-        return true;
+        return (typeof tupanaSafeSetItem === 'function')
+            ? tupanaSafeSetItem(COUNCIL_STORAGE_KEY, JSON.stringify(all), 'Review Council decision')
+            : (() => { try { store.setItem(COUNCIL_STORAGE_KEY, JSON.stringify(all)); return true; } catch (e) { return false; } })();
     } catch (e) { return false; }
 }
 
@@ -545,8 +572,9 @@ function recordCouncilVerification(projectId, runId, findingKey, verdict, draftS
         const run = (all[projectId] || []).find(r => r.id === runId);
         if (!run) return false;
         run.verifications.push({ findingKey, verdict, draftSignature: draftSignature || null, timestamp: new Date().toISOString() });
-        store.setItem(COUNCIL_STORAGE_KEY, JSON.stringify(all));
-        return true;
+        return (typeof tupanaSafeSetItem === 'function')
+            ? tupanaSafeSetItem(COUNCIL_STORAGE_KEY, JSON.stringify(all), 'Review Council verification')
+            : (() => { try { store.setItem(COUNCIL_STORAGE_KEY, JSON.stringify(all)); return true; } catch (e) { return false; } })();
     } catch (e) { return false; }
 }
 

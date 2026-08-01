@@ -21,7 +21,7 @@ try {
         : (localStorage.getItem('tupana_assignment_id') || '');
     if (_assignId && typeof getAssignmentLayer === 'function' && getAssignmentLayer(_assignId)) {
         state.assignmentId = _assignId;
-        if (_qAssign) localStorage.setItem('tupana_assignment_id', _assignId);
+        if (_qAssign) tupanaSafeSetItem('tupana_assignment_id', _assignId, 'project selection');
     }
 } catch(e) {}
 try {
@@ -34,7 +34,7 @@ try {
         // Migration: old 12-stage data detected, reset to Stage 1
         state.stage = 1;
         state.done = new Set();
-        localStorage.setItem('tupana_stage', '1');
+        tupanaSafeSetItem('tupana_stage', '1', 'current step');
         addSysTech('La aplicación se ha actualizado. Empezamos de nuevo en la Etapa 1. / The app has been updated. Starting fresh at Stage 1.');
     } else if (savedStage >= 1 && savedStage <= 10) {
         state.stage = savedStage;

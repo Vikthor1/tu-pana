@@ -43,7 +43,9 @@ check('graduate-sop profile merges over default', sop && sop.profileId === 'grad
 check('graduate-sop keeps its own synthesis order (evidence first)', sop.synthesisOrder[0] === 'evidence');
 check('graduate-sop adds role mandates', !!sop.roleMandates.voice);
 check('graduate-sop inherits + extends prohibited behaviors', sop.prohibitedExtra.some(p => /predict admission/i.test(p)));
-check('unknown assignment id inherits default', C.getCouncilProfile('no-such-genre').profileId === 'default');
+check('unknown assignment id is blocked instead of inheriting the essay default', C.getCouncilProfile('no-such-genre') === null);
+check('STEM and legacy CAP are explicitly disabled until profiled',
+    C.getCouncilProfile('stem-lab-report') === null && C.getCouncilProfile('cap-200-first-draft') === null);
 const adm = C.getCouncilProfile('college-personal-statement');
 check('college-personal-statement enabled (founder override 2026-07-31), voice-first synthesis',
     !!adm && adm.synthesisOrder[0] === 'voice');

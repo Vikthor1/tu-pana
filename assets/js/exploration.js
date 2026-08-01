@@ -258,7 +258,7 @@
         return {
             schema: 1, concept: name, lang: 'en', genre: 'admissions', draft: '',
             step: 1, phase: 1, view: 'write', savedAt: now, createdAt: now,
-            artifacts: {}, currentArtifact: name === 'journey' ? 'step-6' : 'draft',
+            artifacts: {}, currentArtifact: name === 'journey' ? 'step-1' : 'draft',
             versions: [], reviews: [], decisions: [], councilRuns: [],
             reflections: { changed: '', decision: '', voice: '', knowledge: '' },
             reflectionSavedAt: null, packetCreatedAt: null, packetDraft: '',
@@ -418,7 +418,7 @@
 
     function renderHybridWorkspace() {
         return `<nav class="phase-strip" aria-label="Writing phases">${(state.lang === 'en' ? hybridPhases : hybridPhasesEs).map((phase, index) => `<button class="phase-tab" data-action="phase" data-phase="${index + 1}" ${state.phase === index + 1 ? 'aria-current="step"' : ''}><strong>${index + 1}. ${escapeHtml(phase[0])}</strong></button>`).join('')}</nav>
-            <div class="workspace-grid hybrid">${renderEditor()}<aside class="support-stack">${renderMovesPanel('hybrid')}${renderReviewPanel()}${renderEvidencePanel()}</aside></div>
+            <div class="workspace-grid hybrid">${renderEditor()}<aside class="support-stack">${renderReviewPanel()}${renderEvidencePanel()}</aside></div>
             <section class="context-moves" aria-labelledby="contextMovesTitle"><div class="panel-header"><div><h2 id="contextMovesTitle">${escapeHtml(t('moves'))}</h2><p>${escapeHtml(genreLabel())}</p></div></div><div class="context-grid">${genreMoves('discover').map((move, i) => `<article class="context-card"><span class="panel-kicker">${escapeHtml(phaseData(state.phase - 1)[0])} · ${i + 1}</span><h3>${escapeHtml(move)}</h3><p>${escapeHtml(contextMoveDetail(i))}</p><button class="text-button" data-action="activate-move" data-move="${i}">${escapeHtml(state.lang === 'en' ? 'Use this move' : 'Usar esta movida')}</button></article>`).join('')}</div></section>`;
     }
 
@@ -496,6 +496,7 @@
         state.step = nextStep;
         if (!target && oldText) state.artifacts[`step-${nextStep}`] = { text: oldText, updatedAt: new Date().toISOString(), label: stepData(nextStep - 1)[0], carriedForward: true };
         state.draft = state.artifacts[`step-${nextStep}`]?.text || state.draft;
+        if (nextStep < 6) state.currentArtifact = `step-${nextStep}`;
         saveState(); renderApp();
     }
 
@@ -576,7 +577,7 @@
     function useSample() {
         if (getDraft()) checkpointVersion();
         setDraft(currentGenre().sample);
-        if (concept === 'journey') state.currentArtifact = `step-${Math.max(6, state.step)}`;
+        if (concept === 'journey') state.currentArtifact = `step-${state.step}`;
         saveState(); renderApp();
         announce(t('saved'));
     }

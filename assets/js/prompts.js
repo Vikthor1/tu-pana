@@ -76,21 +76,21 @@ const STUCK_AFFIRMATIONS = {
         'No pasa nada. Vamos a hacerlo más pequeño.',
         'Una oración. Es todo lo que necesitamos ahora.',
         'La página en blanco se está poniendo dramática. Dale una oración y se calma.',
-        'Esto no es el ensayo entero. Es solo una oración valiente.',
+        'Esto no es el {workEs} entero. Es solo una oración valiente.',
         'Primero el café, el pánico después. Mejor aún: sin pánico — solo una oración.'
     ],
     en: [
         "No worries. Let's make this smaller.",
         'One sentence. That is all we need right now.',
         "The blank page is acting dramatic. Let's give it one sentence and calm it down.",
-        'This is not the whole essay. This is just one brave little sentence.',
+        'This is not the whole {workEn}. This is just one brave little sentence.',
         'Coffee first, panic later. Actually, no panic — just one sentence.'
     ],
     both: [
         "No pasa nada. Let's make this smaller.",
         'Una oración — one sentence. That is all we need right now.',
         "La página en blanco está siendo dramática. Let's give it one sentence and calm it down.",
-        'Esto no es el ensayo entero. Just one brave little sentence.',
+        'Esto no es el {workEs} entero. Just one brave little sentence.',
         'Café first, panic later. Actually, no panic — solo una oración.'
     ]
 };
@@ -99,7 +99,10 @@ const STUCK_AFFIRMATIONS = {
 function pickAffirmation() {
     const lang = (typeof state !== 'undefined' && state.lang) || 'es';
     const arr = STUCK_AFFIRMATIONS[lang] || STUCK_AFFIRMATIONS.es;
-    return arr[Math.floor(Math.random() * arr.length)];
+    const line = arr[Math.floor(Math.random() * arr.length)];
+    // Genre copy layer: "the whole essay" becomes "the whole lab report", …
+    return (typeof applyGenreTokens === 'function')
+        ? applyGenreTokens(line, typeof state !== 'undefined' ? state.assignmentId : null) : line;
 }
 
 let stuckMiniIdx = {};  // tracks prompt index per stage
@@ -109,7 +112,11 @@ function showStuckMini() {
     document.querySelectorAll('.stuck-mini').forEach(el => el.remove());
 
     const stage = state.stage;
-    const prompts = MICRO_PROMPTS[stage] || MICRO_PROMPTS[6];
+    // Genre copy layer: a layered genre gets its own (or the neutral) micro
+    // prompts — never the default essay's anecdote/memory tasks.
+    const genrePrompts = (typeof getMicroPromptsFor === 'function')
+        ? getMicroPromptsFor(stage, state.assignmentId) : null;
+    const prompts = genrePrompts || MICRO_PROMPTS[stage] || MICRO_PROMPTS[6];
     if (stuckMiniIdx[stage] === undefined) stuckMiniIdx[stage] = 0;
     const idx   = stuckMiniIdx[stage] % prompts.length;
     const p     = prompts[idx];
@@ -290,7 +297,11 @@ const PANA_HINTS = {
 };
 
 function injectPanaHint(stageId) {
-    const hint = PANA_HINTS[stageId];
+    // Genre copy layer: layered genres never receive the default essay's
+    // anecdote/scene/bridge hints.
+    const genreHint = (typeof getPanaHintFor === 'function')
+        ? getPanaHintFor(stageId, state.assignmentId) : null;
+    const hint = genreHint || PANA_HINTS[stageId];
     if (!hint) return;
     const h = hint[state.tone] || hint.gentle;
     const div = document.createElement('div');
@@ -333,10 +344,19 @@ function injectRevisionPanel(stageId) {
     // Don't inject a second panel if one already exists
     if (document.querySelector('.revision-panel')) return;
 
-    const smallItems = REVISION_SMALL.map(ex =>
+    // Genre copy layer: revision moves must describe THIS genre's work
+    // (no "move this anecdote earlier" inside a lab report).
+    const moves = (typeof getRevisionMovesFor === 'function')
+        ? getRevisionMovesFor(state.assignmentId) : null;
+    const smallSet = (moves && moves.small) || REVISION_SMALL;
+    const bigSet   = (moves && moves.big)   || REVISION_BIG;
+    const work = (typeof getWorkNoun === 'function')
+        ? getWorkNoun(state.assignmentId) : { es: 'ensayo', en: 'essay' };
+
+    const smallItems = smallSet.map(ex =>
         `<button class="revision-example-btn" onclick="selectRevisionFocus(this,'small')" aria-pressed="false">${ex}</button>`
     ).join('');
-    const bigItems = REVISION_BIG.map(ex =>
+    const bigItems = bigSet.map(ex =>
         `<button class="revision-example-btn" onclick="selectRevisionFocus(this,'big')" aria-pressed="false">${ex}</button>`
     ).join('');
 
@@ -370,7 +390,7 @@ function injectRevisionPanel(stageId) {
 
         <p class="revision-panel-note">
             <strong>Un cambio grande es una opción, no una orden.</strong>
-            Tu Pana shows you choices — you decide what your essay needs.
+            Tu Pana shows you choices — you decide what your ${escapeHtml(work.en)} needs.
             <span style="display:block;margin-top:6px;color:var(--text-muted);font-style:italic;">No need to sound like a textbook wearing a blazer. Keep your voice, make the idea clearer.</span>
         </p>
     `;
@@ -420,8 +440,8 @@ function selectRevisionFocus(btn, size) {
 const RESEARCH_STRATEGIES = [
     { es: '¿Qué términos de búsqueda me recomiendas para mi tema?',
       en: 'What search terms do you recommend for my topic?' },
-    { es: '¿Qué tipos de fuentes debo buscar para este ensayo?',
-      en: 'What types of sources should I look for in this essay?' },
+    { es: '¿Qué tipos de fuentes debo buscar para este {workEs}?',
+      en: 'What types of sources should I look for in this {workEn}?' },
     { es: '¿Cómo sé si una fuente es confiable?',
       en: 'How can I tell if a source is credible?' },
     { es: '¿En qué base de datos debo buscar — JSTOR, ProQuest, Google Scholar?',
@@ -430,7 +450,11 @@ const RESEARCH_STRATEGIES = [
 
 function injectResearchCard() {
     if (document.querySelector('.research-card')) return;
-    const items = RESEARCH_STRATEGIES.map(s =>
+    // Genre copy layer: "sources for this essay" becomes "for this lab report",
+    // "for this statement of purpose", … via the {workEs}/{workEn} tokens.
+    const _gt = s => (typeof applyGenreTokens === 'function')
+        ? applyGenreTokens(s, state.assignmentId) : s;
+    const items = RESEARCH_STRATEGIES.map(_gt).map(s =>
         `<button class="research-strategy-btn" onclick="useResearchStarter(this)" type="button" ` +
         `data-es="${escapeHtml(s.es)}" data-en="${escapeHtml(s.en)}" aria-pressed="false">` +
         `<span class="show-es">${escapeHtml(s.es)}</span>` +
@@ -493,8 +517,8 @@ const VOICE_POLISH_ROUTES = [
       es: 'Quiero mantener mi voz aquí — que no pierda lo que es mío. Aquí está:',
       en: 'I want to keep my voice here — without losing what is mine. Here it is:' },
     { key: 'matters',
-      es: '¿Por qué importa esta oración en mi ensayo? Aquí está:',
-      en: 'Why does this sentence matter in my essay? Here it is:' },
+      es: '¿Por qué importa esta oración en mi {workEs}? Aquí está:',
+      en: 'Why does this sentence matter in my {workEn}? Here it is:' },
     { key: 'protect', es: '', en: '' },
 ];
 
@@ -502,7 +526,10 @@ function injectVoicePolishCard() {
     if (document.querySelector('.voice-polish-card')) return;
 
     function vpBtn(route) {
-        const r = VOICE_POLISH_ROUTES.find(x => x.key === route);
+        const _r = VOICE_POLISH_ROUTES.find(x => x.key === route);
+        // Genre copy layer: the route template names THIS genre's work.
+        const r = (typeof applyGenreTokens === 'function')
+            ? applyGenreTokens(_r, state.assignmentId) : _r;
         const labels = {
             clearer:  { es: 'Que sea más clara',              en: 'Make it clearer' },
             specific: { es: 'Que sea más específica',          en: 'Make it more specific' },
@@ -586,12 +613,19 @@ function selectPolishRoute(btn, route) {
     btn.setAttribute('aria-pressed', 'true');
 
     if (route === 'protect') {
+        // If the student already has a phrase selected, protect it now — the
+        // button labelled "Protect this phrase" must protect, not just explain.
+        if (typeof currentDraftSelection === 'function' && currentDraftSelection()
+            && typeof protectSelectedPhrase === 'function') {
+            protectSelectedPhrase();
+            return;
+        }
         const note = document.createElement('p');
         note.className = 'vp-protect-note';
         note.innerHTML =
-            `<span class="show-es"><strong>Para proteger una frase:</strong> selecciona texto en tu borrador (panel izquierdo), luego haz clic en <strong>Proteger</strong> en la barra de herramientas. La Bóveda de voz (debajo del borrador) confirma qué frases están protegidas.</span>` +
+            `<span class="show-es"><strong>Para proteger una frase:</strong> selecciona texto en tu borrador (panel izquierdo). Aparecerá un menú con <strong>Proteger</strong>; también está en la barra de herramientas y dentro de la Bóveda de voz, debajo del borrador.</span>` +
             `<span class="lang-sep"> · </span>` +
-            `<span class="show-en"><strong>To protect a phrase:</strong> select text in your draft (left panel), then click <strong>Protect</strong> in the toolbar above the draft. The Voice Vault (below the draft) shows which phrases are protected.</span>`;
+            `<span class="show-en"><strong>To protect a phrase:</strong> select text in your draft (left panel). A menu appears with <strong>Protect</strong>; it is also in the toolbar above the draft and inside the Voice Vault below it.</span>`;
         btn.closest('.voice-polish-card').appendChild(note);
         return;
     }

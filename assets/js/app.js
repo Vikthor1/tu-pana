@@ -69,8 +69,8 @@ if (state.stage >= 7) {
     if (fqs) fqs.classList.remove('hidden');
 }
 
-// Restore Voice Vault if returning to Stage 8
-if (state.stage === 8) {
+// Restore Voice Vault when returning to any revision stage (7–9)
+if (vaultAvailable()) {
     setTimeout(() => injectVoiceVaultPanel(), 400);
 }
 updateProtectBtn();

@@ -355,9 +355,54 @@ function initLang() {
 }
 
 // ════════════════════════════════════════════════════════
-//  VOICE VAULT — Stage 8 phrase protection system
+//  VOICE VAULT — phrase protection system
+//
+//  Founder finding 2026-08-01: "select a sentence and the button for saving it
+//  in the vault does nothing." Root causes, all fixed here:
+//    (a) protection existed ONLY at Stage 8, while revision now spans 7–9, so a
+//        student selecting a sentence at 7 or 9 had no protect affordance at all;
+//    (b) the affordance that DOES appear on selection — the passage-coach menu —
+//        had no Protect action, so the natural gesture led nowhere;
+//    (c) protectSelectedPhrase() returned SILENTLY on a collapsed selection
+//        (clicking a button can drop the textarea selection in Safari/iOS), so a
+//        real click produced no phrase and no message;
+//    (d) success was announced only in the tiny edit-toolbar status line, which
+//        is easy to miss and invisible when the vault is scrolled out of view.
+//  Contract now: protection is available at Stages 7–9, the last non-empty
+//  selection is remembered across blur, and every attempt answers visibly.
 // ════════════════════════════════════════════════════════
 const PROTECTED_KEY = 'tupana_protected';
+// Stages where voice protection is offered (mirrors the review re-entry range).
+const VAULT_STAGES = [7, 8, 9];
+function vaultAvailable(stage) {
+    return VAULT_STAGES.includes(stage == null ? state.stage : stage);
+}
+// Last non-empty draft selection, kept so a click that blurs the textarea (and
+// collapses its selection) still protects what the student actually chose.
+let _lastDraftSelection = null;
+function rememberDraftSelection() {
+    const a = D.draftArea;
+    if (!a || a.disabled) return;
+    if (a.selectionStart !== a.selectionEnd) {
+        _lastDraftSelection = {
+            start: a.selectionStart,
+            end: a.selectionEnd,
+            text: a.value.slice(a.selectionStart, a.selectionEnd)
+        };
+    }
+}
+// Current selection, falling back to the remembered one when it is still valid.
+function currentDraftSelection() {
+    const a = D.draftArea;
+    if (!a) return null;
+    if (a.selectionStart !== a.selectionEnd) {
+        return { text: a.value.slice(a.selectionStart, a.selectionEnd) };
+    }
+    if (_lastDraftSelection && a.value.includes(_lastDraftSelection.text)) {
+        return { text: _lastDraftSelection.text };
+    }
+    return null;
+}
 
 function loadProtected() {
     try { return JSON.parse(localStorage.getItem(PROTECTED_KEY) || '[]'); } catch(e) { return []; }
@@ -398,41 +443,76 @@ function injectVoiceVaultPanel() {
             <div class="vault-phrase-list" id="vaultPhraseList" role="list" aria-label="Frases protegidas · Protected phrases">
                 <div class="vault-empty"><span class="show-es">Aún no has protegido ninguna frase.</span><span class="lang-sep"> · </span><span class="show-en">No phrases protected yet.</span></div>
             </div>
+            <p class="voice-vault-status" id="vaultStatus" role="status" aria-live="polite"></p>
         </div>`;
     wrap.insertAdjacentElement('afterend', vaultEl);
     renderVoiceVault();
 }
 
+// Answer every protect attempt where the student is looking: inside the vault
+// panel (opened and scrolled into view) as well as in the toolbar status line.
+function vaultSay(msg, ok) {
+    showEditStatus(msg);
+    const vault  = document.getElementById('voiceVault');
+    const status = document.getElementById('vaultStatus');
+    if (status) {
+        status.textContent = msg;
+        status.classList.toggle('vault-status--ok', !!ok);
+        clearTimeout(vaultSay._timer);
+        vaultSay._timer = setTimeout(() => {
+            status.textContent = '';
+            status.classList.remove('vault-status--ok');
+        }, 5000);
+    }
+    if (vault) {
+        vault.setAttribute('open', '');
+        if (ok) {
+            vault.classList.add('voice-vault--saved');
+            setTimeout(() => vault.classList.remove('voice-vault--saved'), 1400);
+            try { vault.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch(e) {}
+        }
+    }
+    return ok;
+}
+
+// Protect the selected (or last-selected) draft phrase. Returns true on save.
+// Never fails silently — the founder-reported "button does nothing" was this
+// function returning early with no message.
 function protectSelectedPhrase() {
-    if (state.stage !== 8) return;
-    const area = D.draftArea;
-    const start = area.selectionStart, end = area.selectionEnd;
-    if (start === end) return;
-    const text = area.value.slice(start, end).trim();
+    if (!vaultAvailable()) {
+        return vaultSay(t(
+            'La Bóveda de voz se abre en las etapas de revisión (7–9). · The Voice Vault opens during the revision stages (7–9).',
+            'The Voice Vault opens during the revision stages (7–9).'
+        ), false);
+    }
+    const sel = currentDraftSelection();
+    if (!sel) {
+        return vaultSay(t(
+            'Selecciona primero una frase en tu borrador, luego pulsa Proteger. · Select a phrase in your draft first, then press Protect.',
+            'Select a phrase in your draft first, then press Protect.'
+        ), false);
+    }
+    const text = sel.text.trim();
     if (text.length < 3) {
-        showEditStatus(t('Selecciona al menos 3 caracteres · Too short', 'Select at least 3 characters'));
-        return;
+        return vaultSay(t('Selecciona al menos 3 caracteres · Select at least 3 characters', 'Select at least 3 characters'), false);
     }
     if (text.length > 200) {
-        showEditStatus(t('Frase demasiado larga · Too long', 'Phrase too long — choose something shorter'));
-        return;
+        return vaultSay(t('Frase demasiado larga — elige algo más corto · Too long, choose something shorter', 'Phrase too long — choose something shorter'), false);
     }
     const phrases = loadProtected();
     if (phrases.some(p => p.text.toLowerCase() === text.toLowerCase())) {
-        showEditStatus(t('Ya protegida · Already protected', 'Already protected'));
-        return;
+        return vaultSay(t('Esta frase ya está protegida · Already protected', 'That phrase is already protected'), false);
     }
     if (phrases.length >= 20) {
-        showEditStatus(t('Máximo 20 frases · Max 20', 'Maximum 20 phrases'));
-        return;
+        return vaultSay(t('Máximo 20 frases protegidas · Maximum 20 phrases', 'Maximum 20 protected phrases'), false);
     }
     const id = Date.now();
     phrases.push({ text, id, savedAt: new Date().toISOString() });
     saveProtected(phrases);
     renderVoiceVault();
     updateProtectBtn();
-    showEditStatus(t('✓ Protegida · Protected', '✓ Phrase protected'));
     logProcessEvent('voice_vault_phrase_added', `Voice Vault: phrase protected (${text.length} chars). Total: ${phrases.length}.`);
+    return vaultSay(t('✓ Frase protegida · Phrase protected', '✓ Phrase protected'), true);
 }
 
 function renderVoiceVault() {
@@ -502,21 +582,33 @@ function removeProtectedPhrase(id) {
 }
 
 function updateProtectBtn() {
+    rememberDraftSelection();
     const btn       = el('etbProtectBtn');
     const sep       = el('etbProtectSep');
     const inlineBtn = el('vaultInlineProtectBtn');
-    const isS8      = state.stage === 8;
+    const show      = vaultAvailable();
     if (!btn) return;
-    const show = isS8;
     btn.style.display = show ? '' : 'none';
     if (sep) sep.style.display = show ? '' : 'none';
-    if (show) {
-        const hasSel = D.draftArea.selectionStart !== D.draftArea.selectionEnd;
-        btn.disabled = !hasSel;
-        if (inlineBtn) inlineBtn.disabled = !hasSel;
-    } else {
-        if (inlineBtn) inlineBtn.disabled = true;
-    }
+    // The button stays CLICKABLE with no live selection — it then explains what
+    // to do instead of looking broken. It only greys out where protection does
+    // not apply at all.
+    btn.disabled = !show;
+    if (inlineBtn) inlineBtn.disabled = !show;
+    const hasSel = !!currentDraftSelection();
+    btn.classList.toggle('etb-btn--armed', show && hasSel);
+    if (inlineBtn) inlineBtn.classList.toggle('vault-protect-inline--armed', show && hasSel);
+    updatePassageProtectAction(show);
+}
+
+// Show/hide the Protect action inside the passage-selection menu. Defined at
+// module scope because updateProtectBtn() (draft toolbar) and the passage menu
+// itself both drive it.
+function updatePassageProtectAction(show) {
+    const btn = document.querySelector('#passageCoachMenu [data-passage-action="protect"]');
+    if (!btn) return;
+    if (show) btn.removeAttribute('hidden');
+    else btn.setAttribute('hidden', '');
 }
 
 // Occasional light humor — one per category, used sparingly
@@ -1815,7 +1907,7 @@ function phaseCompletionNote(id) {
     const done = milestoneForStage(id - 1), next = milestoneForStage(id);
     const dL = msLabel(done), nL = msLabel(next);
     const NOTES = {
-        4:  { es: `Paso ${done.n} completo — ${dL.es}. Ahora empieza el Paso ${next.n} (${nL.es}): la investigación y el esquema sirven tu historia, no la reemplazan.`, en: `Step ${done.n} complete — ${dL.en}. Step ${next.n} (${nL.en}) begins: research and outlining serve your story; they do not replace it.` },
+        4:  { es: `Paso ${done.n} completo — ${dL.es}. Ahora empieza el Paso ${next.n} (${nL.es}): la investigación y el plan sirven a tu trabajo, no lo reemplazan.`, en: `Step ${done.n} complete — ${dL.en}. Step ${next.n} (${nL.en}) begins: research and planning serve your work; they do not replace it.` },
         7:  { es: `Paso ${done.n} completo — ${dL.es}. Lo escribiste sin ayuda, y ese borrador es tuyo como ninguna otra cosa. Ahora empieza el Paso ${next.n} (${nL.es}): la revisión con las Cinco Preguntas — tú decides qué se queda.`, en: `Step ${done.n} complete — ${dL.en}. You wrote it without help, and that draft is yours like nothing else. Step ${next.n} (${nL.en}) begins: revision with the Five Questions — you decide what stays.` },
         10: { es: `Paso ${done.n} completo — ${dL.es}. Revisaste con criterio y protegiste tu voz. Queda el Paso ${next.n} (${nL.es}): nombra qué cambió, qué protegiste y qué todavía necesita atención. Esto no es una nota — tu criterio importa.`, en: `Step ${done.n} complete — ${dL.en}. You revised with judgment and protected your voice. Step ${next.n} (${nL.en}) remains: name what changed, what you protected, and what still needs attention. This is not a grade — your judgment matters.` }
     };
@@ -1851,7 +1943,11 @@ function showStagePreview(targetId) {
     const pStep = (typeof getStageStepOverride === 'function') ? getStageStepOverride(s.id, 0, state.assignmentId) : null;
     D.previewStageNum.textContent = s.id;
     D.previewTitle.innerHTML = `<span class="show-es">${escapeHtml(pL.es.replace('\n', ' '))}</span><span class="lang-sep"> / </span><span class="show-en">${escapeHtml(pL.en)}</span>`;
-    D.previewDesc.textContent = pStep ? (pStep.es + ' / ' + pStep.en) : s.desc;
+    // Genre copy layer: the layer's own task cue, else a neutral description for
+    // any layered genre, else the default essay's description.
+    const pDesc = (typeof getStageDescFor === 'function')
+        ? getStageDescFor(s.id, state.assignmentId) : null;
+    D.previewDesc.textContent = pStep ? (pStep.es + ' / ' + pStep.en) : (pDesc || s.desc);
 
     // Completed milestone text (what the student just finished) + nav-contract
     // CTA: the destination is always named truthfully (F2 remediation).
@@ -1872,8 +1968,16 @@ function showStagePreview(targetId) {
         `<span class="show-en">${escapeHtml(navCta.en)}</span>`;
     D.previewContinueBtn.setAttribute('aria-label', `${navCta.es} · ${navCta.en}`);
 
-    if (s.example) {
-        D.previewExampleText.textContent = s.example;
+    // Genre copy layer: the default essay's worked example (eviction letter,
+    // South Bronx) belongs to the default genre ONLY. A layered genre shows its
+    // own example or none at all — never another genre's sample writing.
+    const layeredNow = !!(state.assignmentId && typeof getAssignmentLayer === 'function'
+        && getAssignmentLayer(state.assignmentId));
+    const layerExample = (typeof getStageExampleFor === 'function')
+        ? getStageExampleFor(s.id, state.assignmentId) : null;
+    const example = layeredNow ? layerExample : s.example;
+    if (example) {
+        D.previewExampleText.textContent = example;
         D.previewExampleBox.removeAttribute('hidden');
         D.previewExampleBox.removeAttribute('open'); // collapsed by default each open
     } else {
@@ -1911,11 +2015,13 @@ function dismissStagePreview() {
 }
 
 function injectStageEntryWelcome(id) {
-    // Stage B.1: use the active profile's coach stage-entry override when present
-    // (CAP 200), else the default STAGE_ENTRY_MESSAGES. Default flow unchanged.
-    const override = (typeof getStageEntryOverride === 'function')
-        ? getStageEntryOverride(id, state.assignmentId) : null;
-    const msg = override || STAGE_ENTRY_MESSAGES[id];
+    // Stage B.1 + genre copy layer: the active profile's stage-entry override,
+    // else a NEUTRAL entry for any layered genre, else the default message.
+    // A layered genre must never inherit the autobiographical entry copy.
+    const msg = (typeof resolveStageEntry === 'function')
+        ? resolveStageEntry(id, state.assignmentId, STAGE_ENTRY_MESSAGES[id])
+        : ((typeof getStageEntryOverride === 'function'
+            ? getStageEntryOverride(id, state.assignmentId) : null) || STAGE_ENTRY_MESSAGES[id]);
     if (!msg) return;
     try {
         const log = JSON.parse(localStorage.getItem(CHAT_LOG_KEY) || '[]');
@@ -2034,8 +2140,10 @@ function goToStage(id, options = {}) {
     // Inject Stage 8 voice polish step-by-step card
     if (id === 8) setTimeout(() => injectVoicePolishCard(), 700);
 
-    // Inject Voice Vault at Stage 8 (Voice Polish)
-    if (id === 8) setTimeout(() => injectVoiceVaultPanel(), 800);
+    // Voice Vault: available across the revision stages (7–9), not Stage 8 only,
+    // so a phrase a student wants to keep can be protected the moment they see it.
+    if (vaultAvailable(id)) setTimeout(() => injectVoiceVaultPanel(), 800);
+    else document.getElementById('voiceVault')?.remove();
     updateProtectBtn();
 
     // Inject self-assessment capstone panel at stage 10
@@ -2204,7 +2312,7 @@ D.draftArea.addEventListener('input', () => {
     if (!_editHistory.restoring) editHistorySchedule();
     if (state.spotlightTarget === 'editor') dismissEditorSpotlight();
     enterDraftFocus();
-    if (state.stage === 8) renderVoiceVault();
+    if (vaultAvailable()) renderVoiceVault();
     _autosaveSchedule();
     updateFullDraftReviewButton();
 });
@@ -3628,6 +3736,7 @@ function submitChat() {
             <button type="button" data-passage-action="strengthen" aria-label="Fortalecer · Strengthen"><span class="show-es">Fortalecer</span><span class="lang-sep"> · </span><span class="show-en">Strengthen</span></button>
             <button type="button" data-passage-action="clarity"><span class="show-es">Claridad</span><span class="lang-sep"> · </span><span class="show-en">Clarity</span></button>
             <button type="button" data-passage-action="voice"><span class="show-es">Voz</span><span class="lang-sep"> · </span><span class="show-en">Voice</span></button>
+            <button type="button" data-passage-action="protect" class="passage-coach-protect" hidden aria-label="Proteger esta frase en la Bóveda de voz · Protect this phrase in the Voice Vault"><span class="show-es">Proteger</span><span class="lang-sep"> · </span><span class="show-en">Protect</span></button>
             <button type="button" data-passage-action="ask" class="passage-coach-ask"><span class="show-es">Preguntar…</span><span class="lang-sep"> · </span><span class="show-en">Ask…</span></button>
         </div>`;
     menu.style.display = 'none';
@@ -3672,8 +3781,12 @@ function submitChat() {
         _pendingSel = sel;
         menu.style.display = '';
         menu.querySelectorAll('[data-passage-action]').forEach(actionBtn => {
-            actionBtn.disabled = actionBtn.dataset.passageAction !== 'ask' && (!state.connected || state.waiting);
+            const kind = actionBtn.dataset.passageAction;
+            // "Ask" composes locally and "Protect" is a local save — neither
+            // depends on the coach being connected.
+            actionBtn.disabled = kind !== 'ask' && kind !== 'protect' && (!state.connected || state.waiting);
         });
+        updatePassageProtectAction(vaultAvailable());
         requestAnimationFrame(positionMenu);
     }
 
@@ -3683,6 +3796,7 @@ function submitChat() {
     }
 
     function onSelChange() {
+        rememberDraftSelection();
         const sel = getSelectedText();
         sel.length > 0 ? showMenu(sel) : hideMenu();
     }
@@ -3703,6 +3817,15 @@ function submitChat() {
         const sel = _pendingSel || getSelectedText();
         if (!sel) return;
         const actionKey = actionBtn.dataset.passageAction;
+
+        if (actionKey === 'protect') {
+            // Local save to the Voice Vault — the direct answer to "I selected a
+            // sentence and there was nothing here to save it with."
+            rememberDraftSelection();
+            protectSelectedPhrase();
+            hideMenu();
+            return;
+        }
 
         if (actionKey === 'ask') {
             setPassageCoachContext(sel);
@@ -4524,6 +4647,16 @@ function getAcquiredSkills() {
     try { return JSON.parse(localStorage.getItem('tupana_skills_acquired') || '[]'); } catch(e) { return []; }
 }
 
+// Genre copy layer: the default skill wording for Stages 1–3 is autobiographical
+// ("turn a memory into a focused scene"). A layered genre gets its own label, or
+// the neutral one; the default flow keeps STAGE_SKILL_DEFS unchanged.
+function skillLabelFor(def) {
+    if (!def) return def;
+    const o = (typeof getStageSkillLabelFor === 'function')
+        ? getStageSkillLabelFor(def.stageNum, state.assignmentId) : null;
+    return o ? { ...def, labelEs: o.labelEs, labelEn: o.labelEn } : def;
+}
+
 function unlockStageSkill(stageNum) {
     if (!stageNum || typeof STAGE_SKILL_DEFS === 'undefined') return;
     const def = STAGE_SKILL_DEFS.find(s => s.stageNum === stageNum);
@@ -4532,7 +4665,7 @@ function unlockStageSkill(stageNum) {
     if (acquired.includes(def.skillId)) return; // already unlocked — no toast
     acquired.push(def.skillId);
     try { localStorage.setItem('tupana_skills_acquired', JSON.stringify(acquired)); } catch(e) {}
-    showSkillToast(def);
+    showSkillToast(skillLabelFor(def));
 }
 
 function showSkillToast(def) {
@@ -4641,9 +4774,44 @@ const MANI_ASSET_DEFS = {
     story: {
         nameEn: 'Story as Evidence', nameEs: 'Mi Historia como Evidencia',
         toastEn: 'Your story now has a stronger role in your argument.',
-        toastEs: 'Tu historia ahora tiene un papel más fuerte en tu argumento.'
+        toastEs: 'Tu historia ahora tiene un papel más fuerte en tu argumento.',
+        // Genre copy layer: "story as evidence" is the default essay's frame. In
+        // a lab report or a statement of purpose, the transferable claim is that
+        // the student's own experience and knowledge count as thinking material.
+        neutral: {
+            nameEn: 'Experience as Evidence', nameEs: 'Mi Experiencia como Evidencia',
+            toastEn: 'Your experience now has a stronger role in your thinking.',
+            toastEs: 'Tu experiencia ahora tiene un papel más fuerte en tu pensamiento.',
+            textEn: 'Your lived experience is not just background. Connected to evidence and analysis, it becomes part of the thinking — your knowledge is where the work starts, not decoration on top of it.',
+            textEs: 'Tu experiencia vivida no es solo contexto. Conectada al análisis y a la evidencia, se convierte en parte del pensamiento.'
+        }
     }
 };
+
+// Resolve an asset definition for the ACTIVE genre (neutral copy under a layer).
+function maniAssetDef(key) {
+    const def = MANI_ASSET_DEFS[key];
+    if (!def) return def;
+    const layered = !!(state.assignmentId && typeof getAssignmentLayer === 'function'
+        && getAssignmentLayer(state.assignmentId));
+    return (layered && def.neutral) ? { ...def, ...def.neutral } : def;
+}
+
+// Apply the active genre's Tu Conocimiento copy to the static asset card.
+function applyManiGenreCopy() {
+    const card = document.querySelector('.mani-asset[data-asset="story"]');
+    const def  = maniAssetDef('story');
+    if (!card || !def) return;
+    const nameEn = card.querySelector('.mani-asset-name');
+    const nameEs = card.querySelector('.mani-asset-name-es');
+    const txtEn  = card.querySelector('.mani-asset-text');
+    const txtEs  = card.querySelector('.mani-asset-text-es');
+    if (nameEn) nameEn.textContent = def.nameEn === 'Story as Evidence' ? 'My Story as Evidence' : ('My ' + def.nameEn);
+    if (nameEs) nameEs.textContent = def.nameEs;
+    if (def.textEn && txtEn) txtEn.textContent = def.textEn;
+    if (def.textEs && txtEs) txtEs.textContent = def.textEs;
+    card.setAttribute('aria-label', `${def.nameEn} · ${def.nameEs}`);
+}
 
 
 function getClaimedAssets() {
@@ -4720,7 +4888,7 @@ function updateManiAssetVisibility(claimed, focusActive = false) {
 }
 
 function showClaimToast(assetKey) {
-    const def = MANI_ASSET_DEFS[assetKey];
+    const def = maniAssetDef(assetKey);
     if (!def) return;
     const toast = document.getElementById('maniClaimToast');
     toast.innerHTML = `<strong>You claimed ${def.nameEn} · Reclamaste ${def.nameEs}</strong><br>${def.toastEn}<br>${def.toastEs}`;
@@ -4734,7 +4902,7 @@ function claimAsset(el) {
     if (!assetKey) return;
 
     el.classList.add('claimed');
-    el.setAttribute('aria-label', `${MANI_ASSET_DEFS[assetKey].nameEn}, claimed · ${MANI_ASSET_DEFS[assetKey].nameEs}, reclamado`);
+    el.setAttribute('aria-label', `${maniAssetDef(assetKey).nameEn}, claimed · ${maniAssetDef(assetKey).nameEs}, reclamado`);
     el.setAttribute('tabindex', '-1');
 
     const claimed = getClaimedAssets();
@@ -4748,7 +4916,7 @@ function claimAsset(el) {
     maniJustClaimedKey = assetKey;
     updateManiCounter(maniClaimed);
 
-    const def = MANI_ASSET_DEFS[assetKey];
+    const def = maniAssetDef(assetKey);
     const isLast  = maniClaimed === MANI_TOTAL;
     const btnLabel = isLast
         ? 'Continue to your sentence · Continúa con tu oración'
@@ -4792,7 +4960,7 @@ function restoreManiClaims() {
         const el = grid.querySelector(`.mani-asset[data-asset="${key}"]`);
         if (el) {
             el.classList.add('claimed');
-            el.setAttribute('aria-label', `${MANI_ASSET_DEFS[key].nameEn}, claimed · ${MANI_ASSET_DEFS[key].nameEs}, reclamado`);
+            el.setAttribute('aria-label', `${maniAssetDef(key).nameEn}, claimed · ${maniAssetDef(key).nameEs}, reclamado`);
         }
     });
 
@@ -5078,8 +5246,8 @@ function showWelcomeBack() {
     if (draftSaved && draftWords > 0) {
         draftLine = `\n\nBorrador guardado · Draft saved: ${draftWords} ${draftWords === 1 ? 'palabra · word' : 'palabras · words'}.`;
         draftLine += t(
-            '\nContinúa revisando — tu historia sigue aquí.',
-            '\nKeep revising — your story is still here.'
+            '\nContinúa revisando — tu trabajo sigue aquí.',
+            '\nKeep revising — your work is still here.'
         );
     } else if (draftWords > 0) {
         draftLine = `\n\n${draftWords} ${draftWords === 1 ? 'palabra en progreso · word in progress' : 'palabras en progreso · words in progress'}.`;
@@ -5106,6 +5274,7 @@ function showWelcomeBack() {
 function openMani(options = {}) {
     maniStandalone = options.standalone === true;
     setOverlayOpen('maniBg', true);
+    applyManiGenreCopy();
     initManiPrompt();
     restoreManiClaims();
     const proceedBtn = document.getElementById('maniProceedBtn');
@@ -5446,14 +5615,14 @@ const EVAL_FEEDBACK = {
         flag: 'Tu voz es tu argumento. No es estilo — es evidencia de quién está hablando. Si el coach la borró y la reemplazó con prosa académica genérica, reclámala. / Your voice is your argument. It is not style — it is evidence of who is speaking. If the coach erased it and replaced it with generic academic prose, reclaim it.'
     },
     specificity: {
-        good: 'Hay detalles concretos aquí. El lector puede imaginar la escena. Eso es exactamente lo que hace el argumento visible. / There are concrete details here. The reader can picture the scene. That is exactly what makes the argument visible.',
-        warn: '¿Falta algo concreto — una escena, un nombre, una fecha, un sonido, un olor? La abstracción suena bien pero no convence. / Is something concrete missing — a scene, a name, a date, a sound, a smell? Abstraction sounds smooth but does not persuade.',
-        flag: 'Esta parte se queda abstracta. La abstracción no persuade — el lector necesita tocar la historia, no leer sobre ella. Agrega el detalle específico que esta oración está evitando. / This part stays abstract. Abstraction does not persuade — the reader needs to touch the story, not read about it. Add the specific detail this sentence is avoiding.'
+        good: 'Hay detalles concretos aquí. El lector puede ver exactamente de qué hablas. Eso es lo que hace visible tu idea. / There are concrete details here. The reader can see exactly what you mean. That is what makes your idea visible.',
+        warn: '¿Falta algo concreto — un ejemplo, un nombre, una fecha, un dato, una observación? La abstracción suena bien pero no convence. / Is something concrete missing — an example, a name, a date, a number, an observation? Abstraction sounds smooth but does not persuade.',
+        flag: 'Esta parte se queda abstracta. La abstracción no persuade — el lector necesita el detalle concreto, no solo la idea general. Agrega el detalle específico que esta oración está evitando. / This part stays abstract. Abstraction does not persuade — the reader needs the concrete detail, not just the general idea. Add the specific detail this sentence is avoiding.'
     },
     thinking: {
         good: 'Esta conexión profundiza. El lector aprende algo nuevo sobre cómo tu experiencia se conecta con algo más grande. / This connection deepens. The reader learns something new about how your experience connects to something larger.',
-        warn: '¿El coach realmente conectó tu experiencia con el contexto mayor — o solo lo mencionó? Mencionar no es analizar. ¿Qué revela tu historia sobre la estructura más grande? / Did the coach actually connect your experience to the larger context — or just mention it? Mentioning is not analyzing. What does your story reveal about the larger structure?',
-        flag: 'Esta conexión suena genérica — podría aplicarse a cualquier estudiante. La conexión debe salir de TU historia específica. Si no la sientes como tuya, no la uses. Escríbela tú mismo/a. / This connection sounds generic — it could apply to any student. The connection must come from YOUR specific story. If you do not feel it as yours, do not use it. Write it yourself.'
+        warn: '¿El coach realmente conectó tu experiencia con el contexto mayor — o solo lo mencionó? Mencionar no es analizar. ¿Qué revela tu ejemplo sobre el panorama más amplio? / Did the coach actually connect your experience to the larger context — or just mention it? Mentioning is not analyzing. What does your example reveal about the larger picture?',
+        flag: 'Esta conexión suena genérica — podría aplicarse a cualquier estudiante. La conexión debe salir de TU trabajo específico. Si no la sientes como tuya, no la uses. Escríbela tú mismo/a. / This connection sounds generic — it could apply to any student. The connection must come from YOUR specific work. If you do not feel it as yours, do not use it. Write it yourself.'
     }
 };
 
@@ -5729,7 +5898,12 @@ function removeFollowupPanels() {
 
 function injectFollowupPanel() {
     const s = STAGES.find(st => st.id === state.stage);
-    if (!s || !s.followups || s.followups.length === 0) return;
+    // Genre copy layer: layered genres get their own (or neutral) follow-up
+    // questions — never "¿Qué sentido físico falta en mi anécdota?".
+    const genreFollowups = (typeof getFollowupsFor === 'function')
+        ? getFollowupsFor(state.stage, state.assignmentId) : null;
+    const followups = genreFollowups || (s && s.followups);
+    if (!followups || followups.length === 0) return;
 
     removeFollowupPanels();
 
@@ -5747,7 +5921,7 @@ function injectFollowupPanel() {
     const chips = document.createElement('div');
     chips.className = 'followup-chips';
 
-    s.followups.forEach((q, i) => {
+    followups.forEach((q, i) => {
         const chip = document.createElement('button');
         chip.className = 'followup-chip';
         chip.setAttribute('aria-label', `Preguntar: ${q}`);
@@ -6476,7 +6650,7 @@ function handleStuckOption(option) {
         });
     } else if (option === 'break') {
         addSys(t(
-            'Está bien tomar un descanso. El borrador, tu historia, y Tu Pana estarán aquí cuando vuelvas. / It is okay to take a break. Your draft, your story, and Tu Pana will all be here when you return.',
+            'Está bien tomar un descanso. Tu borrador y Tu Pana estarán aquí cuando vuelvas. / It is okay to take a break. Your draft and Tu Pana will both be here when you return.',
             'Toma el descanso que necesitas. El borrador espera. / Take the break you need. The draft will wait.'
         ));
         if (!document.querySelector('.workspace').classList.contains('focus-mode')) {
@@ -6567,8 +6741,15 @@ function computeBadges() {
     for (const d of decisions) { if (d.checkpoint === true) _cpStages.add(d.stage); }
     const checkpointCount = _cpStages.size;
 
+    // Genre copy layer: badge names must fit the active genre — "Story Founder"
+    // is the default essay's celebration, not a lab report's.
+    const _badgeText = (cls, dflt) => {
+        const o = (typeof getBadgeTextFor === 'function') ? getBadgeTextFor(cls, state.assignmentId) : null;
+        return o || dflt;
+    };
+
     if (done.has(3) || stage > 3) {
-        badges.push({ cls: 'story',  text: 'Fundador/a de Historia · Story Founder', icon: 'community-map' });
+        badges.push({ cls: 'story',  text: _badgeText('story', 'Fundador/a de Historia · Story Founder'), icon: 'community-map' });
     }
     if (draftSaved) {
         badges.push({ cls: 'arch',   text: 'Arquitecto/a del Borrador · Draft Architect', icon: 'first-draft-door' });
@@ -6578,7 +6759,7 @@ function computeBadges() {
         badges.push({ cls: 'voice',  text: 'Guardián/a de la Voz · Voice Guardian', icon: 'voice-thread' });
     }
     if (done.has(8) || stage > 8) {
-        badges.push({ cls: 'bridge', text: 'Constructor/a de Puentes · Bridge Builder', icon: 'language-bridge' });
+        badges.push({ cls: 'bridge', text: _badgeText('bridge', 'Constructor/a de Puentes · Bridge Builder'), icon: 'language-bridge' });
     }
     // Earned by completing 3+ distinct reflection checkpoints, or by legacy ≥10 decisions
     if (checkpointCount >= 3 || decisions.length >= 10) {
@@ -7102,12 +7283,12 @@ function injectJourneyCompleteCard() {
             <div class="journey-complete-badge"><span class="show-es" lang="es">Proceso completo</span><span class="lang-sep"> · </span><span class="show-en" lang="en">Journey Complete</span></div>
             <div class="journey-complete-title"><span class="show-es" lang="es">Último paso: entrega tu paquete final</span><span class="lang-sep"> · </span><span class="show-en" lang="en">Last step: submit your Final Packet</span></div>
             <ol class="journey-complete-steps">
-                <li><span lang="es">Abre <strong>Guardar / Exportar</strong> (botón abajo, o en el pie de página).</span><br><span lang="en">Open <strong>Save / Export</strong> (button below, or in the footer).</span></li>
+                <li><span lang="es">Abre <strong>Mi trabajo</strong> (botón abajo, o en el pie de página).</span><br><span lang="en">Open <strong>My work</strong> (button below, or in the footer).</span></li>
                 <li><span lang="es">Toca <strong>Copiar mi paquete final</strong> — copia tu trabajo escrito y tu reporte de proceso juntos. Si las descargas funcionan en tu dispositivo, también puedes usar <strong>Descargar paquete final</strong>.</span><br><span lang="en">Tap <strong>Copy my Final Submission Packet</strong> — it copies your written work and process report together. If downloads work on your device, you can also use <strong>Download Final Packet</strong>.</span></li>
                 <li><span lang="es">Pega y entrega el paquete final en Brightspace, según las instrucciones de tu instructor/a.</span><br><span lang="en">Paste and submit the Final Packet in Brightspace, following your instructor's directions.</span></li>
             </ol>
             <button type="button" class="journey-complete-cta" onclick="openReport('submit')" aria-label="Preparar entrega · Prepare submission">
-                <span class="show-es" lang="es">Abrir Guardar / Exportar</span><span class="lang-sep"> · </span><span class="show-en" lang="en">Open Save / Export</span> →
+                <span class="show-es" lang="es">Abrir Mi trabajo</span><span class="lang-sep"> · </span><span class="show-en" lang="en">Open My work</span> →
             </button>`;
         D.chatMessages.appendChild(card);
         D.chatMessages.scrollTop = D.chatMessages.scrollHeight;
@@ -8242,7 +8423,7 @@ function openToolkitPanel() {
     };
 
     const assetsHtml = MANI_ORDER.map(key => {
-        const def = MANI_ASSET_DEFS[key];
+        const def = maniAssetDef(key);
         const isClaimed = claimed.includes(key);
         return `<div class="toolkit-asset-chip ${isClaimed ? 'toolkit-asset-claimed' : 'toolkit-asset-unclaimed'}" aria-label="${escapeHtml(def.nameEn)}${isClaimed ? ', claimed' : ', not yet claimed'}">
             ${getIcon(TOOLKIT_ICONS[key], 28, true)}
@@ -8265,7 +8446,7 @@ function openToolkitPanel() {
     let skillsHtml = '';
     try {
         const acquired = new Set(getAcquiredSkills());
-        const earnedDefs = STAGE_SKILL_DEFS.filter(s => acquired.has(s.skillId));
+        const earnedDefs = STAGE_SKILL_DEFS.filter(s => acquired.has(s.skillId)).map(skillLabelFor);
         if (earnedDefs.length === 0) {
             skillsHtml = `<p class="toolkit-skills-empty"><span class="show-es">Las habilidades de escritura que practicas aparecerán aquí a medida que avanzas por las etapas.</span><span class="lang-sep"> · </span><span class="show-en">Writing skills you practice will appear here as you move through the stages.</span></p>`;
         } else {

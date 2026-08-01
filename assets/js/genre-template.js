@@ -939,6 +939,198 @@ const collegePersonalStatementProfile = {
         8:  'Help the student find vague passages and real chances for concrete detail, and notice abrupt register shifts, while protecting their voice, multilingual language, and community knowledge. Explain what a sentence needs and ask whether it sounds like them — do NOT rewrite into generic consultant voice, prestige-coded vocabulary, artificial maturity, or adult-authored polish, and do not supply replacement prose. Treat code-switching and non-English words as choices, not errors; never auto-delete, italicize, or demand translation of every phrase.',
         9:  'Help the student check their controlling insight and reflection, flag generic or clichéd "lessons," confirm the writing is their own and authentic, clean up clarity and mechanics after substantive drafting, and verify the essay fits the real word limit using context the student provides. Do NOT predict admission, assign an admissions-quality score, call the essay "Ivy-worthy," or claim it will impress a named institution.',
         10: 'Help the student document, in their own words, their story-selection and structural decisions, their substantive revisions, the feedback they considered and accepted or rejected, how they used AI transparently, and how they protected their voice. This stage stays on the shared reflection route. Do NOT write the reflection for the student, weaken AI-use transparency, or claim the essay is finished, correct, or graded.'
+    },
+
+    // ── Genre copy layer (2026-08-01) ──
+    // This layer's stage ROLES differ from the engine's generic ones (Stage 4 is
+    // meaning/tension, not evidence gathering; Stage 5 is shaping; Stage 9 is
+    // reflection + integrity), so the neutral fallback copy would be off-target
+    // here. Narrative vocabulary is native to a personal statement, so this copy
+    // is story-shaped — while holding the layer's prohibitions: no admissions
+    // prediction, no prestige framing, no trauma demand, no copyable prose.
+    copy: {
+        microPrompts: {
+            1: [
+                { task: { es: 'Nombra un momento pequeño que sigues recordando.', en: 'Name one small moment you keep coming back to.' }, starter: { es: 'Un momento que sigo recordando es…', en: 'One moment I keep coming back to is…' } },
+                { task: { es: 'Nombra un objeto, un lugar o una rutina que dice algo de ti.', en: 'Name an object, a place, or a routine that says something about you.' }, starter: { es: 'Algo cotidiano que dice algo de mí es…', en: 'One everyday thing that says something about me is…' } },
+                { task: { es: 'Nombra una pregunta que te haces desde hace tiempo.', en: 'Name a question you have been asking yourself for a while.' }, starter: { es: 'Una pregunta que me hago desde hace tiempo es…', en: 'A question I have been asking myself for a while is…' } }
+            ],
+            2: [
+                { task: { es: 'Escribe qué podría mostrar de ti esta historia.', en: 'Write what this story could show about you.' }, starter: { es: 'Esta historia podría mostrar que yo…', en: 'This story could show that I…' } },
+                { task: { es: 'Nombra otra opción que también podrías contar.', en: 'Name another option you could also write about.' }, starter: { es: 'Otra historia que podría contar es…', en: 'Another story I could tell is…' } },
+                { task: { es: 'Nombra qué historia no quieres contar — y está bien.', en: 'Name a story you do not want to tell — that is allowed.' }, starter: { es: 'No quiero escribir sobre…', en: 'I do not want to write about…' } }
+            ],
+            3: [
+                { task: { es: 'Elige un rumbo y escríbelo en una oración.', en: 'Choose one direction and write it in one sentence.' }, starter: { es: 'Voy a escribir sobre…', en: 'I am going to write about…' } },
+                { task: { es: 'Escribe por qué elegiste este rumbo y no otro.', en: 'Write why you chose this direction and not another.' }, starter: { es: 'Elegí esto porque…', en: 'I chose this because…' } },
+                { task: { es: 'Nombra qué parte de ti quieres que se vea aquí.', en: 'Name what part of you you want this to show.' }, starter: { es: 'Quiero que se vea que yo…', en: 'I want this to show that I…' } }
+            ],
+            4: [
+                { task: { es: 'Escribe qué cambió en ti — antes y después.', en: 'Write what changed in you — before and after.' }, starter: { es: 'Antes yo pensaba ___, y después…', en: 'Before, I thought ___, and afterward…' } },
+                { task: { es: 'Nombra la tensión: dos cosas que tiran en direcciones distintas.', en: 'Name the tension: two things pulling in different directions.' }, starter: { es: 'Por un lado ___, y por otro…', en: 'On one hand ___, and on the other…' } },
+                { task: { es: 'Escribe qué entiendes ahora que antes no entendías.', en: 'Write what you understand now that you did not before.' }, starter: { es: 'Ahora entiendo que…', en: 'Now I understand that…' } }
+            ],
+            5: [
+                { task: { es: 'Escribe con qué momento podría abrir tu ensayo.', en: 'Write which moment your essay could open with.' }, starter: { es: 'Mi ensayo podría abrir con…', en: 'My essay could open with…' } },
+                { task: { es: 'Decide dónde entra la reflexión, no solo la escena.', en: 'Decide where the reflection comes in, not just the scene.' }, starter: { es: 'La reflexión debería entrar cuando…', en: 'The reflection should come in when…' } },
+                { task: { es: 'Escribe hacia dónde quieres que llegue el final.', en: 'Write where you want the ending to land.' }, starter: { es: 'Quiero que el final llegue a…', en: 'I want the ending to land on…' } }
+            ],
+            6: [
+                { task: { es: 'Escribe la siguiente parte de tu borrador — una oración.', en: 'Write the next part of your draft — one sentence.' }, starter: { es: 'La siguiente parte necesita mostrar…', en: 'The next part needs to show…' } },
+                { task: { es: 'Escribe la escena sin explicarla todavía.', en: 'Write the scene without explaining it yet.' }, starter: { es: 'Lo que pasó fue…', en: 'What happened was…' } },
+                { task: { es: 'Escribe lo que este párrafo intenta mostrar de ti.', en: 'Write what this paragraph is trying to show about you.' }, starter: { es: 'Este párrafo intenta mostrar…', en: 'This paragraph is trying to show…' } }
+            ],
+            7: [
+                { task: { es: 'Nombra dónde está el centro de tu ensayo.', en: 'Name where the center of your essay is.' }, starter: { es: 'El centro de mi ensayo es…', en: 'The center of my essay is…' } },
+                { task: { es: 'Nombra una parte que ocupa más espacio del que merece.', en: 'Name one part taking more space than it earns.' }, starter: { es: 'Una parte que ocupa demasiado espacio es…', en: 'One part taking too much space is…' } },
+                { task: { es: 'Escribe qué falta: ¿escena, contexto o reflexión?', en: 'Write what is missing: scene, context, or reflection?' }, starter: { es: 'Lo que falta aquí es…', en: 'What is missing here is…' } }
+            ],
+            8: [
+                { task: { es: 'Nombra una oración que suena a otra persona.', en: 'Name one sentence that sounds like someone else.' }, starter: { es: 'Una oración que no suena a mí es…', en: 'One sentence that does not sound like me is…' } },
+                { task: { es: 'Cambia una palabra vaga por un detalle concreto.', en: 'Trade one vague word for a concrete detail.' }, starter: { es: 'En vez de decir ___, puedo decir…', en: 'Instead of saying ___, I can say…' } },
+                { task: { es: 'Escribe lo que quieres proteger de tu manera de hablar.', en: 'Write what you want to protect about how you talk.' }, starter: { es: 'Quiero mantener mi voz al…', en: 'I want to keep my voice by…' } }
+            ],
+            9: [
+                { task: { es: 'Verifica que lo que escribiste es tuyo y es verdad.', en: 'Check that what you wrote is yours and is true.' }, starter: { es: 'Todo lo que dice mi ensayo es cierto porque…', en: 'Everything my essay says is true because…' } },
+                { task: { es: 'Nombra una frase hecha que podrías reemplazar.', en: 'Name one cliché you could replace.' }, starter: { es: 'Una frase hecha que quiero cambiar es…', en: 'One cliché I want to change is…' } },
+                { task: { es: 'Confirma el límite de palabras del prompt que estás respondiendo.', en: 'Confirm the word limit of the prompt you are answering.' }, starter: { es: 'El límite de palabras de mi prompt es…', en: 'The word limit for my prompt is…' } }
+            ]
+        },
+        panaHints: {
+            1: {
+                gentle: { title: 'Empieza pequeño. · Start small.',
+                          body:  'No necesitas la historia más dramática de tu vida. Un momento pequeño y específico casi siempre funciona mejor. / You do not need the most dramatic story of your life. A small, specific moment almost always works better.',
+                          action: 'Escribe tres oraciones sobre ese momento. · Write three sentences about that moment.' },
+                direct: { title: 'Un momento, no un resumen. · One moment, not a summary.',
+                          body:  'Dónde estabas, qué pasó, y qué notaste. / Where you were, what happened, and what you noticed.',
+                          action: 'Escríbelo sin editarte. · Write it without editing yourself.' }
+            },
+            2: {
+                gentle: { title: 'Ninguna historia está obligada. · No story is required of you.',
+                          body:  'Tú decides qué compartes y qué no. Una historia que puedes contar con calma suele escribirse mejor que una que todavía duele. / You decide what you share and what you do not. A story you can tell calmly usually writes better than one that still hurts.',
+                          action: 'Anota dos opciones y quédate con la que puedas contar entera. · List two options and keep the one you can tell fully.' },
+                direct: { title: 'Elige lo que puedas sostener. · Choose what you can hold.',
+                          body:  'Una historia que puedes explicar hasta el final le sirve más al lector. / A story you can carry to the end serves the reader better.',
+                          action: 'Descarta una opción y di por qué. · Drop one option and say why.' }
+            },
+            3: {
+                gentle: { title: 'Un rumbo, no un tema. · A direction, not a topic.',
+                          body:  'El lector no necesita un tema — necesita saber qué te importa y por qué. / The reader does not need a topic — they need to know what matters to you and why.',
+                          action: 'Completa: "Voy a escribir sobre ___ porque ___." · Complete: "I am going to write about ___ because ___."' },
+                direct: { title: 'Decide y avanza. · Decide and move.',
+                          body:  'Puedes cambiar de rumbo después; ahora necesitas uno. / You can change direction later; right now you need one.',
+                          action: 'Escribe tu rumbo en una oración. · Write your direction in one sentence.' }
+            },
+            4: {
+                gentle: { title: 'El significado viene del cambio. · Meaning comes from change.',
+                          body:  'Lo que hace fuerte a un ensayo personal no es el suceso — es lo que entendiste después. / What makes a personal essay strong is not the event — it is what you understood afterward.',
+                          action: 'Escribe una oración de "antes" y una de "después". · Write one "before" sentence and one "after" sentence.' },
+                direct: { title: 'Nombra la tensión. · Name the tension.',
+                          body:  'Dos cosas que tiran en direcciones distintas. Ahí está tu ensayo. / Two things pulling in different directions. That is where your essay lives.',
+                          action: 'Escribe la tensión en una oración. · Write the tension in one sentence.' }
+            },
+            5: {
+                gentle: { title: 'La forma sirve al significado. · Shape serves meaning.',
+                          body:  'No hay una fórmula obligatoria. Escena, contexto y reflexión pueden ir en el orden que le sirva a tu historia. / There is no required formula. Scene, context, and reflection can come in whatever order serves your story.',
+                          action: 'Escribe tus partes en orden y marca dónde entra la reflexión. · List your parts in order and mark where reflection comes in.' },
+                direct: { title: 'Estructura con intención. · Structure with intent.',
+                          body:  'Cada parte debe ganarse la siguiente. / Each part has to earn the next.',
+                          action: 'Escribe qué hace cada parte. · Write what each part does.' }
+            },
+            6: {
+                gentle: { title: 'Escribe sin parar. · Write without stopping.',
+                          body:  'Este borrador lo escribes tú, sin el coach. No tiene que ser bueno — tiene que ser tuyo. / You write this draft, without the coach. It does not have to be good — it has to be yours.',
+                          action: 'Escribe durante 15 minutos sin detenerte. · Write for 15 minutes without stopping.' },
+                direct: { title: 'Solo una regla: termina. · Only one rule: finish.',
+                          body:  'No edites mientras escribes. Termina primero. / Do not edit while drafting. Finish first.',
+                          action: 'Escribe hasta el final. Luego guarda. · Write to the end. Then save.' }
+            },
+            7: {
+                gentle: { title: 'Busca el centro. · Find the center.',
+                          body:  'Casi todos los primeros borradores tardan demasiado en llegar a lo importante. ¿Dónde empieza de verdad tu ensayo? / Almost every first draft takes too long to reach what matters. Where does your essay really begin?',
+                          action: 'Marca la oración donde empieza de verdad. · Mark the sentence where it really begins.' },
+                direct: { title: 'Proporción y trayectoria. · Proportion and trajectory.',
+                          body:  'Corta lo que se explica solo; agrega lo que solo tú puedes decir. / Cut what explains itself; add what only you can say.',
+                          action: 'Elige una parte para recortar y una para desarrollar. · Pick one part to cut and one to develop.' }
+            },
+            8: {
+                gentle: { title: 'Concreto, y tuyo. · Concrete, and yours.',
+                          body:  'Un detalle específico convence más que un adjetivo grande. Y tu manera de hablar — incluido tu español o tu spanglish — no es un error. / One specific detail persuades more than a big adjective. And how you talk — including your Spanish or Spanglish — is not a mistake.',
+                          action: 'Elige una oración y hazla más concreta sin cambiar tu voz. · Pick one sentence and make it concrete without changing your voice.' },
+                direct: { title: 'Una oración a la vez. · One sentence at a time.',
+                          body:  'Nombra qué le falta a la oración, y tú haces el cambio. / Name what the sentence needs, and you make the change.',
+                          action: 'Pega una oración en el chat con la ruta que elegiste. · Paste one sentence in the chat with your chosen route.' }
+            },
+            9: {
+                gentle: { title: 'Verdad, voz y límite. · True, yours, and within the limit.',
+                          body:  'Antes de entregar: ¿todo es cierto, todo suena a ti, y cabe en el límite del prompt? / Before you submit: is all of it true, does all of it sound like you, and does it fit the prompt\'s limit?',
+                          action: 'Nombra una cosa que todavía necesitas verificar. · Name one thing you still need to check.' },
+                direct: { title: 'Auditoría final. · Final audit.',
+                          body:  'Prompt, límite de palabras, nombres, fechas, frases hechas, y todo verificable. / Prompt, word limit, names, dates, clichés, and everything verifiable.',
+                          action: 'Confirma uno a uno. · Confirm one by one.' }
+            }
+        },
+        followups: {
+            1: [
+                '¿Qué detalle de este momento todavía no he escrito? / What detail of this moment have I not written yet?',
+                '¿Por qué me sigo acordando de esto? / Why do I keep coming back to this?',
+                '¿Qué palabra en mi otro idioma diría esto mejor? / What word in my other language would say this better?'
+            ],
+            2: [
+                '¿Qué muestra esta historia de mí que no se ve en mi solicitud? / What does this story show about me that my application does not?',
+                '¿Hay otra historia que me diga más? / Is there another story that says more about me?',
+                '¿Estoy escribiendo esto porque quiero o porque creo que debo? / Am I writing this because I want to or because I think I should?'
+            ],
+            3: [
+                '¿Mi rumbo es una idea real o solo un tema? / Is my direction a real idea or just a topic?',
+                '¿Qué parte de mí quiero que se vea aquí? / What part of me do I want this to show?',
+                '¿Qué pasaría si eligiera el otro rumbo? / What would happen if I chose the other direction?'
+            ],
+            4: [
+                '¿Qué cambió en mí — y en qué momento exacto? / What changed in me — and at exactly what moment?',
+                '¿Qué tensión estoy evitando nombrar? / What tension am I avoiding naming?',
+                '¿Qué entiendo ahora que antes no entendía? / What do I understand now that I did not before?'
+            ],
+            5: [
+                '¿Con qué momento debería abrir? / Which moment should I open with?',
+                '¿Dónde entra la reflexión, no solo la escena? / Where does reflection come in, not just scene?',
+                '¿Hacia dónde quiero que llegue el final? / Where do I want the ending to land?'
+            ],
+            6: [
+                '¿Qué oración de mi borrador suena más como yo? / What sentence in my draft sounds most like me?',
+                '¿Dónde me detuve — y qué me detuvo? / Where did I stop — and what stopped me?',
+                '¿Qué parte todavía no está clara ni para mí? / What part is still unclear even to me?'
+            ],
+            7: [
+                '¿Dónde empieza de verdad mi ensayo? / Where does my essay really begin?',
+                '¿Qué parte ocupa más espacio del que merece? / What part takes more space than it earns?',
+                '¿Estoy repitiendo algo que ya está en mi solicitud? / Am I repeating something already in my application?'
+            ],
+            8: [
+                '¿Qué oración suena como un adulto y no como yo? / What sentence sounds like an adult and not like me?',
+                '¿Qué palabra vaga puedo cambiar por un detalle concreto? / What vague word can I trade for a concrete detail?',
+                '¿Qué frase mía protejo cueste lo que cueste? / What phrase of mine do I protect at all costs?'
+            ],
+            9: [
+                '¿Todo lo que digo aquí es cierto y verificable? / Is everything I say here true and verifiable?',
+                '¿Qué frase hecha debería reemplazar con algo mío? / What cliché should I replace with something of my own?',
+                '¿Mi ensayo cabe en el límite de palabras del prompt? / Does my essay fit the prompt\'s word limit?'
+            ],
+            10: [
+                '¿Qué cambió entre mi primer borrador y mi versión final? / What changed between my first draft and my final version?',
+                '¿Qué parte de mi voz protegí durante toda la revisión? / What part of my voice did I protect throughout revision?',
+                '¿Qué consejo del coach rechacé — y por qué? / What advice from the coach did I reject — and why?'
+            ]
+        },
+        badges: {
+            story:  'Fundador/a de Historia · Story Founder',
+            bridge: 'Constructor/a de Significado · Meaning Builder'
+        },
+        skills: {
+            1: { labelEs: 'Puedo identificar un momento propio que vale la pena contar.',      labelEn: 'I can identify a moment of my own that is worth telling.' },
+            2: { labelEs: 'Puedo decidir qué historia contar y cuál no.',                      labelEn: 'I can decide which story to tell and which not to.' },
+            3: { labelEs: 'Puedo nombrar el rumbo de mi ensayo personal.',                     labelEn: 'I can name the direction of my personal essay.' }
+        }
     }
 };
 
@@ -1249,16 +1441,28 @@ function _profileForAssignment(assignmentId) {
     return (layer && layer.profile) ? layer.profile : null;
 }
 // Stage display label override → { es, en } | null
+// Genre copy layer: a layer WITHOUT its own stageDisplay gets neutral role names
+// ("Punto de partida"), never the default essay's "Anécdota / Anecdote".
 function getStageLabelOverride(stageId, assignmentId) {
     const p = _profileForAssignment(assignmentId);
     const o = p && p.stageDisplay && p.stageDisplay[stageId];
-    return o ? { es: o.es, en: o.en } : null;
+    if (o) return { es: o.es, en: o.en };
+    if (typeof _layerActive === 'function' && _layerActive(assignmentId)) {
+        const n = NEUTRAL_STAGE_LABELS[stageId];
+        if (n) return { es: n.es, en: n.en };
+    }
+    return null;
 }
 // Milestone (1–5) label override → { es, en } | null
 function getMilestoneLabelOverride(milestoneN, assignmentId) {
     const p = _profileForAssignment(assignmentId);
     const o = p && p.milestones && p.milestones[milestoneN];
-    return o ? { es: o.es, en: o.en } : null;
+    if (o) return { es: o.es, en: o.en };
+    if (typeof _layerActive === 'function' && _layerActive(assignmentId)) {
+        const n = NEUTRAL_MILESTONES[milestoneN];
+        if (n) return { es: n.es, en: n.en };
+    }
+    return null;
 }
 // Coach stage-entry override → "ES\nEN" string | null
 function getStageEntryOverride(stageId, assignmentId) {
@@ -1269,7 +1473,14 @@ function getStageEntryOverride(stageId, assignmentId) {
 // Task-bar short-cue override for a given sub-step index (clamped) → { es, en } | null
 function getStageStepOverride(stageId, stepIdx, assignmentId) {
     const p = _profileForAssignment(assignmentId);
-    const arr = p && p.stageSteps && p.stageSteps[stageId];
+    let arr = p && p.stageSteps && p.stageSteps[stageId];
+    // Genre copy layer: neutral task cues for a layered genre with none of its
+    // own — the default cues talk about anecdotes and bridge sentences.
+    if ((!Array.isArray(arr) || !arr.length)
+        && typeof _layerActive === 'function' && _layerActive(assignmentId)) {
+        arr = NEUTRAL_STAGE_STEPS[stageId];
+        if (Array.isArray(arr) && arr.length) arr = applyGenreTokens(arr, assignmentId);
+    }
     if (!Array.isArray(arr) || !arr.length) return null;
     const i = Math.max(0, Math.min(stepIdx || 0, arr.length - 1));
     return arr[i] || null;
@@ -1277,7 +1488,11 @@ function getStageStepOverride(stageId, stepIdx, assignmentId) {
 // Draft-area placeholder override (bilingual string) → string | null
 function getDraftPlaceholderOverride(assignmentId) {
     const p = _profileForAssignment(assignmentId);
-    return (p && typeof p.draftPlaceholder === 'string' && p.draftPlaceholder.trim()) ? p.draftPlaceholder : null;
+    if (p && typeof p.draftPlaceholder === 'string' && p.draftPlaceholder.trim()) return p.draftPlaceholder;
+    // Genre copy layer: the default placeholder offers autobiographical starters
+    // ("Recuerdo el día que…"), which belong to the default essay alone.
+    if (typeof _layerActive === 'function' && _layerActive(assignmentId)) return NEUTRAL_DRAFT_PLACEHOLDER;
+    return null;
 }
 // Prompt-facing per-stage coachFocus override → string | null (A.2a)
 // Keyed by stage NUMBER (1–10). Consumed by buildOllamaSystemPrompt() to REPLACE
@@ -1340,6 +1555,461 @@ function getPathwayLabel(assignmentId) {
     const layer = getAssignmentLayer(assignmentId);
     const l = layer && layer.pathwayLabel;
     return (l && l.es && l.en) ? { es: l.es, en: l.en } : null;
+}
+
+// ════════════════════════════════════════════════════════
+//  GENRE COPY LAYER (cross-genre language alignment, 2026-08-01)
+//
+//  Founder finding: student-facing CARDS, BUTTONS, CHECKPOINTS and CELEBRATIONS
+//  still spoke the default autobiographical essay's language ("anécdota",
+//  "tu historia", "tu ensayo", the eviction-letter examples) inside every other
+//  genre layer. The stage/coach seams were already genre-aware (Stage B.1 + F4);
+//  the coaching CONTENT was not.
+//
+//  Contract — identical in shape to resolveCoachFocus():
+//    no active layer            → the default autobiographical copy (unchanged);
+//    layer defines its own copy → the layer's copy;
+//    layer active, copy missing → NEUTRAL copy (never the default essay's).
+//  The rule keys off the ACTIVE LAYER, not off the presence of a profile, so a
+//  profile-less layer (cap-200-first-draft) is covered too.
+//
+//  Work-noun tokens: `{workEs}` / `{workEn}` resolve to the active genre's name
+//  for the thing being written, so one neutral sentence reads correctly as
+//  "tu informe de laboratorio" or "your statement of purpose". Two tokens (not
+//  one) because bilingual strings carry both languages in a single string.
+// ════════════════════════════════════════════════════════
+const GENRE_WORK_NOUN = {
+    _default: { es: 'ensayo',                 en: 'essay' },
+    _neutral: { es: 'trabajo',                en: 'piece of writing' },
+    'cap-200-first-draft':                      { es: 'informe',                 en: 'report' },
+    'cap200-bronx-beautiful-service-learning':  { es: 'informe',                 en: 'report' },
+    'research-paper':                           { es: 'trabajo de investigación', en: 'research paper' },
+    'stem-lab-report':                          { es: 'informe de laboratorio',  en: 'lab report' },
+    'college-personal-statement':               { es: 'ensayo personal',         en: 'personal essay' },
+    'graduate-sop':                             { es: 'carta de propósito',      en: 'statement of purpose' }
+};
+
+// Active genre's work noun → { es, en }. Default flow keeps "ensayo · essay".
+function getWorkNoun(assignmentId) {
+    if (!assignmentId || !getAssignmentLayer(assignmentId)) return GENRE_WORK_NOUN._default;
+    return GENRE_WORK_NOUN[assignmentId] || GENRE_WORK_NOUN._neutral;
+}
+
+// Resolve {workEs}/{workEn} tokens in any student-facing string (or {es,en} pair).
+function applyGenreTokens(text, assignmentId) {
+    if (text == null) return text;
+    const w = getWorkNoun(assignmentId);
+    if (typeof text === 'string') {
+        return text.replace(/\{workEs\}/g, w.es).replace(/\{workEn\}/g, w.en);
+    }
+    if (Array.isArray(text)) return text.map(v => applyGenreTokens(v, assignmentId));
+    if (typeof text === 'object') {
+        const out = {};
+        for (const k of Object.keys(text)) out[k] = applyGenreTokens(text[k], assignmentId);
+        return out;
+    }
+    return text;
+}
+
+function _layerActive(assignmentId) {
+    return !!(assignmentId && getAssignmentLayer(assignmentId));
+}
+
+// ── NEUTRAL coaching content (used by every layered genre lacking its own) ──
+// Written against the ENGINE's stage roles, which are stable across genres:
+//   1 starting point · 2 focus/connection · 3 direction/claim · 4 evidence ·
+//   5 plan · 6 unassisted draft · 7 revision · 8 voice · 9 readiness · 10 process.
+
+const NEUTRAL_MICRO_PROMPTS = {
+    1: [
+        { task: { es: 'Nombra el punto de partida concreto de tu {workEs}.', en: 'Name the concrete starting point of your {workEn}.' }, starter: { es: 'Mi punto de partida es…', en: 'My starting point is…' } },
+        { task: { es: 'Escribe una cosa que ya sabes sobre este tema.', en: 'Write one thing you already know about this topic.' }, starter: { es: 'Algo que ya sé sobre esto es…', en: 'One thing I already know about this is…' } },
+        { task: { es: 'Escribe lo primero que notaste.', en: 'Write the first thing you noticed.' }, starter: { es: 'Lo primero que noté fue…', en: 'The first thing I noticed was…' } }
+    ],
+    2: [
+        { task: { es: 'Escribe por qué esto importa más allá de ti.', en: 'Write why this matters beyond you.' }, starter: { es: 'Esto importa porque…', en: 'This matters because…' } },
+        { task: { es: 'Conecta tu punto de partida con lo que pide la tarea.', en: 'Connect your starting point to what the assignment asks for.' }, starter: { es: 'Mi punto de partida se conecta con…', en: 'My starting point connects to…' } },
+        { task: { es: 'Escribe lo que un lector necesita saber primero.', en: 'Write what a reader needs to know first.' }, starter: { es: 'Un lector necesita saber…', en: 'A reader needs to know…' } }
+    ],
+    3: [
+        { task: { es: 'Escribe en una oración de qué trata tu {workEs}.', en: 'Write in one sentence what your {workEn} is about.' }, starter: { es: 'Mi {workEs} trata de…', en: 'My {workEn} is about…' } },
+        { task: { es: 'Nombra la pregunta que tu {workEs} intenta responder.', en: 'Name the question your {workEn} is trying to answer.' }, starter: { es: 'La pregunta que intento responder es…', en: 'The question I am trying to answer is…' } },
+        { task: { es: 'Nombra la tensión o el problema en el centro.', en: 'Name the tension or problem at the center.' }, starter: { es: 'La tensión que veo es…', en: 'The tension I see is…' } }
+    ],
+    4: [
+        { task: { es: 'Nombra la evidencia que ya tienes.', en: 'Name the evidence you already have.' }, starter: { es: 'La evidencia que ya tengo es…', en: 'The evidence I already have is…' } },
+        { task: { es: 'Nombra lo que todavía necesitas averiguar.', en: 'Name what you still need to find out.' }, starter: { es: 'Todavía necesito averiguar…', en: 'I still need to find out…' } },
+        { task: { es: 'Escribe qué tipo de fuente o dato te ayudaría.', en: 'Write what kind of source or data would help.' }, starter: { es: 'Necesito una fuente que me ayude a…', en: 'I need a source that helps me…' } }
+    ],
+    5: [
+        { task: { es: 'Escribe cómo podría empezar tu {workEs}.', en: 'Write how your {workEn} could begin.' }, starter: { es: 'Mi {workEs} podría empezar con…', en: 'My {workEn} could begin with…' } },
+        { task: { es: 'Nombra las secciones principales en orden.', en: 'Name the main sections in order.' }, starter: { es: 'Las secciones principales serían…', en: 'The main sections would be…' } },
+        { task: { es: 'Escribe qué hace cada sección para el lector.', en: 'Write what each section does for the reader.' }, starter: { es: 'Esta sección le da al lector…', en: 'This section gives the reader…' } }
+    ],
+    6: [
+        { task: { es: 'Escribe la siguiente parte de tu borrador — una oración.', en: 'Write the next part of your draft — one sentence.' }, starter: { es: 'La siguiente parte de mi borrador necesita explicar…', en: 'The next part of my draft needs to explain…' } },
+        { task: { es: 'Nombra una idea que todavía no has desarrollado.', en: 'Name one idea you have not developed yet.' }, starter: { es: 'Una idea que todavía no he desarrollado es…', en: 'One idea I have not developed yet is…' } },
+        { task: { es: 'Escribe lo que este párrafo intenta mostrar.', en: 'Write what this paragraph is trying to show.' }, starter: { es: 'Este párrafo intenta mostrar…', en: 'This paragraph is trying to show…' } }
+    ],
+    7: [
+        { task: { es: 'Pega una oración que quieras hacer más clara.', en: 'Paste one sentence you want to make clearer.' }, starter: { es: 'Una oración que quiero hacer más clara es…', en: 'One sentence I want to make clearer is…' } },
+        { task: { es: 'Nombra lo que haría más fuerte a este párrafo.', en: 'Name what would make this paragraph stronger.' }, starter: { es: 'Este párrafo sería más fuerte si…', en: 'This paragraph would be stronger if…' } },
+        { task: { es: 'Escribe la idea que quieres que el lector entienda.', en: 'Write the idea you want the reader to understand.' }, starter: { es: 'La idea que quiero que el lector entienda es…', en: 'The idea I want the reader to understand is…' } }
+    ],
+    8: [
+        { task: { es: 'Nombra la oración que más quieres revisar.', en: 'Name the sentence you most want to revise.' }, starter: { es: 'Una oración que quiero hacer más clara es…', en: 'One sentence I want to make clearer is…' } },
+        { task: { es: 'Describe lo que necesita el párrafo.', en: 'Describe what the paragraph needs.' }, starter: { es: 'Este párrafo sería más fuerte si…', en: 'This paragraph would be stronger if…' } },
+        { task: { es: 'Escribe lo que quieres proteger.', en: 'Write what you want to protect.' }, starter: { es: 'Quiero mantener mi voz al…', en: 'I want to keep my voice by…' } }
+    ],
+    9: [
+        { task: { es: 'Nombra algo que todavía necesitas revisar antes de la última etapa.', en: 'Name one item you still need to check before the last stage.' }, starter: { es: 'Algo que todavía necesito revisar es…', en: 'One thing I still need to check is…' } },
+        { task: { es: 'Confirma que tu primer borrador está guardado y completo.', en: 'Confirm your first draft is saved and complete.' }, starter: { es: 'Mi primer borrador está guardado y…', en: 'My first draft is saved and…' } },
+        { task: { es: 'Verifica que tu {workEs} cumple con lo que pide la tarea.', en: 'Check that your {workEn} does what the assignment asks for.' }, starter: { es: 'Lo que pide la tarea y todavía necesito revisar es…', en: 'What the assignment asks for and I still need to check is…' } }
+    ]
+};
+
+const NEUTRAL_PANA_HINTS = {
+    1: {
+        gentle: { title: 'Empieza con lo concreto. · Start with something concrete.',
+                  body:  'No necesitas la idea completa todavía. Un punto de partida específico basta para empezar. / You do not need the whole idea yet. One specific starting point is enough to begin.',
+                  action: 'Escribe tres oraciones sobre ese punto de partida. · Write three sentences about that starting point.' },
+        direct: { title: 'Tres específicos. · Three specifics.',
+                  body:  'Qué, dónde y por qué importa. Lo concreto primero, el significado después. / What, where, and why it matters. Concrete first, meaning later.',
+                  action: 'Escríbelo sin detenerte. · Write it without stopping.' }
+    },
+    2: {
+        gentle: { title: 'Conecta con el propósito de la tarea. · Connect to the purpose of the assignment.',
+                  body:  'Pregúntate: ¿por qué le importa esto a alguien más? Esa respuesta orienta tu {workEs}. / Ask: why would this matter to someone else? That answer orients your {workEn}.',
+                  action: 'Escribe una oración que conecte tu punto de partida con algo más amplio. · Write one sentence connecting your starting point to something larger.' },
+        direct: { title: 'Nombra la conexión. · Name the connection.',
+                  body:  'Conecta lo específico con lo que la tarea quiere que expliques. / Connect the specific to what the assignment asks you to explain.',
+                  action: 'Escribe: "Esto se conecta con ______ porque ______." · Write: "This connects to ______ because ______."' }
+    },
+    3: {
+        gentle: { title: 'Una dirección clara nombra la tensión. · A clear direction names the tension.',
+                  body:  'No solo el tema — lo que está en juego. Esa tensión sostiene tu {workEs}. / Not just the topic — what is at stake. That tension holds your {workEn} together.',
+                  action: 'Completa: "Mi {workEs} es sobre ______, y lo que está en juego es ______." · Complete: "My {workEn} is about ______, and what is at stake is ______."' },
+        direct: { title: 'Define la dirección. · Define the direction.',
+                  body:  'Una oración: qué afirmas y por qué importa. / One sentence: what you claim and why it matters.',
+                  action: 'Escríbela en una oración. · Write it in one sentence.' }
+    },
+    4: {
+        gentle: { title: 'La evidencia sostiene tu idea. · Evidence supports your idea.',
+                  body:  'Reúne material real — datos, fuentes, observaciones o ejemplos que tú puedas verificar. El coach no inventa fuentes. / Gather real material — data, sources, observations, or examples you can verify. The coach does not invent sources.',
+                  action: 'Nombra una fuente o dato que todavía necesitas. · Name one source or piece of data you still need.' },
+        direct: { title: 'Reúne, no inventes. · Gather, do not invent.',
+                  body:  'Toda la evidencia viene de ti o de fuentes reales que puedas citar. / All evidence comes from you or from real sources you can cite.',
+                  action: 'Anota de dónde vendrá cada dato. · Note where each piece of evidence will come from.' }
+    },
+    5: {
+        gentle: { title: 'El plan es un mapa, no una jaula. · A plan is a map, not a cage.',
+                  body:  'Cada sección debe mover al lector un paso más. Puedes cambiarlo mientras escribes. / Each section should move the reader one step further. You can change it as you write.',
+                  action: 'Escribe tus secciones en orden. Luego marca la más importante. · List your sections in order. Then mark the most important one.' },
+        direct: { title: 'Estructura con propósito. · Structure with purpose.',
+                  body:  'Cada sección gana la siguiente. / Each section earns the next.',
+                  action: 'Escribe qué hace cada sección para el lector. · Write what each section does for the reader.' }
+    },
+    6: {
+        gentle: { title: 'Escribe sin parar. · Write without stopping.',
+                  body:  'No borres nada. El borrador no necesita ser bueno — necesita ser tuyo. / Do not delete anything. The draft does not need to be good — it needs to be yours.',
+                  action: 'Escribe durante 15 minutos sin detenerte. · Write for 15 minutes without stopping.' },
+        direct: { title: 'Solo una regla: termina. · Only one rule: finish.',
+                  body:  'No edites. No borres. Termina el borrador primero. / Do not edit. Do not delete. Finish the draft first.',
+                  action: 'Escribe hasta el final. Luego guarda. · Write to the end. Then save.' }
+    },
+    7: {
+        gentle: { title: 'La revisión protege tu voz. · Revision protects your voice.',
+                  body:  'No revises tu voz fuera del texto — revisa para que tu significado sea más claro. / Do not revise your voice out of the writing — revise to make your meaning clearer.',
+                  action: 'Elige una oración y pregúntate: ¿esto suena como yo? · Choose one sentence and ask: does this still sound like me?' },
+        direct: { title: 'Claridad e idea, no pulimento. · Clarity and idea, not polish.',
+                  body:  'Si un cambio debilita tu voz, recházalo. / If a change weakens your voice, reject it.',
+                  action: 'Revisa un párrafo. Conserva lo que es tuyo. · Revise one paragraph. Keep what is yours.' }
+    },
+    8: {
+        gentle: { title: 'Pulir la voz empieza con una oración. · Voice polish starts with one sentence.',
+                  body:  'Elige una oración — no todo a la vez. La tarjeta de abajo te guía paso a paso. / Choose one sentence — not everything at once. The card below walks you through it.',
+                  action: 'Elige una oración. Selecciona una ruta en la tarjeta de abajo. · Choose one sentence. Pick a route in the card below.' },
+        direct: { title: 'Una oración. Una ruta. Tú decides. · One sentence. One route. You decide.',
+                  body:  'Elige una oración, nombra qué necesita, y haz el cambio tú mismo/a. / Choose one sentence, name what it needs, and make the change yourself.',
+                  action: 'Pega una oración en el chat con la ruta elegida. · Paste one sentence in the chat with your chosen route.' }
+    },
+    9: {
+        gentle: { title: 'La revisión final es tu pausa. · The final check is your pause.',
+                  body:  'No es burocracia — es la oportunidad de confirmar que el trabajo que hiciste está completo. Revisa tu borrador guardado, tu evidencia y lo que protegiste. / It is not busywork — it is your chance to confirm the work you did is complete. Check your saved draft, your evidence, and what you protected.',
+                  action: 'Nombra un elemento que todavía necesitas verificar. · Name one item you still need to verify.' },
+        direct: { title: 'Verifica antes de continuar. · Verify before you continue.',
+                  body:  'Borrador guardado. Idea central clara. Evidencia revisada. Voz protegida. / Draft saved. Central idea clear. Evidence checked. Voice protected.',
+                  action: 'Confirma uno a uno. · Confirm one by one.' }
+    }
+};
+
+const NEUTRAL_REVISION_SMALL = [
+    'Try a different version of one sentence.',
+    'Add one concrete detail — a name, a place, a number.',
+    'Replace a vague word with a more specific one.',
+    'Add one example where the writing stays general.',
+    'Add one transition between two ideas.',
+    'Break one long sentence into two.',
+    'Name who is acting or what is happening more clearly.',
+    'Add one sentence explaining why this matters here.'
+];
+const NEUTRAL_REVISION_BIG = [
+    'Reconsider the structure of this paragraph.',
+    'Move this section earlier or later.',
+    'Add context before the analysis.',
+    'Separate description from interpretation.',
+    'Strengthen the link between your evidence and your point.',
+    'Rebuild the paragraph around one clearer main idea.',
+    'Move from evidence to explanation more gradually.'
+];
+
+// Chat "Seguir conversando · Keep talking" chips. Format: 'ES / EN' single string.
+const NEUTRAL_FOLLOWUPS = {
+    1: [
+        '¿Qué detalle concreto todavía no he descrito? / What concrete detail have I not described yet?',
+        '¿Qué parte de esto entiendo mejor — y cuál menos? / Which part of this do I understand best — and which least?',
+        '¿Qué palabra en mi otro idioma diría esto mejor? / What word in my other language would say this better?'
+    ],
+    2: [
+        '¿Por qué le importaría esto a alguien fuera de mi curso? / Why would this matter to someone outside my class?',
+        '¿Qué conexión estoy asumiendo sin explicarla? / What connection am I assuming without explaining it?',
+        '¿Qué necesita saber el lector antes de esta parte? / What does the reader need to know before this part?'
+    ],
+    3: [
+        '¿Mi idea central es una pregunta real o solo un tema? / Is my central idea a real question or just a topic?',
+        '¿Qué tensión o problema estoy evitando nombrar? / What tension or problem am I avoiding naming?',
+        '¿Qué cambiaría si mi idea central estuviera equivocada? / What would change if my central idea were wrong?'
+    ],
+    4: [
+        '¿Qué evidencia tengo, y qué me falta todavía? / What evidence do I have, and what is still missing?',
+        '¿Qué fuente o dato desafiaría lo que ya creo? / What source or piece of data would challenge what I already believe?',
+        '¿Cómo sé que esta fuente es confiable? / How do I know this source is trustworthy?'
+    ],
+    5: [
+        '¿Mi plan tiene un centro claro — o es solo una lista? / Does my plan have a clear center — or is it just a list?',
+        '¿Qué sección me da más miedo escribir — y por qué? / What section am I most afraid to write — and why?',
+        '¿Qué hace cada sección para el lector? / What does each section do for the reader?'
+    ],
+    6: [
+        '¿Qué oración de mi borrador suena más como yo? / What sentence in my draft sounds most like me?',
+        '¿Dónde me detuve — y qué me detuvo? / Where did I stop — and what stopped me?',
+        '¿Qué parte todavía no está clara ni para mí? / What part is still unclear even to me?'
+    ],
+    7: [
+        '¿Qué detalle concreto de este párrafo debería expandir? / What concrete detail in this paragraph should I expand?',
+        '¿Qué oración aquí suena como alguien más — no como yo? / What sentence here sounds like someone else — not like me?',
+        '¿Dónde falta la explicación entre mi evidencia y mi idea? / Where is the explanation between my evidence and my point missing?'
+    ],
+    8: [
+        '¿Qué frase de mi borrador original no debería perder al revisar? / What phrase from my original draft should I not lose in revision?',
+        '¿Qué oración suena como si la hubiera escrito un robot? / What sentence sounds like a robot wrote it?',
+        '¿Qué palabra mía protejo cueste lo que cueste? / What word of mine do I protect at all costs?'
+    ],
+    9: [
+        '¿Mi {workEs} todavía tiene mi voz al principio y al final? / Does my {workEn} still have my voice at the beginning and the end?',
+        '¿Qué dato o afirmación verifiqué con una fuente independiente? / What fact or claim did I verify with an independent source?',
+        '¿Qué decisión de revisión me costó más — y por qué la tomé? / What revision decision cost me the most — and why did I make it?'
+    ],
+    10: [
+        '¿Qué cambió entre mi primer borrador y mi versión final? / What changed between my first draft and my final version?',
+        '¿Qué parte de mi voz protegí durante toda la revisión? / What part of my voice did I protect throughout revision?',
+        '¿Qué sigue necesitando trabajo — y por qué lo entrego de todas formas? / What still needs work — and why am I submitting it anyway?'
+    ]
+};
+
+// Stage-preview description fallback (the default STAGES[].desc is autobiographical).
+const NEUTRAL_STAGE_DESC = {
+    1:  'Name the real starting point this assignment asks for, in your own words. Write in whichever language feels most real.',
+    2:  'Connect your starting point to the larger purpose, context, or question this assignment is about.',
+    3:  'State the direction of your {workEn} in your own words: what it claims, asks, or sets out to do.',
+    4:  'Gather the real evidence, data, or sources your {workEn} needs — the coach suggests strategies, you find the material.',
+    5:  'Build your own plan or outline. Your coach gives feedback on it; it does not write it.',
+    6:  '⭐ Write and save your unassisted first draft. This unlocks revision feedback.',
+    7:  'Get paragraph-level feedback on your own draft, using the five-question protocol.',
+    8:  'Polish for clarity while protecting the phrasing that still sounds like you.',
+    9:  'Verify that your {workEn} and your submission materials are complete before turning them in.',
+    10: 'Reflect on your writing process before submitting. Name what changed, what you protected, and what still needs your attention.'
+};
+
+// Coach stage-entry fallback ("ES\nEN") for a layered genre with no stageEntry.
+const NEUTRAL_STAGE_ENTRY = {
+    1:  'Empieza con el punto de partida real de tu {workEs}: qué es, dónde ocurre, y por qué lo elegiste — en tus propias palabras.\nStart with the real starting point of your {workEn}: what it is, where it sits, and why you chose it — in your own words.',
+    2:  'Conecta tu punto de partida con el propósito más amplio de la tarea — escribe una oración que nombre esa conexión.\nConnect your starting point to the larger purpose of the assignment — write one sentence naming that connection.',
+    3:  'Nombra la dirección de tu {workEs}: qué afirma, qué pregunta, y qué está en juego.\nName the direction of your {workEn}: what it claims, what it asks, and what is at stake.',
+    4:  'Reúne la evidencia real que tu {workEs} necesita. Yo sugiero estrategias; nunca invento fuentes ni datos.\nGather the real evidence your {workEn} needs. I suggest strategies; I never invent sources or data.',
+    5:  'Organiza tu plan: qué va primero, qué sigue, y qué hace cada sección para el lector. El plan lo haces tú.\nOrganize your plan: what comes first, what follows, and what each section does for the reader. You build the plan.',
+    6:  'Este es tu borrador: lo escribes tú, sin el coach. No tiene que ser perfecto — solo tiene que ser tuyo. Escribe sin detenerte.\nThis is your draft: you write it, without the coach. It does not need to be perfect — it just needs to be yours. Write without stopping.',
+    7:  'Revisa para hacer tu idea más clara, sin borrarte de la página — elige una oración y empieza ahí.\nRevise to make your idea clearer without erasing yourself — choose one sentence and start there.',
+    8:  'Elige una oración de tu borrador y decide qué tipo de ayuda necesita: claridad, especificidad o protección de voz.\nChoose one sentence from your draft and decide what kind of help it needs: clarity, specificity, or voice protection.',
+    9:  'Antes de avanzar, confirma que tu borrador está guardado y que tu {workEs} cumple con lo que pide la tarea.\nBefore you move on, confirm your draft is saved and your {workEn} does what the assignment asks for.',
+    10: 'Nombra lo que cambió en tu proceso: qué mejoró, qué protegiste, qué todavía necesita atención.\nName what changed in your process: what improved, what you protected, and what still needs attention.'
+};
+
+// Milestone NAMES for a layered genre that ships no milestones of its own.
+// The default set ("Encuentra tu historia", "Pule tu ensayo") is essay-specific.
+const NEUTRAL_MILESTONES = {
+    1: { es: 'Encuentra tu enfoque',          en: 'Find Your Focus' },
+    2: { es: 'Investiga y planifica',         en: 'Research & Plan' },
+    3: { es: 'Escribe tu primer borrador',    en: 'Write Your First Draft' },
+    4: { es: 'Revisa y pule',                 en: 'Revise & Refine' },
+    5: { es: 'Reflexiona y entrega',          en: 'Reflect & Submit' }
+};
+
+// Stage NAMES for a layered genre that ships no stageDisplay of its own (e.g.
+// the legacy cap-200-first-draft layer, which has a context but no profile).
+// Without these, such a genre inherits "Anécdota / Anecdote".
+const NEUTRAL_STAGE_LABELS = {
+    1:  { es: 'Punto de\npartida',   en: 'Starting Point' },
+    2:  { es: 'Conexión y\npropósito', en: 'Connection & Purpose' },
+    3:  { es: 'Idea\ncentral',       en: 'Central Idea' },
+    4:  { es: 'Evidencia y\nfuentes', en: 'Evidence & Sources' },
+    5:  { es: 'Plan y\nestructura',  en: 'Plan & Structure' },
+    6:  { es: 'Primer\nborrador',    en: 'First Draft' },
+    7:  { es: 'Revisión',            en: 'Revision' },
+    8:  { es: 'Voz y\nestilo',       en: 'Voice & Style' },
+    9:  { es: 'Revisión\nfinal',     en: 'Final Check' },
+    10: { es: 'Reflexión del\nproceso', en: 'Process Reflection' }
+};
+
+// Task-bar cues. Stages 1–6 carry three (word-count auto-advance walks them);
+// 7–10 keep one, matching the profile convention.
+const NEUTRAL_STAGE_STEPS = {
+    1: [
+        { es: 'Nombra el punto de partida real de tu {workEs}.', en: 'Name the real starting point of your {workEn}.' },
+        { es: 'Escribe 3–5 oraciones sobre él, en tus propias palabras.', en: 'Write 3–5 sentences about it, in your own words.' },
+        { es: 'Anota por qué lo elegiste.', en: 'Note why you chose it.' }
+    ],
+    2: [
+        { es: 'Conecta tu punto de partida con el propósito de la tarea.', en: 'Connect your starting point to the purpose of the assignment.' },
+        { es: 'Escribe una oración que nombre esa conexión.', en: 'Write one sentence naming that connection.' },
+        { es: 'Anota qué necesita saber el lector primero.', en: 'Note what the reader needs to know first.' }
+    ],
+    3: [
+        { es: 'Escribe en una oración qué afirma o pregunta tu {workEs}.', en: 'Write in one sentence what your {workEn} claims or asks.' },
+        { es: 'Nombra la tensión o el problema en el centro.', en: 'Name the tension or problem at the center.' },
+        { es: 'Revisa: ¿es una idea real o solo un tema?', en: 'Check: is it a real idea or just a topic?' }
+    ],
+    4: [
+        { es: 'Nombra la evidencia real que ya tienes.', en: 'Name the real evidence you already have.' },
+        { es: 'Anota qué te falta y dónde podrías encontrarlo.', en: 'Note what is missing and where you might find it.' },
+        { es: 'Verifica cada fuente tú mismo/a — el coach no las inventa.', en: 'Verify each source yourself — the coach does not invent them.' }
+    ],
+    5: [
+        { es: 'Lista tus secciones principales en orden.', en: 'List your main sections in order.' },
+        { es: 'Escribe qué hace cada sección para el lector.', en: 'Write what each section does for the reader.' },
+        { es: 'Marca dónde va tu evidencia más fuerte.', en: 'Mark where your strongest evidence goes.' }
+    ],
+    6: [
+        { es: '⭐ Escribe y guarda tu primer borrador sin ayuda. Este borrador es tuyo.', en: '⭐ Write and save your unassisted first draft. This draft is yours.' },
+        { es: 'Sigue escribiendo. El coach espera hasta que guardes.', en: 'Keep writing. The coach waits until you save.' },
+        { es: 'Cuando termines, guarda tu borrador para desbloquear la revisión.', en: 'When done, save your draft to unlock revision.' }
+    ],
+    7:  [{ es: 'Revisa ideas, evidencia y estructura — una parte a la vez.', en: 'Revise ideas, evidence, and structure — one part at a time.' }],
+    8:  [{ es: 'Pule la claridad sin borrar tu voz ni tu idioma.', en: 'Polish for clarity without erasing your voice or language.' }],
+    9:  [{ es: 'Verifica que tu {workEs} cumple con lo que pide la tarea.', en: 'Check that your {workEn} does what the assignment asks for.' }],
+    10: [{ es: 'Documenta tu proceso, tu uso de la IA y tus revisiones.', en: 'Document your process, your AI use, and your revisions.' }]
+};
+
+const NEUTRAL_DRAFT_PLACEHOLDER =
+    'Empieza aquí, en tus propias palabras. No tiene que salir perfecto — solo tiene que ser tuyo…\n\nStart here, in your own words. It does not have to come out perfect — it just has to be yours…';
+
+// Toolkit skill labels for the stages whose default wording is autobiographical.
+const NEUTRAL_STAGE_SKILLS = {
+    1: { labelEs: 'Puedo identificar un punto de partida concreto para mi trabajo.',                 labelEn: 'I can identify a concrete starting point for my writing.' },
+    2: { labelEs: 'Puedo conectar mi punto de partida con el propósito más amplio de la tarea.',     labelEn: 'I can connect my starting point to the larger purpose of the assignment.' },
+    3: { labelEs: 'Puedo nombrar la idea central que sostiene mi trabajo.',                          labelEn: 'I can name the central idea that holds my writing together.' }
+};
+
+// Progress badges whose default wording is autobiographical ("Story Founder").
+const NEUTRAL_BADGE_TEXT = {
+    story:  'Fundador/a del Enfoque · Focus Founder',
+    bridge: 'Constructor/a de Conexiones · Connection Builder'
+};
+
+// ── Resolvers. Each: layer copy → neutral → default (only when no layer). ──
+function _genreCopyOverride(assignmentId, key, stageId) {
+    const p = _profileForAssignment(assignmentId);
+    const bag = p && p.copy && p.copy[key];
+    if (!bag) return null;
+    if (stageId == null) return bag;
+    return bag[stageId] || null;
+}
+
+// Stuck-mini micro prompts → array | null (null = caller keeps the default set)
+function getMicroPromptsFor(stageId, assignmentId) {
+    const own = _genreCopyOverride(assignmentId, 'microPrompts', stageId);
+    if (own) return applyGenreTokens(own, assignmentId);
+    if (!_layerActive(assignmentId)) return null;
+    return applyGenreTokens(NEUTRAL_MICRO_PROMPTS[stageId] || NEUTRAL_MICRO_PROMPTS[6], assignmentId);
+}
+
+// Pana hint → { gentle, direct } | null
+function getPanaHintFor(stageId, assignmentId) {
+    const own = _genreCopyOverride(assignmentId, 'panaHints', stageId);
+    if (own) return applyGenreTokens(own, assignmentId);
+    if (!_layerActive(assignmentId)) return null;
+    const h = NEUTRAL_PANA_HINTS[stageId];
+    return h ? applyGenreTokens(h, assignmentId) : null;
+}
+
+// Revision-focus moves → { small: [], big: [] } | null
+function getRevisionMovesFor(assignmentId) {
+    const own = _genreCopyOverride(assignmentId, 'revisionMoves', null);
+    if (own && own.small && own.big) return applyGenreTokens(own, assignmentId);
+    if (!_layerActive(assignmentId)) return null;
+    return applyGenreTokens({ small: NEUTRAL_REVISION_SMALL, big: NEUTRAL_REVISION_BIG }, assignmentId);
+}
+
+// Follow-up question chips → array of 'ES / EN' strings | null
+function getFollowupsFor(stageId, assignmentId) {
+    const own = _genreCopyOverride(assignmentId, 'followups', stageId);
+    if (own) return applyGenreTokens(own, assignmentId);
+    if (!_layerActive(assignmentId)) return null;
+    const f = NEUTRAL_FOLLOWUPS[stageId];
+    return f ? applyGenreTokens(f, assignmentId) : null;
+}
+
+// Stage-preview description → string | null
+function getStageDescFor(stageId, assignmentId) {
+    const own = _genreCopyOverride(assignmentId, 'stageDesc', stageId);
+    if (own) return applyGenreTokens(own, assignmentId);
+    if (!_layerActive(assignmentId)) return null;
+    const d = NEUTRAL_STAGE_DESC[stageId];
+    return d ? applyGenreTokens(d, assignmentId) : null;
+}
+
+// Stage-preview worked example. A layered genre shows ONLY its own example —
+// never the default essay's eviction-letter sample — so null means "no example".
+function getStageExampleFor(stageId, assignmentId) {
+    const own = _genreCopyOverride(assignmentId, 'stageExample', stageId);
+    if (own) return applyGenreTokens(own, assignmentId);
+    return null;
+}
+
+// Toolkit skill label → { labelEs, labelEn } | null
+function getStageSkillLabelFor(stageId, assignmentId) {
+    const own = _genreCopyOverride(assignmentId, 'skills', stageId);
+    if (own) return applyGenreTokens(own, assignmentId);
+    if (!_layerActive(assignmentId)) return null;
+    const s = NEUTRAL_STAGE_SKILLS[stageId];
+    return s ? applyGenreTokens(s, assignmentId) : null;
+}
+
+// Badge label → string | null (keyed by the badge's class: 'story', 'bridge', …)
+function getBadgeTextFor(badgeCls, assignmentId) {
+    const own = _genreCopyOverride(assignmentId, 'badges', badgeCls);
+    if (own) return applyGenreTokens(own, assignmentId);
+    if (!_layerActive(assignmentId)) return null;
+    return NEUTRAL_BADGE_TEXT[badgeCls] || null;
+}
+
+// Coach stage-entry with neutral fallback (extends getStageEntryOverride).
+function resolveStageEntry(stageId, assignmentId, defaultEntry) {
+    const own = getStageEntryOverride(stageId, assignmentId);
+    if (own) return applyGenreTokens(own, assignmentId);
+    if (!_layerActive(assignmentId)) return defaultEntry;
+    const n = NEUTRAL_STAGE_ENTRY[stageId];
+    return n ? applyGenreTokens(n, assignmentId) : defaultEntry;
 }
 
 // ════════════════════════════════════════════════════════

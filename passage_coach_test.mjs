@@ -55,10 +55,15 @@ const clarityPassage = 'I learned that data is useful only when it changes how w
 await selectPassage(page, clarityPassage);
 check('selecting text opens the passage action bar',
     await page.locator('#passageCoachMenu').isVisible());
+// Contract change 2026-08-01 (Voice Vault repair): the menu also carries a
+// local "Protect" action, hidden outside the revision stages (7–9). Coaching
+// actions are still exactly five, and Protect is not visible here at Stage 1.
 check('action bar separates What works from Strengthen',
-    await page.locator('#passageCoachMenu [data-passage-action]').count() === 5 &&
+    await page.locator('#passageCoachMenu [data-passage-action]:not([data-passage-action="protect"])').count() === 5 &&
     await page.locator('[data-passage-action="works"]').isVisible() &&
     await page.locator('[data-passage-action="strengthen"]').isVisible());
+check('Protect is not offered outside the revision stages',
+    !(await page.locator('[data-passage-action="protect"]').isVisible()));
 
 await page.locator('[data-passage-action="clarity"]').click();
 await page.waitForTimeout(500);
@@ -177,8 +182,8 @@ const box = await phone.locator('#passageCoachMenu').boundingBox();
 check('phone action bar stays inside the viewport',
     box && box.x >= 0 && box.x + box.width <= 390);
 check('phone action bar keeps all five actions comfortably tappable',
-    await phone.locator('#passageCoachMenu [data-passage-action]').count() === 5 &&
-    await phone.locator('#passageCoachMenu [data-passage-action]').evaluateAll(buttons =>
+    await phone.locator('#passageCoachMenu [data-passage-action]:not([data-passage-action="protect"])').count() === 5 &&
+    await phone.locator('#passageCoachMenu [data-passage-action]:visible').evaluateAll(buttons =>
         buttons.every(button => button.getBoundingClientRect().height >= 44)
     ));
 check('phone has no horizontal overflow',

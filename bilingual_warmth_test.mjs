@@ -46,7 +46,10 @@ const picksIn = (lang) => page.evaluate((lg) => {
   state.lang = lg;
   const got = [];
   for (let i = 0; i < 40; i++) got.push(pickAffirmation());
-  return { got, pool: STUCK_AFFIRMATIONS[lg] };
+  // Genre copy layer (2026-08-01): affirmations carry {workEs}/{workEn} tokens
+  // that pickAffirmation() resolves for the active genre. Compare against the
+  // RESOLVED pool — for the default essay this resolves to "ensayo"/"essay".
+  return { got, pool: STUCK_AFFIRMATIONS[lg].map(x => applyGenreTokens(x, state.assignmentId)) };
 }, lang);
 for (const lang of ['es', 'en', 'both']) {
   const { got, pool } = await picksIn(lang);
@@ -60,7 +63,7 @@ const enTells = /\b(sentence|the|panic|smaller|brave|dramatic)\b/i;
 check("es affirmations carry no English-only tells",
       aff.es.every(s => !enTells.test(s)));
 check('es affirmations are Spanish-anchored (accents/Spanish words present)',
-      aff.es.every(s => /[áéíóúñ¿¡]|oración|página|café|pánico|ensayo/i.test(s)));
+      aff.es.every(s => /[áéíóúñ¿¡]|oración|página|café|pánico|ensayo|\{workEs\}/i.test(s)));
 check('en affirmations are English', aff.en.some(s => /sentence/i.test(s)));
 check('both affirmations preserve translanguaging café warmth',
       aff.both.some(s => /café|coffee/i.test(s)) && aff.both.some(s => /[áéíóúñ]/.test(s) && /[a-z]/i.test(s)));
@@ -77,10 +80,15 @@ async function renderedAff(lang) {
     return el ? el.textContent.trim() : '';
   }, lang);
 }
+const resolved = await page.evaluate(() => ({
+  es: STUCK_AFFIRMATIONS.es.map(x => applyGenreTokens(x, state.assignmentId)),
+  en: STUCK_AFFIRMATIONS.en.map(x => applyGenreTokens(x, state.assignmentId))
+}));
 const rEs = await renderedAff('es');
-check('es mode: rendered affirmation ∈ STUCK_AFFIRMATIONS.es', aff.es.includes(rEs));
+check('es mode: rendered affirmation ∈ STUCK_AFFIRMATIONS.es (genre-resolved)', resolved.es.includes(rEs));
 const rEn = await renderedAff('en');
-check('en mode: rendered affirmation ∈ STUCK_AFFIRMATIONS.en', aff.en.includes(rEn));
+check('en mode: rendered affirmation ∈ STUCK_AFFIRMATIONS.en (genre-resolved)', resolved.en.includes(rEn));
+check('no unresolved work-noun token reaches the student', !/\{work(Es|En)\}/.test(rEs + rEn));
 
 // ── HUMOR ──
 console.log('HUMOR language-aware structure + pickers');

@@ -1438,6 +1438,8 @@
             border-color: transparent;
         }
         .etb-btn svg { flex-shrink: 0; }
+        /* Protect is armed when a phrase is selected and ready to save. */
+        .etb-btn--armed { border-color: var(--jade); color: var(--jade-text); }
 
         /* Visual Polish Q7: the landing Continue button is styled inline (JS-injected);
            its focus ring was the browser-default blue — the one off-palette accent in
@@ -2496,6 +2498,20 @@
             border-color: var(--border-mid); color: var(--text-muted);
         }
         @media (prefers-reduced-motion: reduce) { .vault-protect-inline { transition: none; } }
+
+        /* Armed = there is a live (or remembered) selection ready to protect. */
+        .vault-protect-inline--armed { background: var(--jade-glow); }
+        /* Every protect attempt answers here, inside the vault the student is
+           looking at — not only in the small toolbar status line. */
+        .voice-vault-status {
+            margin: 6px 0 2px; min-height: 1em;
+            font-size: var(--text-note); color: var(--text-muted);
+        }
+        .voice-vault-status.vault-status--ok { color: var(--jade-text); font-weight: 600; }
+        .voice-vault--saved { box-shadow: 0 0 0 2px var(--jade); }
+        @media (prefers-reduced-motion: no-preference) {
+            .voice-vault { transition: box-shadow 0.25s; }
+        }
 
         /* ── Instructor Report Panel ── */
         .instr-panel {
@@ -7268,6 +7284,14 @@ img, video, embed, object { max-width: 100%; height: auto; }
     background: var(--jade);
     color: #fff;
 }
+/* Protect saves the selection to the Voice Vault. It is a local action, so it
+   stays enabled with no coach connection. */
+.passage-coach-actions .passage-coach-protect {
+    border-color: var(--jade);
+    color: var(--jade-text);
+    font-weight: 700;
+}
+.passage-coach-actions .passage-coach-protect[hidden] { display: none; }
 .passage-coach-actions .passage-coach-ask:hover {
     background: var(--jade-dk);
     color: #fff;

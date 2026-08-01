@@ -1,0 +1,40 @@
+{
+  "genre": "(default)",
+  "slug": "default-mobile",
+  "viewport": "mobile-390x844",
+  "steps": [
+    {
+      "step": "mobile-stage2",
+      "mobileTabs": true,
+      "stageSelect": false,
+      "stageSelectOptions": [
+        "Anécdota",
+        "Conexión",
+        "Tu Pitch",
+        "Investigación",
+        "Esquema",
+        "Primer Borrador",
+        "Revisión",
+        "Pulir Voz",
+        "Checklist",
+        "Mi Cierre de Proceso"
+      ],
+      "bodyWords": 910,
+      "shot": "screens/default-mobile/01-stage2.jpg"
+    },
+    {
+      "step": "mobile-tab-chat",
+      "shot": "screens/default-mobile/02-tab-chat.jpg"
+    },
+    {
+      "step": "mobile-tab-draft",
+      "shot": "screens/default-mobile/03-tab-draft.jpg"
+    },
+    {
+      "step": "mobile-work-hub",
+      "bodyWords": 59,
+      "shot": "screens/default-mobile/04-work-hub.jpg"
+    }
+  ],
+  "errors": []
+}

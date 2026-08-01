@@ -1,0 +1,2101 @@
+{
+  "genre": "(default)",
+  "slug": "default",
+  "viewport": "desktop-1280x900",
+  "steps": [
+    {
+      "step": "first-entry",
+      "overlays": {
+        "projectSelector": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "999",
+          "pointerEvents": "auto",
+          "cls": "",
+          "shown": true
+        },
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "DIV"
+      },
+      "labSkipVisible": true,
+      "bodyWords": 1086,
+      "headerSub": "TU COACH DE ESCRITURA · YOUR WRITING COACH — Paso 1 de 5 · Encuentra tu historia / Step 1 of 5 · Find Your Story",
+      "shot": "screens/default/01-first-entry.jpg"
+    },
+    {
+      "step": "onboarding",
+      "action": "projectSelector",
+      "optionsShown": 2,
+      "deepLinkStillShowsSelector": false,
+      "shot": "screens/default/02-project-selector.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/03-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/04-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/05-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/06-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/07-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/08-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/09-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/10-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/11-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/12-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/13-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/14-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/15-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/16-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/17-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/18-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/default/19-after-lab-skip.jpg"
+    },
+    {
+      "step": "post-onboarding",
+      "onboardingClicks": 18,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      },
+      "shot": "screens/default/20-post-onboarding.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 1,
+      "taskBar": "Enfoque · Anécdota\n1/3\nElige un momento específico de tu vida.\nMi Toolkit",
+      "continueBtn": "Continuar a: Conexión",
+      "backBtnVisible": false,
+      "backBtn": "← Volver · Back",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": null,
+      "importCard": null,
+      "editorPlaceholder": "Empieza con tus propias palabras...\n\nStart with your own words. Don't worry about grammar or perfection.\n\nLa primera vez que... / The first time I...\nEn mi familia siempre... / In my family we always...\nRecuerdo el día que... / I remember the day when...",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1018,
+      "chatVisibleWords": 16,
+      "shot": "screens/default/21-stage-01.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 1,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 2,
+      "title": "Conexión",
+      "cta": "Continuar a: Conexión",
+      "completed": "Identificaste un momento específico y lo escribiste con tus propias palabras.",
+      "descWords": 33,
+      "modalWords": 58,
+      "shot": "screens/default/22-preview-to-2.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 2,
+      "taskBar": "Enfoque · Conexión\n1/3\nRelee tu anécdota. ¿Qué fuerza más grande la conecta?\nMi Toolkit",
+      "continueBtn": "Continuar a: Tu Pitch",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Anécdota",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 1 (Anécdota, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con tus propias palabras...\n\nStart with your own words. Don't worry about grammar or perfection.\n\nLa primera vez que... / The first time I...\nEn mi familia siempre... / In my family we always...\nRecuerdo el día que... / I remember the day when...",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1167,
+      "chatVisibleWords": 78,
+      "shot": "screens/default/23-stage-02.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 2,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 3,
+      "title": "Tu Pitch",
+      "cta": "Continuar a: Tu Pitch",
+      "completed": "Conectaste tu historia personal con un contexto histórico o social más amplio.",
+      "descWords": 10,
+      "modalWords": 38,
+      "shot": "screens/default/24-preview-to-3.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 3,
+      "taskBar": "Enfoque · Tu Pitch\n1/3\nDecide qué pregunta real intenta responder tu ensayo.\nMi Toolkit",
+      "continueBtn": "Continuar a: Investigación",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Conexión",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 2 (Conexión, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con tus propias palabras...\n\nStart with your own words. Don't worry about grammar or perfection.\n\nLa primera vez que... / The first time I...\nEn mi familia siempre... / In my family we always...\nRecuerdo el día que... / I remember the day when...",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1161,
+      "chatVisibleWords": 92,
+      "shot": "screens/default/25-stage-03.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 3,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "refresh-probe",
+      "stage": 3,
+      "editorWordsAfterReload": 68,
+      "priorWorkStrip": null,
+      "shot": "screens/default/26-refresh-return.jpg"
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 4,
+      "title": "Investigación",
+      "cta": "Continuar a: Investigación",
+      "completed": "Argumentaste en pocas oraciones por qué tu ensayo importa.",
+      "descWords": 12,
+      "modalWords": 35
+    },
+    {
+      "step": "stage",
+      "stage": 4,
+      "taskBar": "Enfoque · Investigación\n1/3\nGenera 2–3 preguntas de investigación desde tu experiencia.\nMi Toolkit",
+      "continueBtn": "Continuar a: Esquema",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Tu Pitch",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 3 (Tu Pitch, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con tus propias palabras...\n\nStart with your own words. Don't worry about grammar or perfection.\n\nLa primera vez que... / The first time I...\nEn mi familia siempre... / In my family we always...\nRecuerdo el día que... / I remember the day when...",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1436,
+      "chatVisibleWords": 312,
+      "shot": "screens/default/27-stage-04.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 4,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 4,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      },
+      "shot": "screens/default/28-blocked-continue-s4.jpg"
+    },
+    {
+      "step": "interposed-dialog",
+      "at": "after-advance-5",
+      "label": "Antes de seguir: tu investigación · Before You Continue: your research",
+      "shot": "screens/default/29-interposed-after-advance-5-1.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 5,
+      "taskBar": "Enfoque · Esquema\n1/3\nLista 5 momentos clave de tu ensayo en orden tentativo.\nMi Toolkit",
+      "continueBtn": "Continuar a: Primer Borrador",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Investigación",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 4 (Investigación, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con tus propias palabras...\n\nStart with your own words. Don't worry about grammar or perfection.\n\nLa primera vez que... / The first time I...\nEn mi familia siempre... / In my family we always...\nRecuerdo el día que... / I remember the day when...",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1447,
+      "chatVisibleWords": 330,
+      "shot": "screens/default/30-stage-05.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 5,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 6,
+      "title": "Primer Borrador",
+      "cta": "Continuar a: Primer Borrador",
+      "completed": "Tienes una estructura para tu ensayo. Ahora viene la parte más importante.",
+      "descWords": 12,
+      "modalWords": 40
+    },
+    {
+      "step": "stage",
+      "stage": 6,
+      "taskBar": "Enfoque · Primer Borrador\n1/3\n⭐ Escribe sin parar. No borres nada. Este borrador es tuyo.\nMi Toolkit",
+      "continueBtn": "Continuar a: Revisión",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Esquema",
+      "saveBtn": "Guardar",
+      "autosave": "✓ Guardado",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 5 (Esquema, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con tus propias palabras...\n\nStart with your own words. Don't worry about grammar or perfection.\n\nLa primera vez que... / The first time I...\nEn mi familia siempre... / In my family we always...\nRecuerdo el día que... / I remember the day when...",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1497,
+      "chatVisibleWords": 354,
+      "shot": "screens/default/31-stage-06.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 6,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 6,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "phaseToastBody"
+      },
+      "shot": "screens/default/32-blocked-continue-s6.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 7,
+      "taskBar": "Enfoque · Revisión\n1/3\nElige un párrafo. Pégalo en el chat con el coach.\nMi Toolkit",
+      "continueBtn": "Continuar a: Pulir Voz",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Primer Borrador",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": true,
+      "reviewBtnVisible": true,
+      "reviewBtn": "Revisar borrador",
+      "priorWorkStrip": "Tu escritura de la Etapa 6 (Primer Borrador, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con tus propias palabras...\n\nStart with your own words. Don't worry about grammar or perfection.\n\nLa primera vez que... / The first time I...\nEn mi familia siempre... / In my family we always...\nRecuerdo el día que... / I remember the day when...",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1877,
+      "chatVisibleWords": 557,
+      "shot": "screens/default/33-stage-07.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 7,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 7,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "reflect-option-btn"
+      },
+      "shot": "screens/default/34-blocked-continue-s7.jpg"
+    },
+    {
+      "step": "interposed-dialog",
+      "at": "after-advance-8",
+      "label": "Antes de seguir: tu revisión · Before You Continue: your revision",
+      "shot": "screens/default/35-interposed-after-advance-8-1.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 8,
+      "taskBar": "Enfoque · Pulir Voz\n1/3\nCompara tu versión original con la versión revisada.\nMi Toolkit",
+      "continueBtn": "Continuar a: Checklist",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Revisión",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": true,
+      "reviewBtnVisible": true,
+      "reviewBtn": "Revisar borrador",
+      "priorWorkStrip": "Tu escritura de la Etapa 7 (Revisión, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con tus propias palabras...\n\nStart with your own words. Don't worry about grammar or perfection.\n\nLa primera vez que... / The first time I...\nEn mi familia siempre... / In my family we always...\nRecuerdo el día que... / I remember the day when...",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1902,
+      "chatVisibleWords": 667,
+      "shot": "screens/default/36-stage-08.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 8,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 8,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "phaseToastBody"
+      },
+      "shot": "screens/default/37-blocked-continue-s8.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 9,
+      "taskBar": "Enfoque · Checklist\n1/3\nVerifica que tienes todos los materiales de entrega.\nMi Toolkit",
+      "continueBtn": "Continuar a: Mi Cierre de Proceso",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Pulir Voz",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": true,
+      "reviewBtnVisible": true,
+      "reviewBtn": "Revisar borrador",
+      "priorWorkStrip": "Tu escritura de la Etapa 8 (Pulir Voz, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con tus propias palabras...\n\nStart with your own words. Don't worry about grammar or perfection.\n\nLa primera vez que... / The first time I...\nEn mi familia siempre... / In my family we always...\nRecuerdo el día que... / I remember the day when...",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1953,
+      "chatVisibleWords": 713,
+      "shot": "screens/default/38-stage-09.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 9,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 9,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "phaseToastBody"
+      },
+      "shot": "screens/default/39-blocked-continue-s9.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 10,
+      "taskBar": "Enfoque · Mi Cierre de Proceso\n1/3\nCompleta tu autoevaluación (10A). Tu criterio va primero.\nMi Toolkit",
+      "continueBtn": "Continuar a: Mi Cierre de Proceso · Continue to: My Writing Snapshot",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Checklist",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": true,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 9 (Checklist, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con tus propias palabras...\n\nStart with your own words. Don't worry about grammar or perfection.\n\nLa primera vez que... / The first time I...\nEn mi familia siempre... / In my family we always...\nRecuerdo el día que... / I remember the day when...",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 2387,
+      "chatVisibleWords": 775,
+      "shot": "screens/default/40-stage-10.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 10,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "alt-path-back-to-2",
+      "editorWords": 68,
+      "priorWorkStrip": null,
+      "importCard": null,
+      "shot": "screens/default/41-alt-path-stage2.jpg"
+    },
+    {
+      "step": "alt-path-fwd-to-5",
+      "editorWords": 68,
+      "priorWorkStrip": null,
+      "importCard": null,
+      "shot": "screens/default/42-alt-path-stage5.jpg"
+    },
+    {
+      "step": "review-chooser",
+      "modalWords": 200,
+      "lensCount": 5,
+      "councilOffer": true,
+      "disclosure": "Si convocas al consejo, tu borrador completo (131 palabras) se enviará al Coach IA tres veces — una por perspectiva — y las observaciones validadas se enviarán una vez más para la síntesis. Tu Pana no guarda tu borrador ni las respuestas en un servidor.",
+      "shot": "screens/default/43-review-chooser.jpg"
+    },
+    {
+      "step": "lens-review-result",
+      "chatTail": " at 10:30 PM\n\n↩ Borrador anterior restaurado · Previous draft restored from this device.\n\n¡Hola! Tu Pana de Escritura está aquí — Etapa 7: Revisión\nHello! Tu Pana is here — Stage 7: Revision\nFull-draft review · Estructura y trayectoria / Structure & trajectory\n131 words\n10:30 PM\nCURRENT MOVEMENT\nThe draft moves from setup to point.\n\nTWO STRENGTHS\nOwn voice; concrete aim.\n\nPRIORITY REVISIONS\nName the point earlier.\n\nBEST NEXT ACTION\nRewrite the opening two sentences.\nCOACH IA\n10:30 PM\n¿Y AHORA?\nOtra revisión u otro lente\nConsejo de revisión\nVolver a mi borrador\nSEGUIR CONVERSANDO · KEEP TALKING",
+      "nextActions": "¿Y AHORA?\nOtra revisión u otro lente\nConsejo de revisión\nVolver a mi borrador",
+      "shot": "screens/default/44-lens-review-result.jpg"
+    },
+    {
+      "step": "council-report",
+      "visible": true,
+      "reportWords": 83,
+      "decisions": [
+        "×",
+        "Aceptar",
+        "Adaptar",
+        "Rechazar",
+        "Decidir después",
+        "Volver a escribir"
+      ],
+      "shot": "screens/default/45-council-report.jpg"
+    },
+    {
+      "step": "post-council-reentry",
+      "reviewBtn": "Revisar borrador",
+      "nextActions": "¿Y AHORA?\nOtra revisión u otro lente\nConsejo de revisión\nVolver a mi borrador",
+      "shot": "screens/default/46-post-council.jpg"
+    },
+    {
+      "step": "work-hub-early",
+      "reportBtn": "Mi trabajo",
+      "title": "Mi trabajo",
+      "bodyWords": 141,
+      "dangerVisible": true,
+      "headings": [],
+      "shot": "screens/default/47-work-hub-stage2.jpg"
+    },
+    {
+      "step": "work-hub-late",
+      "bodyWords": 156,
+      "prepControl": true,
+      "dangerVisible": true,
+      "headings": [],
+      "shot": "screens/default/48-work-hub-stage9.jpg"
+    },
+    {
+      "step": "submit-mode",
+      "bodyWords": 1197,
+      "dangerVisible": true,
+      "text": "Revisa antes de entregar\nNo completaste ninguna reflexión del proceso.\nActividad del Coach IA en este navegador: 5 solicitudes\nRESUMEN · SUMMARY\n\nFecha · Date: viernes, 31 de julio de 2026\nEtapa actual · Current stage: 9 — Checklist / Checklist\nBorrador guardado · Draft saved: Sí · Yes\nPalabras en borrador · Draft words: 131\nMensajes con el coach · Coach messages: 15 respuestas · responses, 1 mensajes del estudiante · student messages\nDecisiones de revisión · Revision decisions: 2 total (0 aceptadas · accepted, 0 cuestionadas · questioned, 0 pensando · thinking, 2 chequeos de revisión · revision checks)\n        \nMI BORRADOR · MY DRAFT\nThis is my working text for this step. I am putting down my own ideas in my own words so I can see what I actually think before anyone else responds to it. T",
+      "shot": "screens/default/49-submit-mode.jpg"
+    },
+    {
+      "step": "language",
+      "mode": "en",
+      "bodyWords": 1153,
+      "bothBaseline": 1134,
+      "continueBtn": "Continue to: Topic Pitch",
+      "shot": "screens/default/50-lang-en.jpg"
+    },
+    {
+      "step": "language",
+      "mode": "es",
+      "bodyWords": 1158,
+      "bothBaseline": 1134,
+      "continueBtn": "Continuar a: Tu Pitch",
+      "shot": "screens/default/51-lang-es.jpg"
+    },
+    {
+      "step": "language",
+      "mode": "both",
+      "bodyWords": 1356,
+      "bothBaseline": 1134,
+      "continueBtn": "Continuar a: Tu Pitch\n·\nContinue to: Topic Pitch",
+      "shot": "screens/default/52-lang-both.jpg"
+    }
+  ],
+  "errors": []
+}

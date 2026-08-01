@@ -1,0 +1,2137 @@
+{
+  "genre": "cap-200-first-draft",
+  "slug": "cap200-first-draft",
+  "viewport": "desktop-1280x900",
+  "steps": [
+    {
+      "step": "first-entry",
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      },
+      "labSkipVisible": true,
+      "bodyWords": 1087,
+      "headerSub": "TU COACH DE ESCRITURA · YOUR WRITING COACH — Paso 1 de 5 · Encuentra tu enfoque / Step 1 of 5 · Find Your Focus",
+      "shot": "screens/cap200-first-draft/01-first-entry.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/02-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/03-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/04-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/05-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/06-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/07-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/08-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/09-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/10-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/11-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/12-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/13-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/14-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/15-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/16-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/17-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/18-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/cap200-first-draft/19-after-lab-skip.jpg"
+    },
+    {
+      "step": "post-onboarding",
+      "onboardingClicks": 18,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      },
+      "shot": "screens/cap200-first-draft/20-post-onboarding.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 1,
+      "taskBar": "Enfoque · Punto de partida\n1/3\nNombra el punto de partida real de tu informe.\nMi Toolkit",
+      "continueBtn": "Continuar a: Conexión y propósito",
+      "backBtnVisible": false,
+      "backBtn": "← Volver · Back",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": null,
+      "importCard": null,
+      "editorPlaceholder": "Empieza aquí, en tus propias palabras. No tiene que salir perfecto — solo tiene que ser tuyo…\n\nStart here, in your own words. It does not have to come out perfect — it just has to be yours…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1025,
+      "chatVisibleWords": 16,
+      "shot": "screens/cap200-first-draft/21-stage-01.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 1,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 2,
+      "title": "Conexión y propósito",
+      "cta": "Continuar a: Conexión y propósito",
+      "completed": "Completaste la etapa anterior: Punto de partida.",
+      "descWords": 22,
+      "modalWords": 45,
+      "shot": "screens/cap200-first-draft/22-preview-to-2.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 2,
+      "taskBar": "Enfoque · Conexión y propósito\n1/3\nConecta tu punto de partida con el propósito de la tarea.\nMi Toolkit",
+      "continueBtn": "Continuar a: Idea central",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Punto de partida",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 1 (Punto de partida, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza aquí, en tus propias palabras. No tiene que salir perfecto — solo tiene que ser tuyo…\n\nStart here, in your own words. It does not have to come out perfect — it just has to be yours…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1166,
+      "chatVisibleWords": 80,
+      "shot": "screens/cap200-first-draft/23-stage-02.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 2,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 3,
+      "title": "Idea central",
+      "cta": "Continuar a: Idea central",
+      "completed": "Completaste la etapa anterior: Conexión y propósito.",
+      "descWords": 21,
+      "modalWords": 42,
+      "shot": "screens/cap200-first-draft/24-preview-to-3.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 3,
+      "taskBar": "Enfoque · Idea central\n1/3\nEscribe en una oración qué afirma o pregunta tu informe.\nMi Toolkit",
+      "continueBtn": "Continuar a: Evidencia y fuentes",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Conexión y propósito",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 2 (Conexión y propósito, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza aquí, en tus propias palabras. No tiene que salir perfecto — solo tiene que ser tuyo…\n\nStart here, in your own words. It does not have to come out perfect — it just has to be yours…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1174,
+      "chatVisibleWords": 95,
+      "shot": "screens/cap200-first-draft/25-stage-03.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 3,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "refresh-probe",
+      "stage": 3,
+      "editorWordsAfterReload": 68,
+      "priorWorkStrip": null,
+      "shot": "screens/cap200-first-draft/26-refresh-return.jpg"
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 4,
+      "title": "Evidencia y fuentes",
+      "cta": "Continuar a: Evidencia y fuentes",
+      "completed": "Completaste la etapa anterior: Idea central.",
+      "descWords": 15,
+      "modalWords": 37
+    },
+    {
+      "step": "stage",
+      "stage": 4,
+      "taskBar": "Enfoque · Evidencia y fuentes\n1/3\nNombra la evidencia real que ya tienes.\nMi Toolkit",
+      "continueBtn": "Continuar a: Plan y estructura",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Idea central",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 3 (Idea central, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza aquí, en tus propias palabras. No tiene que salir perfecto — solo tiene que ser tuyo…\n\nStart here, in your own words. It does not have to come out perfect — it just has to be yours…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1428,
+      "chatVisibleWords": 298,
+      "shot": "screens/cap200-first-draft/27-stage-04.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 4,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 4,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      },
+      "shot": "screens/cap200-first-draft/28-blocked-continue-s4.jpg"
+    },
+    {
+      "step": "interposed-dialog",
+      "at": "after-advance-5",
+      "label": "Antes de seguir: tu investigación · Before You Continue: your research",
+      "shot": "screens/cap200-first-draft/29-interposed-after-advance-5-1.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 5,
+      "taskBar": "Enfoque · Plan y estructura\n1/3\nLista tus secciones principales en orden.\nMi Toolkit",
+      "continueBtn": "Continuar a: Primer borrador",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Evidencia y fuentes",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 4 (Evidencia y fuentes, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza aquí, en tus propias palabras. No tiene que salir perfecto — solo tiene que ser tuyo…\n\nStart here, in your own words. It does not have to come out perfect — it just has to be yours…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1441,
+      "chatVisibleWords": 319,
+      "shot": "screens/cap200-first-draft/30-stage-05.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 5,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 6,
+      "title": "Primer borrador",
+      "cta": "Continuar a: Primer borrador",
+      "completed": "Completaste la etapa anterior: Plan y estructura.",
+      "descWords": 26,
+      "modalWords": 47
+    },
+    {
+      "step": "stage",
+      "stage": 6,
+      "taskBar": "Enfoque · Primer borrador\n1/3\n⭐ Escribe y guarda tu primer borrador sin ayuda. Este borrador es tuyo.\nMi Toolkit",
+      "continueBtn": "Continuar a: Revisión",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Plan y estructura",
+      "saveBtn": "Guardar",
+      "autosave": "✓ Guardado",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 5 (Plan y estructura, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza aquí, en tus propias palabras. No tiene que salir perfecto — solo tiene que ser tuyo…\n\nStart here, in your own words. It does not have to come out perfect — it just has to be yours…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1502,
+      "chatVisibleWords": 343,
+      "shot": "screens/cap200-first-draft/31-stage-06.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 6,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 6,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "phaseToastBody"
+      },
+      "shot": "screens/cap200-first-draft/32-blocked-continue-s6.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 7,
+      "taskBar": "Enfoque · Revisión\n1/3\nRevisa ideas, evidencia y estructura — una parte a la vez.\nMi Toolkit",
+      "continueBtn": "Continuar a: Voz y estilo",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Primer borrador",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": true,
+      "reviewBtnVisible": true,
+      "reviewBtn": "Revisar borrador",
+      "priorWorkStrip": "Tu escritura de la Etapa 6 (Primer borrador, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza aquí, en tus propias palabras. No tiene que salir perfecto — solo tiene que ser tuyo…\n\nStart here, in your own words. It does not have to come out perfect — it just has to be yours…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1781,
+      "chatVisibleWords": 549,
+      "shot": "screens/cap200-first-draft/33-stage-07.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 7,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 7,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "reflect-option-btn"
+      },
+      "shot": "screens/cap200-first-draft/34-blocked-continue-s7.jpg"
+    },
+    {
+      "step": "interposed-dialog",
+      "at": "after-advance-8",
+      "label": "Antes de seguir: tu revisión · Before You Continue: your revision",
+      "shot": "screens/cap200-first-draft/35-interposed-after-advance-8-1.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 8,
+      "taskBar": "Enfoque · Voz y estilo\n1/3\nPule la claridad sin borrar tu voz ni tu idioma.\nMi Toolkit",
+      "continueBtn": "Continuar a: Revisión final",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Revisión",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": true,
+      "reviewBtnVisible": true,
+      "reviewBtn": "Revisar borrador",
+      "priorWorkStrip": "Tu escritura de la Etapa 7 (Revisión, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza aquí, en tus propias palabras. No tiene que salir perfecto — solo tiene que ser tuyo…\n\nStart here, in your own words. It does not have to come out perfect — it just has to be yours…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1906,
+      "chatVisibleWords": 659,
+      "shot": "screens/cap200-first-draft/36-stage-08.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 8,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 8,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "phaseToastBody"
+      },
+      "shot": "screens/cap200-first-draft/37-blocked-continue-s8.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 9,
+      "taskBar": "Enfoque · Revisión final\n1/3\nVerifica que tu informe cumple con lo que pide la tarea.\nMi Toolkit",
+      "continueBtn": "Continuar a: Reflexión del proceso",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Voz y estilo",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": true,
+      "reviewBtnVisible": true,
+      "reviewBtn": "Revisar borrador",
+      "priorWorkStrip": "Tu escritura de la Etapa 8 (Voz y estilo, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza aquí, en tus propias palabras. No tiene que salir perfecto — solo tiene que ser tuyo…\n\nStart here, in your own words. It does not have to come out perfect — it just has to be yours…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1956,
+      "chatVisibleWords": 703,
+      "shot": "screens/cap200-first-draft/38-stage-09.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 9,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 9,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "phaseToastBody"
+      },
+      "shot": "screens/cap200-first-draft/39-blocked-continue-s9.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 10,
+      "taskBar": "Enfoque · Reflexión del proceso\n1/3\nDocumenta tu proceso, tu uso de la IA y tus revisiones.\nMi Toolkit",
+      "continueBtn": "Continuar a: Reflexión del proceso · Continue to: Process Reflection",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Revisión final",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": true,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 9 (Revisión final, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza aquí, en tus propias palabras. No tiene que salir perfecto — solo tiene que ser tuyo…\n\nStart here, in your own words. It does not have to come out perfect — it just has to be yours…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 2389,
+      "chatVisibleWords": 765,
+      "shot": "screens/cap200-first-draft/40-stage-10.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 10,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "alt-path-back-to-2",
+      "editorWords": 68,
+      "priorWorkStrip": null,
+      "importCard": null,
+      "shot": "screens/cap200-first-draft/41-alt-path-stage2.jpg"
+    },
+    {
+      "step": "alt-path-fwd-to-5",
+      "editorWords": 68,
+      "priorWorkStrip": null,
+      "importCard": null,
+      "shot": "screens/cap200-first-draft/42-alt-path-stage5.jpg"
+    },
+    {
+      "step": "review-chooser",
+      "modalWords": 200,
+      "lensCount": 5,
+      "councilOffer": true,
+      "disclosure": "Si convocas al consejo, tu borrador completo (131 palabras) se enviará al Coach IA tres veces — una por perspectiva — y las observaciones validadas se enviarán una vez más para la síntesis. Tu Pana no guarda tu borrador ni las respuestas en un servidor.",
+      "shot": "screens/cap200-first-draft/43-review-chooser.jpg"
+    },
+    {
+      "step": "lens-review-result",
+      "chatTail": " at 10:39 PM\n\n↩ Borrador anterior restaurado · Previous draft restored from this device.\n\n¡Hola! Tu Pana de Escritura está aquí — Etapa 7: Revisión\nHello! Tu Pana is here — Stage 7: Revision\nFull-draft review · Estructura y trayectoria / Structure & trajectory\n131 words\n10:39 PM\nCURRENT MOVEMENT\nThe draft moves from setup to point.\n\nTWO STRENGTHS\nOwn voice; concrete aim.\n\nPRIORITY REVISIONS\nName the point earlier.\n\nBEST NEXT ACTION\nRewrite the opening two sentences.\nCOACH IA\n10:39 PM\n¿Y AHORA?\nOtra revisión u otro lente\nConsejo de revisión\nVolver a mi borrador\nSEGUIR CONVERSANDO · KEEP TALKING",
+      "nextActions": "¿Y AHORA?\nOtra revisión u otro lente\nConsejo de revisión\nVolver a mi borrador",
+      "shot": "screens/cap200-first-draft/44-lens-review-result.jpg"
+    },
+    {
+      "step": "work-hub-early",
+      "reportBtn": "Mi trabajo",
+      "title": "Mi trabajo",
+      "bodyWords": 152,
+      "dangerVisible": true,
+      "headings": [],
+      "shot": "screens/cap200-first-draft/45-work-hub-stage2.jpg"
+    },
+    {
+      "step": "work-hub-late",
+      "bodyWords": 166,
+      "prepControl": true,
+      "dangerVisible": true,
+      "headings": [],
+      "shot": "screens/cap200-first-draft/46-work-hub-stage9.jpg"
+    },
+    {
+      "step": "submit-mode",
+      "bodyWords": 1213,
+      "dangerVisible": true,
+      "text": "Revisa antes de entregar\nNo completaste ninguna reflexión del proceso.\nActividad del Coach IA en este navegador: 1 solicitudes\nRESUMEN · SUMMARY\n\nFecha · Date: viernes, 31 de julio de 2026\nEtapa actual · Current stage: 9 — Checklist / Checklist\nBorrador guardado · Draft saved: Sí · Yes\nPalabras en borrador · Draft words: 131\nMensajes con el coach · Coach messages: 15 respuestas · responses, 1 mensajes del estudiante · student messages\nDecisiones de revisión · Revision decisions: 2 total (0 aceptadas · accepted, 0 cuestionadas · questioned, 0 pensando · thinking, 2 chequeos de revisión · revision checks)\n        \nMI BORRADOR · MY DRAFT\nThis is my working text for this step. I am putting down my own ideas in my own words so I can see what I actually think before anyone else responds to it. T",
+      "shot": "screens/cap200-first-draft/47-submit-mode.jpg"
+    },
+    {
+      "step": "language",
+      "mode": "en",
+      "bodyWords": 1135,
+      "bothBaseline": 1136,
+      "continueBtn": "Continue to: Central Idea",
+      "shot": "screens/cap200-first-draft/48-lang-en.jpg"
+    },
+    {
+      "step": "language",
+      "mode": "es",
+      "bodyWords": 1164,
+      "bothBaseline": 1136,
+      "continueBtn": "Continuar a: Idea central",
+      "shot": "screens/cap200-first-draft/49-lang-es.jpg"
+    },
+    {
+      "step": "language",
+      "mode": "both",
+      "bodyWords": 1361,
+      "bothBaseline": 1136,
+      "continueBtn": "Continuar a: Idea central\n·\nContinue to: Central Idea",
+      "shot": "screens/cap200-first-draft/50-lang-both.jpg"
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,2157 @@
+{
+  "genre": "college-personal-statement",
+  "slug": "admissions",
+  "viewport": "desktop-1280x900",
+  "steps": [
+    {
+      "step": "first-entry",
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      },
+      "labSkipVisible": true,
+      "bodyWords": 1088,
+      "headerSub": "TU COACH DE ESCRITURA · YOUR WRITING COACH — Paso 1 de 5 · Encuentra tu historia / Step 1 of 5 · Find Your Story",
+      "shot": "screens/admissions/01-first-entry.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/02-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/03-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/04-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/05-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/06-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/07-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/08-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/09-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/10-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/11-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/12-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/13-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/14-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/15-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/16-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/17-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/18-after-lab-skip.jpg"
+    },
+    {
+      "step": "onboarding-blocked",
+      "control": "#labSkip",
+      "interceptedBy": [
+        "<button id=\"labSkip\" type=\"button\" class=\"lab-skip\" onclick=\"closeLab()\">",
+        "</button>"
+      ],
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      }
+    },
+    {
+      "step": "onboarding",
+      "action": "labSkip",
+      "shot": "screens/admissions/19-after-lab-skip.jpg"
+    },
+    {
+      "step": "post-onboarding",
+      "onboardingClicks": 18,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      },
+      "shot": "screens/admissions/20-post-onboarding.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 1,
+      "taskBar": "Enfoque · Inventario de historias\n1/3\nAnota momentos pequeños, objetos, lugares o preguntas que recuerdas.\nMi Toolkit",
+      "continueBtn": "Continuar a: Revisión de posibilidades",
+      "backBtnVisible": false,
+      "backBtn": "← Volver · Back",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": null,
+      "importCard": null,
+      "editorPlaceholder": "Empieza con un momento pequeño, un objeto, un lugar, una relación o una pregunta que sigues recordando…\n\nStart with a small moment, an object, a place, a relationship, or a question you keep thinking about…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1026,
+      "chatVisibleWords": 16,
+      "shot": "screens/admissions/21-stage-01.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 1,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 2,
+      "title": "Revisión de posibilidades",
+      "cta": "Continuar a: Revisión de posibilidades",
+      "completed": "Completaste la etapa anterior: Inventario de historias.",
+      "descWords": 20,
+      "modalWords": 43,
+      "shot": "screens/admissions/22-preview-to-2.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 2,
+      "taskBar": "Enfoque · Revisión de posibilidades\n1/3\nElige hasta tres ideas para comparar — no más.\nMi Toolkit",
+      "continueBtn": "Continuar a: Elige un rumbo",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Inventario de historias",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 1 (Inventario de historias, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con un momento pequeño, un objeto, un lugar, una relación o una pregunta que sigues recordando…\n\nStart with a small moment, an object, a place, a relationship, or a question you keep thinking about…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1183,
+      "chatVisibleWords": 105,
+      "shot": "screens/admissions/23-stage-02.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 2,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 3,
+      "title": "Elige un rumbo",
+      "cta": "Continuar a: Elige un rumbo",
+      "completed": "Completaste la etapa anterior: Revisión de posibilidades.",
+      "descWords": 18,
+      "modalWords": 41,
+      "shot": "screens/admissions/24-preview-to-3.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 3,
+      "taskBar": "Enfoque · Elige un rumbo\n1/3\nEscoge una dirección para empezar — puede cambiar.\nMi Toolkit",
+      "continueBtn": "Continuar a: Significado y tensión",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Revisión de posibilidades",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 2 (Revisión de posibilidades, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con un momento pequeño, un objeto, un lugar, una relación o una pregunta que sigues recordando…\n\nStart with a small moment, an object, a place, a relationship, or a question you keep thinking about…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1216,
+      "chatVisibleWords": 139,
+      "shot": "screens/admissions/25-stage-03.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 3,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "refresh-probe",
+      "stage": 3,
+      "editorWordsAfterReload": 68,
+      "priorWorkStrip": null,
+      "shot": "screens/admissions/26-refresh-return.jpg"
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 4,
+      "title": "Significado y tensión",
+      "cta": "Continuar a: Significado y tensión",
+      "completed": "Completaste la etapa anterior: Elige un rumbo.",
+      "descWords": 15,
+      "modalWords": 38
+    },
+    {
+      "step": "stage",
+      "stage": 4,
+      "taskBar": "Enfoque · Significado y tensión\n1/3\nPregúntate: ¿por qué me importa esto?\nMi Toolkit",
+      "continueBtn": "Continuar a: Da forma al ensayo",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Elige un rumbo",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 3 (Elige un rumbo, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con un momento pequeño, un objeto, un lugar, una relación o una pregunta que sigues recordando…\n\nStart with a small moment, an object, a place, a relationship, or a question you keep thinking about…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1462,
+      "chatVisibleWords": 328,
+      "shot": "screens/admissions/27-stage-04.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 4,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 4,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "show-es"
+      },
+      "shot": "screens/admissions/28-blocked-continue-s4.jpg"
+    },
+    {
+      "step": "interposed-dialog",
+      "at": "after-advance-5",
+      "label": "Antes de seguir: tu investigación · Before You Continue: your research",
+      "shot": "screens/admissions/29-interposed-after-advance-5-1.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 5,
+      "taskBar": "Enfoque · Da forma al ensayo\n1/3\nMira varias formas posibles; ninguna es \"la ganadora\".\nMi Toolkit",
+      "continueBtn": "Continuar a: Primer borrador",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Significado y tensión",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 4 (Significado y tensión, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con un momento pequeño, un objeto, un lugar, una relación o una pregunta que sigues recordando…\n\nStart with a small moment, an object, a place, a relationship, or a question you keep thinking about…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1503,
+      "chatVisibleWords": 376,
+      "shot": "screens/admissions/30-stage-05.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 5,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "stage-preview",
+      "toStage": 6,
+      "title": "Primer borrador",
+      "cta": "Continuar a: Primer borrador",
+      "completed": "Completaste la etapa anterior: Da forma al ensayo.",
+      "descWords": 26,
+      "modalWords": 48
+    },
+    {
+      "step": "stage",
+      "stage": 6,
+      "taskBar": "Enfoque · Primer borrador\n1/3\n⭐ Escribe y guarda tu primer borrador sin ayuda. Este borrador es tuyo.\nMi Toolkit",
+      "continueBtn": "Continuar a: Significado y estructura",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Da forma al ensayo",
+      "saveBtn": "Guardar",
+      "autosave": "",
+      "fiveQ": false,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 5 (Da forma al ensayo, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con un momento pequeño, un objeto, un lugar, una relación o una pregunta que sigues recordando…\n\nStart with a small moment, an object, a place, a relationship, or a question you keep thinking about…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1578,
+      "chatVisibleWords": 415,
+      "shot": "screens/admissions/31-stage-06.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 6,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 6,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "phaseToastBody"
+      },
+      "shot": "screens/admissions/32-blocked-continue-s6.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 7,
+      "taskBar": "Enfoque · Significado y estructura\n1/3\nRevisa la estructura: centro, proporción, ritmo e hilo. Yo pregunto; tú revisas.\nMi Toolkit",
+      "continueBtn": "Continuar a: Detalle y voz",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Primer borrador",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": true,
+      "reviewBtnVisible": true,
+      "reviewBtn": "Revisar borrador",
+      "priorWorkStrip": "Tu escritura de la Etapa 6 (Primer borrador, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con un momento pequeño, un objeto, un lugar, una relación o una pregunta que sigues recordando…\n\nStart with a small moment, an object, a place, a relationship, or a question you keep thinking about…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 1932,
+      "chatVisibleWords": 695,
+      "shot": "screens/admissions/33-stage-07.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 7,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 7,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "reflect-option-btn"
+      },
+      "shot": "screens/admissions/34-blocked-continue-s7.jpg"
+    },
+    {
+      "step": "interposed-dialog",
+      "at": "after-advance-8",
+      "label": "Antes de seguir: tu revisión · Before You Continue: your revision",
+      "shot": "screens/admissions/35-interposed-after-advance-8-1.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 8,
+      "taskBar": "Enfoque · Detalle y voz\n1/3\nAñade detalle concreto y cuida tu voz — sin cambiarla por una genérica.\nMi Toolkit",
+      "continueBtn": "Continuar a: Reflexión e integridad",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Significado y estructura",
+      "saveBtn": "Guardar · Save",
+      "autosave": "✓ Guardado",
+      "fiveQ": true,
+      "reviewBtnVisible": true,
+      "reviewBtn": "Revisar borrador",
+      "priorWorkStrip": "Tu escritura de la Etapa 7 (Significado y estructura, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con un momento pequeño, un objeto, un lugar, una relación o una pregunta que sigues recordando…\n\nStart with a small moment, an object, a place, a relationship, or a question you keep thinking about…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 2092,
+      "chatVisibleWords": 835,
+      "shot": "screens/admissions/36-stage-08.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 8,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 8,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "phaseToastBody"
+      },
+      "shot": "screens/admissions/37-blocked-continue-s8.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 9,
+      "taskBar": "Enfoque · Reflexión e integridad\n1/3\nConfirma tu reflexión, tu integridad, la claridad y el límite de palabras real.\nMi Toolkit",
+      "continueBtn": "Continuar a: Reflexión del proceso",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Detalle y voz",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": true,
+      "reviewBtnVisible": true,
+      "reviewBtn": "Revisar borrador",
+      "priorWorkStrip": "Tu escritura de la Etapa 8 (Detalle y voz, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con un momento pequeño, un objeto, un lugar, una relación o una pregunta que sigues recordando…\n\nStart with a small moment, an object, a place, a relationship, or a question you keep thinking about…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 2170,
+      "chatVisibleWords": 912,
+      "shot": "screens/admissions/38-stage-09.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 9,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": ""
+    },
+    {
+      "step": "click-blocked",
+      "control": "continueBtn",
+      "stage": 9,
+      "overlays": {
+        "projectSelector": null,
+        "labBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "400",
+          "pointerEvents": "none",
+          "cls": "lab-bg",
+          "shown": false
+        },
+        "maniBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "mani-bg",
+          "shown": false
+        },
+        "setupBanner": {
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "zIndex": "auto",
+          "pointerEvents": "auto",
+          "cls": "setup-banner hidden",
+          "shown": false
+        },
+        "stagePreviewBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "310",
+          "pointerEvents": "none",
+          "cls": "stage-preview-bg",
+          "shown": false
+        },
+        "modalBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "300",
+          "pointerEvents": "none",
+          "cls": "modal-bg",
+          "shown": false
+        },
+        "reportBg": {
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": "0",
+          "zIndex": "500",
+          "pointerEvents": "none",
+          "cls": "report-bg",
+          "shown": false
+        },
+        "topElementAtCenter": "phaseToastBody"
+      },
+      "shot": "screens/admissions/39-blocked-continue-s9.jpg"
+    },
+    {
+      "step": "stage",
+      "stage": 10,
+      "taskBar": "Enfoque · Reflexión del proceso\n1/3\nDocumenta tus decisiones de historia, estructura, revisión y uso de IA.\nMi Toolkit",
+      "continueBtn": "Continuar a: Reflexión del proceso · Continue to: Process Reflection",
+      "backBtnVisible": true,
+      "backBtn": "← Volver a: Reflexión e integridad",
+      "saveBtn": "Guardar · Save",
+      "autosave": "",
+      "fiveQ": true,
+      "reviewBtnVisible": false,
+      "reviewBtn": "Revisar borrador · Review draft",
+      "priorWorkStrip": "Tu escritura de la Etapa 9 (Reflexión e integridad, 68 palabras) está guardada. Esta etapa empieza vacía.\nTraerla aquí\nIr a esa etapa\n×",
+      "importCard": null,
+      "editorPlaceholder": "Empieza con un momento pequeño, un objeto, un lugar, una relación o una pregunta que sigues recordando…\n\nStart with a small moment, an object, a place, a relationship, or a question you keep thinking about…",
+      "editorValueWords": 0,
+      "editorDisabled": false,
+      "visibleWords": 2593,
+      "chatVisibleWords": 965,
+      "shot": "screens/admissions/40-stage-10.jpg"
+    },
+    {
+      "step": "save",
+      "stage": 10,
+      "savedNotice": "Primer borrador guardado · First draft saved — Revisión desbloqueada",
+      "autosave": "✓ Guardado"
+    },
+    {
+      "step": "alt-path-back-to-2",
+      "editorWords": 68,
+      "priorWorkStrip": null,
+      "importCard": null,
+      "shot": "screens/admissions/41-alt-path-stage2.jpg"
+    },
+    {
+      "step": "alt-path-fwd-to-5",
+      "editorWords": 68,
+      "priorWorkStrip": null,
+      "importCard": null,
+      "shot": "screens/admissions/42-alt-path-stage5.jpg"
+    },
+    {
+      "step": "review-chooser",
+      "modalWords": 200,
+      "lensCount": 5,
+      "councilOffer": true,
+      "disclosure": "Si convocas al consejo, tu borrador completo (131 palabras) se enviará al Coach IA tres veces — una por perspectiva — y las observaciones validadas se enviarán una vez más para la síntesis. Tu Pana no guarda tu borrador ni las respuestas en un servidor.",
+      "shot": "screens/admissions/43-review-chooser.jpg"
+    },
+    {
+      "step": "lens-review-result",
+      "chatTail": "terior restaurado · Previous draft restored from this device.\n\n¡Hola! Tu Pana de Escritura está aquí — Etapa 7: Significado y\nestructura\nHello! Tu Pana is here — Stage 7: Meaning & Structure\nFull-draft review · Estructura y trayectoria / Structure & trajectory\n131 words\n10:33 PM\nCURRENT MOVEMENT\nThe draft moves from setup to point.\n\nTWO STRENGTHS\nOwn voice; concrete aim.\n\nPRIORITY REVISIONS\nName the point earlier.\n\nBEST NEXT ACTION\nRewrite the opening two sentences.\nCOACH IA\n10:33 PM\n¿Y AHORA?\nOtra revisión u otro lente\nConsejo de revisión\nVolver a mi borrador\nSEGUIR CONVERSANDO · KEEP TALKING",
+      "nextActions": "¿Y AHORA?\nOtra revisión u otro lente\nConsejo de revisión\nVolver a mi borrador",
+      "shot": "screens/admissions/44-lens-review-result.jpg"
+    },
+    {
+      "step": "council-report",
+      "visible": true,
+      "reportWords": 83,
+      "decisions": [
+        "×",
+        "Aceptar",
+        "Adaptar",
+        "Rechazar",
+        "Decidir después",
+        "Volver a escribir"
+      ],
+      "shot": "screens/admissions/45-council-report.jpg"
+    },
+    {
+      "step": "post-council-reentry",
+      "reviewBtn": "Revisar borrador",
+      "nextActions": "¿Y AHORA?\nOtra revisión u otro lente\nConsejo de revisión\nVolver a mi borrador",
+      "shot": "screens/admissions/46-post-council.jpg"
+    },
+    {
+      "step": "work-hub-early",
+      "reportBtn": "Mi trabajo",
+      "title": "Mi trabajo",
+      "bodyWords": 157,
+      "dangerVisible": true,
+      "headings": [],
+      "shot": "screens/admissions/47-work-hub-stage2.jpg"
+    },
+    {
+      "step": "work-hub-late",
+      "bodyWords": 172,
+      "prepControl": true,
+      "dangerVisible": true,
+      "headings": [],
+      "shot": "screens/admissions/48-work-hub-stage9.jpg"
+    },
+    {
+      "step": "submit-mode",
+      "bodyWords": 1674,
+      "dangerVisible": true,
+      "text": "Revisa antes de entregar\nNo completaste ninguna reflexión del proceso.\nActividad del Coach IA en este navegador: 5 solicitudes\nRESUMEN · SUMMARY\n\nFecha · Date: viernes, 31 de julio de 2026\nEtapa actual · Current stage: 9 — Checklist / Checklist\nBorrador guardado · Draft saved: Sí · Yes\nPalabras en borrador · Draft words: 131\nMensajes con el coach · Coach messages: 15 respuestas · responses, 1 mensajes del estudiante · student messages\nDecisiones de revisión · Revision decisions: 2 total (0 aceptadas · accepted, 0 cuestionadas · questioned, 0 pensando · thinking, 2 chequeos de revisión · revision checks)\n        \nMI BORRADOR · MY DRAFT\nThis is my working text for this step. I am putting down my own ideas in my own words so I can see what I actually think before anyone else responds to it. T",
+      "shot": "screens/admissions/49-submit-mode.jpg"
+    },
+    {
+      "step": "language",
+      "mode": "en",
+      "bodyWords": 1136,
+      "bothBaseline": 1140,
+      "continueBtn": "Continue to: Choose a Direction",
+      "shot": "screens/admissions/50-lang-en.jpg"
+    },
+    {
+      "step": "language",
+      "mode": "es",
+      "bodyWords": 1167,
+      "bothBaseline": 1140,
+      "continueBtn": "Continuar a: Elige un rumbo",
+      "shot": "screens/admissions/51-lang-es.jpg"
+    },
+    {
+      "step": "language",
+      "mode": "both",
+      "bodyWords": 1368,
+      "bothBaseline": 1140,
+      "continueBtn": "Continuar a: Elige un rumbo\n·\nContinue to: Choose a Direction",
+      "shot": "screens/admissions/52-lang-both.jpg"
+    }
+  ],
+  "errors": []
+}

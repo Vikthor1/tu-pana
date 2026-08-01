@@ -1,0 +1,40 @@
+{
+  "genre": "college-personal-statement",
+  "slug": "admissions-mobile",
+  "viewport": "mobile-390x844",
+  "steps": [
+    {
+      "step": "mobile-stage2",
+      "mobileTabs": true,
+      "stageSelect": false,
+      "stageSelectOptions": [
+        "Inventario de historias",
+        "Revisión de posibilidades",
+        "Elige un rumbo",
+        "Significado y tensión",
+        "Da forma al ensayo",
+        "Primer borrador",
+        "Significado y estructura",
+        "Detalle y voz",
+        "Reflexión e integridad",
+        "Reflexión del proceso"
+      ],
+      "bodyWords": 917,
+      "shot": "screens/admissions-mobile/01-stage2.jpg"
+    },
+    {
+      "step": "mobile-tab-chat",
+      "shot": "screens/admissions-mobile/02-tab-chat.jpg"
+    },
+    {
+      "step": "mobile-tab-draft",
+      "shot": "screens/admissions-mobile/03-tab-draft.jpg"
+    },
+    {
+      "step": "mobile-work-hub",
+      "bodyWords": 61,
+      "shot": "screens/admissions-mobile/04-work-hub.jpg"
+    }
+  ],
+  "errors": []
+}

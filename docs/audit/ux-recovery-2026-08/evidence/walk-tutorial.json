@@ -1,0 +1,18 @@
+{
+  "genre": "college-personal-statement",
+  "slug": "tutorial",
+  "steps": [
+    {
+      "step": "tutorial-open",
+      "bodyWords": 176,
+      "shot": "screens/tutorial/01-open.jpg"
+    },
+    {
+      "step": "tutorial-choice-1",
+      "clicked": "Fair. So what CAN you do?",
+      "url": "http://127.0.0.1:3002/start-here.html?assignment=college-personal-statement",
+      "shot": "screens/tutorial/02-choice-1.jpg"
+    }
+  ],
+  "errors": []
+}

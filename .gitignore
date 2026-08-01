@@ -6,6 +6,7 @@
 
 # ── Allow deployment files ─────────────────────────────
 !index.html
+!explore.html
 !dify-embed-test.html
 !faculty-tedtalk-script.md
 !README.md
@@ -29,7 +30,9 @@
 !assets/js/storage.js
 !assets/js/ui.js
 !assets/js/app.js
+!assets/js/exploration.js
 !assets/js/council.js
+!assets/css/exploration.css
 
 # ── Allow Stage A regression tests (Playwright) ──────────
 !milestone_simplification_test.mjs
@@ -88,6 +91,7 @@
 !graduate_sop_test.mjs
 # ── Allow Writing Studio R0 safety/trust regression test ──
 !r0_safety_test.mjs
+!prototype_exploration_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

@@ -1,0 +1,898 @@
+/*
+ * Tu Pana Writing Studio comparative prototypes — local exploration only.
+ * This file deliberately does not import, enumerate, or read any R0 storage key.
+ * Every concept has one exact, window-specific storage key and uses mock AI only.
+ */
+(function () {
+    'use strict';
+
+    const WINDOW_ID = 'writing-studio-ux-2026-08';
+    const STORAGE_BASE = `tupana-explore:${WINDOW_ID}`;
+    const CONCEPTS = ['desk', 'journey', 'hybrid'];
+    const root = document.getElementById('prototypeRoot');
+    const dialogRoot = document.getElementById('dialogRoot');
+    const live = document.getElementById('liveRegion');
+    const assertive = document.getElementById('assertiveRegion');
+    const params = new URLSearchParams(location.search);
+    let concept = CONCEPTS.includes(params.get('concept')) ? params.get('concept') : '';
+    let state = concept ? loadState(concept) : null;
+    let captured = null;
+    let saveTimer = null;
+    let lastFocus = null;
+    let reviewTab = 'history';
+
+    const conceptMeta = {
+        desk: {
+            short: 'Desk', name: 'Draft-centered Desk', number: '1',
+            mental: 'One piece of writing, one desk.',
+            summary: 'A canonical draft stays central while pedagogical moves, evidence, coach work, and Council reports gather around it.',
+            tags: ['1 draft', 'Contextual moves', '2 places'],
+        },
+        journey: {
+            short: 'Journey', name: 'Clarified staged journey', number: '2',
+            mental: 'Ten truthful steps, one visible spine.',
+            summary: 'The conservative control keeps ten step-owned artifacts, then makes current-version truth, prior work, and review re-entry explicit.',
+            tags: ['10 steps', 'Work rail', 'Current marker'],
+        },
+        hybrid: {
+            short: 'Hybrid', name: 'Simplified hybrid', number: '3',
+            mental: 'One draft through four purposeful phases.',
+            summary: 'A canonical draft moves through Discover, Draft, Strengthen, and Finish with genre-aware moves underneath and one Review Center.',
+            tags: ['4 phases', '1 draft', 'Review Center'],
+        },
+    };
+
+    const copy = {
+        en: {
+            prototype: 'Local UX prototype — synthetic text and mock AI only. Do not paste real coursework.',
+            saved: 'Saved on this device', saveFailed: 'Not saved. Keep this page open and export a safety copy.',
+            compare: 'Compare concepts', settings: 'Settings', language: 'Language', genre: 'Writing project',
+            whereDesk: 'Your Desk', whereJourney: 'Step {n} of 10', whereHybrid: 'Phase {n} of 4',
+            doingDesk: 'Shape one current draft. Open a move only when it helps.',
+            doingJourney: 'Work on this step’s artifact. Your marked current version stays visible.',
+            doingHybrid: 'Keep one draft moving through a smaller set of phases.',
+            nextDesk: 'Next: strengthen the draft or open Finish when you are ready.',
+            nextJourney: 'Next: {next}. Back and Continue never mark work complete.',
+            nextHybrid: 'Next: {next}. Your draft carries forward unchanged.',
+            currentDraft: 'Current draft', currentVersion: 'Marked current version', autosaved: 'Autosaved locally', words: '{n} words',
+            paste: 'Paste synthetic draft', useSample: 'Use synthetic sample', focus: 'Focus', exitFocus: 'Exit focus',
+            reviewCenter: 'Review Center', focusedReview: 'Focused review', council: 'The Council', coach: 'Ask Tu Pana',
+            reflection: 'Process Reflection', finish: 'Finish', back: 'Back', continue: 'Continue',
+            priorWork: 'Prior work', moves: 'Moves for this moment', workRail: 'Your work', evidence: 'Evidence so far',
+            noPrior: 'Your writing and review history will appear here.', noReviews: 'No mock reviews yet. Your draft remains entirely yours.',
+            selectHint: 'Select words in the draft to ask about that exact passage.', captured: 'Passage captured', reviewPassage: 'Review passage', clear: 'Clear',
+            sendCoach: 'Send to mock coach', sendReview: 'Request mock review', convene: 'Convene mock Council', revisit: 'Revisit report',
+            selectedScope: 'Selected passage', paragraphScope: 'Current paragraph', fullScope: 'Full draft', exactPreview: 'Exact text preview',
+            consent: 'I choose to send this exact text to the mock AI in this local prototype.',
+            noNetwork: 'Mock AI only: nothing leaves this page and no network request is made.', cancel: 'Cancel',
+            accept: 'Accept', adapt: 'Adapt', reject: 'Reject', later: 'Decide later', decisionRecorded: 'Decision recorded. You decide how to revise your own words.',
+            reflectionWhy: 'The app brings factual evidence forward. It never writes your reasoning, feelings, or reflective claims.',
+            reflectionEvidence: 'Activity evidence you may use', saveReturn: 'Save and return later', optional: 'Optional',
+            prompt1: 'What changed most in your writing, and why?',
+            prompt2: 'Which AI suggestion did you accept, adapt, or reject, and what guided that decision?',
+            prompt3: 'What did you preserve because it sounds or feels distinctly like you?',
+            prompt4: 'What cultural, linguistic, family, or community knowledge shaped this work?',
+            preparePacket: 'Prepare final packet', studentReflection: 'Student reflection', instructorAppendix: 'Instructor evidence appendix',
+            packetDraft: 'Draft included in packet', confirmDraft: 'I confirm that this exact draft is the version I intend to include.',
+            createPacket: 'Create local packet', downloadPacket: 'Download packet', packetReady: 'Final packet is ready locally.',
+            settingsTitle: 'Prototype settings', storageNote: 'This concept uses one isolated local-storage record. It never reads R0 or family-preview work.',
+            focusDecision: 'Mobile Focus decision', danger: 'Danger Zone', export: 'Export safety copy', delete: 'Delete this concept’s prototype data',
+            deleteExplain: 'Only this concept’s synthetic prototype record will be removed. Other concepts and R0 keys are untouched.',
+            typeDelete: 'Type DELETE to enable deletion', deleteNow: 'Delete prototype data',
+            startBlank: 'Start with a blank draft', replaceDraft: 'Replace draft with this synthetic text',
+            pasteWarning: 'Exploration boundary: use only synthetic or disposable participant-authored test text. Never paste real coursework.',
+            phaseDiscover: 'Discover', phaseDraft: 'Draft', phaseStrengthen: 'Strengthen', phaseFinish: 'Finish',
+            actStart: 'Start', actRevise: 'Revise', actFinish: 'Finish',
+            currentMark: 'Current version', markCurrent: 'Mark as current', newer: 'Newer than marked version',
+            completeRule: 'Complete when this step has meaningful writing or a recorded decision.',
+            noFallback: 'Guidance is configured for this genre; unknown genres use neutral writing guidance, never autobiographical defaults.',
+        },
+        es: {
+            prototype: 'Prototipo UX local — solo texto sintético e IA simulada. No pegues trabajo académico real.',
+            saved: 'Guardado en este dispositivo', saveFailed: 'No se guardó. Mantén esta página abierta y exporta una copia.',
+            compare: 'Comparar conceptos', settings: 'Configuración', language: 'Idioma', genre: 'Proyecto de escritura',
+            whereDesk: 'Tu Escritorio', whereJourney: 'Paso {n} de 10', whereHybrid: 'Fase {n} de 4',
+            doingDesk: 'Trabaja un solo borrador actual. Abre una movida solo cuando ayude.',
+            doingJourney: 'Trabaja el artefacto de este paso. Tu versión actual marcada siempre está visible.',
+            doingHybrid: 'Mueve un solo borrador por un recorrido más corto.',
+            nextDesk: 'Próximo: fortalece el borrador o abre Finalizar cuando estés listo.',
+            nextJourney: 'Próximo: {next}. Atrás y Continuar nunca marcan trabajo como completo.',
+            nextHybrid: 'Próximo: {next}. Tu borrador continúa sin cambios.',
+            currentDraft: 'Borrador actual', currentVersion: 'Versión actual marcada', autosaved: 'Autoguardado local', words: '{n} palabras',
+            paste: 'Pegar borrador sintético', useSample: 'Usar ejemplo sintético', focus: 'Enfoque', exitFocus: 'Salir de enfoque',
+            reviewCenter: 'Centro de Revisión', focusedReview: 'Lectura enfocada', council: 'El Consejo', coach: 'Preguntar a Tu Pana',
+            reflection: 'Reflexión de proceso', finish: 'Finalizar', back: 'Atrás', continue: 'Continuar',
+            priorWork: 'Trabajo anterior', moves: 'Movidas para este momento', workRail: 'Tu trabajo', evidence: 'Evidencia hasta ahora',
+            noPrior: 'Tu escritura e historial de revisión aparecerán aquí.', noReviews: 'Todavía no hay revisiones simuladas. Tu borrador sigue siendo completamente tuyo.',
+            selectHint: 'Selecciona palabras del borrador para preguntar por ese pasaje exacto.', captured: 'Pasaje capturado', reviewPassage: 'Revisar pasaje', clear: 'Borrar selección',
+            sendCoach: 'Enviar al coach simulado', sendReview: 'Pedir revisión simulada', convene: 'Convocar Consejo simulado', revisit: 'Revisitar informe',
+            selectedScope: 'Pasaje seleccionado', paragraphScope: 'Párrafo actual', fullScope: 'Borrador completo', exactPreview: 'Vista previa del texto exacto',
+            consent: 'Elijo enviar este texto exacto a la IA simulada en este prototipo local.',
+            noNetwork: 'Solo IA simulada: nada sale de esta página y no se hace ninguna solicitud de red.', cancel: 'Cancelar',
+            accept: 'Aceptar', adapt: 'Adaptar', reject: 'Rechazar', later: 'Decidir después', decisionRecorded: 'Decisión guardada. Tú decides cómo revisar tus propias palabras.',
+            reflectionWhy: 'La app trae evidencia factual. Nunca escribe tu razonamiento, sentimientos ni afirmaciones reflexivas.',
+            reflectionEvidence: 'Evidencia de actividad que puedes usar', saveReturn: 'Guardar y volver después', optional: 'Opcional',
+            prompt1: '¿Qué cambió más en tu escritura y por qué?',
+            prompt2: '¿Qué sugerencia de IA aceptaste, adaptaste o rechazaste, y qué guio tu decisión?',
+            prompt3: '¿Qué preservaste porque suena o se siente claramente como tú?',
+            prompt4: '¿Qué conocimiento cultural, lingüístico, familiar o comunitario dio forma a este trabajo?',
+            preparePacket: 'Preparar paquete final', studentReflection: 'Reflexión estudiantil', instructorAppendix: 'Apéndice de evidencia para el instructor',
+            packetDraft: 'Borrador incluido en el paquete', confirmDraft: 'Confirmo que este texto exacto es la versión que quiero incluir.',
+            createPacket: 'Crear paquete local', downloadPacket: 'Descargar paquete', packetReady: 'El paquete final está listo localmente.',
+            settingsTitle: 'Configuración del prototipo', storageNote: 'Este concepto usa un solo registro local aislado. Nunca lee trabajo de R0 ni de la vista previa familiar.',
+            focusDecision: 'Decisión de Enfoque móvil', danger: 'Zona de peligro', export: 'Exportar copia de seguridad', delete: 'Borrar datos de este concepto',
+            deleteExplain: 'Solo se borrará el registro sintético de este concepto. Los otros conceptos y las claves R0 no cambian.',
+            typeDelete: 'Escribe DELETE para activar el borrado', deleteNow: 'Borrar datos del prototipo',
+            startBlank: 'Comenzar con borrador vacío', replaceDraft: 'Reemplazar con este texto sintético',
+            pasteWarning: 'Límite de exploración: usa solo texto sintético o desechable creado para la prueba. Nunca pegues trabajo académico real.',
+            phaseDiscover: 'Descubrir', phaseDraft: 'Redactar', phaseStrengthen: 'Fortalecer', phaseFinish: 'Finalizar',
+            actStart: 'Comenzar', actRevise: 'Revisar', actFinish: 'Finalizar',
+            currentMark: 'Versión actual', markCurrent: 'Marcar como actual', newer: 'Más reciente que la versión marcada',
+            completeRule: 'Se completa cuando este paso contiene escritura sustancial o una decisión guardada.',
+            noFallback: 'La guía está configurada para este género; los géneros desconocidos reciben guía neutral, nunca un modelo autobiográfico.',
+        },
+    };
+
+    const genres = {
+        admissions: {
+            label: { en: 'College personal statement', es: 'Ensayo de admisión universitaria' },
+            sample: 'The first week at the neighborhood learning center, I designed a color-coded signup sheet because I thought efficiency was the problem. By Friday, I understood that the real problem was trust. Families did not need a faster form; they needed someone to explain what the form would change. I began sitting beside each visitor, listening before writing. That shift—from solving the visible task to understanding the human need—now guides how I approach community technology and the questions I hope to study in college.',
+            moves: {
+                discover: ['Choose one concrete turning point', 'Name what changed in your understanding', 'Connect the moment to what you will pursue'],
+                review: ['Purpose and personal insight', 'Structure and narrative movement', 'Voice and specificity'],
+                council: ['Admissions reader', 'Writing teacher', 'Student voice advocate'],
+            },
+        },
+        stem: {
+            label: { en: 'STEM lab report', es: 'Informe de laboratorio STEM' },
+            sample: 'The basil seedlings exposed to eight hours of light grew an average of 2.4 centimeters more than the seedlings exposed to four hours. This result supports the prediction that longer light exposure increases early stem growth under otherwise controlled conditions. The small sample size and one unusually tall seedling limit the strength of the conclusion. A second trial with more plants and randomized tray positions would test whether the pattern persists.',
+            moves: {
+                discover: ['State the research question and prediction', 'Separate observation from interpretation', 'Connect the result to the evidence'],
+                review: ['Claim–evidence alignment', 'Methods and reproducibility', 'Limitations and precision'],
+                council: ['Lab instructor', 'Methods reviewer', 'Scientific clarity editor'],
+            },
+        },
+        sop: {
+            label: { en: 'Graduate statement of purpose', es: 'Carta de propósito para posgrado' },
+            sample: 'My work on a public transit accessibility project showed me how technical decisions become public consequences. I entered the project focused on routing efficiency and left asking how disabled riders could shape the systems intended to serve them. Graduate study in human-centered computing would let me build the research methods needed to investigate that question with rigor. I hope to study participatory design, accessible infrastructure, and the ways public institutions can evaluate whether technology expands meaningful access.',
+            moves: {
+                discover: ['Name the problem you want to study', 'Connect prior preparation to future inquiry', 'Make program fit specific and evidence-based'],
+                review: ['Purpose and research trajectory', 'Preparation and evidence', 'Program fit and contribution'],
+                council: ['Faculty reader', 'Research mentor', 'Purpose-and-fit editor'],
+            },
+        },
+        neutral: {
+            label: { en: 'General writing project', es: 'Proyecto general de escritura' },
+            sample: 'This synthetic draft begins with a clear purpose, develops one idea with concrete evidence, and leaves room for the writer to decide what should change next. The language is intentionally neutral so that no assignment inherits expectations from an unrelated genre.',
+            moves: {
+                discover: ['Clarify the purpose and audience', 'Choose relevant evidence', 'Arrange ideas so the reader can follow'],
+                review: ['Purpose and clarity', 'Structure and evidence', 'Voice and precision'],
+                council: ['Audience reader', 'Structure reviewer', 'Voice advocate'],
+            },
+        },
+    };
+
+    const genreMovesEs = {
+        admissions: {
+            discover: ['Elige un punto de cambio concreto', 'Nombra qué cambió en tu comprensión', 'Conecta el momento con lo que quieres perseguir'],
+            review: ['Propósito y reflexión personal', 'Estructura y movimiento narrativo', 'Voz y especificidad'],
+            council: ['Lector de admisiones', 'Docente de escritura', 'Defensor de la voz estudiantil'],
+        },
+        stem: {
+            discover: ['Declara la pregunta y la predicción', 'Separa observación de interpretación', 'Conecta el resultado con la evidencia'],
+            review: ['Alineación de afirmación y evidencia', 'Métodos y reproducibilidad', 'Limitaciones y precisión'],
+            council: ['Instructor de laboratorio', 'Revisor de métodos', 'Editor de claridad científica'],
+        },
+        sop: {
+            discover: ['Nombra el problema que quieres estudiar', 'Conecta tu preparación con la investigación futura', 'Haz que el encaje con el programa sea específico'],
+            review: ['Propósito y trayectoria de investigación', 'Preparación y evidencia', 'Encaje y contribución al programa'],
+            council: ['Lector de facultad', 'Mentor de investigación', 'Editor de propósito y encaje'],
+        },
+        neutral: {
+            discover: ['Aclara el propósito y la audiencia', 'Elige evidencia relevante', 'Ordena las ideas para orientar al lector'],
+            review: ['Propósito y claridad', 'Estructura y evidencia', 'Voz y precisión'],
+            council: ['Lector de audiencia', 'Revisor de estructura', 'Defensor de la voz'],
+        },
+    };
+
+    const journeySteps = [
+        ['Purpose', 'Name the assignment’s purpose and audience.'],
+        ['Evidence', 'Gather the material this genre needs.'],
+        ['Direction', 'Choose the main claim, question, or through-line.'],
+        ['Structure', 'Arrange the work into a useful sequence.'],
+        ['Plan', 'Make the next drafting move concrete.'],
+        ['First draft', 'Build a complete working version.'],
+        ['Revision', 'Change ideas, evidence, and structure.'],
+        ['Voice & precision', 'Protect voice while improving clarity.'],
+        ['Checklist', 'Verify genre expectations and remaining decisions.'],
+        ['Process closing', 'Reflect and prepare the final packet.'],
+    ];
+    const journeyStepsEs = [
+        ['Propósito', 'Nombra el propósito y la audiencia.'], ['Evidencia', 'Reúne el material que este género necesita.'],
+        ['Dirección', 'Elige la afirmación, pregunta o hilo principal.'], ['Estructura', 'Ordena el trabajo en una secuencia útil.'],
+        ['Plan', 'Haz concreta la próxima movida de redacción.'], ['Primer borrador', 'Construye una versión de trabajo completa.'],
+        ['Revisión', 'Cambia ideas, evidencia y estructura.'], ['Voz y precisión', 'Protege la voz mientras mejoras la claridad.'],
+        ['Checklist', 'Verifica expectativas y decisiones pendientes.'], ['Cierre de proceso', 'Reflexiona y prepara el paquete final.'],
+    ];
+
+    const hybridPhases = [
+        ['Discover', 'Clarify purpose, evidence, and direction.'],
+        ['Draft', 'Build one complete working version.'],
+        ['Strengthen', 'Review, decide, and revise in your own words.'],
+        ['Finish', 'Reflect, verify, and prepare the packet.'],
+    ];
+    const hybridPhasesEs = [
+        ['Descubrir', 'Aclara propósito, evidencia y dirección.'], ['Redactar', 'Construye una versión de trabajo completa.'],
+        ['Fortalecer', 'Revisa, decide y modifica con tus propias palabras.'], ['Finalizar', 'Reflexiona, verifica y prepara el paquete.'],
+    ];
+
+    function stepData(index) { return (state?.lang === 'en' ? journeySteps : journeyStepsEs)[index]; }
+    function phaseData(index) { return (state?.lang === 'en' ? hybridPhases : hybridPhasesEs)[index]; }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+    }
+
+    function t(key, values = {}) {
+        const lang = state?.lang === 'es' || state?.lang === 'both' ? 'es' : 'en';
+        let value = copy[lang][key] || copy.en[key] || key;
+        Object.entries(values).forEach(([name, replacement]) => { value = value.replaceAll(`{${name}}`, replacement); });
+        return value;
+    }
+
+    function instruction(key, values = {}) {
+        if (!state || state.lang !== 'both') return escapeHtml(t(key, values));
+        let es = copy.es[key] || key;
+        let en = copy.en[key] || key;
+        Object.entries(values).forEach(([name, replacement]) => {
+            es = es.replaceAll(`{${name}}`, replacement);
+            en = en.replaceAll(`{${name}}`, replacement);
+        });
+        return `<span lang="es">${escapeHtml(es)}</span><span lang="en" style="display:block;color:var(--muted);font-size:.88em;margin-top:3px">${escapeHtml(en)}</span>`;
+    }
+
+    function storageKey(name) { return `${STORAGE_BASE}:${name}:v1`; }
+
+    function defaultState(name) {
+        const now = new Date().toISOString();
+        return {
+            schema: 1, concept: name, lang: 'en', genre: 'admissions', draft: '',
+            step: 1, phase: 1, view: 'write', savedAt: now, createdAt: now,
+            artifacts: {}, currentArtifact: name === 'journey' ? 'step-6' : 'draft',
+            versions: [], reviews: [], decisions: [], councilRuns: [],
+            reflections: { changed: '', decision: '', voice: '', knowledge: '' },
+            reflectionSavedAt: null, packetCreatedAt: null, packetDraft: '',
+        };
+    }
+
+    function loadState(name) {
+        const fallback = defaultState(name);
+        try {
+            const raw = localStorage.getItem(storageKey(name));
+            if (!raw) return fallback;
+            const parsed = JSON.parse(raw);
+            if (!parsed || parsed.schema !== 1 || parsed.concept !== name) return fallback;
+            return { ...fallback, ...parsed, reflections: { ...fallback.reflections, ...(parsed.reflections || {}) } };
+        } catch (error) {
+            console.warn('[Exploration] isolated state could not be restored', error);
+            return fallback;
+        }
+    }
+
+    function saveState(message = '') {
+        if (!state) return;
+        state.savedAt = new Date().toISOString();
+        try {
+            localStorage.setItem(storageKey(concept), JSON.stringify(state));
+            document.querySelectorAll('[data-save-state]').forEach(el => { el.textContent = t('saved'); });
+            if (message) announce(message);
+        } catch (error) {
+            document.querySelectorAll('[data-save-state]').forEach(el => { el.textContent = t('saveFailed'); });
+            assertive.textContent = t('saveFailed');
+            console.error('[Exploration] isolated prototype write failed', error);
+        }
+    }
+
+    function scheduleSave() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => saveState(), 180);
+    }
+
+    function announce(message) {
+        live.textContent = '';
+        requestAnimationFrame(() => { live.textContent = message; });
+    }
+
+    function wordCount(text) { return String(text || '').trim() ? String(text).trim().split(/\s+/).length : 0; }
+    function shortDate(iso) { return new Intl.DateTimeFormat(state?.lang === 'es' ? 'es' : 'en', { hour: 'numeric', minute: '2-digit' }).format(new Date(iso)); }
+    function currentGenre() { return genres[state.genre] || genres.neutral; }
+    function genreLabel() { return currentGenre().label[state.lang === 'en' ? 'en' : 'es']; }
+    function genreMoves(kind) {
+        if (state.lang === 'en') return currentGenre().moves[kind];
+        return (genreMovesEs[state.genre] || genreMovesEs.neutral)[kind];
+    }
+
+    function renderBanner() {
+        return `<div class="exploration-banner"><span class="banner-dot" aria-hidden="true"></span><strong>${escapeHtml(t('prototype'))}</strong></div>`;
+    }
+
+    function renderLanding() {
+        document.documentElement.lang = 'en';
+        document.body.dataset.concept = 'comparison';
+        root.innerHTML = `${renderBanner()}
+            <div class="comparison-shell">
+                <section class="comparison-hero" aria-labelledby="comparisonTitle">
+                    <div><p class="eyebrow">Founder comparison · August 2026</p>
+                        <h1 id="comparisonTitle">Three ways to understand a writing studio.</h1>
+                        <p class="lede">Each local concept supports the same complete task journey with isolated synthetic data and deterministic mock AI. The question is which mental model a first-time student can understand and trust.</p></div>
+                    <aside class="comparison-note"><strong>No winner is implied.</strong><p>Test the same eleven tasks in each concept. Leave and return freely—each concept keeps its own local prototype state.</p></aside>
+                </section>
+                <section class="concept-grid" aria-label="Writing Studio concepts">
+                    ${CONCEPTS.map(name => {
+                        const item = conceptMeta[name];
+                        return `<article class="concept-card"><span class="concept-number">${item.number}</span><h2>${item.name}</h2><p><strong>${item.mental}</strong> ${item.summary}</p><div class="concept-tags">${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div><a class="button primary" href="?concept=${name}">Open ${item.short} prototype <span aria-hidden="true">→</span></a></article>`;
+                    }).join('')}
+                </section>
+                <section class="journey-script" aria-labelledby="taskJourneyTitle"><h2 id="taskJourneyTitle">Use the same journey every time</h2><p>Observe whether the concept answers where you are, what you are doing, and what happens next without facilitator explanation.</p><ol class="task-grid">${['Start writing','Paste an existing synthetic draft','Save, leave, and return','Find prior work','Move forward and backward','Ask the coach about a passage','Request focused review','Convene and revisit the Council','Act on a suggestion','Complete reflection','Prepare the final packet'].map(task => `<li>${task}</li>`).join('')}</ol></section>
+            </div>`;
+    }
+
+    function orientation() {
+        let where, doing, next;
+        if (concept === 'desk') {
+            where = t('whereDesk'); doing = t('doingDesk'); next = t('nextDesk');
+        } else if (concept === 'journey') {
+            where = t('whereJourney', { n: state.step }); doing = t('doingJourney');
+            next = t('nextJourney', { next: state.step < 10 ? stepData(state.step)[0] : t('finish') });
+        } else {
+            where = t('whereHybrid', { n: state.phase }); doing = t('doingHybrid');
+            next = t('nextHybrid', { next: state.phase < 4 ? phaseData(state.phase)[0] : t('finish') });
+        }
+        return { where, doing, next };
+    }
+
+    function renderHeader() {
+        const o = orientation();
+        return `${renderBanner()}
+            <header class="prototype-header"><div class="prototype-header-inner">
+                <a class="brand-lockup" href="?" aria-label="${escapeHtml(t('compare'))}"><span class="brand-mark" aria-hidden="true">TP</span><span class="brand-copy"><strong>Tu Pana Writing Studio</strong><small>${escapeHtml(conceptMeta[concept].name)}</small></span></a>
+                <nav class="concept-switcher" aria-label="Prototype switcher"><a class="switch-link" href="?">${escapeHtml(t('compare'))}</a>${CONCEPTS.map(name => `<a class="switch-link" href="?concept=${name}" ${name === concept ? 'aria-current="page"' : ''}>${conceptMeta[name].number}. ${conceptMeta[name].short}</a>`).join('')}</nav>
+                <div class="prototype-actions"><span class="save-state"><span class="save-state-dot" aria-hidden="true"></span><span data-save-state>${escapeHtml(t('saved'))}</span></span>
+                    <select class="header-select genre-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${Object.entries(genres).map(([id, g]) => `<option value="${id}" ${id === state.genre ? 'selected' : ''}>${escapeHtml(g.label[state.lang === 'en' ? 'en' : 'es'])}</option>`).join('')}</select>
+                    <select class="header-select" data-action="language" aria-label="${escapeHtml(t('language'))}"><option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option><option value="es" ${state.lang === 'es' ? 'selected' : ''}>Español</option><option value="both" ${state.lang === 'both' ? 'selected' : ''}>Español + English</option></select>
+                    <button class="icon-button" data-action="settings" aria-label="${escapeHtml(t('settings'))}" title="${escapeHtml(t('settings'))}">⚙</button></div>
+            </div></header>
+            <section class="orientation-bar" aria-label="Current location and next action"><div class="orientation-inner"><div class="orientation-copy"><span class="location-pill">${escapeHtml(o.where)}</span><div class="orientation-text"><strong>${escapeHtml(o.doing)}</strong><span>${escapeHtml(o.next)}</span></div></div><div class="orientation-next"><small>${escapeHtml(t('currentDraft'))}</small><strong>${wordCount(getDraft())} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</strong></div></div></section>`;
+    }
+
+    function renderApp() {
+        document.documentElement.lang = state.lang === 'en' ? 'en' : 'es';
+        document.body.dataset.concept = concept;
+        const content = state.view === 'reflection' ? renderReflectionPage() : state.view === 'finish' ? renderFinishPage() : renderWorkspace();
+        root.innerHTML = `${renderHeader()}<div class="prototype-main">${content}</div><button class="button primary focus-exit" data-action="exit-focus">${escapeHtml(t('exitFocus'))}</button>${renderPassageBar()}`;
+        bindEditor();
+        updateVisualViewport();
+    }
+
+    function getDraft() {
+        if (concept !== 'journey') return state.draft || '';
+        return state.artifacts[`step-${state.step}`]?.text ?? state.draft ?? '';
+    }
+
+    function setDraft(text) {
+        state.draft = text;
+        if (concept === 'journey') {
+            const key = `step-${state.step}`;
+            state.artifacts[key] = { text, updatedAt: new Date().toISOString(), label: stepData(state.step - 1)[0] };
+        }
+        scheduleSave();
+    }
+
+    function setView(view) {
+        state.view = view;
+        saveState();
+        renderApp();
+        requestAnimationFrame(() => root.focus());
+    }
+
+    function renderWorkspace() {
+        if (concept === 'desk') return renderDeskWorkspace();
+        if (concept === 'journey') return renderJourneyWorkspace();
+        return renderHybridWorkspace();
+    }
+
+    function renderDeskWorkspace() {
+        return `<nav class="phase-strip" aria-label="Desk places"><button class="phase-tab" aria-current="step">${escapeHtml(t('currentDraft'))}</button><button class="phase-tab" data-action="reflection">${escapeHtml(t('reflection'))}</button><button class="phase-tab" data-action="finish">${escapeHtml(t('finish'))}</button></nav>
+            <div class="workspace-grid desk">${renderEditor()}
+                <aside class="support-stack" aria-label="Supporting work">${renderMovesPanel('desk')}${renderReviewPanel()}${renderEvidencePanel()}</aside>
+            </div>`;
+    }
+
+    function renderJourneyWorkspace() {
+        return `<div class="workspace-grid">
+            <aside class="panel journey-panel"><div class="panel-header"><div><span class="panel-kicker">${escapeHtml(state.step <= 5 ? t('actStart') : state.step <= 9 ? t('actRevise') : t('actFinish'))}</span><h2>10 ${escapeHtml(state.lang !== 'en' ? 'pasos' : 'steps')}</h2><p>${escapeHtml(t('completeRule'))}</p></div></div><nav class="journey-steps" aria-label="Writing steps">${(state.lang === 'en' ? journeySteps : journeyStepsEs).map((step, index) => renderStepButton(step, index + 1)).join('')}</nav></aside>
+            ${renderEditor()}
+            <aside class="support-stack" aria-label="Work and review">${renderWorkRail()}${renderReviewPanel()}${renderEvidencePanel()}</aside>
+        </div>`;
+    }
+
+    function renderHybridWorkspace() {
+        return `<nav class="phase-strip" aria-label="Writing phases">${(state.lang === 'en' ? hybridPhases : hybridPhasesEs).map((phase, index) => `<button class="phase-tab" data-action="phase" data-phase="${index + 1}" ${state.phase === index + 1 ? 'aria-current="step"' : ''}><strong>${index + 1}. ${escapeHtml(phase[0])}</strong></button>`).join('')}</nav>
+            <div class="workspace-grid hybrid">${renderEditor()}<aside class="support-stack">${renderMovesPanel('hybrid')}${renderReviewPanel()}${renderEvidencePanel()}</aside></div>
+            <section class="context-moves" aria-labelledby="contextMovesTitle"><div class="panel-header"><div><h2 id="contextMovesTitle">${escapeHtml(t('moves'))}</h2><p>${escapeHtml(genreLabel())}</p></div></div><div class="context-grid">${genreMoves('discover').map((move, i) => `<article class="context-card"><span class="panel-kicker">${escapeHtml(phaseData(state.phase - 1)[0])} · ${i + 1}</span><h3>${escapeHtml(move)}</h3><p>${escapeHtml(contextMoveDetail(i))}</p><button class="text-button" data-action="activate-move" data-move="${i}">${escapeHtml(state.lang === 'en' ? 'Use this move' : 'Usar esta movida')}</button></article>`).join('')}</div></section>`;
+    }
+
+    function renderStepButton(step, number) {
+        const artifact = state.artifacts[`step-${number}`];
+        const done = artifact && wordCount(artifact.text) >= 8;
+        return `<button class="step-button" data-action="step" data-step="${number}" ${state.step === number ? 'aria-current="step"' : ''}><span class="step-number">${number}</span><span class="step-label"><strong>${escapeHtml(step[0])}</strong><small>${escapeHtml(step[1])}</small></span><span class="done-mark" aria-label="${done ? 'has evidence' : 'not complete'}">${done ? '✓' : '○'}</span></button>`;
+    }
+
+    function renderEditor() {
+        const isCurrent = concept !== 'journey' || state.currentArtifact === `step-${state.step}`;
+        const focusAvailable = concept === 'desk' || concept === 'journey';
+        return `<section class="panel editor-panel" aria-labelledby="draftTitle"><div class="editor-topline"><div class="draft-identity"><strong id="draftTitle">${escapeHtml(concept === 'journey' ? stepData(state.step - 1)[0] : t('currentDraft'))}</strong><span>${escapeHtml(isCurrent ? t('currentVersion') : t('priorWork'))}${concept === 'journey' ? ` · ${escapeHtml(t('whereJourney', { n: state.step }))}` : ''}</span></div><div class="editor-actions"><button class="button ghost" data-action="paste">${escapeHtml(t('paste'))}</button>${!getDraft() ? `<button class="button secondary" data-action="sample">${escapeHtml(t('useSample'))}</button>` : ''}${focusAvailable ? `<button class="button ghost focus-btn" data-action="focus">${escapeHtml(t('focus'))}</button>` : ''}</div></div>
+            <div class="editor-wrap"><textarea id="draftEditor" class="draft-editor" spellcheck="true" aria-label="${escapeHtml(t('currentDraft'))}" placeholder="${escapeHtml(state.lang !== 'en' ? 'Comienza con tus propias palabras…' : 'Start with your own words…')}">${escapeHtml(getDraft())}</textarea><div class="editor-meta"><span id="wordCount">${escapeHtml(t('words', { n: wordCount(getDraft()) }))}</span><span class="autosave-message" data-save-state>${escapeHtml(t('autosaved'))}</span></div></div>
+            <p class="editor-privacy">${instruction('selectHint')} ${escapeHtml(t('noNetwork'))}</p>
+            <footer class="editor-footer"><div class="footer-group"><button class="button ghost" data-action="back" ${atBeginning() ? 'disabled' : ''}>← ${escapeHtml(t('back'))}</button><button class="button primary" data-action="continue">${escapeHtml(continueLabel())} →</button></div><div class="footer-group">${concept === 'journey' && !isCurrent && state.step >= 6 ? `<button class="button secondary" data-action="mark-current">${escapeHtml(t('markCurrent'))}</button>` : ''}<button class="button secondary" data-action="review-center">${escapeHtml(t('reviewCenter'))}</button></div></footer>
+        </section>`;
+    }
+
+    function renderMovesPanel(type) {
+        const moves = genreMoves('discover');
+        const title = type === 'desk' ? t('moves') : phaseData(state.phase - 1)[0];
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(title)}</h2><p>${escapeHtml(genreLabel())}</p></div></div><div class="panel-body move-list">${moves.map((move, index) => `<button class="move-card" data-action="activate-move" data-move="${index}"><strong>${escapeHtml(move)}</strong><span>${escapeHtml(contextMoveDetail(index))}</span></button>`).join('')}<p style="margin:10px 0 0;color:var(--muted);font-size:.8rem">${escapeHtml(t('noFallback'))}</p></div></section>`;
+    }
+
+    function contextMoveDetail(index) {
+        const generic = state.lang !== 'en'
+            ? ['Haz una nota breve; no cambia el borrador.', 'Úsala como lente, no como destino separado.', 'Tú decides si la evidencia cambia tu texto.']
+            : ['Make a brief note; it does not change the draft.', 'Use it as a lens, not another destination.', 'You decide whether the evidence changes your text.'];
+        return generic[index] || generic[0];
+    }
+
+    function renderReviewPanel() {
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('reviewCenter'))}</h2><p>${state.reviews.length + state.councilRuns.length} ${escapeHtml(state.lang === 'en' ? 'saved reports' : 'informes guardados')}</p></div><span class="evidence-count">${state.decisions.length}</span></div><div class="panel-body"><button class="support-action" data-action="coach"><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(state.lang === 'en' ? 'passage, paragraph, or draft' : 'pasaje, párrafo o borrador')}</span></button><button class="support-action" data-action="focused-review"><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(genreMoves('review')[0])}</span></button><button class="support-action" data-action="council"><strong>${escapeHtml(t('council'))}</strong><span>${state.councilRuns.length ? escapeHtml(t('revisit')) : escapeHtml(t('convene'))}</span></button><button class="support-action" data-action="review-center"><strong>${escapeHtml(t('priorWork'))}</strong><span>${escapeHtml(t('revisit'))}</span></button></div></section>`;
+    }
+
+    function renderEvidencePanel() {
+        const currentVersions = concept === 'journey' ? Object.keys(state.artifacts).length : state.versions.length;
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('evidence'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Hechos, no reflexión escrita por IA' : 'Facts, not AI-written reflection')}</p></div></div><div class="panel-body artifact-list"><div class="artifact-row"><strong>${currentVersions} ${escapeHtml(state.lang !== 'en' ? 'versiones o artefactos' : 'versions or artifacts')}</strong><small>${escapeHtml(t('autosaved'))}</small></div><div class="artifact-row"><strong>${state.decisions.length} ${escapeHtml(state.lang !== 'en' ? 'decisiones' : 'decisions')}</strong><small>${escapeHtml(state.decisions.length ? state.decisions.map(d => d.choice).join(', ') : t('noPrior'))}</small></div><div class="artifact-row"><strong>${state.councilRuns.length} ${escapeHtml(state.lang !== 'en' ? 'Consejos' : 'Council runs')}</strong><small>${escapeHtml(state.councilRuns.length ? t('revisit') : t('noPrior'))}</small></div><button class="button secondary" data-action="reflection">${escapeHtml(t('reflection'))}</button></div></section>`;
+    }
+
+    function renderWorkRail() {
+        const artifacts = Object.entries(state.artifacts).sort(([a], [b]) => Number(a.split('-')[1]) - Number(b.split('-')[1]));
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('workRail'))}</h2><p>${escapeHtml(t('currentVersion'))}</p></div></div><div class="panel-body artifact-list">${artifacts.length ? artifacts.map(([key, artifact]) => {
+            const n = Number(key.split('-')[1]);
+            return `<div class="artifact-row"><strong>${escapeHtml(stepData(n - 1)?.[0] || key)} · ${wordCount(artifact.text)}</strong><small>${shortDate(artifact.updatedAt)}</small>${state.currentArtifact === key ? `<span class="current-badge">✓ ${escapeHtml(t('currentMark'))}</span>` : `<button class="text-button" data-action="go-artifact" data-step="${n}">${escapeHtml(t('priorWork'))}</button>`}</div>`;
+        }).join('') : `<div class="empty-state">${escapeHtml(t('noPrior'))}</div>`}</div></section>`;
+    }
+
+    function atBeginning() { return concept === 'desk' ? true : concept === 'journey' ? state.step === 1 : state.phase === 1; }
+    function continueLabel() {
+        if (concept === 'desk') return t('finish');
+        if (concept === 'journey') return state.step < 10 ? `${t('continue')}: ${stepData(state.step)[0]}` : t('reflection');
+        return state.phase < 4 ? `${t('continue')}: ${phaseData(state.phase)[0]}` : t('reflection');
+    }
+
+    function navigateRelative(direction) {
+        checkpointVersion();
+        if (concept === 'desk') return setView('finish');
+        if (concept === 'journey') {
+            if (direction < 0 && state.step > 1) goStep(state.step - 1);
+            else if (direction > 0 && state.step < 10) goStep(state.step + 1);
+            else if (direction > 0) setView('reflection');
+        } else {
+            if (direction < 0 && state.phase > 1) state.phase -= 1;
+            else if (direction > 0 && state.phase < 4) state.phase += 1;
+            else if (direction > 0) return setView('reflection');
+            saveState(); renderApp();
+        }
+    }
+
+    function goStep(nextStep) {
+        const oldText = getDraft();
+        const target = state.artifacts[`step-${nextStep}`];
+        state.step = nextStep;
+        if (!target && oldText) state.artifacts[`step-${nextStep}`] = { text: oldText, updatedAt: new Date().toISOString(), label: stepData(nextStep - 1)[0], carriedForward: true };
+        state.draft = state.artifacts[`step-${nextStep}`]?.text || state.draft;
+        saveState(); renderApp();
+    }
+
+    function checkpointVersion() {
+        const text = getDraft();
+        if (!text || concept === 'journey') return;
+        const signature = `${text.length}:${text.slice(0, 24)}`;
+        if (state.versions.at(-1)?.signature === signature) return;
+        state.versions.push({ id: crypto.randomUUID?.() || `${Date.now()}`, signature, words: wordCount(text), createdAt: new Date().toISOString(), phase: state.phase });
+        state.versions = state.versions.slice(-12);
+    }
+
+    function bindEditor() {
+        const editor = document.getElementById('draftEditor');
+        if (!editor) return;
+        editor.addEventListener('input', () => {
+            setDraft(editor.value);
+            const count = document.getElementById('wordCount');
+            if (count) count.textContent = t('words', { n: wordCount(editor.value) });
+        });
+        ['select', 'pointerup', 'keyup', 'touchend'].forEach(type => editor.addEventListener(type, () => setTimeout(() => captureSelection(editor), 0), { passive: true }));
+    }
+
+    function captureSelection(editor) {
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        if (!Number.isFinite(start) || end <= start) return;
+        const text = editor.value.slice(start, end);
+        if (!text.trim()) return;
+        const beforeBreak = editor.value.lastIndexOf('\n', start - 1) + 1;
+        const afterBreakRaw = editor.value.indexOf('\n', end);
+        const afterBreak = afterBreakRaw === -1 ? editor.value.length : afterBreakRaw;
+        captured = { text, paragraph: editor.value.slice(beforeBreak, afterBreak), full: editor.value, start, end, capturedAt: new Date().toISOString() };
+        updatePassageBar();
+        announce(`${t('captured')}: ${text.slice(0, 80)}`);
+    }
+
+    function renderPassageBar() {
+        return `<section id="passageBar" class="passage-bar" ${captured ? '' : 'hidden'} aria-label="${escapeHtml(t('captured'))}"><div class="passage-copy"><strong>${escapeHtml(t('captured'))}</strong><span id="passageExcerpt">${escapeHtml(captured?.text || '')}</span></div><button class="button secondary" data-action="passage-review">${escapeHtml(t('reviewPassage'))}</button><button class="icon-button" data-action="clear-passage" aria-label="${escapeHtml(t('clear'))}">×</button></section>`;
+    }
+
+    function updatePassageBar() {
+        let bar = document.getElementById('passageBar');
+        if (!bar) {
+            document.body.insertAdjacentHTML('beforeend', renderPassageBar());
+            bar = document.getElementById('passageBar');
+        }
+        if (!captured) { bar.hidden = true; return; }
+        bar.hidden = false;
+        const excerpt = document.getElementById('passageExcerpt');
+        if (excerpt) excerpt.textContent = captured.text;
+    }
+
+    function updateVisualViewport() {
+        const vv = window.visualViewport;
+        const offset = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
+        document.documentElement.style.setProperty('--vv-offset', `${offset}px`);
+    }
+
+    function openDialog(title, subtitle, body, footer, options = {}) {
+        lastFocus = document.activeElement;
+        dialogRoot.innerHTML = `<div class="overlay" data-action="overlay-close"><section class="dialog ${options.wide ? 'wide' : ''}" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><header class="dialog-header"><div><h2 id="dialogTitle">${escapeHtml(title)}</h2>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div><button class="icon-button" data-action="close-dialog" aria-label="${escapeHtml(t('cancel'))}">×</button></header><div class="dialog-body">${body}</div>${footer ? `<footer class="dialog-footer">${footer}</footer>` : ''}</section></div>`;
+        const dialog = dialogRoot.querySelector('[role="dialog"]');
+        requestAnimationFrame(() => (dialog.querySelector('input, textarea, button, select, [tabindex]') || dialog).focus());
+    }
+
+    function closeDialog() {
+        dialogRoot.innerHTML = '';
+        if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+        lastFocus = null;
+    }
+
+    function openPasteDialog() {
+        const sample = currentGenre().sample;
+        openDialog(t('paste'), t('pasteWarning'), `<div class="field"><label for="pasteDraft">${escapeHtml(t('currentDraft'))}</label><textarea id="pasteDraft">${escapeHtml(sample)}</textarea></div><p class="exact-preview" id="pastePreview">${escapeHtml(sample)}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="replace-draft">${escapeHtml(t('replaceDraft'))}</button>`);
+    }
+
+    function useSample() {
+        if (getDraft()) checkpointVersion();
+        setDraft(currentGenre().sample);
+        if (concept === 'journey') state.currentArtifact = `step-${Math.max(6, state.step)}`;
+        saveState(); renderApp();
+        announce(t('saved'));
+    }
+
+    function openMoveDialog(index) {
+        const title = genreMoves('discover')[index] || genreMoves('discover')[0];
+        const existing = state.artifacts[`move-${index}`]?.text || '';
+        openDialog(title, contextMoveDetail(index), `<div class="field"><label for="moveNote">${escapeHtml(state.lang !== 'en' ? 'Nota de apoyo (no compite con tu borrador)' : 'Supporting note (not a competing draft)')}</label><textarea id="moveNote" placeholder="${escapeHtml(state.lang !== 'en' ? 'Escribe una nota breve en tus propias palabras…' : 'Write a brief note in your own words…')}">${escapeHtml(existing)}</textarea></div><p>${escapeHtml(state.lang !== 'en' ? 'Esta tarjeta queda disponible como contexto. Nunca cambia ni inserta texto en tu borrador.' : 'This card remains available as context. It never changes or inserts text into your draft.')}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-move" data-move="${index}">${escapeHtml(t('saveReturn'))}</button>`);
+    }
+
+    function openCoachDialog() {
+        const base = captured || deriveDraftScopes();
+        if (!base || !base.full.trim()) {
+            announce(state.lang !== 'en' ? 'Escribe algo antes de pedir coaching.' : 'Write something before asking for coaching.');
+            return;
+        }
+        captured = base;
+        openScopeDialog('coach', t('coach'), state.lang !== 'en' ? 'Elige exactamente qué texto revisar.' : 'Choose exactly which text to review.');
+    }
+
+    function deriveDraftScopes() {
+        const full = getDraft();
+        const paragraph = full.split(/\n+/).find(p => p.trim()) || full;
+        return { text: paragraph, paragraph, full, capturedAt: new Date().toISOString() };
+    }
+
+    function openScopeDialog(kind, title, subtitle) {
+        const scopes = [
+            ['selected', t('selectedScope'), captured.text],
+            ['paragraph', t('paragraphScope'), captured.paragraph],
+            ['full', t('fullScope'), captured.full],
+        ];
+        const defaultScope = captured.text ? 'selected' : 'paragraph';
+        openDialog(title, subtitle, `<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(captured[defaultScope === 'selected' ? 'text' : defaultScope])}</div></div>${kind === 'focused' ? renderLensChoices() : ''}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? t('sendReview') : t('sendCoach'))}</button>`);
+    }
+
+    function renderLensChoices() {
+        return `<fieldset class="field"><legend>${escapeHtml(state.lang === 'en' ? 'Review lens' : 'Lente de revisión')}</legend><div class="choice-stack">${genreMoves('review').map((lens, i) => `<label class="radio-card"><input type="radio" name="reviewLens" value="${escapeHtml(lens)}" ${i === 0 ? 'checked' : ''}><span>${escapeHtml(lens)}</span></label>`).join('')}</div></fieldset>`;
+    }
+
+    function openFocusedReviewDialog() {
+        const base = captured || deriveDraftScopes();
+        if (!base.full.trim()) return openCoachDialog();
+        captured = base;
+        openScopeDialog('focused', t('focusedReview'), state.lang !== 'en' ? 'Una lectura, una prioridad, tu decisión.' : 'One reading, one priority, your decision.');
+    }
+
+    function scopeText(scope) {
+        if (!captured) return '';
+        return scope === 'selected' ? captured.text : scope === 'paragraph' ? captured.paragraph : captured.full;
+    }
+
+    function submitMockReview(kind, button) {
+        const scope = dialogRoot.querySelector('input[name="reviewScope"]:checked')?.value || 'selected';
+        const text = scopeText(scope);
+        if (!text) return;
+        const lens = kind === 'focused' ? dialogRoot.querySelector('input[name="reviewLens"]:checked')?.value : (state.lang !== 'en' ? 'Pregunta del estudiante' : 'Student question');
+        button.disabled = true;
+        button.textContent = state.lang !== 'en' ? 'Leyendo localmente…' : 'Reading locally…';
+        window.setTimeout(() => {
+            const genre = currentGenre();
+            const suggestion = mockSuggestion(kind, lens, text);
+            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: true });
+            saveState(); closeDialog(); reviewTab = 'history'; openReviewCenter();
+        }, 260);
+    }
+
+    function mockSuggestion(kind, lens, text) {
+        const genreLabel = currentGenre().label.en;
+        if (state.lang !== 'en') return `Fortaleza: el pasaje establece una dirección clara para ${genreLabel}. Pregunta de revisión: ¿qué evidencia específica ayudaría al lector a seguir esta idea? No reescribí ninguna oración.`;
+        return `Strength: this passage establishes a clear direction for the ${genreLabel}. Revision question: what specific evidence would help the reader follow this idea? I did not rewrite any sentence.`;
+    }
+
+    function openCouncilDialog() {
+        if (state.councilRuns.length && !getDraft().trim()) return openReviewCenter('council');
+        const draft = getDraft();
+        if (!draft.trim()) return openCoachDialog();
+        const roles = genreMoves('council');
+        openDialog(t('council'), state.lang !== 'en' ? 'Tres perspectivas configuradas para este género. Ninguna reemplaza tu decisión.' : 'Three genre-configured perspectives. None replaces your decision.', `<div class="choice-stack">${roles.map(role => `<div class="radio-card"><span><strong>${escapeHtml(role)}</strong><br><small>${escapeHtml(state.lang !== 'en' ? 'Busca una fortaleza y una pregunta.' : 'Looks for one strength and one question.')}</small></span></div>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview">${escapeHtml(draft)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="run-council" disabled>${escapeHtml(t('convene'))}</button>`);
+    }
+
+    function runCouncil(button) {
+        button.disabled = true;
+        const roles = genreMoves('council');
+        const run = {
+            id: `council-${Date.now()}`, createdAt: new Date().toISOString(), genre: state.genre,
+            words: wordCount(getDraft()), signature: `${getDraft().length}:${getDraft().slice(0, 24)}`,
+            findings: roles.map((role, index) => ({ role, suggestion: councilSuggestion(index) })), mock: true,
+        };
+        state.councilRuns.push(run);
+        saveState(); closeDialog(); reviewTab = 'council'; openReviewCenter();
+    }
+
+    function councilSuggestion(index) {
+        const review = genreMoves('review')[index] || genreMoves('review')[0];
+        return state.lang !== 'en' ? `Observa una base sólida en ${review}. Pregunta dónde una evidencia más precisa apoyaría la decisión del lector.` : `Sees a sound foundation in ${review}. Asks where more precise evidence would support the reader’s judgment.`;
+    }
+
+    function openReviewCenter(tab = reviewTab) {
+        reviewTab = tab;
+        openDialog(t('reviewCenter'), state.lang !== 'en' ? 'Pide, escucha, decide, revisa y verifica.' : 'Ask, hear, decide, revise, and verify.', `<div class="review-layout"><nav class="review-nav" aria-label="Review sections"><button data-action="review-tab" data-tab="history" ${tab === 'history' ? 'aria-current="page"' : ''}>${escapeHtml(t('focusedReview'))} (${state.reviews.length})</button><button data-action="review-tab" data-tab="council" ${tab === 'council' ? 'aria-current="page"' : ''}>${escapeHtml(t('council'))} (${state.councilRuns.length})</button><button data-action="review-tab" data-tab="decisions" ${tab === 'decisions' ? 'aria-current="page"' : ''}>${escapeHtml(state.lang !== 'en' ? 'Decisiones' : 'Decisions')} (${state.decisions.length})</button></nav><section class="review-feed" id="reviewFeed">${renderReviewFeed(tab)}</section></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button>`, { wide: true });
+    }
+
+    function renderReviewFeed(tab) {
+        if (tab === 'history') {
+            if (!state.reviews.length) return `<div class="empty-state">${escapeHtml(t('noReviews'))}<br><button class="button secondary" data-action="focused-review" style="margin-top:12px">${escapeHtml(t('sendReview'))}</button></div>`;
+            return state.reviews.slice().reverse().map(review => renderReviewCard(review)).join('');
+        }
+        if (tab === 'council') {
+            if (!state.councilRuns.length) return `<div class="empty-state">${escapeHtml(t('noReviews'))}<br><button class="button secondary" data-action="council" style="margin-top:12px">${escapeHtml(t('convene'))}</button></div>`;
+            return state.councilRuns.slice().reverse().map(run => `<article class="review-card"><span class="mock-label">Mock Council · ${escapeHtml(genreLabel())}</span><h3>${escapeHtml(t('council'))}</h3><p class="review-meta">${shortDate(run.createdAt)} · ${run.words} ${escapeHtml(state.lang === 'en' ? 'words reviewed' : 'palabras revisadas')}</p>${run.findings.map((finding, index) => `<blockquote><strong>${escapeHtml(finding.role)}</strong><br>${escapeHtml(finding.suggestion)}</blockquote>${decisionButtons(run.id, index, finding.suggestion)}`).join('')}</article>`).join('');
+        }
+        if (!state.decisions.length) return `<div class="empty-state">${escapeHtml(state.lang !== 'en' ? 'Todavía no has decidido sobre una sugerencia.' : 'You have not decided on a suggestion yet.')}</div>`;
+        return state.decisions.slice().reverse().map(decision => `<article class="review-card"><h3>${escapeHtml(decision.choiceLabel)}</h3><p class="review-meta">${shortDate(decision.createdAt)} · ${escapeHtml(decision.sourceType)}</p><blockquote>${escapeHtml(decision.suggestion)}</blockquote><p>${escapeHtml(t('decisionRecorded'))}</p></article>`).join('');
+    }
+
+    function renderReviewCard(review) {
+        return `<article class="review-card"><span class="mock-label">Mock AI · ${escapeHtml(review.scope)}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}</p><blockquote>${escapeHtml(review.exactExcerpt)}</blockquote><p>${escapeHtml(review.suggestion)}</p>${decisionButtons(review.id, 0, review.suggestion)}</article>`;
+    }
+
+    function decisionButtons(sourceId, suggestionIndex, suggestion) {
+        const prior = state.decisions.find(d => d.sourceId === sourceId && d.suggestionIndex === suggestionIndex);
+        return `<div class="decision-row" aria-label="Student decision">${[['accept', t('accept')], ['adapt', t('adapt')], ['reject', t('reject')], ['later', t('later')]].map(([choice, label]) => `<button class="decision-button" data-action="decision" data-source="${escapeHtml(sourceId)}" data-index="${suggestionIndex}" data-choice="${choice}" data-suggestion="${escapeHtml(suggestion)}" ${prior?.choice === choice ? 'aria-pressed="true"' : 'aria-pressed="false"'}>${escapeHtml(label)}</button>`).join('')}</div>`;
+    }
+
+    function recordDecision(button) {
+        const sourceId = button.dataset.source;
+        const index = Number(button.dataset.index || 0);
+        const choice = button.dataset.choice;
+        const labels = { accept: t('accept'), adapt: t('adapt'), reject: t('reject'), later: t('later') };
+        state.decisions = state.decisions.filter(d => !(d.sourceId === sourceId && d.suggestionIndex === index));
+        state.decisions.push({ id: `decision-${Date.now()}`, sourceId, suggestionIndex: index, sourceType: sourceId.startsWith('council') ? t('council') : t('focusedReview'), choice, choiceLabel: labels[choice], suggestion: button.dataset.suggestion, createdAt: new Date().toISOString(), studentAuthored: true });
+        saveState(t('decisionRecorded'));
+        openReviewCenter(reviewTab);
+    }
+
+    function factualEvidence() {
+        const items = [];
+        if (wordCount(getDraft())) items.push(`${wordCount(getDraft())} ${state.lang !== 'en' ? 'palabras en la versión actual' : 'words in the current version'}`);
+        if (state.versions.length) items.push(`${state.versions.length} ${state.lang !== 'en' ? 'instantáneas locales' : 'local snapshots'}`);
+        if (Object.keys(state.artifacts).length) items.push(`${Object.keys(state.artifacts).length} ${state.lang !== 'en' ? 'artefactos con texto' : 'artifacts with text'}`);
+        if (state.reviews.length) items.push(`${state.reviews.length} ${state.lang !== 'en' ? 'lecturas enfocadas' : 'focused reviews'}`);
+        if (state.councilRuns.length) items.push(`${state.councilRuns.length} ${state.lang !== 'en' ? 'reuniones del Consejo' : 'Council runs'}`);
+        state.decisions.forEach(d => items.push(`${d.choiceLabel}: ${d.sourceType}`));
+        return items;
+    }
+
+    function renderReflectionPage() {
+        const prompts = [
+            ['changed', t('prompt1'), false], ['decision', t('prompt2'), false], ['voice', t('prompt3'), false], ['knowledge', t('prompt4'), true],
+        ];
+        const complete = ['changed', 'decision', 'voice'].filter(key => state.reflections[key].trim()).length;
+        return `<section class="finish-page" aria-labelledby="reflectionTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(t('whereDesk'))}</p><h2 id="reflectionTitle">${escapeHtml(t('reflection'))}</h2><p>${escapeHtml(t('reflectionWhy'))}</p><strong>${complete}/3 ${escapeHtml(state.lang !== 'en' ? 'respuestas requeridas guardadas' : 'required responses saved')}</strong></div>
+            <section class="panel"><div class="panel-body"><div class="reflection-intro"><strong>${escapeHtml(t('reflectionEvidence'))}</strong><div class="evidence-chips">${factualEvidence().length ? factualEvidence().map(item => `<span class="evidence-chip">${escapeHtml(item)}</span>`).join('') : `<span class="evidence-chip">${escapeHtml(state.lang !== 'en' ? 'La evidencia aparecerá al trabajar.' : 'Evidence will appear as you work.')}</span>`}</div></div>
+            <form id="reflectionForm">${prompts.map(([key, label, optional]) => `<div class="reflection-prompt"><label for="reflection-${key}">${escapeHtml(label)} ${optional ? `<span class="optional-label">(${escapeHtml(t('optional'))})</span>` : ''}</label><textarea id="reflection-${key}" name="${key}" ${optional ? '' : 'required'}>${escapeHtml(state.reflections[key])}</textarea></div>`).join('')}</form></div><footer class="editor-footer"><button class="button ghost" data-action="return-write">← ${escapeHtml(state.lang !== 'en' ? 'Volver a escribir' : 'Return to writing')}</button><div class="footer-group"><button class="button secondary" data-action="save-reflection">${escapeHtml(t('saveReturn'))}</button><button class="button primary" data-action="finish">${escapeHtml(t('preparePacket'))} →</button></div></footer></section></section>`;
+    }
+
+    function saveReflection() {
+        const form = document.getElementById('reflectionForm');
+        if (!form) return;
+        const data = new FormData(form);
+        ['changed', 'decision', 'voice', 'knowledge'].forEach(key => { state.reflections[key] = String(data.get(key) || ''); });
+        state.reflectionSavedAt = new Date().toISOString();
+        saveState(t('saved'));
+    }
+
+    function markedDraft() {
+        if (concept !== 'journey') return state.draft || '';
+        return state.artifacts[state.currentArtifact]?.text || getDraft();
+    }
+
+    function reflectionComplete() { return ['changed', 'decision', 'voice'].every(key => state.reflections[key].trim().length >= 1); }
+
+    function renderFinishPage() {
+        const draft = markedDraft();
+        const ready = Boolean(draft.trim()) && reflectionComplete();
+        const packetReady = Boolean(state.packetCreatedAt);
+        return `<section class="finish-page" aria-labelledby="finishTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(t('finish'))}</p><h2 id="finishTitle">${escapeHtml(t('preparePacket'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Guardar mantiene tu trabajo en progreso. Finalizar confirma una versión y arma un paquete local. Entregar ocurre fuera de este prototipo, según las instrucciones de tu instructor.' : 'Save keeps work in progress. Finish confirms one version and assembles a local packet. Submission happens outside this prototype, according to your instructor’s directions.')}</p></div>
+            <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('packetDraft'))}</h3><p>${wordCount(draft)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')} · ${escapeHtml(concept === 'journey' ? state.currentArtifact : t('currentDraft'))}</p><div class="packet-preview" id="finalDraftPreview">${escapeHtml(draft || (state.lang !== 'en' ? 'No hay borrador todavía.' : 'No draft yet.'))}</div><label class="consent-box" style="margin-top:12px"><input id="packetConfirm" type="checkbox" ${state.packetCreatedAt ? 'checked' : ''}><span>${escapeHtml(t('confirmDraft'))}</span></label></section>
+            <section class="packet-section"><h3>${escapeHtml(state.lang !== 'en' ? 'Comprobación honesta' : 'Truthful readiness check')}</h3><ul class="check-list"><li class="${draft.trim() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Una versión exacta está identificada' : 'One exact version is identified')}</li><li class="${reflectionComplete() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Tres respuestas estudiantiles están completas' : 'Three student-authored responses are complete')}</li><li class="${state.councilRuns.length ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'La evidencia del Consejo está incluida si existe' : 'Council evidence is included when it exists')}</li><li class="${state.decisions.length ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Las decisiones sobre sugerencias están incluidas' : 'Suggestion decisions are included')}</li></ul><p><strong>${escapeHtml(ready ? (state.lang !== 'en' ? 'Listo para crear el paquete local' : 'Ready to create the local packet') : (state.lang !== 'en' ? 'Todavía en progreso' : 'Still in progress'))}</strong></p><button class="button primary" data-action="create-packet" ${!ready ? 'disabled' : ''}>${escapeHtml(t('createPacket'))}</button></section></div>
+            <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('studentReflection'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Solo contiene las palabras del estudiante.' : 'Contains only the student’s words.')}</p>${['changed', 'decision', 'voice', 'knowledge'].map((key, i) => state.reflections[key] ? `<h4>${i + 1}. ${escapeHtml([t('prompt1'), t('prompt2'), t('prompt3'), t('prompt4')][i])}</h4><p>${escapeHtml(state.reflections[key])}</p>` : '').join('') || `<p>${escapeHtml(state.lang !== 'en' ? 'Todavía no hay reflexión.' : 'No reflection yet.')}</p>`}</section>
+            <section class="packet-section"><h3>${escapeHtml(t('instructorAppendix'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Evidencia factual del sistema, separada de la reflexión.' : 'Factual system evidence, separate from reflection.')}</p><ul class="check-list">${factualEvidence().map(item => `<li class="done">${escapeHtml(item)}</li>`).join('') || `<li>${escapeHtml(t('noPrior'))}</li>`}</ul></section></div>
+            ${packetReady ? `<section class="packet-section"><h3>${escapeHtml(t('packetReady'))}</h3><button class="button primary" data-action="download-packet">${escapeHtml(t('downloadPacket'))}</button></section>` : ''}
+            <footer class="editor-footer"><button class="button ghost" data-action="reflection">← ${escapeHtml(t('reflection'))}</button><button class="button secondary" data-action="return-write">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button></footer></section>`;
+    }
+
+    function packetText() {
+        const lines = [
+            'TU PANA WRITING STUDIO — LOCAL EXPLORATION PACKET',
+            `Concept: ${conceptMeta[concept].name}`,
+            `Genre: ${currentGenre().label.en}`,
+            `Created: ${new Date().toISOString()}`,
+            '', 'CURRENT DRAFT', markedDraft(), '', 'STUDENT REFLECTION',
+            `1. ${copy.en.prompt1}\n${state.reflections.changed}`,
+            `2. ${copy.en.prompt2}\n${state.reflections.decision}`,
+            `3. ${copy.en.prompt3}\n${state.reflections.voice}`,
+        ];
+        if (state.reflections.knowledge) lines.push(`4. ${copy.en.prompt4}\n${state.reflections.knowledge}`);
+        lines.push('', 'INSTRUCTOR EVIDENCE APPENDIX', ...factualEvidence().map(item => `- ${item}`), '', 'Mock AI only. No AI-authored reasoning or reflective claim is included.');
+        return lines.join('\n');
+    }
+
+    function createPacket() {
+        const confirmed = document.getElementById('packetConfirm')?.checked;
+        if (!confirmed) {
+            assertive.textContent = state.lang !== 'en' ? 'Confirma el borrador exacto antes de crear el paquete.' : 'Confirm the exact draft before creating the packet.';
+            document.getElementById('packetConfirm')?.focus();
+            return;
+        }
+        state.packetCreatedAt = new Date().toISOString();
+        state.packetDraft = markedDraft();
+        saveState(t('packetReady')); renderApp();
+    }
+
+    function downloadText(text, filename, type = 'text/plain') {
+        const blob = new Blob([text], { type: `${type};charset=utf-8` });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url; anchor.download = filename; document.body.appendChild(anchor); anchor.click(); anchor.remove();
+        URL.revokeObjectURL(url);
+    }
+
+    function focusDecisionText() {
+        if (concept === 'desk') return state.lang !== 'en' ? 'Sí. El Escritorio ofrece Enfoque en móvil porque una sola área de escritura sigue visible; Salir y la barra de pasaje permanecen dentro del viewport.' : 'Yes. The Desk offers mobile Focus because one writing surface stays visible; Exit and the passage bar remain inside the viewport.';
+        if (concept === 'journey') return state.lang !== 'en' ? 'No en móvil. Ocultar los diez pasos debilitaría orientación y verdad sobre versiones; el editor móvil ya recibe prioridad.' : 'No on mobile. Hiding ten steps would weaken orientation and version truth; the mobile editor already gets priority.';
+        return state.lang !== 'en' ? 'No hay modo Enfoque separado. El híbrido reduce el recorrido a cuatro fases y trata el espacio móvil normal como la vista enfocada.' : 'No separate Focus mode. The hybrid reduces the journey to four phases and treats its normal mobile workspace as the focused view.';
+    }
+
+    function openSettings() {
+        openDialog(t('settingsTitle'), conceptMeta[concept].name, `<p>${escapeHtml(t('storageNote'))}</p><section class="packet-section"><h3>${escapeHtml(t('focusDecision'))}</h3><p>${escapeHtml(focusDecisionText())}</p></section><section class="danger-zone"><h3>${escapeHtml(t('danger'))}</h3><p>${escapeHtml(t('deleteExplain'))}</p><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button><div class="field" style="margin-top:15px"><label for="deleteConfirm">${escapeHtml(t('typeDelete'))}</label><input class="delete-confirm" id="deleteConfirm" type="text" autocomplete="off"></div><button class="button danger" data-action="delete-state" disabled>${escapeHtml(t('deleteNow'))}</button></section>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+    }
+
+    function deletePrototypeState() {
+        localStorage.removeItem(storageKey(concept));
+        state = defaultState(concept);
+        captured = null;
+        closeDialog(); renderApp();
+        announce(state.lang !== 'en' ? 'Datos sintéticos borrados.' : 'Synthetic prototype data deleted.');
+    }
+
+    function handleAction(target) {
+        const action = target.dataset.action;
+        if (!action) return;
+        if (action === 'settings') openSettings();
+        else if (action === 'close-dialog') closeDialog();
+        else if (action === 'overlay-close') closeDialog();
+        else if (action === 'paste') openPasteDialog();
+        else if (action === 'sample') useSample();
+        else if (action === 'replace-draft') { const value = document.getElementById('pasteDraft')?.value || ''; checkpointVersion(); setDraft(value); saveState(); closeDialog(); renderApp(); }
+        else if (action === 'activate-move') openMoveDialog(Number(target.dataset.move));
+        else if (action === 'save-move') { const key = `move-${target.dataset.move}`; state.artifacts[key] = { text: document.getElementById('moveNote')?.value || '', updatedAt: new Date().toISOString(), label: genreMoves('discover')[Number(target.dataset.move)] }; saveState(); closeDialog(); renderApp(); }
+        else if (action === 'focus') { document.body.classList.add('focus-mode'); document.getElementById('draftEditor')?.focus(); }
+        else if (action === 'exit-focus') { document.body.classList.remove('focus-mode'); document.getElementById('draftEditor')?.focus(); }
+        else if (action === 'back') navigateRelative(-1);
+        else if (action === 'continue') navigateRelative(1);
+        else if (action === 'step' || action === 'go-artifact') goStep(Number(target.dataset.step));
+        else if (action === 'phase') { state.phase = Number(target.dataset.phase); saveState(); renderApp(); }
+        else if (action === 'mark-current') { state.currentArtifact = `step-${state.step}`; saveState(); renderApp(); }
+        else if (action === 'coach') openCoachDialog();
+        else if (action === 'passage-review') openScopeDialog('coach', t('coach'), state.lang !== 'en' ? 'La selección ya está capturada aunque iOS la cierre.' : 'The selection is already captured even if iOS collapses it.');
+        else if (action === 'clear-passage') { captured = null; updatePassageBar(); document.getElementById('draftEditor')?.focus(); }
+        else if (action === 'focused-review') { closeDialog(); openFocusedReviewDialog(); }
+        else if (action === 'council') { closeDialog(); openCouncilDialog(); }
+        else if (action === 'review-center') openReviewCenter();
+        else if (action === 'submit-mock') submitMockReview(target.dataset.kind, target);
+        else if (action === 'run-council') runCouncil(target);
+        else if (action === 'review-tab') openReviewCenter(target.dataset.tab);
+        else if (action === 'decision') recordDecision(target);
+        else if (action === 'reflection') { if (state.view === 'reflection') saveReflection(); setView('reflection'); }
+        else if (action === 'save-reflection') saveReflection();
+        else if (action === 'finish') { if (state.view === 'reflection') saveReflection(); setView('finish'); }
+        else if (action === 'return-write') setView('write');
+        else if (action === 'create-packet') createPacket();
+        else if (action === 'download-packet') downloadText(packetText(), `tupana-${concept}-synthetic-packet.txt`);
+        else if (action === 'export-state') downloadText(JSON.stringify({ window: WINDOW_ID, concept, exportedAt: new Date().toISOString(), state }, null, 2), `tupana-${concept}-prototype-backup.json`, 'application/json');
+        else if (action === 'delete-state') deletePrototypeState();
+    }
+
+    root.addEventListener('click', event => {
+        const target = event.target.closest('[data-action]');
+        if (target) handleAction(target);
+    });
+    dialogRoot.addEventListener('click', event => {
+        const target = event.target.closest('[data-action]');
+        if (target && !(target.dataset.action === 'overlay-close' && event.target !== target)) handleAction(target);
+    });
+
+    document.addEventListener('change', event => {
+        const target = event.target;
+        if (target.matches('[data-action="language"]')) { state.lang = target.value; saveState(); renderApp(); }
+        else if (target.matches('[data-action="genre"]')) { state.genre = genres[target.value] ? target.value : 'neutral'; saveState(); renderApp(); }
+        else if (target.name === 'reviewScope') { const preview = document.getElementById('scopePreview'); if (preview) preview.textContent = scopeText(target.value); }
+        else if (target.id === 'transmitConsent') { const button = dialogRoot.querySelector('[data-action="submit-mock"], [data-action="run-council"]'); if (button) button.disabled = !target.checked; }
+    });
+
+    document.addEventListener('input', event => {
+        if (event.target.id === 'pasteDraft') { const preview = document.getElementById('pastePreview'); if (preview) preview.textContent = event.target.value; }
+        if (event.target.id === 'deleteConfirm') { const button = dialogRoot.querySelector('[data-action="delete-state"]'); if (button) button.disabled = event.target.value !== 'DELETE'; }
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && dialogRoot.firstElementChild) closeDialog();
+        const dialog = dialogRoot.querySelector('[role="dialog"]');
+        if (event.key === 'Tab' && dialog) {
+            const focusable = Array.from(dialog.querySelectorAll('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')).filter(el => !el.hidden && el.offsetParent !== null);
+            if (!focusable.length) return;
+            const first = focusable[0], last = focusable.at(-1);
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        }
+    });
+
+    window.visualViewport?.addEventListener('resize', updateVisualViewport);
+    window.visualViewport?.addEventListener('scroll', updateVisualViewport);
+    window.addEventListener('resize', updateVisualViewport);
+    window.addEventListener('beforeunload', () => saveState());
+
+    if (concept) renderApp(); else renderLanding();
+})();

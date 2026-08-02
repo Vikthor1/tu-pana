@@ -8,7 +8,7 @@
 
     const WINDOW_ID = 'writing-studio-ux-2026-08';
     const STORAGE_BASE = `tupana-explore:${WINDOW_ID}`;
-    const CONCEPTS = ['desk', 'journey', 'hybrid'];
+    const CONCEPTS = ['desk', 'journey', 'hybrid', 'notebook'];
     const root = document.getElementById('prototypeRoot');
     const dialogRoot = document.getElementById('dialogRoot');
     const live = document.getElementById('liveRegion');
@@ -40,12 +40,18 @@
             summary: 'A canonical draft moves through Discover, Draft, Strengthen, and Finish with genre-aware moves underneath and one Review Center.',
             tags: ['4 phases', '1 draft', 'Review Center'],
         },
+        notebook: {
+            short: 'Notebook', name: 'Cuaderno y Borrador · Notebook & Draft', number: '4',
+            mental: 'Think in a notebook; write one draft.',
+            summary: 'Genre-shaped, skippable notebook cards support preparation. A calm authorship boundary begins one empty canonical draft without transferring notebook prose.',
+            tags: ['2 kinds of work', '1 draft', 'Authorship boundary'],
+        },
     };
 
     const copy = {
         en: {
             prototype: 'Local UX prototype — synthetic text and mock AI only. Do not paste real coursework.',
-            saved: 'Saved on this device', saveFailed: 'Not saved. Keep this page open and export a safety copy.',
+            saved: 'Saved on this device', saving: 'Saving locally…', saveFailed: 'Not saved. Keep this page open and export a safety copy.',
             compare: 'Compare concepts', settings: 'Settings', language: 'Language', genre: 'Writing project',
             whereDesk: 'Your Desk', whereJourney: 'Step {n} of 10', whereHybrid: 'Phase {n} of 4',
             doingDesk: 'Shape one current draft. Open a move only when it helps.',
@@ -86,10 +92,20 @@
             currentMark: 'Current version', markCurrent: 'Mark as current', newer: 'Newer than marked version',
             completeRule: 'Complete when this step has meaningful writing or a recorded decision.',
             noFallback: 'Guidance is configured for this genre; unknown genres use neutral writing guidance, never autobiographical defaults.',
+            notebook: 'Notebook', draft: 'Draft', myWork: 'My Work', notebookSaved: 'Notebook card saved locally',
+            notebookPurpose: 'Use these cards for thinking, research, and planning—not as competing drafts.',
+            cardsSuggested: 'Cards are suggested and skippable. Starting the draft directly is always allowed.',
+            draftMissing: 'Doesn’t exist yet—you will write it.', writeDraft: 'Write my draft',
+            authorshipBoundary: 'Your notebook stays beside you as reference. Your draft starts empty and only you type or paste its prose.',
+            notebookCoach: 'Ask about this notebook card', notebookCoachBoundary: 'The mock coach may discuss ideas already in this card and ask questions. It will not generate draft prose or transfer text into the draft.',
+            pasteNotebook: 'Paste synthetic notebook material', saveCard: 'Save notebook card', nextCard: 'Continue to: {name}',
+            notebookReference: 'Notebook reference', draftToolsLocked: 'Draft review unlocks after you create your draft.',
+            createdEmpty: 'Canonical draft created empty. Notebook text was not transferred.',
+            versions: 'Versions', draftSnapshot: 'Dated draft snapshot', directDraft: 'Begin drafting now',
         },
         es: {
             prototype: 'Prototipo UX local — solo texto sintético e IA simulada. No pegues trabajo académico real.',
-            saved: 'Guardado en este dispositivo', saveFailed: 'No se guardó. Mantén esta página abierta y exporta una copia.',
+            saved: 'Guardado en este dispositivo', saving: 'Guardando localmente…', saveFailed: 'No se guardó. Mantén esta página abierta y exporta una copia.',
             compare: 'Comparar conceptos', settings: 'Configuración', language: 'Idioma', genre: 'Proyecto de escritura',
             whereDesk: 'Tu Escritorio', whereJourney: 'Paso {n} de 10', whereHybrid: 'Fase {n} de 4',
             doingDesk: 'Trabaja un solo borrador actual. Abre una movida solo cuando ayude.',
@@ -130,6 +146,16 @@
             currentMark: 'Versión actual', markCurrent: 'Marcar como actual', newer: 'Más reciente que la versión marcada',
             completeRule: 'Se completa cuando este paso contiene escritura sustancial o una decisión guardada.',
             noFallback: 'La guía está configurada para este género; los géneros desconocidos reciben guía neutral, nunca un modelo autobiográfico.',
+            notebook: 'Cuaderno', draft: 'Borrador', myWork: 'Mi trabajo', notebookSaved: 'Tarjeta del cuaderno guardada localmente',
+            notebookPurpose: 'Usa estas tarjetas para pensar, investigar y planificar—no como borradores que compiten.',
+            cardsSuggested: 'Las tarjetas son sugeridas y opcionales. Siempre puedes comenzar el borrador directamente.',
+            draftMissing: 'Todavía no existe—tú lo escribirás.', writeDraft: 'Escribir mi borrador',
+            authorshipBoundary: 'Tu cuaderno queda a tu lado como referencia. El borrador comienza vacío y solo tú escribes o pegas su prosa.',
+            notebookCoach: 'Preguntar sobre esta tarjeta', notebookCoachBoundary: 'El coach simulado puede conversar sobre ideas que ya están en esta tarjeta y hacer preguntas. No generará prosa del borrador ni transferirá texto.',
+            pasteNotebook: 'Pegar material sintético en el cuaderno', saveCard: 'Guardar tarjeta', nextCard: 'Continuar a: {name}',
+            notebookReference: 'Referencia del cuaderno', draftToolsLocked: 'La revisión del borrador se activa después de crear tu borrador.',
+            createdEmpty: 'Borrador canónico creado vacío. No se transfirió texto del cuaderno.',
+            versions: 'Versiones', draftSnapshot: 'Instantánea fechada del borrador', directDraft: 'Comenzar a redactar ahora',
         },
     };
 
@@ -195,6 +221,36 @@
         },
     };
 
+    const genreNotebooks = {
+        admissions: [
+            { id: 'anecdote', en: 'Anecdote', es: 'Anécdota', promptEn: 'Capture one concrete moment and the details a reader can see.', promptEs: 'Captura un momento concreto y los detalles que el lector puede ver.' },
+            { id: 'connection', en: 'Connection', es: 'Conexión', promptEn: 'What changed in your understanding, choices, or direction?', promptEs: '¿Qué cambió en tu comprensión, decisiones o dirección?' },
+            { id: 'central-idea', en: 'Central idea', es: 'Idea central', promptEn: 'Name the insight the essay should leave with its reader.', promptEs: 'Nombra la reflexión que el ensayo debe dejarle al lector.' },
+            { id: 'context', en: 'Research / context', es: 'Investigación / contexto', promptEn: 'Note only context the reader needs to understand your experience.', promptEs: 'Anota solo el contexto necesario para comprender tu experiencia.' },
+            { id: 'outline', en: 'Outline', es: 'Esquema', promptEn: 'Sketch a possible order without writing the essay itself.', promptEs: 'Bosqueja un orden posible sin escribir el ensayo.' },
+        ],
+        stem: [
+            { id: 'context', en: 'Scientific context', es: 'Contexto científico', promptEn: 'What question does this investigation address, and why?', promptEs: '¿Qué pregunta aborda esta investigación y por qué?' },
+            { id: 'hypothesis', en: 'Hypothesis', es: 'Hipótesis', promptEn: 'State a testable prediction and the reasoning behind it.', promptEs: 'Declara una predicción comprobable y su razonamiento.' },
+            { id: 'methods', en: 'Methods plan', es: 'Plan de métodos', promptEn: 'List variables, controls, and steps needed for reproducibility.', promptEs: 'Enumera variables, controles y pasos necesarios para reproducibilidad.' },
+            { id: 'data', en: 'Data notes', es: 'Notas de datos', promptEn: 'Record observations and patterns without turning them into conclusions.', promptEs: 'Registra observaciones y patrones sin convertirlos en conclusiones.' },
+            { id: 'analysis', en: 'Analysis plan', es: 'Plan de análisis', promptEn: 'Plan how evidence will support, complicate, or reject the hypothesis.', promptEs: 'Planifica cómo la evidencia apoyará, complicará o rechazará la hipótesis.' },
+        ],
+        sop: [
+            { id: 'program', en: 'Program', es: 'Programa', promptEn: 'Note the specific program, faculty, or resources relevant to your purpose.', promptEs: 'Anota el programa, facultad o recursos relevantes para tu propósito.' },
+            { id: 'trajectory', en: 'Trajectory', es: 'Trayectoria', promptEn: 'Trace the experiences that shaped your current research direction.', promptEs: 'Traza las experiencias que formaron tu dirección de investigación.' },
+            { id: 'evidence', en: 'Preparation evidence', es: 'Evidencia de preparación', promptEn: 'List concrete work that demonstrates readiness for this field.', promptEs: 'Enumera trabajo concreto que demuestra preparación para este campo.' },
+            { id: 'fit', en: 'Research fit', es: 'Encaje de investigación', promptEn: 'Connect your questions to what this program uniquely supports.', promptEs: 'Conecta tus preguntas con lo que este programa apoya de forma única.' },
+            { id: 'outline', en: 'Purpose outline', es: 'Esquema de propósito', promptEn: 'Sketch a logical sequence without drafting the statement.', promptEs: 'Bosqueja una secuencia lógica sin redactar la carta.' },
+        ],
+        neutral: [
+            { id: 'purpose', en: 'Purpose', es: 'Propósito', promptEn: 'What should this writing help its audience understand or do?', promptEs: '¿Qué debe ayudar esta escritura a comprender o hacer?' },
+            { id: 'audience', en: 'Audience', es: 'Audiencia', promptEn: 'What does this audience already know, and what will it need?', promptEs: '¿Qué sabe ya esta audiencia y qué necesitará?' },
+            { id: 'evidence', en: 'Evidence', es: 'Evidencia', promptEn: 'Gather relevant examples, facts, quotations, or observations.', promptEs: 'Reúne ejemplos, hechos, citas u observaciones relevantes.' },
+            { id: 'structure', en: 'Structure', es: 'Estructura', promptEn: 'Sketch an order that helps the audience follow the purpose.', promptEs: 'Bosqueja un orden que ayude a seguir el propósito.' },
+        ],
+    };
+
     const journeySteps = [
         ['Purpose', 'Name the assignment’s purpose and audience.'],
         ['Evidence', 'Gather the material this genre needs.'],
@@ -258,6 +314,8 @@
         return {
             schema: 1, concept: name, lang: 'en', genre: 'admissions', draft: '',
             step: 1, phase: 1, view: 'write', savedAt: now, createdAt: now,
+            place: name === 'notebook' ? 'notebook' : 'write', activeNotebook: 0,
+            notebookEntries: {}, notebookCoachRuns: [], draftDeclared: false, draftCreatedAt: null,
             artifacts: {}, currentArtifact: name === 'journey' ? 'step-1' : 'draft',
             versions: [], reviews: [], decisions: [], councilRuns: [],
             reflections: { changed: '', decision: '', voice: '', knowledge: '' },
@@ -295,6 +353,7 @@
 
     function scheduleSave() {
         clearTimeout(saveTimer);
+        document.querySelectorAll('[data-save-state]').forEach(el => { el.textContent = t('saving'); });
         saveTimer = setTimeout(() => saveState(), 180);
     }
 
@@ -311,6 +370,11 @@
         if (state.lang === 'en') return currentGenre().moves[kind];
         return (genreMovesEs[state.genre] || genreMovesEs.neutral)[kind];
     }
+    function notebookCards() { return genreNotebooks[state.genre] || genreNotebooks.neutral; }
+    function notebookCardLabel(card) { return card[state.lang === 'en' ? 'en' : 'es']; }
+    function notebookCardPrompt(card) { return card[state.lang === 'en' ? 'promptEn' : 'promptEs']; }
+    function activeNotebookCard() { return notebookCards()[Math.min(state.activeNotebook, notebookCards().length - 1)]; }
+    function notebookEntryKey(card) { return `${state.genre}:${card.id}`; }
 
     function renderBanner() {
         return `<div class="exploration-banner"><span class="banner-dot" aria-hidden="true"></span><strong>${escapeHtml(t('prototype'))}</strong></div>`;
@@ -323,7 +387,7 @@
             <div class="comparison-shell">
                 <section class="comparison-hero" aria-labelledby="comparisonTitle">
                     <div><p class="eyebrow">Founder comparison · August 2026</p>
-                        <h1 id="comparisonTitle">Three ways to understand a writing studio.</h1>
+                        <h1 id="comparisonTitle">Four ways to understand a writing studio.</h1>
                         <p class="lede">Each local concept supports the same complete task journey with isolated synthetic data and deterministic mock AI. The question is which mental model a first-time student can understand and trust.</p></div>
                     <aside class="comparison-note"><strong>No winner is implied.</strong><p>Test the same eleven tasks in each concept. Leave and return freely—each concept keeps its own local prototype state.</p></aside>
                 </section>
@@ -333,7 +397,7 @@
                         return `<article class="concept-card"><span class="concept-number">${item.number}</span><h2>${item.name}</h2><p><strong>${item.mental}</strong> ${item.summary}</p><div class="concept-tags">${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div><a class="button primary" href="?concept=${name}">Open ${item.short} prototype <span aria-hidden="true">→</span></a></article>`;
                     }).join('')}
                 </section>
-                <section class="journey-script" aria-labelledby="taskJourneyTitle"><h2 id="taskJourneyTitle">Use the same journey every time</h2><p>Observe whether the concept answers where you are, what you are doing, and what happens next without facilitator explanation.</p><ol class="task-grid">${['Start writing','Paste an existing synthetic draft','Save, leave, and return','Find prior work','Move forward and backward','Ask the coach about a passage','Request focused review','Convene and revisit the Council','Act on a suggestion','Complete reflection','Prepare the final packet'].map(task => `<li>${task}</li>`).join('')}</ol></section>
+                <section class="journey-script" aria-labelledby="taskJourneyTitle"><h2 id="taskJourneyTitle">Use the same journey every time</h2><p>Observe whether the concept answers where you are, what you are doing, and what happens next without facilitator explanation.</p><ol class="task-grid">${['Start writing or prewriting','Paste existing synthetic writing','Save, leave, and return','Find prior work','Move forward and backward','Ask the coach about a passage','Request focused review','Convene and revisit the Council','Act on a suggestion','Complete reflection','Prepare the final packet'].map(task => `<li>${task}</li>`).join('')}</ol></section>
             </div>`;
     }
 
@@ -344,9 +408,16 @@
         } else if (concept === 'journey') {
             where = t('whereJourney', { n: state.step }); doing = t('doingJourney');
             next = t('nextJourney', { next: state.step < 10 ? stepData(state.step)[0] : t('finish') });
-        } else {
+        } else if (concept === 'hybrid') {
             where = t('whereHybrid', { n: state.phase }); doing = t('doingHybrid');
             next = t('nextHybrid', { next: state.phase < 4 ? phaseData(state.phase)[0] : t('finish') });
+        } else {
+            const card = activeNotebookCard();
+            where = state.place === 'draft' ? t('draft') : t('notebook');
+            doing = state.place === 'draft' ? t('authorshipBoundary') : t('notebookPurpose');
+            next = state.place === 'draft'
+                ? (state.draftDeclared ? `${t('nextDesk')}` : t('writeDraft'))
+                : (state.activeNotebook < notebookCards().length - 1 ? t('nextCard', { name: notebookCardLabel(notebookCards()[state.activeNotebook + 1]) }) : t('writeDraft'));
         }
         return { where, doing, next };
     }
@@ -362,7 +433,7 @@
                     <select class="header-select" data-action="language" aria-label="${escapeHtml(t('language'))}"><option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option><option value="es" ${state.lang === 'es' ? 'selected' : ''}>Español</option><option value="both" ${state.lang === 'both' ? 'selected' : ''}>Español + English</option></select>
                     <button class="icon-button" data-action="settings" aria-label="${escapeHtml(t('settings'))}" title="${escapeHtml(t('settings'))}">⚙</button></div>
             </div></header>
-            <section class="orientation-bar" aria-label="Current location and next action"><div class="orientation-inner"><div class="orientation-copy"><span class="location-pill">${escapeHtml(o.where)}</span><div class="orientation-text"><strong>${escapeHtml(o.doing)}</strong><span>${escapeHtml(o.next)}</span></div></div><div class="orientation-next"><small>${escapeHtml(t('currentDraft'))}</small><strong>${wordCount(getDraft())} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</strong></div></div></section>`;
+            <section class="orientation-bar" aria-label="Current location and next action"><div class="orientation-inner"><div class="orientation-copy"><span class="location-pill">${escapeHtml(o.where)}</span><div class="orientation-text"><strong>${escapeHtml(o.doing)}</strong><span>${escapeHtml(o.next)}</span></div></div><div class="orientation-next"><small>${escapeHtml(t('currentDraft'))}</small><strong id="orientationDraftWords">${concept === 'notebook' && !state.draftDeclared ? escapeHtml(t('draftMissing')) : `${wordCount(getDraft())} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}`}</strong></div></div></section>`;
     }
 
     function renderApp() {
@@ -371,7 +442,16 @@
         const content = state.view === 'reflection' ? renderReflectionPage() : state.view === 'finish' ? renderFinishPage() : renderWorkspace();
         root.innerHTML = `${renderHeader()}<div class="prototype-main">${content}</div><button class="button primary focus-exit" data-action="exit-focus">${escapeHtml(t('exitFocus'))}</button>${renderPassageBar()}`;
         bindEditor();
+        bindNotebookEditor();
         updateVisualViewport();
+        requestAnimationFrame(ensureCurrentSwitcherVisible);
+    }
+
+    function ensureCurrentSwitcherVisible() {
+        const switcher = document.querySelector('.concept-switcher');
+        const current = switcher?.querySelector('[aria-current="page"]');
+        if (!switcher || !current || switcher.scrollWidth <= switcher.clientWidth) return;
+        switcher.scrollLeft = Math.max(0, current.offsetLeft - (switcher.clientWidth - current.offsetWidth) / 2);
     }
 
     function getDraft() {
@@ -398,7 +478,51 @@
     function renderWorkspace() {
         if (concept === 'desk') return renderDeskWorkspace();
         if (concept === 'journey') return renderJourneyWorkspace();
-        return renderHybridWorkspace();
+        if (concept === 'hybrid') return renderHybridWorkspace();
+        return renderNotebookWorkspace();
+    }
+
+    function renderNotebookWorkspace() {
+        return `${renderNotebookPlaces()}${state.place === 'draft' && state.draftDeclared ? renderNotebookDraft() : renderNotebook()}`;
+    }
+
+    function renderNotebookPlaces() {
+        const draftAction = state.draftDeclared ? 'place-draft' : 'create-draft';
+        return `<nav class="phase-strip notebook-places" aria-label="Notebook and draft places"><button class="phase-tab" data-action="place-notebook" ${state.place !== 'draft' ? 'aria-current="page"' : ''}><strong>${escapeHtml(t('notebook'))}</strong><span id="notebookPlaceCount">${Object.values(state.notebookEntries).filter(entry => wordCount(entry.text)).length}/${notebookCards().length}</span></button><button class="phase-tab" data-action="${draftAction}" ${state.place === 'draft' ? 'aria-current="page"' : ''}><strong>${escapeHtml(t('draft'))}</strong><span id="draftPlaceCount">${escapeHtml(state.draftDeclared ? t('words', { n: wordCount(state.draft) }) : t('draftMissing'))}</span></button><button class="phase-tab" data-action="my-work"><strong>${escapeHtml(t('myWork'))}</strong><span>${state.versions.length + state.reviews.length + state.councilRuns.length} ${escapeHtml(state.lang === 'en' ? 'records' : 'registros')}</span></button></nav>`;
+    }
+
+    function renderNotebook() {
+        const cards = notebookCards();
+        const active = activeNotebookCard();
+        const entry = state.notebookEntries[notebookEntryKey(active)] || { text: '', updatedAt: null };
+        const coachRuns = state.notebookCoachRuns.filter(run => run.cardId === notebookEntryKey(active));
+        return `<div class="notebook-grid"><aside class="panel notebook-card-list"><div class="panel-header"><div><span class="panel-kicker">${escapeHtml(genreLabel())}</span><h2>${escapeHtml(t('notebook'))}</h2><p>${escapeHtml(t('cardsSuggested'))}</p></div></div><nav class="journey-steps" aria-label="${escapeHtml(t('notebook'))}">${cards.map((card, index) => {
+            const cardEntry = state.notebookEntries[notebookEntryKey(card)];
+            const hasEvidence = Boolean(cardEntry && wordCount(cardEntry.text));
+            return `<button class="step-button" data-action="notebook-card" data-card="${index}" ${state.activeNotebook === index ? 'aria-current="page"' : ''}><span class="step-number">${index + 1}</span><span class="step-label"><strong>${escapeHtml(notebookCardLabel(card))}</strong><small ${state.activeNotebook === index ? 'id="activeNotebookCardStatus"' : ''}>${hasEvidence ? `${wordCount(cardEntry.text)} ${escapeHtml(state.lang === 'en' ? 'words' : 'palabras')}` : escapeHtml(state.lang === 'en' ? 'Suggested · skippable' : 'Sugerida · opcional')}</small></span><span class="done-mark" ${state.activeNotebook === index ? 'id="activeNotebookEvidence"' : ''} aria-label="${hasEvidence ? 'has evidence' : 'no evidence'}">${hasEvidence ? '✓' : '○'}</span></button>`;
+        }).join('')}</nav></aside>
+        <section class="panel notebook-card-panel" aria-labelledby="notebookCardTitle"><div class="editor-topline"><div class="draft-identity"><strong id="notebookCardTitle">${escapeHtml(notebookCardLabel(active))}</strong><span>${escapeHtml(notebookCardPrompt(active))}</span></div><div class="editor-actions"><button class="button ghost" data-action="paste-notebook">${escapeHtml(t('pasteNotebook'))}</button><button class="button secondary" data-action="notebook-sample">${escapeHtml(t('useSample'))}</button></div></div><div class="editor-wrap"><textarea id="notebookEditor" class="draft-editor notebook-editor" spellcheck="true" aria-label="${escapeHtml(`${t('notebook')}: ${notebookCardLabel(active)}`)}" placeholder="${escapeHtml(state.lang === 'en' ? 'Think here in notes, fragments, questions, or an outline…' : 'Piensa aquí con notas, fragmentos, preguntas o un esquema…')}">${escapeHtml(entry.text)}</textarea><div class="editor-meta"><span id="notebookWordCount">${escapeHtml(t('words', { n: wordCount(entry.text) }))}</span><span class="autosave-message" data-save-state>${escapeHtml(entry.updatedAt ? `${t('notebookSaved')} · ${shortDate(entry.updatedAt)}` : t('autosaved'))}</span></div></div><p class="editor-privacy">${instruction('notebookCoachBoundary')} ${escapeHtml(t('noNetwork'))}</p><footer class="editor-footer"><div class="footer-group"><button class="button ghost" data-action="notebook-back" ${state.activeNotebook === 0 ? 'disabled' : ''}>← ${escapeHtml(t('back'))}</button><button class="button primary" data-action="notebook-next">${escapeHtml(state.activeNotebook < cards.length - 1 ? t('nextCard', { name: notebookCardLabel(cards[state.activeNotebook + 1]) }) : t('writeDraft'))} →</button></div><div class="footer-group"><button class="button secondary" data-action="notebook-coach">${escapeHtml(t('notebookCoach'))}</button></div></footer>${coachRuns.length ? `<div class="panel-body notebook-coach-history"><span class="mock-label">Mock coach · ${escapeHtml(notebookCardLabel(active))}</span><p>${escapeHtml(coachRuns.at(-1).response)}</p></div>` : ''}</section>
+        <aside class="support-stack"><section class="panel authorship-card"><div class="panel-body"><span class="panel-kicker">${escapeHtml(state.lang === 'en' ? 'Two kinds of work' : 'Dos tipos de trabajo')}</span><h2>${escapeHtml(t('writeDraft'))}</h2><p>${instruction('authorshipBoundary')}</p><button class="button primary" data-action="create-draft">${escapeHtml(state.draftDeclared ? t('draft') : t('writeDraft'))}</button><p class="boundary-note">${escapeHtml(t('cardsSuggested'))}</p></div></section>${renderNotebookEvidencePanel()}</aside></div>`;
+    }
+
+    function renderNotebookDraft() {
+        return `<div class="workspace-grid notebook-draft">${renderEditor()}<aside class="support-stack notebook-reference" aria-label="${escapeHtml(t('notebookReference'))}">${renderNotebookReference()}${renderVersionsPanel()}${renderReviewPanel()}</aside></div>`;
+    }
+
+    function renderNotebookReference() {
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('notebookReference'))}</h2><p>${escapeHtml(state.lang === 'en' ? 'Reference only—nothing transfers automatically.' : 'Solo referencia—nada se transfiere automáticamente.')}</p></div><button class="button ghost" data-action="place-notebook">${escapeHtml(t('notebook'))}</button></div><div class="panel-body artifact-list">${notebookCards().map((card, index) => {
+            const entry = state.notebookEntries[notebookEntryKey(card)];
+            return `<button class="artifact-row notebook-reference-row" data-action="notebook-card" data-card="${index}"><strong>${escapeHtml(notebookCardLabel(card))}</strong><small>${escapeHtml(entry?.text ? `${wordCount(entry.text)} ${state.lang === 'en' ? 'words' : 'palabras'} · ${entry.text.slice(0, 80)}` : (state.lang === 'en' ? 'No notes yet' : 'Sin notas'))}</small></button>`;
+        }).join('')}</div></section>`;
+    }
+
+    function renderVersionsPanel() {
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('versions'))}</h2><p>${escapeHtml(state.lang === 'en' ? 'Dated snapshots of the canonical draft' : 'Instantáneas fechadas del borrador canónico')}</p></div></div><div class="panel-body artifact-list">${state.versions.length ? state.versions.slice().reverse().map(version => `<div class="artifact-row"><strong>${escapeHtml(t('draftSnapshot'))} · ${version.words}</strong><small>${shortDate(version.createdAt)}</small></div>`).join('') : `<div class="empty-state">${escapeHtml(state.lang === 'en' ? 'A snapshot is added before review and Finish.' : 'Se añade una instantánea antes de revisión y Finalizar.')}</div>`}</div></section>`;
+    }
+
+    function renderNotebookEvidencePanel() {
+        const filled = notebookCards().filter(card => wordCount(state.notebookEntries[notebookEntryKey(card)]?.text)).length;
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('evidence'))}</h2><p>${escapeHtml(state.lang === 'en' ? 'Evidence means useful work exists—not that you visited.' : 'Evidencia significa que existe trabajo útil—no que visitaste.')}</p></div></div><div class="panel-body artifact-list"><div class="artifact-row"><strong id="notebookEvidenceCount">${filled}/${notebookCards().length} ${escapeHtml(state.lang === 'en' ? 'cards with work' : 'tarjetas con trabajo')}</strong><small>${escapeHtml(t('cardsSuggested'))}</small></div><div class="artifact-row"><strong>${state.draftDeclared ? escapeHtml(t('currentDraft')) : escapeHtml(t('draftMissing'))}</strong><small>${escapeHtml(state.draftDeclared ? t('words', { n: wordCount(state.draft) }) : t('draftToolsLocked'))}</small></div></div></section>`;
     }
 
     function renderDeskWorkspace() {
@@ -468,11 +592,12 @@
         }).join('') : `<div class="empty-state">${escapeHtml(t('noPrior'))}</div>`}</div></section>`;
     }
 
-    function atBeginning() { return concept === 'desk' ? true : concept === 'journey' ? state.step === 1 : state.phase === 1; }
+    function atBeginning() { return concept === 'desk' ? true : concept === 'journey' ? state.step === 1 : concept === 'hybrid' ? state.phase === 1 : false; }
     function continueLabel() {
         if (concept === 'desk') return t('finish');
         if (concept === 'journey') return state.step < 10 ? `${t('continue')}: ${stepData(state.step)[0]}` : t('reflection');
-        return state.phase < 4 ? `${t('continue')}: ${phaseData(state.phase)[0]}` : t('reflection');
+        if (concept === 'hybrid') return state.phase < 4 ? `${t('continue')}: ${phaseData(state.phase)[0]}` : t('reflection');
+        return `${t('continue')}: ${t('reflection')}`;
     }
 
     function navigateRelative(direction) {
@@ -482,11 +607,15 @@
             if (direction < 0 && state.step > 1) goStep(state.step - 1);
             else if (direction > 0 && state.step < 10) goStep(state.step + 1);
             else if (direction > 0) setView('reflection');
-        } else {
+        } else if (concept === 'hybrid') {
             if (direction < 0 && state.phase > 1) state.phase -= 1;
             else if (direction > 0 && state.phase < 4) state.phase += 1;
             else if (direction > 0) return setView('reflection');
             saveState(); renderApp();
+        } else if (direction < 0) {
+            state.place = 'notebook'; saveState(); renderApp();
+        } else {
+            setView('reflection');
         }
     }
 
@@ -516,8 +645,33 @@
             setDraft(editor.value);
             const count = document.getElementById('wordCount');
             if (count) count.textContent = t('words', { n: wordCount(editor.value) });
+            const orientationCount = document.getElementById('orientationDraftWords');
+            if (orientationCount) orientationCount.textContent = t('words', { n: wordCount(editor.value) });
+            const placeCount = document.getElementById('draftPlaceCount');
+            if (placeCount) placeCount.textContent = t('words', { n: wordCount(editor.value) });
         });
         ['select', 'pointerup', 'keyup', 'touchend'].forEach(type => editor.addEventListener(type, () => setTimeout(() => captureSelection(editor), 0), { passive: true }));
+    }
+
+    function bindNotebookEditor() {
+        const editor = document.getElementById('notebookEditor');
+        if (!editor) return;
+        editor.addEventListener('input', () => {
+            const card = activeNotebookCard();
+            state.notebookEntries[notebookEntryKey(card)] = { text: editor.value, updatedAt: new Date().toISOString(), provenance: 'student' };
+            const count = document.getElementById('notebookWordCount');
+            if (count) count.textContent = t('words', { n: wordCount(editor.value) });
+            const filled = notebookCards().filter(item => wordCount(state.notebookEntries[notebookEntryKey(item)]?.text)).length;
+            const placeCount = document.getElementById('notebookPlaceCount');
+            if (placeCount) placeCount.textContent = `${filled}/${notebookCards().length}`;
+            const evidenceCount = document.getElementById('notebookEvidenceCount');
+            if (evidenceCount) evidenceCount.textContent = `${filled}/${notebookCards().length} ${state.lang === 'en' ? 'cards with work' : 'tarjetas con trabajo'}`;
+            const activeStatus = document.getElementById('activeNotebookCardStatus');
+            if (activeStatus) activeStatus.textContent = wordCount(editor.value) ? `${wordCount(editor.value)} ${state.lang === 'en' ? 'words' : 'palabras'}` : (state.lang === 'en' ? 'Suggested · skippable' : 'Sugerida · opcional');
+            const activeEvidence = document.getElementById('activeNotebookEvidence');
+            if (activeEvidence) { activeEvidence.textContent = wordCount(editor.value) ? '✓' : '○'; activeEvidence.setAttribute('aria-label', wordCount(editor.value) ? 'has evidence' : 'no evidence'); }
+            scheduleSave();
+        });
     }
 
     function captureSelection(editor) {
@@ -582,6 +736,99 @@
         announce(t('saved'));
     }
 
+    function notebookSample(card) {
+        const examples = {
+            admissions: {
+                anecdote: 'Synthetic note: A student realizes during a neighborhood workshop that listening matters more than making the fastest form.',
+                connection: 'Synthetic note: The moment changes the student’s definition of useful technology—from efficient to accountable.',
+                'central-idea': 'Synthetic note: Responsible design begins by listening to the people who will live with the result.',
+                context: 'Synthetic context to verify: community learning centers often help families navigate unfamiliar enrollment systems.',
+                outline: 'Possible order only: concrete workshop moment → mistaken assumption → listening → changed direction → future questions.',
+            },
+            stem: {
+                context: 'Synthetic note: Compare basil seedling growth under four and eight hours of light while other conditions stay controlled.',
+                hypothesis: 'Synthetic hypothesis: seedlings receiving eight hours of light will show greater mean stem growth.',
+                methods: 'Synthetic plan: equal soil, water, seed type, and measurement schedule; randomize tray position.',
+                data: 'Synthetic data note: the eight-hour group averaged 2.4 cm more growth; one unusually tall seedling may affect the mean.',
+                analysis: 'Synthetic plan: compare group means, report sample size, and discuss the outlier and need for a second trial.',
+            },
+            sop: {
+                program: 'Synthetic note: identify a human-centered computing program with participatory-design faculty and public-sector partnerships.',
+                trajectory: 'Synthetic note: transit accessibility work shifted the student from routing efficiency toward participatory design.',
+                evidence: 'Synthetic evidence: accessibility audit, community interviews, and an undergraduate research methods course.',
+                fit: 'Synthetic note: connect questions about public technology to specific faculty methods without prestige claims.',
+                outline: 'Possible order only: research problem → prior preparation → future questions → specific program fit → contribution.',
+            },
+            neutral: {
+                purpose: 'Synthetic note: help a reader understand one evidence-based position and its practical consequence.',
+                audience: 'Synthetic note: the audience knows the topic but needs the evidence and terms explained clearly.',
+                evidence: 'Synthetic note: collect two observations, one credible source, and one counterexample.',
+                structure: 'Possible order only: context → claim → evidence → complication → conclusion.',
+            },
+        };
+        return examples[state.genre]?.[card.id] || `Synthetic planning note for ${card.en}.`;
+    }
+
+    function openPasteNotebookDialog() {
+        const card = activeNotebookCard();
+        const current = state.notebookEntries[notebookEntryKey(card)]?.text || notebookSample(card);
+        openDialog(t('pasteNotebook'), t('pasteWarning'), `<div class="field"><label for="pasteNotebookText">${escapeHtml(`${t('notebook')}: ${notebookCardLabel(card)}`)}</label><textarea id="pasteNotebookText">${escapeHtml(current)}</textarea></div><p>${escapeHtml(t('authorshipBoundary'))}</p><div class="exact-preview" id="pasteNotebookPreview">${escapeHtml(current)}</div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-notebook-paste">${escapeHtml(t('saveCard'))}</button>`);
+    }
+
+    function saveNotebookPaste() {
+        const card = activeNotebookCard();
+        state.notebookEntries[notebookEntryKey(card)] = { text: document.getElementById('pasteNotebookText')?.value || '', updatedAt: new Date().toISOString(), provenance: 'student-imported-synthetic' };
+        saveState(t('notebookSaved')); closeDialog(); renderApp();
+    }
+
+    function useNotebookSample() {
+        const card = activeNotebookCard();
+        state.notebookEntries[notebookEntryKey(card)] = { text: notebookSample(card), updatedAt: new Date().toISOString(), provenance: 'synthetic-sample' };
+        saveState(t('notebookSaved')); renderApp();
+    }
+
+    function createCanonicalDraft() {
+        if (!state.draftDeclared) {
+            state.draftDeclared = true;
+            state.draftCreatedAt = new Date().toISOString();
+            state.draft = '';
+            state.versions = [];
+            state.packetCreatedAt = null;
+            state.packetDraft = '';
+            announce(t('createdEmpty'));
+        }
+        state.place = 'draft';
+        saveState(t('createdEmpty')); renderApp();
+        requestAnimationFrame(() => document.getElementById('draftEditor')?.focus());
+    }
+
+    function openNotebookCoachDialog() {
+        const card = activeNotebookCard();
+        const text = state.notebookEntries[notebookEntryKey(card)]?.text || '';
+        if (!text.trim()) {
+            announce(state.lang === 'en' ? 'Write a notebook note before asking about it.' : 'Escribe una nota antes de preguntar sobre ella.');
+            return;
+        }
+        openDialog(t('notebookCoach'), t('notebookCoachBoundary'), `<div class="field"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="notebookPayloadPreview">${escapeHtml(text)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-notebook-coach" disabled>${escapeHtml(t('sendCoach'))}</button>`);
+    }
+
+    function submitNotebookCoach(button) {
+        const card = activeNotebookCard();
+        const text = state.notebookEntries[notebookEntryKey(card)]?.text || '';
+        button.disabled = true;
+        const response = state.lang === 'en'
+            ? `Question to consider: which detail in these notes most directly serves your purpose? I will not turn the note into draft prose.`
+            : `Pregunta para considerar: ¿qué detalle de estas notas sirve más directamente a tu propósito? No convertiré la nota en prosa del borrador.`;
+        state.notebookCoachRuns.push({ id: `notebook-coach-${Date.now()}`, cardId: notebookEntryKey(card), payload: text, response, createdAt: new Date().toISOString(), mock: true });
+        saveState(); closeDialog(); renderApp();
+    }
+
+    function openMyWork() {
+        const currentEntries = notebookCards().map(card => ({ card, entry: state.notebookEntries[notebookEntryKey(card)] })).filter(item => wordCount(item.entry?.text));
+        const draftStatus = state.draftDeclared ? `${wordCount(state.draft)} ${state.lang === 'en' ? 'words' : 'palabras'} · ${t('currentVersion')}` : t('draftMissing');
+        openDialog(t('myWork'), state.lang === 'en' ? 'A truthful inventory—not a submission screen.' : 'Un inventario veraz—no una pantalla de entrega.', `<div class="artifact-list"><div class="artifact-row"><strong>${escapeHtml(t('draft'))}</strong><small>${escapeHtml(draftStatus)}</small></div><div class="artifact-row"><strong>${escapeHtml(t('notebook'))}</strong><small>${currentEntries.length}/${notebookCards().length} ${escapeHtml(state.lang === 'en' ? 'cards with useful work' : 'tarjetas con trabajo útil')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('versions'))}</strong><small>${state.versions.length}</small></div><div class="artifact-row"><strong>${escapeHtml(t('reviewCenter'))}</strong><small>${state.reviews.length + state.councilRuns.length} ${escapeHtml(state.lang === 'en' ? 'saved reports' : 'informes guardados')} · ${state.decisions.length} ${escapeHtml(state.lang === 'en' ? 'decisions' : 'decisiones')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('reflection'))}</strong><small>${['changed','decision','voice'].filter(key => state.reflections[key].trim()).length}/3</small></div></div><p>${escapeHtml(state.lang === 'en' ? 'Backup is available in Settings. Submit happens outside Tu Pana.' : 'La copia de seguridad está en Configuración. La entrega ocurre fuera de Tu Pana.')}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button secondary" data-action="settings">${escapeHtml(t('settings'))}</button>`);
+    }
+
     function openMoveDialog(index) {
         const title = genreMoves('discover')[index] || genreMoves('discover')[0];
         const existing = state.artifacts[`move-${index}`]?.text || '';
@@ -589,6 +836,10 @@
     }
 
     function openCoachDialog() {
+        if (concept === 'notebook' && !state.draftDeclared) {
+            announce(t('draftToolsLocked'));
+            return;
+        }
         const base = captured || deriveDraftScopes();
         if (!base || !base.full.trim()) {
             announce(state.lang !== 'en' ? 'Escribe algo antes de pedir coaching.' : 'Write something before asking for coaching.');
@@ -619,6 +870,10 @@
     }
 
     function openFocusedReviewDialog() {
+        if (concept === 'notebook' && !state.draftDeclared) {
+            announce(t('draftToolsLocked'));
+            return;
+        }
         const base = captured || deriveDraftScopes();
         if (!base.full.trim()) return openCoachDialog();
         captured = base;
@@ -640,6 +895,7 @@
         window.setTimeout(() => {
             const genre = currentGenre();
             const suggestion = mockSuggestion(kind, lens, text);
+            if (concept === 'notebook') checkpointVersion();
             state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: true });
             saveState(); closeDialog(); reviewTab = 'history'; openReviewCenter();
         }, 260);
@@ -652,6 +908,10 @@
     }
 
     function openCouncilDialog() {
+        if (concept === 'notebook' && !state.draftDeclared) {
+            announce(t('draftToolsLocked'));
+            return;
+        }
         if (state.councilRuns.length && !getDraft().trim()) return openReviewCenter('council');
         const draft = getDraft();
         if (!draft.trim()) return openCoachDialog();
@@ -661,6 +921,7 @@
 
     function runCouncil(button) {
         button.disabled = true;
+        if (concept === 'notebook') checkpointVersion();
         const roles = genreMoves('council');
         const run = {
             id: `council-${Date.now()}`, createdAt: new Date().toISOString(), genre: state.genre,
@@ -677,6 +938,10 @@
     }
 
     function openReviewCenter(tab = reviewTab) {
+        if (concept === 'notebook' && !state.draftDeclared) {
+            announce(t('draftToolsLocked'));
+            return;
+        }
         reviewTab = tab;
         openDialog(t('reviewCenter'), state.lang !== 'en' ? 'Pide, escucha, decide, revisa y verifica.' : 'Ask, hear, decide, revise, and verify.', `<div class="review-layout"><nav class="review-nav" aria-label="Review sections"><button data-action="review-tab" data-tab="history" ${tab === 'history' ? 'aria-current="page"' : ''}>${escapeHtml(t('focusedReview'))} (${state.reviews.length})</button><button data-action="review-tab" data-tab="council" ${tab === 'council' ? 'aria-current="page"' : ''}>${escapeHtml(t('council'))} (${state.councilRuns.length})</button><button data-action="review-tab" data-tab="decisions" ${tab === 'decisions' ? 'aria-current="page"' : ''}>${escapeHtml(state.lang !== 'en' ? 'Decisiones' : 'Decisions')} (${state.decisions.length})</button></nav><section class="review-feed" id="reviewFeed">${renderReviewFeed(tab)}</section></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button>`, { wide: true });
     }
@@ -716,6 +981,11 @@
 
     function factualEvidence() {
         const items = [];
+        if (concept === 'notebook') {
+            const notebookCount = notebookCards().filter(card => wordCount(state.notebookEntries[notebookEntryKey(card)]?.text)).length;
+            if (notebookCount) items.push(`${notebookCount}/${notebookCards().length} ${state.lang !== 'en' ? 'tarjetas de cuaderno con trabajo' : 'notebook cards with work'}`);
+            if (state.draftCreatedAt) items.push(`${state.lang !== 'en' ? 'Borrador creado por el estudiante' : 'Student-created draft'} · ${shortDate(state.draftCreatedAt)}`);
+        }
         if (wordCount(getDraft())) items.push(`${wordCount(getDraft())} ${state.lang !== 'en' ? 'palabras en la versión actual' : 'words in the current version'}`);
         if (state.versions.length) items.push(`${state.versions.length} ${state.lang !== 'en' ? 'instantáneas locales' : 'local snapshots'}`);
         if (Object.keys(state.artifacts).length) items.push(`${Object.keys(state.artifacts).length} ${state.lang !== 'en' ? 'artefactos con texto' : 'artifacts with text'}`);
@@ -760,6 +1030,7 @@
             <section class="packet-section"><h3>${escapeHtml(state.lang !== 'en' ? 'Comprobación honesta' : 'Truthful readiness check')}</h3><ul class="check-list"><li class="${draft.trim() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Una versión exacta está identificada' : 'One exact version is identified')}</li><li class="${reflectionComplete() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Tres respuestas estudiantiles están completas' : 'Three student-authored responses are complete')}</li><li class="${state.councilRuns.length ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'La evidencia del Consejo está incluida si existe' : 'Council evidence is included when it exists')}</li><li class="${state.decisions.length ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Las decisiones sobre sugerencias están incluidas' : 'Suggestion decisions are included')}</li></ul><p><strong>${escapeHtml(ready ? (state.lang !== 'en' ? 'Listo para crear el paquete local' : 'Ready to create the local packet') : (state.lang !== 'en' ? 'Todavía en progreso' : 'Still in progress'))}</strong></p><button class="button primary" data-action="create-packet" ${!ready ? 'disabled' : ''}>${escapeHtml(t('createPacket'))}</button></section></div>
             <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('studentReflection'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Solo contiene las palabras del estudiante.' : 'Contains only the student’s words.')}</p>${['changed', 'decision', 'voice', 'knowledge'].map((key, i) => state.reflections[key] ? `<h4>${i + 1}. ${escapeHtml([t('prompt1'), t('prompt2'), t('prompt3'), t('prompt4')][i])}</h4><p>${escapeHtml(state.reflections[key])}</p>` : '').join('') || `<p>${escapeHtml(state.lang !== 'en' ? 'Todavía no hay reflexión.' : 'No reflection yet.')}</p>`}</section>
             <section class="packet-section"><h3>${escapeHtml(t('instructorAppendix'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Evidencia factual del sistema, separada de la reflexión.' : 'Factual system evidence, separate from reflection.')}</p><ul class="check-list">${factualEvidence().map(item => `<li class="done">${escapeHtml(item)}</li>`).join('') || `<li>${escapeHtml(t('noPrior'))}</li>`}</ul></section></div>
+            ${concept === 'notebook' ? `<section class="packet-section action-meanings"><h3>${escapeHtml(state.lang === 'en' ? 'Five different actions' : 'Cinco acciones distintas')}</h3><div class="artifact-list"><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Save' : 'Guardar')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Keeps exact work in this isolated browser.' : 'Mantiene el trabajo exacto en este navegador aislado.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('finish'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Confirms which draft and reflection belong in the packet.' : 'Confirma qué borrador y reflexión pertenecen al paquete.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('createPacket'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Assembles a local preview; it submits nothing.' : 'Arma una vista previa local; no entrega nada.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Backup' : 'Copia de seguridad')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Downloads this concept’s isolated synthetic state.' : 'Descarga el estado sintético aislado de este concepto.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'External Submit' : 'Entrega externa')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Happens outside Tu Pana under instructor directions.' : 'Ocurre fuera de Tu Pana según las instrucciones del instructor.')}</small></div></div><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button></section>` : ''}
             ${packetReady ? `<section class="packet-section"><h3>${escapeHtml(t('packetReady'))}</h3><button class="button primary" data-action="download-packet">${escapeHtml(t('downloadPacket'))}</button></section>` : ''}
             <footer class="editor-footer"><button class="button ghost" data-action="reflection">← ${escapeHtml(t('reflection'))}</button><button class="button secondary" data-action="return-write">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button></footer></section>`;
     }
@@ -787,6 +1058,7 @@
             document.getElementById('packetConfirm')?.focus();
             return;
         }
+        if (concept === 'notebook') checkpointVersion();
         state.packetCreatedAt = new Date().toISOString();
         state.packetDraft = markedDraft();
         saveState(t('packetReady')); renderApp();
@@ -803,7 +1075,8 @@
     function focusDecisionText() {
         if (concept === 'desk') return state.lang !== 'en' ? 'Sí. El Escritorio ofrece Enfoque en móvil porque una sola área de escritura sigue visible; Salir y la barra de pasaje permanecen dentro del viewport.' : 'Yes. The Desk offers mobile Focus because one writing surface stays visible; Exit and the passage bar remain inside the viewport.';
         if (concept === 'journey') return state.lang !== 'en' ? 'No en móvil. Ocultar los diez pasos debilitaría orientación y verdad sobre versiones; el editor móvil ya recibe prioridad.' : 'No on mobile. Hiding ten steps would weaken orientation and version truth; the mobile editor already gets priority.';
-        return state.lang !== 'en' ? 'No hay modo Enfoque separado. El híbrido reduce el recorrido a cuatro fases y trata el espacio móvil normal como la vista enfocada.' : 'No separate Focus mode. The hybrid reduces the journey to four phases and treats its normal mobile workspace as the focused view.';
+        if (concept === 'hybrid') return state.lang !== 'en' ? 'No hay modo Enfoque separado. El híbrido reduce el recorrido a cuatro fases y trata el espacio móvil normal como la vista enfocada.' : 'No separate Focus mode. The hybrid reduces the journey to four phases and treats its normal mobile workspace as the focused view.';
+        return state.lang !== 'en' ? 'No hay modo Enfoque separado. En móvil, el borrador recibe prioridad y Cuaderno queda como pestaña estable de una acción; no se comprime la vista dividida de escritorio.' : 'No separate Focus mode. On mobile, the draft gets priority and Notebook remains a stable one-action tab; the desktop split view is not compressed.';
     }
 
     function openSettings() {
@@ -824,6 +1097,18 @@
         if (action === 'settings') openSettings();
         else if (action === 'close-dialog') closeDialog();
         else if (action === 'overlay-close') closeDialog();
+        else if (action === 'place-notebook') { state.place = 'notebook'; state.view = 'write'; captured = null; saveState(); renderApp(); }
+        else if (action === 'place-draft') { if (state.draftDeclared) { state.place = 'draft'; state.view = 'write'; saveState(); renderApp(); } }
+        else if (action === 'create-draft') createCanonicalDraft();
+        else if (action === 'my-work') openMyWork();
+        else if (action === 'notebook-card') { state.activeNotebook = Number(target.dataset.card); state.place = 'notebook'; state.view = 'write'; saveState(); closeDialog(); renderApp(); }
+        else if (action === 'notebook-back') { state.activeNotebook = Math.max(0, state.activeNotebook - 1); saveState(); renderApp(); }
+        else if (action === 'notebook-next') { if (state.activeNotebook < notebookCards().length - 1) { state.activeNotebook += 1; saveState(); renderApp(); } else createCanonicalDraft(); }
+        else if (action === 'paste-notebook') openPasteNotebookDialog();
+        else if (action === 'save-notebook-paste') saveNotebookPaste();
+        else if (action === 'notebook-sample') useNotebookSample();
+        else if (action === 'notebook-coach') openNotebookCoachDialog();
+        else if (action === 'submit-notebook-coach') submitNotebookCoach(target);
         else if (action === 'paste') openPasteDialog();
         else if (action === 'sample') useSample();
         else if (action === 'replace-draft') { const value = document.getElementById('pasteDraft')?.value || ''; checkpointVersion(); setDraft(value); saveState(); closeDialog(); renderApp(); }
@@ -848,8 +1133,8 @@
         else if (action === 'decision') recordDecision(target);
         else if (action === 'reflection') { if (state.view === 'reflection') saveReflection(); setView('reflection'); }
         else if (action === 'save-reflection') saveReflection();
-        else if (action === 'finish') { if (state.view === 'reflection') saveReflection(); setView('finish'); }
-        else if (action === 'return-write') setView('write');
+        else if (action === 'finish') { if (state.view === 'reflection') saveReflection(); if (concept === 'notebook') checkpointVersion(); setView('finish'); }
+        else if (action === 'return-write') { if (concept === 'notebook' && state.draftDeclared) state.place = 'draft'; setView('write'); }
         else if (action === 'create-packet') createPacket();
         else if (action === 'download-packet') downloadText(packetText(), `tupana-${concept}-synthetic-packet.txt`);
         else if (action === 'export-state') downloadText(JSON.stringify({ window: WINDOW_ID, concept, exportedAt: new Date().toISOString(), state }, null, 2), `tupana-${concept}-prototype-backup.json`, 'application/json');
@@ -870,11 +1155,12 @@
         if (target.matches('[data-action="language"]')) { state.lang = target.value; saveState(); renderApp(); }
         else if (target.matches('[data-action="genre"]')) { state.genre = genres[target.value] ? target.value : 'neutral'; saveState(); renderApp(); }
         else if (target.name === 'reviewScope') { const preview = document.getElementById('scopePreview'); if (preview) preview.textContent = scopeText(target.value); }
-        else if (target.id === 'transmitConsent') { const button = dialogRoot.querySelector('[data-action="submit-mock"], [data-action="run-council"]'); if (button) button.disabled = !target.checked; }
+        else if (target.id === 'transmitConsent') { const button = dialogRoot.querySelector('[data-action="submit-mock"], [data-action="run-council"], [data-action="submit-notebook-coach"]'); if (button) button.disabled = !target.checked; }
     });
 
     document.addEventListener('input', event => {
         if (event.target.id === 'pasteDraft') { const preview = document.getElementById('pastePreview'); if (preview) preview.textContent = event.target.value; }
+        if (event.target.id === 'pasteNotebookText') { const preview = document.getElementById('pasteNotebookPreview'); if (preview) preview.textContent = event.target.value; }
         if (event.target.id === 'deleteConfirm') { const button = dialogRoot.querySelector('[data-action="delete-state"]'); if (button) button.disabled = event.target.value !== 'DELETE'; }
     });
 

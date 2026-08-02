@@ -1,7 +1,7 @@
 # Verification results — local comparative prototypes
 
-**Prototype:** `9e878e2fcb18bba2e4d71d50a5d6c20e2774f7f3`  
-**Date:** 2026-08-01  
+**Fourth-prototype checkpoint:** `e8678738dfab6ef42992fc0c16aee1c46a87680c`
+**Date:** 2026-08-02
 **Environment:** local static server; headless Chromium; synthetic content; deterministic mock AI
 
 ## Prototype journey suite
@@ -12,9 +12,9 @@ Command:
 node prototype_exploration_test.mjs
 ```
 
-Result: **98/98 PASS**.
+Result: **155/155 PASS**.
 
-The suite exercised the same full journey in Desk, Journey, and Hybrid:
+The suite exercised the full comparative journey in Desk, Journey, Hybrid, and Notebook & Draft:
 
 - comparison entry, visible orientation, synthetic start, exact save/reload continuity;
 - preservation of an existing R0 sentinel key;
@@ -29,6 +29,24 @@ The suite exercised the same full journey in Desk, Journey, and Hybrid:
 - 390 × 844 viewport containment, no horizontal overflow, 44px visible control targets,
   accessible button names, keyboard activation, Escape close, and each concept's mobile Focus
   decision.
+
+Notebook-specific assertions also passed:
+
+- five skippable admissions cards; navigation did not mark evidence;
+- exact save/reload of notebook text and truthful saving/saved status;
+- My Work retrieval, pre-draft exact payload preview/consent, question-only mock coaching, and no
+  draft creation by the coach;
+- direct drafting after one card, an exactly empty canonical draft at creation, and exact
+  notebook-to-draft non-transfer in stored state;
+- one-action Notebook/Draft movement, exact draft reload, live word truth, dated snapshots, and
+  reload-proof Review Center/Council history;
+- passage capture near the bottom of a long draft, exact preview and three scopes;
+- decision evidence without prose mutation, three required reflection prompts, separate appendix,
+  exact final-draft confirmation, and distinct Save/Finish/Create packet/Backup/external Submit;
+- structurally appropriate STEM notebook cards, Spanish-primary optional bilingual mode, isolated
+  deletion, R0 sentinel preservation, and zero external requests;
+- mobile draft priority, no compressed desktop split, stable Notebook tab, current switcher item in
+  view, no Focus control, 44px targets, no overflow, and Passage Tray containment at 390 × 844.
 
 ## Unchanged R0 safety-contract selection
 
@@ -58,7 +76,7 @@ Viewport checks are implementation evidence, not physical-iPhone validation.
 |---|---|---|
 | 1. Select near bottom and reach action without upward scroll | App-owned fixed action stays inside 390 × 844 viewport | Physical iPhone + long draft + keyboard |
 | 2. Capture the complete intended paragraph | Exact selected string persisted after native selection was programmatically collapsed | Physical iOS selection behavior |
-| 3. Display exact passage before transmission | PASS in all three concepts | Physical-device confirmation |
+| 3. Display exact passage before transmission | PASS in all four concepts | Physical-device confirmation |
 | 4. Opening action does not alter draft | PASS by exact save/reload and preview checks | Physical-device confirmation |
 | 5. Cancel leaves draft unchanged | Implemented; dialog closes without write | Physical-device confirmation |
 | 6. Remain visible above keyboard without obscuring work | `visualViewport` offset plus fixed safe-area placement implemented; viewport geometry passed | Real iOS keyboard and scrolling |
@@ -74,7 +92,9 @@ No claim of physical-iPhone passage validation is made.
 Completed: keyboard activation of passage coaching; modal focus trap implementation; Escape
 close; accessible names for visible buttons; minimum target geometry; mobile overflow; responsive
 editor priority; `prefers-reduced-motion`; semantic headings, field labels, dialog roles, and live
-regions.
+regions. Desktop Notebook and Draft plus the 390 × 844 mobile Draft were also captured and visually
+inspected after automation; live evidence/word truth and the initially offscreen current switcher
+item were corrected before the final 155/155 run.
 
 Not completed: axe-core (not installed in the R0 workspace), VoiceOver/NVDA, Safari's real visual
 viewport and selection behavior, physical mobile keyboard, zoom/reflow at 200–400%, Windows high
@@ -82,5 +102,7 @@ contrast, or cognitive usability with students.
 
 ## Browser-walkthrough limit
 
-The in-app browser backend exposed no available browser instance in this session. The automated
-local Chromium walkthrough completed instead. No manual in-app-browser walkthrough is claimed.
+The Browser skill was initialized and its troubleshooting path completed, but the in-app backend
+exposed no available browser instance. The automated local Chromium walkthrough and separate
+Playwright screenshot inspection completed instead. No manual in-app-browser walkthrough is
+claimed, and automated reachability is not comprehension evidence.

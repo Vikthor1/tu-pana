@@ -127,3 +127,81 @@ All three concepts are available locally. No winner is selected. Founder testing
 representative-student evidence, physical-iPhone passage validation, binding experience-contract
 approval, and separately governed production implementation authorization remain outside this
 checkpoint.
+
+---
+
+## 2026-08-02 — Concept 4: Cuaderno y Borrador · Notebook & Draft
+
+- **Prototype commit:** `e8678738dfab6ef42992fc0c16aee1c46a87680c`
+- **Concept:** additive fourth prototype, Cuaderno y Borrador · Notebook & Draft
+- **Evidence source:** Claude/Fable's independent package at
+  `/Users/Victor1/.codex/attachments/255c2074-8e12-4b1d-8074-be509c56aa65/pasted-text.txt`.
+  Its counterproposal and shared foundations are design evidence, not implementation authority,
+  selection, or settled doctrine.
+- **Hypothesis:** first-time students may understand preparation and authorship more clearly when
+  genre-shaped, skippable notebook cards remain distinct from one student-created canonical draft,
+  and when **Write my draft** begins that draft empty without transferring notebook prose.
+- **Classification:** Notebook/Draft places, card set, authorship-boundary wording, direct-draft
+  path, dated snapshots, bounded desktop split, mobile stable tab, no separate Focus, and the
+  pre-draft coach rule are `REVISABLE-WITH-EVIDENCE`. Exact text preservation, no automatic
+  transfer/rewrite, consent and payload preview, isolated synthetic storage, privacy, disclosure,
+  decision ownership, genre correctness, bilingual access, reflection authorship, separate evidence
+  appendix, and typed deletion friction remain `INVARIANT` for this exploration.
+- **Bounded coach assumption:** before a draft exists, mock coaching may discuss only ideas already
+  in the active card and ask questions after exact preview and consent. It may not generate draft
+  prose, create a draft, or transfer notebook text. Draft review, passage coaching, lenses, and
+  Council unlock only after the student creates the draft. This is reversible and not settled
+  doctrine.
+- **Safety results:** four-concept suite 155/155; unchanged R0 selection 277/277. Exact notebook-to-
+  draft non-transfer, one empty draft at creation, live save truth, exact reload, origin isolation,
+  R0 sentinel preservation, concept-local deletion, no external request, 390 × 844 containment,
+  44px controls, keyboard activation, Escape, and accessible names passed.
+- **Snapshot changes:** none. Only exploration JavaScript, CSS, and the prototype-focused test were
+  changed for this checkpoint. No R0 test or experience snapshot was edited.
+- **Comparative/user evidence:** functional Chromium automation and local desktop/mobile screenshot
+  inspection only. The prototype supports the complete eleven-task journey. In-app Browser exposed
+  no connected instance. No founder, representative-student, physical-iPhone, or VoiceOver evidence
+  exists.
+- **Open bilingual disagreement:** Claude/Fable recommends equal-prominence Dual presentation. This
+  prototype preserves the exploration's coherent Spanish-primary bilingual density. Neither is
+  selected; comparative evidence is required.
+- **Concerns:** students may confuse Notebook and Draft, place finished prose in Notebook or plans in
+  Draft, experience **Write my draft** as obstruction, treat cards as compulsory stages, or lose
+  orientation when opening notebook reference on a phone. Direct drafting may feel punished despite
+  being available. The bounded coach may be too restrictive or insufficiently legible.
+- **Next reversible test:** use synthetic material with the founder and representative students to
+  test the nine falsification questions in the comparative evaluation, especially unprompted
+  “Where is my real work?”, direct drafting, phone reference, and whether Notebook adds useful
+  scaffolding beyond Desk without recreating Journey.
+
+---
+
+## 2026-08-02 — four-concept comparative verification checkpoint
+
+- **Prototype commit:** `e8678738dfab6ef42992fc0c16aee1c46a87680c`
+- **Concept:** shared comparison across Desk, Journey, Hybrid, and Notebook & Draft
+- **Hypothesis:** the same authorship, consent, passage, review, decision, reflection, completion,
+  genre, bilingual, mobile, and storage contracts can remain reachable across four materially
+  different mental models without selecting one.
+- **Classification:** the comparison hub, current-item switcher scrolling, live evidence counts, and
+  documentation are `REVISABLE-WITH-EVIDENCE`; the existing safety contracts remain invariant.
+- **Safety results:** prototype 155/155; R0 safety 277/277. Initial sandbox-only Chromium launch
+  denial was environmental and cleared by rerunning unchanged suites with approved host browser
+  execution; no product assertion failed. Final diff check and scope audit found no Worker, live
+  Gemini, SaaS, production, R0 branch, family-preview, or VC-OS mutation.
+- **Snapshot changes:** none.
+- **Comparative/user evidence:** automation proves functional reachability, exact continuity, and
+  safety behavior, not comprehension. Visual inspection corrected stale live counts and an initially
+  offscreen current switcher item before the final green run.
+- **Concerns:** physical-iPhone native selection, iOS keyboard/safe-area behavior, VoiceOver, founder
+  comprehension, and representative-student testing remain open. Emulation does not close the P1.
+- **Next reversible test:** founder runs the same eleven tasks in all four concepts without
+  facilitator explanation and records predictions, errors, hesitation, recovery, and the nine
+  Notebook falsification questions. Do not select a winner from automated results.
+
+## Current checkpoint status — 2026-08-02 additive extension
+
+All four concepts are available locally. No winner is selected. Nothing was pushed, deployed,
+merged, promoted, or implemented in production. Founder testing, representative-student evidence,
+physical-iPhone passage validation, VoiceOver, binding experience-contract approval, migration, and
+separately governed production implementation authorization remain outside this checkpoint.

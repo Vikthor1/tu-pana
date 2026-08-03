@@ -21,6 +21,9 @@
     let lastFocus = null;
     let reviewTab = 'history';
     let pendingDecision = null;
+    let dialogGuard = null;
+    let dialogAfterDiscard = null;
+    let editorCaret = null;
 
     const conceptMeta = {
         desk: {
@@ -532,7 +535,7 @@
             place: name === 'notebook' ? 'notebook' : 'write', activeNotebook: 0,
             notebookEntries: {}, notebookCoachRuns: [], draftDeclared: false, draftCreatedAt: null,
             moveNotes: {}, knowledgeChoice: null, knowledgeChoiceAt: null,
-            criticalViews: [], onboardingSeenAt: null, protectedPhrases: [], finishChecks: {},
+            criticalViews: [], onboardingSeenAt: null, protectedPhrases: [], finishChecks: {}, genreStates: {}, nativeSpellcheck: true,
             artifacts: {}, currentArtifact: name === 'journey' ? 'step-1' : 'draft',
             versions: [], reviews: [], decisions: [], councilRuns: [],
             reflections: { changed: '', decision: '', voice: '', knowledge: '' },
@@ -587,9 +590,43 @@
     };
     function currentGenre() { return genres[state.genre] || (concept === 'integrated' ? unknownGenre : genres.neutral); }
     function genreLabel() { return currentGenre().label[state.lang === 'en' ? 'en' : 'es']; }
+    function storedGenreLabel(record) {
+        if (state.lang === 'es' && record?.genreLabelEs) return record.genreLabelEs;
+        if (record?.genreLabel) return record.genreLabel;
+        if (record?.genre && genres[record.genre]) return genres[record.genre].label[state.lang === 'es' ? 'es' : 'en'];
+        return state.lang === 'es' ? 'Género no guardado · registro sintético anterior' : 'Genre not stored · earlier synthetic record';
+    }
+    function spellcheckEnabled() { return state.nativeSpellcheck !== false; }
+    function genreOptionsMarkup() {
+        const selectable = Object.entries(genres).filter(([id]) => concept === 'integrated' || id !== 'autobiographical');
+        const invalid = !genres[state.genre] ? `<option value="" selected disabled>${escapeHtml(state.lang === 'en' ? 'Select a configured genre' : 'Elige un género configurado')}</option>` : '';
+        return `${invalid}${selectable.map(([id, genre]) => `<option value="${id}" ${id === state.genre ? 'selected' : ''}>${escapeHtml(genre.label[state.lang === 'en' ? 'en' : 'es'])}</option>`).join('')}`;
+    }
     function genreMoves(kind) {
         if (state.lang === 'en') return currentGenre().moves[kind];
+        if (concept === 'integrated' && !genres[state.genre]) return [];
         return (genreMovesEs[state.genre] || genreMovesEs.neutral)[kind];
+    }
+
+    function storeActiveGenreState() {
+        if (concept !== 'integrated' || !state.genre) return;
+        state.genreStates ||= {};
+        state.genreStates[state.genre] = {
+            reflections: { ...state.reflections }, reflectionSavedAt: state.reflectionSavedAt,
+            finishChecks: { ...state.finishChecks }, knowledgeChoice: state.knowledgeChoice,
+            knowledgeChoiceAt: state.knowledgeChoiceAt, onboardingSeenAt: state.onboardingSeenAt,
+        };
+    }
+
+    function loadActiveGenreState(genreId) {
+        if (concept !== 'integrated') return;
+        const saved = state.genreStates?.[genreId];
+        state.reflections = { changed: '', decision: '', voice: '', knowledge: '', ...(saved?.reflections || {}) };
+        state.reflectionSavedAt = saved?.reflectionSavedAt || null;
+        state.finishChecks = { ...(saved?.finishChecks || {}) };
+        state.knowledgeChoice = saved?.knowledgeChoice ?? null;
+        state.knowledgeChoiceAt = saved?.knowledgeChoiceAt || null;
+        state.onboardingSeenAt = saved?.onboardingSeenAt || null;
     }
     function notebookCards() { return genreNotebooks[state.genre] || genreNotebooks.neutral; }
     function notebookCardLabel(card) { return card[state.lang === 'en' ? 'en' : 'es']; }
@@ -604,8 +641,8 @@
     function moveNoteKey(move) { return `${state.genre}:${move.id}`; }
     function criticalQuestion(key) { return criticalQuestions[key] || criticalQuestions.thinking; }
     function criticalQuestionText(key) { return criticalQuestion(key)[state.lang === 'en' ? 'en' : 'es']; }
-    function criticalRiskText(key) {
-        if (state.genre !== 'autobiographical') return '';
+    function criticalRiskText(key, genre = state.genre) {
+        if (genre !== 'autobiographical') return '';
         if (key === 'cultural') return state.lang === 'en'
             ? 'Could this response stereotype, depoliticize, or misread culturally situated knowledge?'
             : '¿Podría esta respuesta estereotipar, despolitizar o malinterpretar conocimiento culturalmente situado?';
@@ -676,18 +713,16 @@
 
     function renderHeader() {
         const o = orientation();
-        const selectableGenres = Object.entries(genres).filter(([id]) => concept === 'integrated' || id !== 'autobiographical');
-        const invalidGenreOption = !genres[state.genre] ? `<option value="" selected disabled>${escapeHtml(state.lang === 'en' ? 'Select a configured genre' : 'Elige un género configurado')}</option>` : '';
         return `${renderBanner()}
             <header class="prototype-header"><div class="prototype-header-inner">
                 <a class="brand-lockup" href="?" aria-label="${escapeHtml(t('compare'))}"><span class="brand-mark" aria-hidden="true">TP</span><span class="brand-copy"><strong>Tu Pana Writing Studio</strong><small>${escapeHtml(conceptMeta[concept].name)}${concept === 'integrated' ? ` · ${escapeHtml(t('finalist'))}` : ''}</small></span></a>
                 <nav class="concept-switcher" aria-label="Prototype switcher"><a class="switch-link" href="?">${escapeHtml(t('compare'))}</a>${CONCEPTS.map(name => `<a class="switch-link" href="?concept=${name}" ${name === concept ? 'aria-current="page"' : ''}>${conceptMeta[name].number}. ${conceptMeta[name].short}</a>`).join('')}</nav>
                 <div class="prototype-actions"><span class="save-state"><span class="save-state-dot" aria-hidden="true"></span><span data-save-state>${escapeHtml(t('saved'))}</span></span>
-                    <select class="header-select genre-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${invalidGenreOption}${selectableGenres.map(([id, g]) => `<option value="${id}" ${id === state.genre ? 'selected' : ''}>${escapeHtml(g.label[state.lang === 'en' ? 'en' : 'es'])}</option>`).join('')}</select>
+                    <select class="header-select genre-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${genreOptionsMarkup()}</select>
                     <select class="header-select" data-action="language" aria-label="${escapeHtml(t('language'))}"><option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option><option value="es" ${state.lang === 'es' ? 'selected' : ''}>Español</option><option value="both" ${state.lang === 'both' ? 'selected' : ''}>Español + English</option></select>
                     <button class="icon-button" data-action="settings" aria-label="${escapeHtml(t('settings'))}" title="${escapeHtml(t('settings'))}">⚙</button></div>
             </div></header>
-            <section class="orientation-bar" aria-label="Current location and next action"><div class="orientation-inner"><div class="orientation-copy"><span class="location-pill">${escapeHtml(o.where)}</span><div class="orientation-text"><strong>${escapeHtml(o.doing)}</strong><span>${escapeHtml(o.next)}</span></div></div><div class="orientation-next"><small>${escapeHtml(t('currentDraft'))}</small><strong id="orientationDraftWords">${concept === 'notebook' && !state.draftDeclared ? escapeHtml(t('draftMissing')) : `${wordCount(getDraft())} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}`}</strong></div></div></section>`;
+            <section class="orientation-bar" aria-label="Current location and next action"><div class="orientation-inner"><div class="orientation-copy"><span class="location-pill">${escapeHtml(o.where)}</span><div class="orientation-text"><strong>${escapeHtml(o.doing)}</strong><span>${escapeHtml(o.next)}</span></div>${concept === 'integrated' ? `<button class="mobile-project-chip" data-action="settings" aria-label="${escapeHtml(`${t('genre')}: ${genreLabel()}`)}"><span>${escapeHtml(t('genre'))}</span><strong>${escapeHtml(genreLabel())}</strong></button>` : ''}</div><div class="orientation-next"><small>${escapeHtml(t('currentDraft'))}</small><strong id="orientationDraftWords">${concept === 'notebook' && !state.draftDeclared ? escapeHtml(t('draftMissing')) : `${wordCount(getDraft())} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}`}</strong></div></div></section>`;
     }
 
     function renderApp() {
@@ -738,7 +773,7 @@
     }
 
     function renderGenreConfigurationError() {
-        return `<section class="finish-page" aria-labelledby="genreErrorTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(state.lang === 'en' ? 'Configuration required' : 'Configuración requerida')}</p><h2 id="genreErrorTitle">${escapeHtml(state.lang === 'en' ? 'This writing genre is not configured.' : 'Este género de escritura no está configurado.')}</h2><p>${escapeHtml(state.lang === 'en' ? `The assignment id “${state.genre}” will not inherit Autobiographical or General Writing guidance. Choose a configured genre above.` : `La tarea “${state.genre}” no heredará guía autobiográfica ni general. Elige un género configurado arriba.`)}</p></div></section>`;
+        return `<section class="finish-page" aria-labelledby="genreErrorTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(state.lang === 'en' ? 'Configuration required' : 'Configuración requerida')}</p><h2 id="genreErrorTitle">${escapeHtml(state.lang === 'en' ? 'This writing genre is not configured.' : 'Este género de escritura no está configurado.')}</h2><p>${escapeHtml(state.lang === 'en' ? `The assignment id “${state.genre}” will not inherit Autobiographical or General Writing guidance. Choose a configured writing project.` : `La tarea “${state.genre}” no heredará guía autobiográfica ni general. Elige un proyecto de escritura configurado.`)}</p><button class="button secondary" data-action="settings">${escapeHtml(state.lang === 'en' ? 'Choose writing project' : 'Elegir proyecto de escritura')}</button></div></section>`;
     }
 
     function renderNotebookWorkspace() {
@@ -760,7 +795,7 @@
             const hasEvidence = Boolean(cardEntry && wordCount(cardEntry.text));
             return `<button class="step-button" data-action="notebook-card" data-card="${index}" ${state.activeNotebook === index ? 'aria-current="page"' : ''}><span class="step-number">${index + 1}</span><span class="step-label"><strong>${escapeHtml(notebookCardLabel(card))}</strong><small ${state.activeNotebook === index ? 'id="activeNotebookCardStatus"' : ''}>${hasEvidence ? `${wordCount(cardEntry.text)} ${escapeHtml(state.lang === 'en' ? 'words' : 'palabras')}` : escapeHtml(state.lang === 'en' ? 'Suggested · skippable' : 'Sugerida · opcional')}</small></span><span class="done-mark" ${state.activeNotebook === index ? 'id="activeNotebookEvidence"' : ''} aria-label="${hasEvidence ? 'has evidence' : 'no evidence'}">${hasEvidence ? '✓' : '○'}</span></button>`;
         }).join('')}</nav></aside>
-        <section class="panel notebook-card-panel" aria-labelledby="notebookCardTitle"><div class="editor-topline"><div class="draft-identity"><strong id="notebookCardTitle">${escapeHtml(notebookCardLabel(active))}</strong><span>${escapeHtml(notebookCardPrompt(active))}</span></div><div class="editor-actions"><button class="button ghost" data-action="paste-notebook">${escapeHtml(t('pasteNotebook'))}</button><button class="button secondary" data-action="notebook-sample">${escapeHtml(t('useSample'))}</button></div></div><div class="editor-wrap"><textarea id="notebookEditor" class="draft-editor notebook-editor" spellcheck="true" aria-label="${escapeHtml(`${t('notebook')}: ${notebookCardLabel(active)}`)}" placeholder="${escapeHtml(state.lang === 'en' ? 'Think here in notes, fragments, questions, or an outline…' : 'Piensa aquí con notas, fragmentos, preguntas o un esquema…')}">${escapeHtml(entry.text)}</textarea><div class="editor-meta"><span id="notebookWordCount">${escapeHtml(t('words', { n: wordCount(entry.text) }))}</span><span class="autosave-message" data-save-state>${escapeHtml(entry.updatedAt ? `${t('notebookSaved')} · ${shortDate(entry.updatedAt)}` : t('autosaved'))}</span></div></div><p class="editor-privacy">${instruction('notebookCoachBoundary')} ${escapeHtml(t('noNetwork'))}</p><footer class="editor-footer"><div class="footer-group"><button class="button ghost" data-action="notebook-back" ${state.activeNotebook === 0 ? 'disabled' : ''}>← ${escapeHtml(t('back'))}</button><button class="button primary" data-action="notebook-next">${escapeHtml(state.activeNotebook < cards.length - 1 ? t('nextCard', { name: notebookCardLabel(cards[state.activeNotebook + 1]) }) : t('writeDraft'))} →</button></div><div class="footer-group"><button class="button secondary" data-action="notebook-coach">${escapeHtml(t('notebookCoach'))}</button></div></footer>${coachRuns.length ? `<div class="panel-body notebook-coach-history"><span class="mock-label">Mock coach · ${escapeHtml(notebookCardLabel(active))}</span><p>${escapeHtml(coachRuns.at(-1).response)}</p></div>` : ''}</section>
+        <section class="panel notebook-card-panel" aria-labelledby="notebookCardTitle"><div class="editor-topline"><div class="draft-identity"><strong id="notebookCardTitle">${escapeHtml(notebookCardLabel(active))}</strong><span>${escapeHtml(notebookCardPrompt(active))}</span></div><div class="editor-actions"><button class="button ghost" data-action="paste-notebook">${escapeHtml(t('pasteNotebook'))}</button><button class="button secondary" data-action="notebook-sample">${escapeHtml(t('useSample'))}</button></div></div><div class="editor-wrap"><textarea id="notebookEditor" class="draft-editor notebook-editor" spellcheck="${spellcheckEnabled()}" aria-label="${escapeHtml(`${t('notebook')}: ${notebookCardLabel(active)}`)}" placeholder="${escapeHtml(state.lang === 'en' ? 'Think here in notes, fragments, questions, or an outline…' : 'Piensa aquí con notas, fragmentos, preguntas o un esquema…')}">${escapeHtml(entry.text)}</textarea><div class="editor-meta"><span id="notebookWordCount">${escapeHtml(t('words', { n: wordCount(entry.text) }))}</span><span class="autosave-message" data-save-state>${escapeHtml(entry.updatedAt ? `${t('notebookSaved')} · ${shortDate(entry.updatedAt)}` : t('autosaved'))}</span></div></div><p class="editor-privacy">${instruction('notebookCoachBoundary')} ${escapeHtml(t('noNetwork'))}</p><footer class="editor-footer"><div class="footer-group"><button class="button ghost" data-action="notebook-back" ${state.activeNotebook === 0 ? 'disabled' : ''}>← ${escapeHtml(t('back'))}</button><button class="button primary" data-action="notebook-next">${escapeHtml(state.activeNotebook < cards.length - 1 ? t('nextCard', { name: notebookCardLabel(cards[state.activeNotebook + 1]) }) : t('writeDraft'))} →</button></div><div class="footer-group"><button class="button secondary" data-action="notebook-coach">${escapeHtml(t('notebookCoach'))}</button></div></footer>${coachRuns.length ? `<div class="panel-body notebook-coach-history"><span class="mock-label">Mock coach · ${escapeHtml(notebookCardLabel(active))}</span><p>${escapeHtml(coachRuns.at(-1).response)}</p></div>` : ''}</section>
         <aside class="support-stack"><section class="panel authorship-card"><div class="panel-body"><span class="panel-kicker">${escapeHtml(state.lang === 'en' ? 'Two kinds of work' : 'Dos tipos de trabajo')}</span><h2>${escapeHtml(t('writeDraft'))}</h2><p>${instruction('authorshipBoundary')}</p><button class="button primary" data-action="create-draft">${escapeHtml(state.draftDeclared ? t('draft') : t('writeDraft'))}</button><p class="boundary-note">${escapeHtml(t('cardsSuggested'))}</p></div></section>${renderNotebookEvidencePanel()}</aside></div>`;
     }
 
@@ -858,7 +893,7 @@
         const isCurrent = concept !== 'journey' || state.currentArtifact === `step-${state.step}`;
         const focusAvailable = concept === 'desk' || concept === 'journey' || concept === 'integrated';
         return `<section class="panel editor-panel" aria-labelledby="draftTitle"><div class="editor-topline"><div class="draft-identity"><strong id="draftTitle">${escapeHtml(concept === 'journey' ? stepData(state.step - 1)[0] : t('currentDraft'))}</strong><span>${escapeHtml(isCurrent ? t('currentVersion') : t('priorWork'))}${concept === 'journey' ? ` · ${escapeHtml(t('whereJourney', { n: state.step }))}` : ''}</span></div><div class="editor-actions"><button class="button ghost" data-action="paste">${escapeHtml(t('paste'))}</button>${!getDraft() ? `<button class="button secondary" data-action="sample">${escapeHtml(t('useSample'))}</button>` : ''}${focusAvailable ? `<button class="button ghost focus-btn" data-action="focus">${escapeHtml(t('focus'))}</button>` : ''}</div></div>
-            <div class="editor-wrap"><textarea id="draftEditor" class="draft-editor" spellcheck="true" aria-label="${escapeHtml(t('currentDraft'))}" placeholder="${escapeHtml(state.lang !== 'en' ? 'Comienza con tus propias palabras…' : 'Start with your own words…')}">${escapeHtml(getDraft())}</textarea><div class="editor-meta"><span id="wordCount">${escapeHtml(t('words', { n: wordCount(getDraft()) }))}</span><span class="autosave-message" data-save-state>${escapeHtml(t('autosaved'))}</span></div></div>
+            <div class="editor-wrap"><textarea id="draftEditor" class="draft-editor" spellcheck="${spellcheckEnabled()}" aria-label="${escapeHtml(t('currentDraft'))}" placeholder="${escapeHtml(state.lang !== 'en' ? 'Comienza con tus propias palabras…' : 'Start with your own words…')}">${escapeHtml(getDraft())}</textarea><div class="editor-meta"><span id="wordCount">${escapeHtml(t('words', { n: wordCount(getDraft()) }))}</span><span class="autosave-message" data-save-state>${escapeHtml(t('autosaved'))}</span></div></div>
             <p class="editor-privacy">${instruction('selectHint')} ${escapeHtml(t('noNetwork'))}</p>
             ${concept === 'integrated' ? `<section class="coach-entry" aria-label="${escapeHtml(t('askVisible'))}"><div><strong>${escapeHtml(t('askVisible'))}</strong><span>${escapeHtml(t('coachEntryHint'))}</span></div><button class="button secondary" data-action="coach">${escapeHtml(t('askVisible'))}</button></section>` : ''}
             <footer class="editor-footer"><div class="footer-group"><button class="button ghost" data-action="back" ${atBeginning() ? 'disabled' : ''}>← ${escapeHtml(t('back'))}</button><button class="button primary" data-action="continue">${escapeHtml(continueLabel())} →</button></div><div class="footer-group">${concept === 'journey' && !isCurrent && state.step >= 6 ? `<button class="button secondary" data-action="mark-current">${escapeHtml(t('markCurrent'))}</button>` : ''}<button class="button secondary" data-action="review-center">${escapeHtml(t('reviewCenter'))}</button></div></footer>
@@ -881,7 +916,9 @@
     function renderReviewPanel() {
         const councilAction = concept === 'integrated' && state.genre === 'stem'
             ? `<div class="support-action unavailable"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(t('councilUnavailable'))}</span></div>`
-            : `<button class="support-action" data-action="council"><strong>${escapeHtml(t('council'))}</strong><span>${state.councilRuns.length ? escapeHtml(t('revisit')) : escapeHtml(t('convene'))}</span></button>`;
+            : concept === 'integrated' && state.councilRuns.length
+                ? `<button class="support-action" data-action="review-tab" data-tab="council"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(t('revisit'))}</span></button>`
+                : `<button class="support-action" data-action="council"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(state.councilRuns.length ? t('revisit') : t('convene'))}</span></button>`;
         return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('reviewCenter'))}</h2><p>${state.reviews.length + state.councilRuns.length} ${escapeHtml(state.lang === 'en' ? 'saved reports' : 'informes guardados')}</p></div><span class="evidence-count">${state.decisions.length}</span></div><div class="panel-body"><button class="support-action" data-action="coach"><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(state.lang === 'en' ? 'passage, paragraph, or draft' : 'pasaje, párrafo o borrador')}</span></button><button class="support-action" data-action="focused-review"><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(genreMoves('review')[0])}</span></button>${councilAction}<button class="support-action" data-action="review-center"><strong>${escapeHtml(t('priorWork'))}</strong><span>${escapeHtml(t('revisit'))}</span></button></div></section>`;
     }
 
@@ -889,7 +926,12 @@
         const currentVersions = concept === 'journey' ? Object.keys(state.artifacts).length : state.versions.length;
         const moveNoteCount = concept === 'integrated' ? integratedMoves().filter(move => wordCount(state.moveNotes[moveNoteKey(move)]?.text)).length : 0;
         const rationaleCount = state.decisions.filter(decision => decision.rationale?.trim()).length;
-        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('evidence'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Hechos, no reflexión escrita por IA' : 'Facts, not AI-written reflection')}</p></div></div><div class="panel-body artifact-list">${concept === 'integrated' ? `<div class="artifact-row"><strong>${moveNoteCount} ${escapeHtml(state.lang === 'en' ? 'Move notes with content' : 'notas de Movidas con contenido')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Navigation never counts as evidence.' : 'La navegación nunca cuenta como evidencia.')}</small></div>` : ''}${concept === 'integrated' && state.genre === 'autobiographical' ? `<div class="artifact-row"><strong>${state.protectedPhrases.length} ${escapeHtml(state.lang === 'en' ? 'student-protected voice phrases' : 'frases de voz protegidas por el estudiante')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Exact text only; no understanding is inferred.' : 'Solo texto exacto; no se infiere comprensión.')}</small></div>` : ''}<div class="artifact-row"><strong>${currentVersions} ${escapeHtml(state.lang !== 'en' ? 'versiones o artefactos' : 'versions or artifacts')}</strong><small>${escapeHtml(t('autosaved'))}</small></div><div class="artifact-row"><strong>${state.decisions.length} ${escapeHtml(state.lang !== 'en' ? 'decisiones' : 'decisions')}</strong><small>${escapeHtml(state.decisions.length ? `${state.decisions.map(d => d.choice).join(', ')}${concept === 'integrated' ? ` · ${rationaleCount} ${state.lang === 'en' ? 'student reasons' : 'razones estudiantiles'}` : ''}` : t('noPrior'))}</small></div><div class="artifact-row"><strong>${state.councilRuns.length} ${escapeHtml(state.lang !== 'en' ? 'Consejos' : 'Council runs')}</strong><small>${escapeHtml(state.councilRuns.length ? t('revisit') : t('noPrior'))}</small></div><button class="button secondary" data-action="reflection">${escapeHtml(t('reflection'))}</button></div></section>`;
+        const recoverableSnapshots = concept === 'integrated' ? state.versions.filter(version => typeof version.text === 'string').length : 0;
+        const metadataCheckpoints = concept === 'integrated' ? state.versions.length - recoverableSnapshots : 0;
+        const versionEvidence = concept === 'integrated'
+            ? `<div class="artifact-row"><strong>${recoverableSnapshots} ${escapeHtml(state.lang === 'en' ? 'recoverable draft snapshots' : 'instantáneas recuperables del borrador')}</strong><small>${escapeHtml(metadataCheckpoints ? `${metadataCheckpoints} ${state.lang === 'en' ? 'earlier metadata-only checkpoints' : 'puntos anteriores solo con metadatos'}` : (state.lang === 'en' ? 'Exact prior text is viewable when a snapshot exists.' : 'El texto anterior exacto se puede ver cuando existe una instantánea.'))}</small><button class="text-button" data-action="version-history">${escapeHtml(state.lang === 'en' ? 'View draft history' : 'Ver historial del borrador')}</button></div>`
+            : `<div class="artifact-row"><strong>${currentVersions} ${escapeHtml(state.lang !== 'en' ? 'versiones o artefactos' : 'versions or artifacts')}</strong><small>${escapeHtml(t('autosaved'))}</small></div>`;
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('evidence'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Hechos, no reflexión escrita por IA' : 'Facts, not AI-written reflection')}</p></div></div><div class="panel-body artifact-list">${concept === 'integrated' ? `<div class="artifact-row"><strong>${moveNoteCount} ${escapeHtml(state.lang === 'en' ? 'Move notes with content' : 'notas de Movidas con contenido')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Navigation never counts as evidence.' : 'La navegación nunca cuenta como evidencia.')}</small></div>` : ''}${concept === 'integrated' && state.genre === 'autobiographical' ? `<div class="artifact-row"><strong>${state.protectedPhrases.length} ${escapeHtml(state.lang === 'en' ? 'student-protected voice phrases' : 'frases de voz protegidas por el estudiante')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Exact text only; no understanding is inferred.' : 'Solo texto exacto; no se infiere comprensión.')}</small></div>` : ''}${versionEvidence}<div class="artifact-row"><strong>${state.decisions.length} ${escapeHtml(state.lang !== 'en' ? 'decisiones' : 'decisions')}</strong><small>${escapeHtml(state.decisions.length ? `${state.decisions.map(d => d.choice).join(', ')}${concept === 'integrated' ? ` · ${rationaleCount} ${state.lang === 'en' ? 'student reasons' : 'razones estudiantiles'}` : ''}` : t('noPrior'))}</small></div><div class="artifact-row"><strong>${state.councilRuns.length} ${escapeHtml(state.lang !== 'en' ? 'Consejos' : 'Council runs')}</strong><small>${escapeHtml(state.councilRuns.length ? t('revisit') : t('noPrior'))}</small></div><button class="button secondary" data-action="reflection">${escapeHtml(t('reflection'))}</button></div></section>`;
     }
 
     function renderWorkRail() {
@@ -910,7 +952,7 @@
     }
 
     function navigateRelative(direction) {
-        checkpointVersion();
+        checkpointVersion(direction > 0 ? 'before moving forward' : 'before moving back');
         if (concept === 'desk') return setView('finish');
         if (concept === 'integrated') return setView('reflection');
         if (concept === 'journey') {
@@ -939,19 +981,36 @@
         saveState(); renderApp();
     }
 
-    function checkpointVersion() {
+    function checkpointVersion(reason = 'writing checkpoint') {
         const text = getDraft();
-        if (!text || concept === 'journey') return;
+        if (!text || concept === 'journey') return null;
         const signature = `${text.length}:${text.slice(0, 24)}`;
-        if (state.versions.at(-1)?.signature === signature) return;
-        state.versions.push({ id: crypto.randomUUID?.() || `${Date.now()}`, signature, words: wordCount(text), createdAt: new Date().toISOString(), phase: state.phase });
-        state.versions = state.versions.slice(-12);
+        const existing = state.versions.at(-1);
+        if (existing?.signature === signature) return existing.id;
+        const version = {
+            id: crypto.randomUUID?.() || `${Date.now()}`,
+            signature,
+            words: wordCount(text),
+            createdAt: new Date().toISOString(),
+            phase: state.phase,
+            reason,
+        };
+        if (concept === 'integrated') {
+            version.text = text;
+            version.genre = state.genre;
+            version.genreLabel = currentGenre().label.en;
+            version.genreLabelEs = currentGenre().label.es;
+        }
+        state.versions.push(version);
+        if (concept !== 'integrated') state.versions = state.versions.slice(-12);
+        return version.id;
     }
 
     function bindEditor() {
         const editor = document.getElementById('draftEditor');
         if (!editor) return;
         editor.addEventListener('input', () => {
+            editorCaret = editor.selectionStart;
             setDraft(editor.value);
             const count = document.getElementById('wordCount');
             if (count) count.textContent = t('words', { n: wordCount(editor.value) });
@@ -960,7 +1019,8 @@
             const placeCount = document.getElementById('draftPlaceCount');
             if (placeCount) placeCount.textContent = t('words', { n: wordCount(editor.value) });
         });
-        ['select', 'pointerup', 'keyup', 'touchend'].forEach(type => editor.addEventListener(type, () => setTimeout(() => captureSelection(editor), 0), { passive: true }));
+        ['click', 'pointerup', 'keyup', 'touchend'].forEach(type => editor.addEventListener(type, () => { editorCaret = editor.selectionStart; }, { passive: true }));
+        ['select'].forEach(type => editor.addEventListener(type, () => setTimeout(() => captureSelection(editor), 0), { passive: true }));
     }
 
     function bindNotebookEditor() {
@@ -993,7 +1053,8 @@
         const beforeBreak = editor.value.lastIndexOf('\n', start - 1) + 1;
         const afterBreakRaw = editor.value.indexOf('\n', end);
         const afterBreak = afterBreakRaw === -1 ? editor.value.length : afterBreakRaw;
-        captured = { text, paragraph: editor.value.slice(beforeBreak, afterBreak), full: editor.value, start, end, capturedAt: new Date().toISOString() };
+        editorCaret = end;
+        captured = { text, paragraph: editor.value.slice(beforeBreak, afterBreak), full: editor.value, start, end, hasSelection: true, capturedAt: new Date().toISOString() };
         updatePassageBar();
         announce(`${t('captured')}: ${text.slice(0, 80)}`);
     }
@@ -1002,7 +1063,7 @@
         const protectAction = concept === 'integrated' && state?.genre === 'autobiographical'
             ? `<button class="button ghost protect-phrase" data-action="protect-phrase">${escapeHtml(state.lang === 'en' ? 'Protect phrase' : 'Proteger frase')}</button>`
             : '';
-        return `<section id="passageBar" class="passage-bar" ${captured ? '' : 'hidden'} aria-label="${escapeHtml(t('captured'))}"><div class="passage-copy"><strong>${escapeHtml(t('captured'))}</strong><span id="passageExcerpt">${escapeHtml(captured?.text || '')}</span></div>${protectAction}<button class="button secondary" data-action="passage-review">${escapeHtml(t('reviewPassage'))}</button><button class="icon-button" data-action="clear-passage" aria-label="${escapeHtml(t('clear'))}">×</button></section>`;
+        return `<section id="passageBar" class="passage-bar" ${captured?.hasSelection ? '' : 'hidden'} aria-label="${escapeHtml(t('captured'))}"><div class="passage-copy"><strong>${escapeHtml(t('captured'))}</strong><span id="passageExcerpt">${escapeHtml(captured?.text || '')}</span></div>${protectAction}<button class="button secondary" data-action="passage-review">${escapeHtml(t('reviewPassage'))}</button><button class="icon-button" data-action="clear-passage" aria-label="${escapeHtml(t('clear'))}">×</button></section>`;
     }
 
     function protectCapturedPhrase() {
@@ -1025,7 +1086,7 @@
             document.body.insertAdjacentHTML('beforeend', renderPassageBar());
             bar = document.getElementById('passageBar');
         }
-        if (!captured) { bar.hidden = true; return; }
+        if (!captured?.hasSelection) { bar.hidden = true; return; }
         bar.hidden = false;
         const excerpt = document.getElementById('passageExcerpt');
         if (excerpt) excerpt.textContent = captured.text;
@@ -1041,22 +1102,66 @@
         lastFocus = document.activeElement;
         dialogRoot.innerHTML = `<div class="overlay" data-action="overlay-close"><section class="dialog ${options.wide ? 'wide' : ''}" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><header class="dialog-header"><div><h2 id="dialogTitle">${escapeHtml(title)}</h2>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div><button class="icon-button" data-action="close-dialog" aria-label="${escapeHtml(t('cancel'))}">×</button></header><div class="dialog-body">${body}</div>${footer ? `<footer class="dialog-footer">${footer}</footer>` : ''}</section></div>`;
         const dialog = dialogRoot.querySelector('[role="dialog"]');
+        dialogGuard = {
+            fields: Array.from(dialog.querySelectorAll('[data-protect-dirty]')).map(field => ({ field, initial: field.value })),
+        };
+        dialogAfterDiscard = null;
         requestAnimationFrame(() => (dialog.querySelector('input, textarea, button, select, [tabindex]') || dialog).focus());
     }
 
-    function closeDialog() {
+    function dialogHasDirtyText() {
+        return Boolean(dialogGuard?.fields.some(({ field, initial }) => document.contains(field) && field.value !== initial));
+    }
+
+    function showDirtyDialogConfirmation() {
+        const body = dialogRoot.querySelector('.dialog-body');
+        if (!body) return;
+        let confirmation = body.querySelector('.dirty-confirm');
+        if (!confirmation) {
+            body.insertAdjacentHTML('beforeend', `<section class="dirty-confirm" role="alert" aria-labelledby="dirtyConfirmTitle"><strong id="dirtyConfirmTitle">${escapeHtml(state.lang === 'en' ? 'Discard unsaved changes?' : '¿Descartar cambios no guardados?')}</strong><p>${escapeHtml(state.lang === 'en' ? 'This text has not been saved as evidence or added to your draft.' : 'Este texto no se ha guardado como evidencia ni se ha añadido a tu borrador.')}</p><div class="dirty-confirm-actions"><button class="button danger" data-action="discard-dialog">${escapeHtml(state.lang === 'en' ? 'Discard changes' : 'Descartar cambios')}</button><button class="button secondary" data-action="keep-editing">${escapeHtml(state.lang === 'en' ? 'Keep editing' : 'Seguir editando')}</button></div></section>`);
+            confirmation = body.querySelector('.dirty-confirm');
+        }
+        confirmation.querySelector('[data-action="keep-editing"]')?.focus();
+    }
+
+    function finishDialogClose() {
         dialogRoot.innerHTML = '';
         if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
         lastFocus = null;
+        dialogGuard = null;
+    }
+
+    function closeDialog(force = false, afterClose = null) {
+        if (!force && dialogHasDirtyText()) {
+            dialogAfterDiscard = afterClose;
+            showDirtyDialogConfirmation();
+            return false;
+        }
+        finishDialogClose();
+        if (afterClose) afterClose();
+        return true;
+    }
+
+    function discardDialogChanges() {
+        const afterClose = dialogAfterDiscard;
+        dialogAfterDiscard = null;
+        closeDialog(true, afterClose);
+    }
+
+    function keepEditingDialog() {
+        dialogRoot.querySelector('.dirty-confirm')?.remove();
+        dialogAfterDiscard = null;
+        const dirtyField = dialogGuard?.fields.find(({ field, initial }) => field.value !== initial)?.field;
+        dirtyField?.focus();
     }
 
     function openPasteDialog() {
         const sample = currentGenre().sample;
-        openDialog(t('paste'), t('pasteWarning'), `<div class="field"><label for="pasteDraft">${escapeHtml(t('currentDraft'))}</label><textarea id="pasteDraft">${escapeHtml(sample)}</textarea></div><p class="exact-preview" id="pastePreview">${escapeHtml(sample)}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="replace-draft">${escapeHtml(t('replaceDraft'))}</button>`);
+        openDialog(t('paste'), t('pasteWarning'), `<div class="field"><label for="pasteDraft">${escapeHtml(t('currentDraft'))}</label><textarea id="pasteDraft" data-protect-dirty spellcheck="${spellcheckEnabled()}">${escapeHtml(sample)}</textarea></div><p class="exact-preview" id="pastePreview">${escapeHtml(sample)}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="replace-draft">${escapeHtml(t('replaceDraft'))}</button>`);
     }
 
     function useSample() {
-        if (getDraft()) checkpointVersion();
+        if (getDraft()) checkpointVersion('before sample replacement');
         setDraft(currentGenre().sample);
         if (concept === 'journey') state.currentArtifact = `step-${state.step}`;
         saveState(); renderApp();
@@ -1099,13 +1204,13 @@
     function openPasteNotebookDialog() {
         const card = activeNotebookCard();
         const current = state.notebookEntries[notebookEntryKey(card)]?.text || notebookSample(card);
-        openDialog(t('pasteNotebook'), t('pasteWarning'), `<div class="field"><label for="pasteNotebookText">${escapeHtml(`${t('notebook')}: ${notebookCardLabel(card)}`)}</label><textarea id="pasteNotebookText">${escapeHtml(current)}</textarea></div><p>${escapeHtml(t('authorshipBoundary'))}</p><div class="exact-preview" id="pasteNotebookPreview">${escapeHtml(current)}</div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-notebook-paste">${escapeHtml(t('saveCard'))}</button>`);
+        openDialog(t('pasteNotebook'), t('pasteWarning'), `<div class="field"><label for="pasteNotebookText">${escapeHtml(`${t('notebook')}: ${notebookCardLabel(card)}`)}</label><textarea id="pasteNotebookText" data-protect-dirty spellcheck="${spellcheckEnabled()}">${escapeHtml(current)}</textarea></div><p>${escapeHtml(t('authorshipBoundary'))}</p><div class="exact-preview" id="pasteNotebookPreview">${escapeHtml(current)}</div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-notebook-paste">${escapeHtml(t('saveCard'))}</button>`);
     }
 
     function saveNotebookPaste() {
         const card = activeNotebookCard();
         state.notebookEntries[notebookEntryKey(card)] = { text: document.getElementById('pasteNotebookText')?.value || '', updatedAt: new Date().toISOString(), provenance: 'student-imported-synthetic' };
-        saveState(t('notebookSaved')); closeDialog(); renderApp();
+        saveState(t('notebookSaved')); closeDialog(true); renderApp();
     }
 
     function useNotebookSample() {
@@ -1147,7 +1252,7 @@
             ? `Question to consider: which detail in these notes most directly serves your purpose? I will not turn the note into draft prose.`
             : `Pregunta para considerar: ¿qué detalle de estas notas sirve más directamente a tu propósito? No convertiré la nota en prosa del borrador.`;
         state.notebookCoachRuns.push({ id: `notebook-coach-${Date.now()}`, cardId: notebookEntryKey(card), payload: text, response, createdAt: new Date().toISOString(), mock: true });
-        saveState(); closeDialog(); renderApp();
+        saveState(); closeDialog(true); renderApp();
     }
 
     function openMyWork() {
@@ -1159,14 +1264,14 @@
     function openMoveDialog(index) {
         const title = genreMoves('discover')[index] || genreMoves('discover')[0];
         const existing = state.artifacts[`move-${index}`]?.text || '';
-        openDialog(title, contextMoveDetail(index), `<div class="field"><label for="moveNote">${escapeHtml(state.lang !== 'en' ? 'Nota de apoyo (no compite con tu borrador)' : 'Supporting note (not a competing draft)')}</label><textarea id="moveNote" placeholder="${escapeHtml(state.lang !== 'en' ? 'Escribe una nota breve en tus propias palabras…' : 'Write a brief note in your own words…')}">${escapeHtml(existing)}</textarea></div><p>${escapeHtml(state.lang !== 'en' ? 'Esta tarjeta queda disponible como contexto. Nunca cambia ni inserta texto en tu borrador.' : 'This card remains available as context. It never changes or inserts text into your draft.')}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-move" data-move="${index}">${escapeHtml(t('saveReturn'))}</button>`);
+        openDialog(title, contextMoveDetail(index), `<div class="field"><label for="moveNote">${escapeHtml(state.lang !== 'en' ? 'Nota de apoyo (no compite con tu borrador)' : 'Supporting note (not a competing draft)')}</label><textarea id="moveNote" data-protect-dirty spellcheck="${spellcheckEnabled()}" placeholder="${escapeHtml(state.lang !== 'en' ? 'Escribe una nota breve en tus propias palabras…' : 'Write a brief note in your own words…')}">${escapeHtml(existing)}</textarea></div><p>${escapeHtml(state.lang !== 'en' ? 'Esta tarjeta queda disponible como contexto. Nunca cambia ni inserta texto en tu borrador.' : 'This card remains available as context. It never changes or inserts text into your draft.')}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-move" data-move="${index}">${escapeHtml(t('saveReturn'))}</button>`);
     }
 
     function openIntegratedMoveNote(index) {
         const move = integratedMoves()[index];
         if (!move) return;
         const existing = state.moveNotes[moveNoteKey(move)]?.text || '';
-        openDialog(integratedMoveLabel(move), integratedMoveWhy(move), `<div class="field"><label for="integratedMoveNote">${escapeHtml(t('planningNotes'))}</label><textarea id="integratedMoveNote" placeholder="${escapeHtml(integratedMovePrompt(move))}">${escapeHtml(existing)}</textarea></div><p class="boundary-note"><strong>${escapeHtml(state.lang === 'en' ? 'Reference only.' : 'Solo referencia.')}</strong> ${escapeHtml(state.lang === 'en' ? 'This note never transfers into or changes the canonical draft. You may write a fragment, question, quotation, observation, outline point, or evidence.' : 'Esta nota nunca se transfiere ni cambia el borrador canónico. Puedes escribir un fragmento, pregunta, cita, observación, punto de esquema o evidencia.')}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-integrated-note" data-move="${index}">${escapeHtml(t('saveReturn'))}</button>`);
+        openDialog(integratedMoveLabel(move), integratedMoveWhy(move), `<div class="field"><label for="integratedMoveNote">${escapeHtml(t('planningNotes'))}</label><textarea id="integratedMoveNote" data-protect-dirty spellcheck="${spellcheckEnabled()}" placeholder="${escapeHtml(integratedMovePrompt(move))}">${escapeHtml(existing)}</textarea></div><p class="boundary-note"><strong>${escapeHtml(state.lang === 'en' ? 'Reference only.' : 'Solo referencia.')}</strong> ${escapeHtml(state.lang === 'en' ? 'This note never transfers into or changes the canonical draft. You may write a fragment, question, quotation, observation, outline point, or evidence.' : 'Esta nota nunca se transfiere ni cambia el borrador canónico. Puedes escribir un fragmento, pregunta, cita, observación, punto de esquema o evidencia.')}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-integrated-note" data-move="${index}">${escapeHtml(t('saveReturn'))}</button>`);
     }
 
     function saveIntegratedMoveNote(index) {
@@ -1175,7 +1280,7 @@
         const text = document.getElementById('integratedMoveNote')?.value || '';
         state.moveNotes[moveNoteKey(move)] = { text, updatedAt: new Date().toISOString(), provenance: 'student', genre: state.genre, moveId: move.id };
         saveState(text.trim() ? (state.lang === 'en' ? 'Planning note saved locally.' : 'Nota de planificación guardada localmente.') : t('saved'));
-        closeDialog(); renderApp();
+        closeDialog(true); renderApp();
     }
 
     function openCoachDialog() {
@@ -1183,7 +1288,7 @@
             announce(t('draftToolsLocked'));
             return;
         }
-        const base = captured || deriveDraftScopes();
+        const base = captured?.hasSelection ? captured : deriveDraftScopes();
         if (!base || !base.full.trim()) {
             announce(state.lang !== 'en' ? 'Escribe algo antes de pedir coaching.' : 'Write something before asking for coaching.');
             return;
@@ -1194,19 +1299,25 @@
 
     function deriveDraftScopes() {
         const full = getDraft();
-        const paragraph = full.split(/\n+/).find(p => p.trim()) || full;
-        return { text: paragraph, paragraph, full, capturedAt: new Date().toISOString() };
+        let paragraph = '';
+        if (Number.isFinite(editorCaret) && editorCaret >= 0 && editorCaret <= full.length) {
+            const beforeBreak = full.lastIndexOf('\n', Math.max(0, editorCaret - 1)) + 1;
+            const afterBreakRaw = full.indexOf('\n', editorCaret);
+            const afterBreak = afterBreakRaw === -1 ? full.length : afterBreakRaw;
+            paragraph = full.slice(beforeBreak, afterBreak).trim() ? full.slice(beforeBreak, afterBreak) : '';
+        }
+        return { text: '', paragraph, full, hasSelection: false, capturedAt: new Date().toISOString() };
     }
 
     function openScopeDialog(kind, title, subtitle) {
-        const scopes = [
-            ['selected', t('selectedScope'), captured.text],
-            ['paragraph', t('paragraphScope'), captured.paragraph],
-            ['full', t('fullScope'), captured.full],
-        ];
-        const defaultScope = captured.text ? 'selected' : 'paragraph';
+        const scopes = [];
+        if (captured?.hasSelection && captured.text?.trim()) scopes.push(['selected', t('selectedScope'), captured.text]);
+        if (captured?.paragraph?.trim()) scopes.push(['paragraph', t('paragraphScope'), captured.paragraph]);
+        if (captured?.full?.trim()) scopes.push(['full', t('fullScope'), captured.full]);
+        const defaultScope = scopes[0]?.[0] || 'full';
         const facts = concept === 'integrated' ? renderIntegratedTransmissionFacts(kind) : '';
-        openDialog(title, subtitle, `${facts}<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(captured[defaultScope === 'selected' ? 'text' : defaultScope])}</div></div>${kind === 'focused' ? renderLensChoices() : ''}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? t('sendReview') : t('sendCoach'))}</button>`);
+        const scopeHint = captured?.hasSelection ? '' : `<p class="scope-hint">${escapeHtml(state.lang === 'en' ? 'No passage is selected. Select words in the draft to add a passage option.' : 'No hay un pasaje seleccionado. Selecciona palabras del borrador para añadir esa opción.')}</p>`;
+        openDialog(title, subtitle, `${facts}${scopeHint}<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(scopeText(defaultScope))}</div></div>${kind === 'focused' ? renderLensChoices() : ''}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? t('sendReview') : t('sendCoach'))}</button>`);
     }
 
     function renderIntegratedTransmissionFacts(kind) {
@@ -1228,7 +1339,7 @@
             announce(t('draftToolsLocked'));
             return;
         }
-        const base = captured || deriveDraftScopes();
+        const base = captured?.hasSelection ? captured : deriveDraftScopes();
         if (!base.full.trim()) return openCoachDialog();
         captured = base;
         openScopeDialog('focused', t('focusedReview'), state.lang !== 'en' ? 'Una lectura, una prioridad, tu decisión.' : 'One reading, one priority, your decision.');
@@ -1240,7 +1351,7 @@
     }
 
     function submitMockReview(kind, button) {
-        const scope = dialogRoot.querySelector('input[name="reviewScope"]:checked')?.value || 'selected';
+        const scope = dialogRoot.querySelector('input[name="reviewScope"]:checked')?.value || 'full';
         const text = scopeText(scope);
         if (!text) return;
         const lens = kind === 'focused' ? dialogRoot.querySelector('input[name="reviewLens"]:checked')?.value : (state.lang !== 'en' ? 'Pregunta del estudiante' : 'Student question');
@@ -1249,10 +1360,12 @@
         window.setTimeout(() => {
             const genre = currentGenre();
             const suggestion = mockSuggestion(kind, lens, text);
-            if (concept === 'notebook' || concept === 'integrated') checkpointVersion();
+            const snapshotId = concept === 'notebook' || concept === 'integrated'
+                ? checkpointVersion(kind === 'focused' ? 'before focused review' : 'before coach feedback')
+                : null;
             const criticalKey = concept === 'integrated' ? integratedCriticalKey(kind, lens) : null;
-            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: true, purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? 'mock genre-focused reviewer' : 'Tu Pana mock coach', calls: 1, criticalKey, criticalPrompt: criticalKey ? criticalQuestion(criticalKey).en : null, criticalContext: criticalKey ? criticalRiskText(criticalKey) : null, draftSignature: `${getDraft().length}:${getDraft().slice(0, 24)}` });
-            saveState(); closeDialog(); reviewTab = 'history'; openReviewCenter();
+            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: true, purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? 'mock genre-focused reviewer' : 'Tu Pana mock coach', calls: 1, criticalKey, criticalPrompt: criticalKey ? criticalQuestion(criticalKey).en : null, criticalContext: criticalKey ? criticalRiskText(criticalKey) : null, draftSignature: `${getDraft().length}:${getDraft().slice(0, 24)}`, snapshotId, genre: state.genre, genreLabel: genre.label.en, genreLabelEs: genre.label.es });
+            saveState(); closeDialog(true); renderApp(); reviewTab = 'history'; openReviewCenter();
         }, 260);
     }
 
@@ -1281,10 +1394,12 @@
 
     function runCouncil(button) {
         button.disabled = true;
-        if (concept === 'notebook' || concept === 'integrated') checkpointVersion();
+        const snapshotId = concept === 'notebook' || concept === 'integrated' ? checkpointVersion('before Council review') : null;
         const roles = genreMoves('council');
+        const genre = currentGenre();
         const run = {
             id: `council-${Date.now()}`, createdAt: new Date().toISOString(), genre: state.genre,
+            genreLabel: genre.label.en, genreLabelEs: genre.label.es, roles: [...roles], payloadScope: 'full', snapshotId,
             words: wordCount(getDraft()), signature: `${getDraft().length}:${getDraft().slice(0, 24)}`,
             findings: roles.map((role, index) => ({ role, suggestion: councilSuggestion(index) })), mock: true,
             calls: concept === 'integrated' ? 4 : undefined,
@@ -1294,7 +1409,7 @@
             draftSignature: `${getDraft().length}:${getDraft().slice(0, 24)}`,
         };
         state.councilRuns.push(run);
-        saveState(); closeDialog(); reviewTab = 'council'; openReviewCenter();
+        saveState(); closeDialog(true); renderApp(); reviewTab = 'council'; openReviewCenter();
     }
 
     function councilSuggestion(index) {
@@ -1318,20 +1433,89 @@
         }
         if (tab === 'council') {
             if (!state.councilRuns.length) return `<div class="empty-state">${escapeHtml(t('noReviews'))}<br><button class="button secondary" data-action="council" style="margin-top:12px">${escapeHtml(t('convene'))}</button></div>`;
-            return state.councilRuns.slice().reverse().map(run => `<article class="review-card"><span class="mock-label">Mock Council · ${escapeHtml(genreLabel())}</span><h3>${escapeHtml(t('council'))}</h3><p class="review-meta">${shortDate(run.createdAt)} · ${run.words} ${escapeHtml(state.lang === 'en' ? 'words reviewed' : 'palabras revisadas')}${concept === 'integrated' ? ` · ${escapeHtml(state.lang === 'en' ? '4 mock calls represented' : '4 llamadas simuladas representadas')}` : ''}</p>${concept === 'integrated' ? renderCriticalPrompt(run.criticalKey) : ''}${run.findings.map((finding, index) => `<blockquote><strong>${escapeHtml(finding.role)}</strong><br>${escapeHtml(finding.suggestion)}</blockquote>${decisionButtons(run.id, index, finding.suggestion, run.criticalKey)}`).join('')}</article>`).join('');
+            const reports = state.councilRuns.slice().reverse().map(run => `<article class="review-card"><span class="mock-label">Mock Council · ${escapeHtml(storedGenreLabel(run))}</span><h3>${escapeHtml(t('council'))}</h3><p class="review-meta">${shortDate(run.createdAt)} · ${escapeHtml(run.payloadScope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))} · ${run.words} ${escapeHtml(state.lang === 'en' ? 'words reviewed' : 'palabras revisadas')}${concept === 'integrated' ? ` · ${escapeHtml(run.calls ? `${run.calls} ${state.lang === 'en' ? 'mock calls represented' : 'llamadas simuladas representadas'}` : (state.lang === 'en' ? 'mock call count not stored' : 'cantidad de llamadas simuladas no guardada'))}` : ''}</p>${renderSnapshotLink(run.snapshotId, 'council')}${concept === 'integrated' ? renderCriticalPrompt(run.criticalKey, run.genre) : ''}${run.findings.map((finding, index) => `<blockquote><strong>${escapeHtml(finding.role)}</strong><br>${escapeHtml(finding.suggestion)}</blockquote>${decisionButtons(run.id, index, finding.suggestion, run.criticalKey)}`).join('')}</article>`).join('');
+            return `${reports}${concept === 'integrated' ? `<div class="review-secondary-action"><button class="button secondary" data-action="convene-again">${escapeHtml(state.lang === 'en' ? 'Convene again' : 'Convocar de nuevo')}</button><small>${escapeHtml(state.lang === 'en' ? 'Creates a new mock Council report after a separate consent step.' : 'Crea un nuevo informe simulado después de un consentimiento separado.')}</small></div>` : ''}`;
         }
         if (!state.decisions.length) return `<div class="empty-state">${escapeHtml(state.lang !== 'en' ? 'Todavía no has decidido sobre una sugerencia.' : 'You have not decided on a suggestion yet.')}</div>`;
-        return state.decisions.slice().reverse().map(decision => `<article class="review-card"><h3>${escapeHtml(decision.choiceLabel)}</h3><p class="review-meta">${shortDate(decision.createdAt)} · ${escapeHtml(decision.sourceType)}${decision.payloadScope ? ` · ${escapeHtml(decision.payloadScope)}` : ''}</p><blockquote>${escapeHtml(decision.suggestion)}</blockquote>${decision.criticalPrompt ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Critical prompt' : 'Pregunta crítica')}:</strong> ${escapeHtml(criticalQuestionText(decision.criticalKey))}</p>` : ''}${decision.rationale ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Student reason' : 'Razón estudiantil')}:</strong> ${escapeHtml(decision.rationale)}</p>` : ''}<p>${escapeHtml(t('decisionRecorded'))}</p></article>`).join('');
+        return state.decisions.slice().reverse().map(decision => `<article class="review-card"><h3>${escapeHtml(decision.choiceLabel)}</h3><p class="review-meta">${shortDate(decision.createdAt)} · ${escapeHtml(decision.sourceType)}${decision.payloadScope ? ` · ${escapeHtml(decision.payloadScope)}` : ''}</p>${renderSnapshotLink(decision.relatedVersionId, 'decisions')}<blockquote>${escapeHtml(decision.suggestion)}</blockquote>${decision.criticalPrompt ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Critical prompt' : 'Pregunta crítica')}:</strong> ${escapeHtml(criticalQuestionText(decision.criticalKey))}</p>` : ''}${decision.rationale ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Student reason' : 'Razón estudiantil')}:</strong> ${escapeHtml(decision.rationale)}</p>` : ''}<p>${escapeHtml(t('decisionRecorded'))}</p></article>`).join('');
     }
 
     function renderReviewCard(review) {
-        return `<article class="review-card"><span class="mock-label">Mock AI · ${escapeHtml(review.scope)}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(state.lang === 'en' ? '1 mock call' : '1 llamada simulada')}` : ''}</p><blockquote>${escapeHtml(review.exactExcerpt)}</blockquote><p>${escapeHtml(review.suggestion)}</p>${concept === 'integrated' ? renderCriticalPrompt(review.criticalKey) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}</article>`;
+        return `<article class="review-card"><span class="mock-label">Mock AI · ${escapeHtml(storedGenreLabel(review))} · ${escapeHtml(review.scope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(review.calls ? `${review.calls} ${state.lang === 'en' ? 'mock call' : 'llamada simulada'}` : (state.lang === 'en' ? 'mock call count not stored' : 'cantidad de llamadas simuladas no guardada'))}` : ''}</p>${renderSnapshotLink(review.snapshotId, 'history')}<blockquote>${escapeHtml(review.exactExcerpt)}</blockquote><p>${escapeHtml(review.suggestion)}</p>${concept === 'integrated' ? renderCriticalPrompt(review.criticalKey, review.genre) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}</article>`;
     }
 
-    function renderCriticalPrompt(key) {
+    function renderSnapshotLink(snapshotId, returnTab = reviewTab) {
+        if (!snapshotId) return '';
+        const version = state.versions.find(item => item.id === snapshotId);
+        if (!version) return `<p class="checkpoint-note">${escapeHtml(state.lang === 'en' ? 'Linked checkpoint is no longer available in this synthetic record.' : 'El punto vinculado ya no está disponible en este registro sintético.')}</p>`;
+        const label = typeof version.text === 'string'
+            ? (state.lang === 'en' ? 'View draft snapshot used for this feedback' : 'Ver la instantánea usada para esta retroalimentación')
+            : (state.lang === 'en' ? 'View metadata-only checkpoint' : 'Ver punto solo con metadatos');
+        return `<button class="text-button snapshot-link" data-action="view-snapshot" data-snapshot="${escapeHtml(snapshotId)}" data-return-tab="${escapeHtml(returnTab)}">${escapeHtml(label)}</button>`;
+    }
+
+    function versionTimestamp(version) {
+        return new Intl.DateTimeFormat(state.lang === 'es' ? 'es' : 'en', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(version.createdAt));
+    }
+
+    function openVersionHistory() {
+        const versions = state.versions.slice().reverse();
+        const body = versions.length
+            ? `<div class="artifact-list">${versions.map(version => {
+                const recoverable = typeof version.text === 'string';
+                const title = recoverable
+                    ? (state.lang === 'en' ? 'Draft snapshot' : 'Instantánea del borrador')
+                    : (state.lang === 'en' ? 'Metadata-only checkpoint' : 'Punto solo con metadatos');
+                const note = recoverable
+                    ? (state.lang === 'en' ? 'Exact prior text is stored locally and viewable.' : 'El texto anterior exacto está guardado localmente y se puede ver.')
+                    : (state.lang === 'en' ? 'Earlier prototype record: text was not stored, so this is not a recoverable snapshot.' : 'Registro anterior del prototipo: no se guardó el texto, así que no es una instantánea recuperable.');
+                return `<article class="artifact-row version-row"><strong>${escapeHtml(title)} · ${version.words ?? 0} ${escapeHtml(state.lang === 'en' ? 'words' : 'palabras')}</strong><small>${escapeHtml(versionTimestamp(version))} · ${escapeHtml(version.reason || (state.lang === 'en' ? 'reason not stored' : 'motivo no guardado'))}</small><p>${escapeHtml(note)}</p><button class="text-button" data-action="view-snapshot" data-snapshot="${escapeHtml(version.id)}" data-return-tab="versions">${escapeHtml(recoverable ? (state.lang === 'en' ? 'Inspect exact text' : 'Inspeccionar texto exacto') : (state.lang === 'en' ? 'Inspect checkpoint facts' : 'Inspeccionar datos del punto'))}</button></article>`;
+            }).join('')}</div>`
+            : `<div class="empty-state">${escapeHtml(state.lang === 'en' ? 'No draft checkpoints yet. A recoverable snapshot is created before mock review, Council, replacement, reflection, or Finish.' : 'Todavía no hay puntos del borrador. Se crea una instantánea recuperable antes de revisión simulada, Consejo, reemplazo, reflexión o Finalizar.')}</div>`;
+        openDialog(state.lang === 'en' ? 'Draft history' : 'Historial del borrador', state.lang === 'en' ? 'Read-only local prototype history. Viewing never replaces the current draft.' : 'Historial local de solo lectura. Verlo nunca reemplaza el borrador actual.', body, `<button class="button ghost" data-action="close-dialog">${escapeHtml(state.lang === 'en' ? 'Return to draft' : 'Volver al borrador')}</button>`, { wide: true });
+    }
+
+    function openSnapshotViewer(snapshotId, returnTab = 'versions') {
+        const version = state.versions.find(item => item.id === snapshotId);
+        if (!version) return openVersionHistory();
+        const recoverable = typeof version.text === 'string';
+        const title = recoverable
+            ? (state.lang === 'en' ? 'Draft snapshot' : 'Instantánea del borrador')
+            : (state.lang === 'en' ? 'Metadata-only checkpoint' : 'Punto solo con metadatos');
+        const facts = `<dl class="snapshot-facts"><div><dt>${escapeHtml(state.lang === 'en' ? 'Recorded' : 'Registrado')}</dt><dd>${escapeHtml(versionTimestamp(version))}</dd></div><div><dt>${escapeHtml(state.lang === 'en' ? 'Reason' : 'Motivo')}</dt><dd>${escapeHtml(version.reason || (state.lang === 'en' ? 'Not stored in this earlier record' : 'No guardado en este registro anterior'))}</dd></div><div><dt>${escapeHtml(state.lang === 'en' ? 'Words' : 'Palabras')}</dt><dd>${version.words ?? 0}</dd></div><div><dt>${escapeHtml(t('genre'))}</dt><dd>${escapeHtml(storedGenreLabel(version))}</dd></div></dl>`;
+        const content = recoverable
+            ? `${facts}<p>${escapeHtml(state.lang === 'en' ? 'Read-only exact prior wording. Copying does not change the active draft.' : 'Texto anterior exacto de solo lectura. Copiar no cambia el borrador activo.')}</p><pre class="snapshot-text" id="snapshotText">${escapeHtml(version.text)}</pre>`
+            : `${facts}<p class="checkpoint-note">${escapeHtml(state.lang === 'en' ? 'Text was not stored in this earlier synthetic record. This checkpoint cannot be viewed or recovered and is not called a snapshot.' : 'El texto no se guardó en este registro sintético anterior. Este punto no se puede ver ni recuperar y no se llama instantánea.')}</p>`;
+        const backAction = returnTab === 'versions'
+            ? `<button class="button ghost" data-action="version-history">${escapeHtml(state.lang === 'en' ? 'Back to draft history' : 'Volver al historial')}</button>`
+            : `<button class="button ghost" data-action="review-tab" data-tab="${escapeHtml(returnTab)}">${escapeHtml(state.lang === 'en' ? 'Back to report' : 'Volver al informe')}</button>`;
+        const copyAction = recoverable ? `<button class="button secondary" data-action="copy-snapshot" data-snapshot="${escapeHtml(snapshotId)}">${escapeHtml(state.lang === 'en' ? 'Copy prior wording' : 'Copiar texto anterior')}</button>` : '';
+        openDialog(title, state.lang === 'en' ? 'Viewing only—your current draft stays unchanged.' : 'Solo lectura—tu borrador actual no cambia.', content, `${backAction}${copyAction}`, { wide: true });
+    }
+
+    async function copySnapshotText(snapshotId) {
+        const version = state.versions.find(item => item.id === snapshotId);
+        if (typeof version?.text !== 'string') return;
+        try {
+            await navigator.clipboard.writeText(version.text);
+        } catch (error) {
+            const helper = document.createElement('textarea');
+            helper.value = version.text;
+            helper.setAttribute('readonly', '');
+            helper.style.position = 'fixed';
+            helper.style.opacity = '0';
+            document.body.appendChild(helper);
+            helper.select();
+            document.execCommand('copy');
+            helper.remove();
+        }
+        announce(state.lang === 'en' ? 'Prior wording copied. Current draft unchanged.' : 'Texto anterior copiado. El borrador actual no cambió.');
+    }
+
+    function renderCriticalPrompt(key, genre = state.genre) {
         if (!key) return '';
-        const available = Object.entries(criticalQuestions).filter(([questionKey]) => !(state.genre === 'stem' && questionKey === 'cultural'));
-        const risk = criticalRiskText(key);
+        const available = Object.entries(criticalQuestions).filter(([questionKey]) => !(genre === 'stem' && questionKey === 'cultural'));
+        const risk = criticalRiskText(key, genre);
         return `<details class="critical-moment" data-critical-key="${escapeHtml(key)}"><summary>${escapeHtml(t('criticalAction'))}</summary><div class="critical-moment-body"><span class="panel-kicker">${escapeHtml(criticalQuestion(key).principle)}</span>${risk ? `<p class="critical-risk">${escapeHtml(risk)}</p>` : ''}<p class="critical-primary">${escapeHtml(criticalQuestionText(key))}</p><p>${escapeHtml(t('decisionMaker'))}</p><details class="critical-framework"><summary>${escapeHtml(t('allQuestions'))}</summary><ul>${available.map(([questionKey, question]) => `<li class="${questionKey === key ? 'current' : ''}"><strong>${escapeHtml(question.principle)}</strong> — ${escapeHtml(question[state.lang === 'en' ? 'en' : 'es'])}</li>`).join('')}</ul></details></div></details>`;
     }
 
@@ -1356,13 +1540,15 @@
                 aiSource: council ? 'Mock Council' : (review?.reviewer || 'Tu Pana mock coach'),
                 payloadScope: council ? 'full' : (review?.scope || 'unknown'),
                 draftSignature: council?.draftSignature || review?.draftSignature || `${getDraft().length}:${getDraft().slice(0, 24)}`,
+                relatedVersionId: council?.snapshotId || review?.snapshotId || null,
             };
-            openDialog(labels[choice], t('criticalAction'), `<div class="critical-decision-summary"><span class="panel-kicker">${escapeHtml(criticalQuestion(pendingDecision.criticalKey).principle)}</span><p>${escapeHtml(criticalQuestionText(pendingDecision.criticalKey))}</p><blockquote>${escapeHtml(pendingDecision.suggestion)}</blockquote></div><div class="field"><label for="decisionRationale">${escapeHtml(t('rationale'))}</label><textarea id="decisionRationale" maxlength="500" placeholder="${escapeHtml(state.lang === 'en' ? 'I chose this because…' : 'Elegí esto porque…')}"></textarea></div><p>${escapeHtml(t('decisionMaker'))}</p>`, `<button class="button ghost" data-action="review-center">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-integrated-decision">${escapeHtml(t('saveDecision'))}</button>`);
+            openDialog(labels[choice], t('criticalAction'), `<div class="critical-decision-summary"><span class="panel-kicker">${escapeHtml(criticalQuestion(pendingDecision.criticalKey).principle)}</span><p>${escapeHtml(criticalQuestionText(pendingDecision.criticalKey))}</p><blockquote>${escapeHtml(pendingDecision.suggestion)}</blockquote></div><div class="field"><label for="decisionRationale">${escapeHtml(t('rationale'))}</label><textarea id="decisionRationale" data-protect-dirty spellcheck="${spellcheckEnabled()}" maxlength="500" placeholder="${escapeHtml(state.lang === 'en' ? 'I chose this because…' : 'Elegí esto porque…')}"></textarea></div><p>${escapeHtml(t('decisionMaker'))}</p>`, `<button class="button ghost" data-action="review-center">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-integrated-decision">${escapeHtml(t('saveDecision'))}</button>`);
             return;
         }
         state.decisions = state.decisions.filter(d => !(d.sourceId === sourceId && d.suggestionIndex === index));
         state.decisions.push({ id: `decision-${Date.now()}`, sourceId, suggestionIndex: index, sourceType: sourceId.startsWith('council') ? t('council') : t('focusedReview'), choice, choiceLabel: labels[choice], suggestion: button.dataset.suggestion, createdAt: new Date().toISOString(), studentAuthored: true });
         saveState(t('decisionRecorded'));
+        renderApp();
         openReviewCenter(reviewTab);
     }
 
@@ -1385,12 +1571,13 @@
             criticalPrompt: criticalQuestion(pendingDecision.criticalKey).en,
             criticalContext: pendingDecision.criticalContext,
             draftSignature: pendingDecision.draftSignature,
-            relatedVersionId: state.versions.at(-1)?.id || null,
+            relatedVersionId: pendingDecision.relatedVersionId,
             createdAt: new Date().toISOString(),
             studentAuthored: true,
         });
         pendingDecision = null;
         saveState(t('decisionRecorded'));
+        renderApp();
         openReviewCenter(reviewTab);
     }
 
@@ -1412,7 +1599,12 @@
             if (state.genre === 'autobiographical' && Object.values(state.finishChecks).filter(Boolean).length) items.push(`${Object.values(state.finishChecks).filter(Boolean).length}/4 ${state.lang !== 'en' ? 'marcas del checklist hechas por el estudiante' : 'student-marked Finish checks'}`);
         }
         if (wordCount(getDraft())) items.push(`${wordCount(getDraft())} ${state.lang !== 'en' ? 'palabras en la versión actual' : 'words in the current version'}`);
-        if (state.versions.length) items.push(`${state.versions.length} ${state.lang !== 'en' ? 'instantáneas locales' : 'local snapshots'}`);
+        if (state.versions.length) {
+            const exactSnapshots = state.versions.filter(version => typeof version.text === 'string').length;
+            const metadataOnly = state.versions.length - exactSnapshots;
+            if (exactSnapshots) items.push(`${exactSnapshots} ${state.lang !== 'en' ? 'instantáneas locales recuperables' : 'recoverable local snapshots'}`);
+            if (metadataOnly) items.push(`${metadataOnly} ${state.lang !== 'en' ? 'puntos anteriores solo con metadatos' : 'earlier metadata-only checkpoints'}`);
+        }
         if (Object.keys(state.artifacts).length) items.push(`${Object.keys(state.artifacts).length} ${state.lang !== 'en' ? 'artefactos con texto' : 'artifacts with text'}`);
         if (state.reviews.length) items.push(`${state.reviews.length} ${state.lang !== 'en' ? 'lecturas enfocadas' : 'focused reviews'}`);
         if (state.councilRuns.length) items.push(`${state.councilRuns.length} ${state.lang !== 'en' ? 'reuniones del Consejo' : 'Council runs'}`);
@@ -1436,7 +1628,7 @@
         const complete = ['changed', 'decision', 'voice'].filter(key => state.reflections[key].trim()).length;
         return `<section class="finish-page" aria-labelledby="reflectionTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(t('whereDesk'))}</p><h2 id="reflectionTitle">${escapeHtml(t('reflection'))}</h2><p>${escapeHtml(t('reflectionWhy'))}</p><strong>${complete}/3 ${escapeHtml(state.lang !== 'en' ? 'respuestas requeridas guardadas' : 'required responses saved')}</strong></div>
             <section class="panel"><div class="panel-body"><div class="reflection-intro"><strong>${escapeHtml(t('reflectionEvidence'))}</strong><div class="evidence-chips">${factualEvidence().length ? factualEvidence().map(item => `<span class="evidence-chip">${escapeHtml(item)}</span>`).join('') : `<span class="evidence-chip">${escapeHtml(state.lang !== 'en' ? 'La evidencia aparecerá al trabajar.' : 'Evidence will appear as you work.')}</span>`}</div></div>
-            <form id="reflectionForm">${prompts.map(([key, label, optional]) => `<div class="reflection-prompt"><label for="reflection-${key}">${escapeHtml(label)} ${optional ? `<span class="optional-label">(${escapeHtml(t('optional'))})</span>` : ''}</label><textarea id="reflection-${key}" name="${key}" ${optional ? '' : 'required'}>${escapeHtml(state.reflections[key])}</textarea></div>`).join('')}</form></div><footer class="editor-footer"><button class="button ghost" data-action="return-write">← ${escapeHtml(state.lang !== 'en' ? 'Volver a escribir' : 'Return to writing')}</button><div class="footer-group"><button class="button secondary" data-action="save-reflection">${escapeHtml(t('saveReturn'))}</button><button class="button primary" data-action="finish">${escapeHtml(t('preparePacket'))} →</button></div></footer></section></section>`;
+            <form id="reflectionForm">${prompts.map(([key, label, optional]) => `<div class="reflection-prompt"><label for="reflection-${key}">${escapeHtml(label)} ${optional ? `<span class="optional-label">(${escapeHtml(t('optional'))})</span>` : ''}</label><textarea id="reflection-${key}" name="${key}" spellcheck="${spellcheckEnabled()}" ${optional ? '' : 'required'}>${escapeHtml(state.reflections[key])}</textarea></div>`).join('')}</form></div><footer class="editor-footer"><button class="button ghost" data-action="return-write">← ${escapeHtml(state.lang !== 'en' ? 'Volver a escribir' : 'Return to writing')}</button><div class="footer-group"><button class="button secondary" data-action="save-reflection">${escapeHtml(t('saveReturn'))}</button><button class="button primary" data-action="finish">${escapeHtml(t('preparePacket'))} →</button></div></footer></section></section>`;
     }
 
     function saveReflection() {
@@ -1479,7 +1671,7 @@
         const packetReady = Boolean(state.packetCreatedAt);
         return `<section class="finish-page" aria-labelledby="finishTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(t('finish'))}</p><h2 id="finishTitle">${escapeHtml(t('preparePacket'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Guardar mantiene tu trabajo en progreso. Finalizar confirma una versión y arma un paquete local. Entregar ocurre fuera de este prototipo, según las instrucciones de tu instructor.' : 'Save keeps work in progress. Finish confirms one version and assembles a local packet. Submission happens outside this prototype, according to your instructor’s directions.')}</p></div>
             <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('packetDraft'))}</h3><p>${wordCount(draft)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')} · ${escapeHtml(concept === 'journey' ? state.currentArtifact : t('currentDraft'))}</p><div class="packet-preview" id="finalDraftPreview">${escapeHtml(draft || (state.lang !== 'en' ? 'No hay borrador todavía.' : 'No draft yet.'))}</div><label class="consent-box" style="margin-top:12px"><input id="packetConfirm" type="checkbox" ${state.packetCreatedAt ? 'checked' : ''}><span>${escapeHtml(t('confirmDraft'))}</span></label></section>
-            <section class="packet-section"><h3>${escapeHtml(state.lang !== 'en' ? 'Comprobación honesta' : 'Truthful readiness check')}</h3><ul class="check-list"><li class="${draft.trim() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Una versión exacta está identificada' : 'One exact version is identified')}</li><li class="${reflectionComplete() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Tres respuestas estudiantiles están completas' : 'Three student-authored responses are complete')}</li><li class="${concept === 'integrated' || state.councilRuns.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.councilRuns.length ? (state.lang !== 'en' ? 'No se solicitó Consejo—es opcional' : 'No Council requested—optional') : (state.lang !== 'en' ? 'La evidencia del Consejo está incluida si existe' : 'Council evidence is included when it exists'))}</li><li class="${concept === 'integrated' || state.decisions.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.decisions.length ? (state.lang !== 'en' ? 'No hubo decisiones de IA—la IA es opcional' : 'No AI decisions—AI is optional') : (state.lang !== 'en' ? 'Las decisiones sobre sugerencias están incluidas' : 'Suggestion decisions are included'))}</li></ul><p><strong>${escapeHtml(ready ? (state.lang !== 'en' ? 'Listo para crear el paquete local' : 'Ready to create the local packet') : (state.lang !== 'en' ? 'Todavía en progreso' : 'Still in progress'))}</strong></p><button class="button primary" data-action="create-packet" ${!ready ? 'disabled' : ''}>${escapeHtml(t('createPacket'))}</button></section></div>
+            <section class="packet-section"><h3>${escapeHtml(state.lang !== 'en' ? 'Comprobación honesta' : 'Truthful readiness check')}</h3><ul class="check-list"><li class="${draft.trim() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Una versión exacta está identificada' : 'One exact version is identified')}</li><li class="${reflectionComplete() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Tres respuestas contienen texto' : 'Three student-authored responses contain text')}</li><li class="${concept === 'integrated' || state.councilRuns.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.councilRuns.length ? (state.lang !== 'en' ? 'No se solicitó Consejo—es opcional' : 'No Council requested—optional') : (state.lang !== 'en' ? 'La evidencia del Consejo está incluida si existe' : 'Council evidence is included when it exists'))}</li><li class="${concept === 'integrated' || state.decisions.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.decisions.length ? (state.lang !== 'en' ? 'No hubo decisiones de IA—la IA es opcional' : 'No AI decisions—AI is optional') : (state.lang !== 'en' ? 'Las decisiones sobre sugerencias están incluidas' : 'Suggestion decisions are included'))}</li></ul><p><strong>${escapeHtml(ready ? (state.lang !== 'en' ? 'Listo para crear el paquete local' : 'Ready to create the local packet') : (state.lang !== 'en' ? 'Todavía en progreso' : 'Still in progress'))}</strong></p><button class="button primary" data-action="create-packet" ${!ready ? 'disabled' : ''}>${escapeHtml(t('createPacket'))}</button></section></div>
             <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('studentReflection'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Solo contiene las palabras del estudiante.' : 'Contains only the student’s words.')}</p>${reflectionPrompts().map(([key, label], i) => state.reflections[key] ? `<h4>${i + 1}. ${escapeHtml(label)}</h4><p>${escapeHtml(state.reflections[key])}</p>` : '').join('') || `<p>${escapeHtml(state.lang !== 'en' ? 'Todavía no hay reflexión.' : 'No reflection yet.')}</p>`}</section>
             <section class="packet-section"><h3>${escapeHtml(t('instructorAppendix'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Evidencia factual del sistema, separada de la reflexión.' : 'Factual system evidence, separate from reflection.')}</p><ul class="check-list">${factualEvidence().map(item => `<li class="done">${escapeHtml(item)}</li>`).join('') || `<li>${escapeHtml(t('noPrior'))}</li>`}</ul></section></div>${renderGenreFinishChecklist()}
             ${concept === 'notebook' || concept === 'integrated' ? `<section class="packet-section action-meanings"><h3>${escapeHtml(state.lang === 'en' ? 'Five different actions' : 'Cinco acciones distintas')}</h3><div class="artifact-list"><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Save' : 'Guardar')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Keeps exact work in this isolated browser.' : 'Mantiene el trabajo exacto en este navegador aislado.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('finish'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Confirms which draft and reflection belong in the packet.' : 'Confirma qué borrador y reflexión pertenecen al paquete.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('createPacket'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Assembles a local preview; it submits nothing.' : 'Arma una vista previa local; no entrega nada.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Backup' : 'Copia de seguridad')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Downloads this concept’s isolated synthetic state.' : 'Descarga el estado sintético aislado de este concepto.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'External Submit' : 'Entrega externa')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Happens outside Tu Pana under instructor directions.' : 'Ocurre fuera de Tu Pana según las instrucciones del instructor.')}</small></div></div><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button></section>` : ''}
@@ -1517,7 +1709,7 @@
             document.getElementById('packetConfirm')?.focus();
             return;
         }
-        if (concept === 'notebook' || concept === 'integrated') checkpointVersion();
+        if (concept === 'notebook' || concept === 'integrated') checkpointVersion('final packet created');
         state.packetCreatedAt = new Date().toISOString();
         state.packetDraft = markedDraft();
         saveState(t('packetReady')); renderApp();
@@ -1540,14 +1732,15 @@
     }
 
     function openSettings() {
-        openDialog(t('settingsTitle'), conceptMeta[concept].name, `<p>${escapeHtml(t('storageNote'))}</p><section class="packet-section"><h3>${escapeHtml(t('focusDecision'))}</h3><p>${escapeHtml(focusDecisionText())}</p></section><section class="danger-zone"><h3>${escapeHtml(t('danger'))}</h3><p>${escapeHtml(t('deleteExplain'))}</p><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button><div class="field" style="margin-top:15px"><label for="deleteConfirm">${escapeHtml(t('typeDelete'))}</label><input class="delete-confirm" id="deleteConfirm" type="text" autocomplete="off"></div><button class="button danger" data-action="delete-state" disabled>${escapeHtml(t('deleteNow'))}</button></section>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+        const integratedSettings = concept === 'integrated' ? `<section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing project' : 'Proyecto de escritura')}</h3><p>${escapeHtml(state.lang === 'en' ? 'This local control supports honest prototype comparison. A production assignment may set the genre through its link.' : 'Este control local permite una comparación honesta del prototipo. Una tarea de producción podría definir el género mediante su enlace.')}</p><label class="field" for="settingsGenre"><span>${escapeHtml(t('genre'))}</span><select id="settingsGenre" class="settings-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${genreOptionsMarkup()}</select></label></section><section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing utilities' : 'Utilidades de escritura')}</h3><label class="check-line"><input type="checkbox" data-action="native-spellcheck" ${spellcheckEnabled() ? 'checked' : ''}> <span>${escapeHtml(state.lang === 'en' ? 'Native spelling suggestions' : 'Sugerencias ortográficas nativas')}</span></label><p>${escapeHtml(state.lang === 'en' ? 'Spelling suggestions come from your browser or device. Tu Pana does not send your writing for this feature.' : 'Las sugerencias ortográficas provienen de tu navegador o dispositivo. Tu Pana no envía tu escritura para esta función.')}</p></section>` : '';
+        openDialog(t('settingsTitle'), conceptMeta[concept].name, `<p>${escapeHtml(t('storageNote'))}</p>${integratedSettings}<section class="packet-section"><h3>${escapeHtml(t('focusDecision'))}</h3><p>${escapeHtml(focusDecisionText())}</p></section><section class="danger-zone"><h3>${escapeHtml(t('danger'))}</h3><p>${escapeHtml(t('deleteExplain'))}</p><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button><div class="field" style="margin-top:15px"><label for="deleteConfirm">${escapeHtml(t('typeDelete'))}</label><input class="delete-confirm" id="deleteConfirm" type="text" autocomplete="off"></div><button class="button danger" data-action="delete-state" disabled>${escapeHtml(t('deleteNow'))}</button></section>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
     }
 
     function deletePrototypeState() {
         localStorage.removeItem(storageKey(concept));
         state = defaultState(concept);
         captured = null;
-        closeDialog(); renderApp();
+        closeDialog(true); renderApp();
         announce(state.lang !== 'en' ? 'Datos sintéticos borrados.' : 'Synthetic prototype data deleted.');
     }
 
@@ -1557,6 +1750,8 @@
         if (action === 'settings') openSettings();
         else if (action === 'close-dialog') closeDialog();
         else if (action === 'overlay-close') closeDialog();
+        else if (action === 'discard-dialog') discardDialogChanges();
+        else if (action === 'keep-editing') keepEditingDialog();
         else if (action === 'knowledge-choice') { state.knowledgeChoice = target.dataset.choice === 'engage' ? 'engage' : 'skip'; state.knowledgeChoiceAt = new Date().toISOString(); state.onboardingSeenAt ||= state.knowledgeChoiceAt; saveState(); renderApp(); }
         else if (action === 'knowledge-reset') { state.knowledgeChoice = null; saveState(); renderApp(); }
         else if (action === 'integrated-move-note') openIntegratedMoveNote(Number(target.dataset.move));
@@ -1575,9 +1770,9 @@
         else if (action === 'submit-notebook-coach') submitNotebookCoach(target);
         else if (action === 'paste') openPasteDialog();
         else if (action === 'sample') useSample();
-        else if (action === 'replace-draft') { const value = document.getElementById('pasteDraft')?.value || ''; checkpointVersion(); setDraft(value); saveState(); closeDialog(); renderApp(); }
+        else if (action === 'replace-draft') { const value = document.getElementById('pasteDraft')?.value || ''; checkpointVersion('before draft replacement'); setDraft(value); saveState(); closeDialog(true); renderApp(); }
         else if (action === 'activate-move') openMoveDialog(Number(target.dataset.move));
-        else if (action === 'save-move') { const key = `move-${target.dataset.move}`; state.artifacts[key] = { text: document.getElementById('moveNote')?.value || '', updatedAt: new Date().toISOString(), label: genreMoves('discover')[Number(target.dataset.move)] }; saveState(); closeDialog(); renderApp(); }
+        else if (action === 'save-move') { const key = `move-${target.dataset.move}`; state.artifacts[key] = { text: document.getElementById('moveNote')?.value || '', updatedAt: new Date().toISOString(), label: genreMoves('discover')[Number(target.dataset.move)] }; saveState(); closeDialog(true); renderApp(); }
         else if (action === 'focus') { document.body.classList.add('focus-mode'); document.getElementById('draftEditor')?.focus(); }
         else if (action === 'exit-focus') { document.body.classList.remove('focus-mode'); document.getElementById('draftEditor')?.focus(); }
         else if (action === 'back') navigateRelative(-1);
@@ -1589,17 +1784,20 @@
         else if (action === 'passage-review') openScopeDialog('coach', t('coach'), state.lang !== 'en' ? 'La selección ya está capturada aunque iOS la cierre.' : 'The selection is already captured even if iOS collapses it.');
         else if (action === 'protect-phrase') protectCapturedPhrase();
         else if (action === 'clear-passage') { captured = null; updatePassageBar(); document.getElementById('draftEditor')?.focus(); }
-        else if (action === 'focused-review') { closeDialog(); openFocusedReviewDialog(); }
-        else if (action === 'council') { closeDialog(); openCouncilDialog(); }
-        else if (action === 'review-center') openReviewCenter();
+        else if (action === 'focused-review') closeDialog(false, openFocusedReviewDialog);
+        else if (action === 'council' || action === 'convene-again') closeDialog(false, openCouncilDialog);
+        else if (action === 'review-center') closeDialog(false, () => openReviewCenter());
         else if (action === 'submit-mock') submitMockReview(target.dataset.kind, target);
         else if (action === 'run-council') runCouncil(target);
         else if (action === 'review-tab') openReviewCenter(target.dataset.tab);
+        else if (action === 'version-history') openVersionHistory();
+        else if (action === 'view-snapshot') openSnapshotViewer(target.dataset.snapshot, target.dataset.returnTab || 'versions');
+        else if (action === 'copy-snapshot') copySnapshotText(target.dataset.snapshot);
         else if (action === 'decision') recordDecision(target);
         else if (action === 'save-integrated-decision') saveIntegratedDecision();
         else if (action === 'reflection') { if (state.view === 'reflection') saveReflection(); setView('reflection'); }
         else if (action === 'save-reflection') saveReflection();
-        else if (action === 'finish') { if (state.view === 'reflection') saveReflection(); if (concept === 'notebook' || concept === 'integrated') checkpointVersion(); setView('finish'); }
+        else if (action === 'finish') { if (state.view === 'reflection') saveReflection(); if (concept === 'notebook' || concept === 'integrated') checkpointVersion('entered Finish'); setView('finish'); }
         else if (action === 'return-write') { if (concept === 'notebook' && state.draftDeclared) state.place = 'draft'; setView('write'); }
         else if (action === 'create-packet') createPacket();
         else if (action === 'download-packet') downloadText(packetText(), `tupana-${concept}-synthetic-packet.txt`);
@@ -1619,7 +1817,22 @@
     document.addEventListener('change', event => {
         const target = event.target;
         if (target.matches('[data-action="language"]')) { state.lang = target.value; saveState(); renderApp(); }
-        else if (target.matches('[data-action="genre"]')) { state.genre = genres[target.value] ? target.value : 'neutral'; saveState(); renderApp(); }
+        else if (target.matches('[data-action="genre"]')) {
+            storeActiveGenreState();
+            state.genre = genres[target.value] ? target.value : target.value;
+            loadActiveGenreState(state.genre);
+            captured = null;
+            saveState();
+            if (dialogRoot.contains(target)) closeDialog(true);
+            renderApp();
+            announce(`${t('genre')}: ${genreLabel()}`);
+            requestAnimationFrame(() => (document.querySelector('.mobile-project-chip') || document.querySelector('.genre-select'))?.focus());
+        }
+        else if (target.matches('[data-action="native-spellcheck"]')) {
+            state.nativeSpellcheck = target.checked;
+            saveState();
+            document.querySelectorAll('textarea').forEach(field => field.spellcheck = target.checked);
+        }
         else if (target.matches('[data-action="finish-check"]')) { state.finishChecks[target.dataset.key] = target.checked; saveState(); }
         else if (target.name === 'reviewScope') { const preview = document.getElementById('scopePreview'); if (preview) preview.textContent = scopeText(target.value); }
         else if (target.id === 'transmitConsent') { const button = dialogRoot.querySelector('[data-action="submit-mock"], [data-action="run-council"], [data-action="submit-notebook-coach"]'); if (button) button.disabled = !target.checked; }
@@ -1644,7 +1857,10 @@
     }, true);
 
     document.addEventListener('keydown', event => {
-        if (event.key === 'Escape' && dialogRoot.firstElementChild) closeDialog();
+        if (event.key === 'Escape' && dialogRoot.firstElementChild) {
+            if (dialogRoot.querySelector('.dirty-confirm')) keepEditingDialog();
+            else closeDialog();
+        }
         const dialog = dialogRoot.querySelector('[role="dialog"]');
         if (event.key === 'Tab' && dialog) {
             const focusable = Array.from(dialog.querySelectorAll('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')).filter(el => !el.hidden && el.offsetParent !== null);

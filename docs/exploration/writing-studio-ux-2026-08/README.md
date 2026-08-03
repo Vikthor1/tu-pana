@@ -3,6 +3,7 @@
 **Window:** `writing-studio-ux-2026-08`
 **Fourth-prototype checkpoint:** `e8678738dfab6ef42992fc0c16aee1c46a87680c`
 **Finalist starting checkpoint:** `4bf3ead00a39835871b75a9acf45f783f6bcef53`
+**Bounded-correction starting checkpoint:** `90931c13b8e1c660e7ab4a33fe8fc4f8989dffb3`
 **Status:** local comparative prototypes; no concept selected; no production implementation
 
 ## Run locally
@@ -83,6 +84,14 @@ help: Where am I? What am I doing? What happens next? What will this button do? 
 Where is earlier work? How do I go back? How do I revisit review? What did AI contribute? What
 decisions remain mine?
 
+For the corrected Integrated Desk loop, run one Council, close the report, and choose **Revisit
+report** from the rail. Confirm that it opens the saved report without consent or another run, then
+find the separate **Convene again** action. Revise the Draft after feedback and inspect the linked
+read-only prior snapshot; copying prior wording must not replace the active Draft. On a phone, use
+the compact writing-project control to switch autobiography → STEM and recover an unknown genre.
+In Settings, verify the quiet browser/device spelling explanation; native suggestion quality itself
+still requires desktop and physical-iPhone observation.
+
 ## Evidence and results
 
 - [Comparative evaluation](comparative-evaluation.md)
@@ -93,6 +102,13 @@ decisions remain mine?
 - [Culturally responsive genre comparison](culturally-responsive-genre-comparison.md)
 - [Product-restraint review](product-restraint-review.md)
 - [Integrated finalist falsification questions](integrated-finalist-falsification.md)
+
+Automated local verification commands:
+
+```bash
+node prototype_exploration_test.mjs
+node prototype_integrated_corrections_test.mjs
+```
 
 ## Founder evidence governing the finalist
 

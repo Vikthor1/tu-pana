@@ -2,6 +2,7 @@
 
 **Finalist starting checkpoint:** `4bf3ead00a39835871b75a9acf45f783f6bcef53`
 **Notebook checkpoint in history:** `e8678738dfab6ef42992fc0c16aee1c46a87680c`
+**Bounded-correction starting checkpoint:** `90931c13b8e1c660e7ab4a33fe8fc4f8989dffb3`
 **Date:** 2026-08-03
 **Environment:** local static server; headless Chromium; synthetic content; deterministic mock AI
 
@@ -14,6 +15,37 @@ node prototype_exploration_test.mjs
 ```
 
 Result: **238/238 PASS**.
+
+## Bounded Integrated Desk correction suite
+
+Command:
+
+```bash
+node prototype_integrated_corrections_test.mjs
+```
+
+Result: **48/48 PASS**.
+
+The focused suite verifies the six authorized corrections without adding a destination or ordinary
+writing prerequisite:
+
+- saved Council revisitation creates no consent surface or duplicate run; **Convene again** remains
+  separate, and rail report/decision truth refreshes immediately;
+- mock feedback is linked to a locally recoverable, read-only exact Draft snapshot; viewing and
+  copying earlier wording never mutates the active Draft; old textless records are labeled
+  metadata-only checkpoints;
+- dirty Move-note and paste text receives an inline **Discard changes / Keep editing** decision in
+  the existing dialog, while unchanged dialogs close immediately;
+- the 390 × 844 orientation control identifies the writing project, reaches Settings, switches to
+  STEM, removes the autobiographical invitation, and recovers an unknown assignment through direct
+  explicit selection with no overflow or new sub-44px correction control;
+- Council genre, role, scope, timestamp, and mock provenance remain the stored autobiographical
+  values after switching the active project to SOP;
+- no-selection coaching exposes only real scopes and an exact matching preview; real passage
+  selection restores the selected/paragraph/full choices without changing the Draft;
+- native browser/device spellcheck defaults on for Draft, Notebook/reference, Move-note, rationale,
+  and Process Reflection writing; the isolated Settings preference creates no review, evidence,
+  readiness, Council, or packet claim; multilingual text remains byte-exact.
 
 The suite exercised the full comparative journey in Desk, Journey, Hybrid, Notebook & Draft, and
 Integrated Desk:
@@ -84,7 +116,8 @@ At a 1440 × 960 first viewport with empty English state, the local text-node ha
 | Surface | First-viewport visible words | Steps before student can type in Draft |
 |---|---:|---:|
 | Plain Desk | 168–172 across final reruns | 0 |
-| Integrated Desk | 175 | 0 |
+| Integrated Desk before correction (`90931c1`) | 175 | 0 |
+| Integrated Desk after correction | 175 | 0 |
 | Audited original stage-1 chrome | ≈205 single-language / ≈330 bilingual | 18 onboarding clicks in the audited desktop walk before the studio |
 
 The original numbers come from the audit's bilingual/visual inventory and navigation walk; the
@@ -115,6 +148,19 @@ All suites ran from the exact R0-rooted exploration worktree without assertion c
 
 No safety assertion, mixed test file, or experience snapshot was changed. The prototype uses a
 new test file and entry point, leaving the R0 experience intact for contract verification.
+
+The first concurrent safety run produced a single byte-identity failure in `r0_safety_test.mjs`;
+the unchanged suite immediately passed **29/29** when rerun alone, and the table records the final
+isolated results. No assertion or product source was changed in response.
+
+## Native spelling-assistance boundary
+
+Automated checks confirm `spellcheck` state, isolated preference persistence, absence of new
+evidence/readiness side effects, and byte-exact multilingual persistence. Native underlines,
+English/Spanish dictionary behavior, replacement UI, and whether device suggestions can be
+ignored comfortably are browser/OS behavior outside automation and remain open on desktop Safari,
+desktop Chromium, and a physical iPhone. Tu Pana performs no spelling request and does not treat a
+native suggestion as AI feedback or a judgment.
 
 ## Mobile passage P1 acceptance status
 

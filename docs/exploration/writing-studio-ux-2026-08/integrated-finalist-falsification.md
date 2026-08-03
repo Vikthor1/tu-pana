@@ -70,3 +70,16 @@ then repeat the relevant path in Notebook, Hybrid, and Journey. Record predictio
 error, recovery, and unprompted explanations—not preference alone. Repeat with representative
 students, a physical iPhone with the keyboard open, VoiceOver, English-only, Spanish-only, and
 optional bilingual modes. Do not promote the finalist from reachability or founder preference.
+
+## Deliberately unchanged after the bounded correction
+
+- Does one modal per finding create decision fatigue in a realistic report?
+- Should **Decide later** become a one-click action, or would that weaken the useful moment of
+  judgment?
+- Would inline decision/rationale expansion preserve critical reflection with less friction?
+- Can a first-time student find **Ask Tu Pana** without facilitator help?
+- Does the cultural invitation materially displace Review Center on a phone?
+- Would moving coach access upward improve discovery or compromise the calm ordinary path?
+
+The bounded correction does not answer these questions or redesign those surfaces. It repairs
+truth, recoverability, and reachability so founder/student observation can evaluate them fairly.

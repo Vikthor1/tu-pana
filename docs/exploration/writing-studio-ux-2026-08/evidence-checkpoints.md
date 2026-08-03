@@ -385,3 +385,78 @@ separately governed production implementation authorization remain outside this 
   Ask Tu Pana placement remain reversible lived-evidence hypotheses.
 - **Verification result:** final five-concept suite **238/238 PASS**; unchanged R0 safety selection
   **277/277 PASS**.
+
+---
+
+## 2026-08-03 — Integrated Desk bounded correction checkpoint
+
+- **Starting prototype commit:** `90931c13b8e1c660e7ab4a33fe8fc4f8989dffb3`.
+- **Independent evidence:** Fable's complete critique at
+  `/Users/Victor1/.codex/attachments/5e64076d-cd94-44b8-91fd-c4d2910b5857/pasted-text.txt`.
+  Its governing verdict is preserved: **Integrated Desk passes with concerns for founder/student
+  testing.** The architecture remains calm; the bounded weakness was the feedback → decision →
+  revision → revisit loop plus local truth/usability defects. This evidence does not select or
+  promote the architecture.
+- **Corrected F1 — Council revisitation/live truth:** the Integrated rail now opens a saved report
+  directly when one exists. Revisit creates no consent prompt and no new mock run. **Convene again**
+  is a separate secondary action inside Council history and begins a new consent flow. Report and
+  decision counts re-render immediately and survive reload.
+- **Corrected F2 — version truth:** new Integrated checkpoints store exact canonical text,
+  timestamp, word count, signature, reason/phase, and genre. Evidence/Review Center provides a
+  hidden read-only viewer and copy action; reports and decisions link to the associated snapshot.
+  Viewing never restores or mutates the active Draft. Older records without text are explicitly
+  **metadata-only checkpoints**, not recoverable snapshots. Production restore/migration is not
+  implied.
+- **Corrected F4 — dirty text:** Move-note, rationale, and paste/replace text compare against their
+  opening value. Dirty Cancel, close, Escape, or backdrop interaction reveals an inline **Discard
+  changes / Keep editing** choice inside the existing dialog; unchanged dialogs dismiss
+  immediately. Temporary text creates no saved evidence. No second modal was introduced.
+- **Corrected F5 — mobile genre reachability:** at 390 × 844, a compact orientation control names
+  the current writing project and reaches the existing Settings surface. Settings can change the
+  comparison genre; unknown assignments provide the same direct recovery path. Autobiographical,
+  neutral, and disciplinary reflection/Finish/onboarding state is kept genre-scoped, while Move
+  notes remain genre-keyed. General remains neutral and unknown ids fail loudly. Production may
+  assign genres through links; this control exists for honest prototype comparison.
+- **Corrected F7 — report provenance:** focused-review and Council runs store genre id, resolved
+  labels, roles, payload scope, timestamp, mock provenance, and linked snapshot. History renders
+  those stored facts after the active genre changes. Old records without provenance say that the
+  genre was not stored rather than inferring the current project.
+- **Corrected F8 — scope truth:** **Selected passage** appears only for an app-captured selection.
+  Current paragraph appears only when a real editor caret identifies one; otherwise the full Draft
+  is the only available scope and the interface explains how selection adds passage coaching.
+  Preview text and word counts match the named scope; Cancel/Clear never changes the Draft.
+- **Native spelling boundary:** student-authored Draft, Notebook/reference, Move-note, rationale,
+  paste, and Process Reflection fields opt into browser/device spellcheck by default. The optional
+  isolated Settings preference is quiet and creates no Tu Pana request, evidence, readiness,
+  Council, instructor-appendix, or packet claim. Multilingual text and protected phrases remain
+  exact. Native English/Spanish suggestion UI remains open for desktop and physical-iPhone tests.
+- **Deliberately unchanged test-first findings:** F3 remains open on one decision dialog per
+  finding, whether **Decide later** should become one click, and whether inline rationale expansion
+  reduces fatigue. F6 remains open on first-time **Ask Tu Pana** discoverability and whether moving
+  it upward would compromise calmness. The optional cultural invitation is unchanged. Reflection
+  has no minimum length, scoring, AI evaluation, extra prompt, or inferred quality.
+- **Deferred production requirements:** critical-question rotation/suppression under repeated live
+  feedback; Spanish packet scaffolding and full packet localization; production restore and data
+  migration; protected-phrase use in live-model prompting/constraints; appropriate translingual
+  welcome outside autobiography; live Gemini tone, usefulness, latency, failure, stereotyping,
+  flattening, and factual reliability; account/cloud/device synchronization; and physical
+  assistive-technology testing.
+- **Density/calmness evidence:** the same 1440 × 960 fresh English harness measured plain Desk at
+  168 visible words and Integrated Desk at 175 both before and after this correction. Mandatory
+  actions before typing remain 0; blocking entry interruptions remain 0; primary destinations
+  remain 3. No Culture, AI Literacy, Notebook, Versions, or Spelling destination and no dominant
+  first-viewport CTA was added. The only ordinary mobile addition is the compact current-project
+  orientation control required to recover genre selection; version/spelling/correction controls
+  stay behind existing progressive-disclosure surfaces.
+- **Automated results:** targeted correction suite **48/48 PASS**; complete five-concept suite
+  **238/238 PASS**; unchanged R0 safety selection **277/277 PASS**; JavaScript syntax, final diff,
+  isolated storage sentinel, local-only request, keyboard/Escape/focus, 44px target, overflow,
+  reduced-motion, and available 200% reflow checks passed.
+- **Evidence limits:** automation proves functional reachability, exact persistence, isolation, and
+  locally inspectable truth. It does not close decision fatigue, coach discoverability, founder or
+  representative-student comprehension, physical-iPhone native selection/keyboard/safe-area/
+  visual-viewport behavior, VoiceOver/physical assistive technology, or native spelling suggestion
+  behavior. Those lived findings remain open.
+- **Boundary status:** correction only; no sixth concept, architecture selection, production
+  implementation, push, deploy, merge, promotion, migration, family-preview change, Worker/live
+  Gemini call, SaaS work, R0/product-main mutation, or VC-OS mutation.

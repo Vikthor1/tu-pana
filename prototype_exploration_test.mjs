@@ -335,7 +335,7 @@ check('student may draft directly without completing Moves or receiving warnings
 check('visible Ask Tu Pana is actionable near the editor', await integrated.locator('.coach-entry [data-action="coach"]').isVisible());
 await integrated.locator('.coach-entry [data-action="coach"]').click();
 check('coach entry previews purpose, reviewer, one mock call, and decision ownership', /Purpose/.test(await integrated.locator('.transmission-facts').textContent()) && /Tu Pana mock writing coach/.test(await integrated.locator('.transmission-facts').textContent()) && /1/.test(await integrated.locator('.transmission-facts').textContent()) && /remain the author and decision-maker/.test(await integrated.locator('.transmission-facts').textContent()));
-check('coach entry presents passage, paragraph, and full-draft scopes with exact preview', await integrated.locator('input[name="reviewScope"]').count() === 3 && (await integrated.locator('#scopePreview').textContent()).length > 0);
+check('coach entry without a selection offers only truthful paragraph and full-draft scopes', await integrated.locator('input[name="reviewScope"]').count() === 2 && await integrated.locator('input[name="reviewScope"][value="selected"]').count() === 0 && (await integrated.locator('#scopePreview').textContent()).length > 0);
 check('coach request remains disabled until explicit consent', await integrated.locator('[data-action="submit-mock"]').isDisabled());
 await integrated.locator('[data-action="close-dialog"]').first().click();
 
@@ -397,7 +397,7 @@ await integrated.locator('[data-action="council"]').first().click();
 check('autobiographical Council disclosure names canonical role translations, exact full payload, and four represented mock calls', /Connection and structure reviewer/.test(await integrated.locator('.transmission-facts').textContent()) && /Evidence and historical-context reviewer/.test(await integrated.locator('.transmission-facts').textContent()) && /Voice and cultural-integrity reviewer/.test(await integrated.locator('.transmission-facts').textContent()) && /3 reviewer calls \+ 1 synthesis/.test(await integrated.locator('.transmission-facts').textContent()) && await integrated.locator('.exact-preview').textContent() === integratedDraft);
 await integrated.locator('#transmitConsent').check();
 await integrated.locator('[data-action="run-council"]').click();
-check('mock Council report is persisted and revisitable', /\(1\)/.test(await integrated.locator('[data-tab="council"]').textContent()));
+check('mock Council report is persisted and revisitable', /\(1\)/.test(await integrated.locator('.dialog [data-tab="council"]').textContent()));
 await integrated.locator('.critical-moment > summary').click();
 check('Council critical prompt names stereotyping, depoliticizing, and misreading risks', /stereotype, depoliticize, or misread culturally situated knowledge/.test(await integrated.locator('.critical-moment').textContent()));
 await integrated.locator('[data-action="close-dialog"]').first().click();
@@ -450,7 +450,7 @@ const bilingualVisibleWords = (await integrated.locator('body').innerText()).tri
 check('optional bilingual mode is coherent and denser only by explicit choice', bilingualVisibleWords > spanishVisibleWords && /Select words in the draft/.test(await integrated.locator('body').textContent()));
 
 await integrated.locator('[data-action="language"]').selectOption('en');
-await integrated.locator('[data-action="settings"]').click();
+await integrated.locator('.icon-button[data-action="settings"]').click();
 check('Integrated Settings documents Focus and one isolated Danger Zone path', /Integrated Desk keeps Focus/.test(await integrated.locator('[role="dialog"]').textContent()) && await integrated.getByRole('heading', { name: /Danger Zone|Zona de peligro/ }).count() === 1);
 await integrated.locator('#deleteConfirm').fill('DELETE');
 await integrated.locator('[data-action="delete-state"]').click();

@@ -1,7 +1,8 @@
 # Verification results — local comparative prototypes
 
-**Fourth-prototype checkpoint:** `e8678738dfab6ef42992fc0c16aee1c46a87680c`
-**Date:** 2026-08-02
+**Finalist starting checkpoint:** `4bf3ead00a39835871b75a9acf45f783f6bcef53`
+**Notebook checkpoint in history:** `e8678738dfab6ef42992fc0c16aee1c46a87680c`
+**Date:** 2026-08-03
 **Environment:** local static server; headless Chromium; synthetic content; deterministic mock AI
 
 ## Prototype journey suite
@@ -12,9 +13,10 @@ Command:
 node prototype_exploration_test.mjs
 ```
 
-Result: **155/155 PASS**.
+Result: **238/238 PASS**.
 
-The suite exercised the full comparative journey in Desk, Journey, Hybrid, and Notebook & Draft:
+The suite exercised the full comparative journey in Desk, Journey, Hybrid, Notebook & Draft, and
+Integrated Desk:
 
 - comparison entry, visible orientation, synthetic start, exact save/reload continuity;
 - preservation of an existing R0 sentinel key;
@@ -48,6 +50,52 @@ Notebook-specific assertions also passed:
 - mobile draft priority, no compressed desktop split, stable Notebook tab, current switcher item in
   view, no Focus control, 44px targets, no overflow, and Passage Tray containment at 390 × 844.
 
+Integrated Desk-specific assertions also passed:
+
+- three primary Desk destinations, one canonical Draft, direct drafting without Move completion,
+  persistent genre-keyed notes, useful-content evidence, and exact note-to-Draft non-transfer;
+- canonical mixed-genre autobiographical availability; concise inline onboarding with
+  engage/skip/revisit, translingual permission, and explicit disclosure choice;
+- four autobiographical Moves, exact multilingual phrase protection, culturally appropriate
+  connection/evidence/voice Council roles, culturally situated critical-risk cues, and four
+  student-controlled genre Finish checks;
+- visible Ask Tu Pana; passage/paragraph/full-draft selection; exact purpose, reviewer or Council
+  roles, represented call count, payload, decision ownership, and consent;
+- canonical contextual Five Question, optional remaining framework, Accept/Adapt/Reject/Decide-later
+  ledger, optional student rationale, related version, and no prose mutation;
+- two saved focused/coach reviews, reload-proof Council, factual Evidence so far, three required
+  reflections, genre-appropriate optional fourth prompt, exact Finish, and full reload continuity;
+- autobiographical/STEM contrast, no autobiographical leakage into STEM, SOP, admissions, or
+  General Writing, and explicit unavailable STEM Council profile;
+- General Writing neutrality and a loud configuration stop for an unknown assignment id, with no
+  fallback to autobiography or General Writing;
+- ordinary non-AI path from immediate typing through reflection and Finish with onboarding
+  unanswered, no Move notes, no mock calls, no new mandatory action, and optional Council/AI status
+  stated without failure language;
+- isolated storage deletion, R0 sentinel preservation, zero external requests, and zero page errors;
+- mobile Draft priority, adjacent coach action, Focus availability, switcher containment, 44px
+  buttons/disclosures, dialog focus, Escape, reduced motion, no overflow, local 200% text-size
+  reflow, and Passage Tray containment at 390 × 844.
+
+## Density and interruption signals
+
+At a 1440 × 960 first viewport with empty English state, the local text-node harness measured:
+
+| Surface | First-viewport visible words | Steps before student can type in Draft |
+|---|---:|---:|
+| Plain Desk | 168–172 across final reruns | 0 |
+| Integrated Desk | 175 | 0 |
+| Audited original stage-1 chrome | ≈205 single-language / ≈330 bilingual | 18 onboarding clicks in the audited desktop walk before the studio |
+
+The original numbers come from the audit's bilingual/visual inventory and navigation walk; the
+prototype numbers use a different local DOM viewport harness and are comparative signals, not a
+universal law. Integrated Desk also passed these structural interruption checks: one blocking
+dialog maximum; inline cultural onboarding only for the autobiographical path; no full Five
+Questions wall until optional disclosure; no automatic Move sequence; no navigation-as-completion;
+no celebratory decision interruption; no coach-chat accumulation; and no repeated simultaneously
+visible disclosure wall. English-only and Spanish-only replace primary chrome, while bilingual
+density increases only after explicit choice.
+
 ## Unchanged R0 safety-contract selection
 
 All suites ran from the exact R0-rooted exploration worktree without assertion changes:
@@ -76,7 +124,7 @@ Viewport checks are implementation evidence, not physical-iPhone validation.
 |---|---|---|
 | 1. Select near bottom and reach action without upward scroll | App-owned fixed action stays inside 390 × 844 viewport | Physical iPhone + long draft + keyboard |
 | 2. Capture the complete intended paragraph | Exact selected string persisted after native selection was programmatically collapsed | Physical iOS selection behavior |
-| 3. Display exact passage before transmission | PASS in all four concepts | Physical-device confirmation |
+| 3. Display exact passage before transmission | PASS in all five concepts | Physical-device confirmation |
 | 4. Opening action does not alter draft | PASS by exact save/reload and preview checks | Physical-device confirmation |
 | 5. Cancel leaves draft unchanged | Implemented; dialog closes without write | Physical-device confirmation |
 | 6. Remain visible above keyboard without obscuring work | `visualViewport` offset plus fixed safe-area placement implemented; viewport geometry passed | Real iOS keyboard and scrolling |
@@ -92,12 +140,13 @@ No claim of physical-iPhone passage validation is made.
 Completed: keyboard activation of passage coaching; modal focus trap implementation; Escape
 close; accessible names for visible buttons; minimum target geometry; mobile overflow; responsive
 editor priority; `prefers-reduced-motion`; semantic headings, field labels, dialog roles, and live
-regions. Desktop Notebook and Draft plus the 390 × 844 mobile Draft were also captured and visually
-inspected after automation; live evidence/word truth and the initially offscreen current switcher
-item were corrected before the final 155/155 run.
+regions; and a local 200% text-size reflow check. Desktop Notebook and Draft plus the 390 × 844
+mobile Draft were previously captured and visually inspected. Integrated Desk passed equivalent
+automated geometry; its separate visual walkthrough is recorded below.
 
 Not completed: axe-core (not installed in the R0 workspace), VoiceOver/NVDA, Safari's real visual
-viewport and selection behavior, physical mobile keyboard, zoom/reflow at 200–400%, Windows high
+viewport and selection behavior, physical mobile keyboard, zoom/reflow above the local 200% text
+check and through 400%, Windows high
 contrast, or cognitive usability with students.
 
 ## Browser-walkthrough limit

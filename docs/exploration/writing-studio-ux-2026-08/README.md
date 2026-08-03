@@ -1,7 +1,8 @@
 # Writing Studio UX Exploration — founder review guide
 
-**Window:** `writing-studio-ux-2026-08`  
+**Window:** `writing-studio-ux-2026-08`
 **Fourth-prototype checkpoint:** `e8678738dfab6ef42992fc0c16aee1c46a87680c`
+**Finalist starting checkpoint:** `4bf3ead00a39835871b75a9acf45f783f6bcef53`
 **Status:** local comparative prototypes; no concept selected; no production implementation
 
 ## Run locally
@@ -15,7 +16,7 @@ python3 -m http.server 3001 --bind 127.0.0.1
 
 Open <http://127.0.0.1:3001/explore.html>.
 
-The comparison hub links all four concepts. The switcher at the top of every prototype makes
+The comparison hub links all five concepts. The switcher at the top of every prototype makes
 cross-concept movement one action. Each concept has one separate local-storage record:
 
 ```text
@@ -23,6 +24,7 @@ tupana-explore:writing-studio-ux-2026-08:desk:v1
 tupana-explore:writing-studio-ux-2026-08:journey:v1
 tupana-explore:writing-studio-ux-2026-08:hybrid:v1
 tupana-explore:writing-studio-ux-2026-08:notebook:v1
+tupana-explore:writing-studio-ux-2026-08:integrated:v1
 ```
 
 The prototype does not enumerate, import, or read R0 `tupana_*` storage. Settings → Danger Zone
@@ -35,13 +37,14 @@ can export or delete only the active concept's synthetic record. Do not paste re
 - [Clarified staged journey](../../../explore.html?concept=journey)
 - [Simplified hybrid](../../../explore.html?concept=hybrid)
 - [Cuaderno y Borrador · Notebook & Draft](../../../explore.html?concept=notebook)
+- [Integrated Desk · Finalist](../../../explore.html?concept=integrated)
 
 When served locally, use the corresponding `http://127.0.0.1:3001/explore.html?...` URL.
 
 ## Founder comparison journey
 
 Use a fresh concept or delete only that concept's data in Settings → Danger Zone before each
-walk. Use the same synthetic text and assignment genre in all four.
+walk. Use the same synthetic text and assignment genre in all five.
 
 1. Start with synthetic writing. In Notebook & Draft, begin with prewriting; in the other concepts,
    begin with the canonical editor or active artifact.
@@ -64,6 +67,17 @@ walk. Use the same synthetic text and assignment genre in all four.
     exact included draft, and create the local packet. Compare student reflection with the separate
     instructor evidence appendix.
 
+For Integrated Desk, repeat the complete path in two contrasting profiles. In the required
+mixed-genre autobiographical path, choose or skip the concise knowledge-and-language lens, open a
+Move, save a reference-only planning note, protect an exact multilingual phrase, use the visible
+**Ask Tu Pana** action, open one contextual canonical Five Question, and save an
+Accept/Adapt/Reject/Decide-later rationale. Inspect the autobiographical Council and Finish check.
+In STEM, confirm that onboarding and autobiographical prompts are absent, Move guidance is
+disciplinary, and unavailable Council configuration is stated plainly. Also inspect admissions,
+SOP, and General Writing for zero autobiographical leakage, and verify that an unknown assignment
+stops for explicit genre selection. At reload, compare the exact Draft, Move note, protected phrase,
+reviews, decisions, rationale, reflection, Finish checks, versions, and packet.
+
 At three points—after return, after Council, and after Finish—ask the student to answer without
 help: Where am I? What am I doing? What happens next? What will this button do? Was my work saved?
 Where is earlier work? How do I go back? How do I revisit review? What did AI contribute? What
@@ -74,6 +88,26 @@ decisions remain mine?
 - [Comparative evaluation](comparative-evaluation.md)
 - [Append-only evidence checkpoints](evidence-checkpoints.md)
 - [Verification results](verification-results.md)
+- [Critical-AI-literacy traceability](critical-ai-literacy-traceability.md)
+- [Autobiographical pedagogy traceability](autobiographical-pedagogy-traceability.md)
+- [Culturally responsive genre comparison](culturally-responsive-genre-comparison.md)
+- [Product-restraint review](product-restraint-review.md)
+- [Integrated finalist falsification questions](integrated-finalist-falsification.md)
+
+## Founder evidence governing the finalist
+
+The founder classified Desk and Notebook as the two strongest concepts and provisionally preferred
+Desk as the architectural foundation. Desk's Current Draft, Process Reflection, Finish, Review
+Center, Evidence so far, and optional “Moves for this moment” were especially clear, including in
+browser phone emulation. Notebook demonstrated the value of durable preparation beside the draft,
+but added a top-level mental model and offered thinner guidance. The requested reversible synthesis
+is Desk plus persistent notes attached to genre-specific Moves. The founder also found that the
+green informational strip looked interactive even though it was not; Integrated Desk therefore
+adds an explicit **Ask Tu Pana** action while keeping the strip informational.
+
+This is founder evidence and a provisional preference, not architecture approval. Browser phone
+emulation does not close physical-iPhone selection, keyboard, safe-area, visual-viewport, or
+VoiceOver requirements.
 
 Claude/Fable's independent package at
 `/Users/Victor1/.codex/attachments/255c2074-8e12-4b1d-8074-be509c56aa65/pasted-text.txt`
@@ -88,6 +122,8 @@ the student creates the draft. This assumption is reversible and requires studen
 - No physical-iPhone validation has occurred. Viewport emulation does not close the P1.
 - No VoiceOver, NVDA, Safari/iOS keyboard, device-switch, or Brightspace exercise has occurred.
 - No founder or representative-student comparison evidence has been gathered yet.
+- Founder preference evidence exists, but unprompted founder comprehension of the integrated
+  experience has not yet been tested.
 - Mock AI is deterministic and local. It does not validate live-model tone, latency, or failure.
 - Prototype storage is intentionally disposable and is not a migration implementation.
 - Whether Notebook and Draft are distinguishable without facilitation, whether **Write my draft**

@@ -205,3 +205,183 @@ All four concepts are available locally. No winner is selected. Nothing was push
 merged, promoted, or implemented in production. Founder testing, representative-student evidence,
 physical-iPhone passage validation, VoiceOver, binding experience-contract approval, migration, and
 separately governed production implementation authorization remain outside this checkpoint.
+
+---
+
+## 2026-08-03 — founder evidence and provisional finalist direction
+
+- **Starting checkpoint:** `4bf3ead00a39835871b75a9acf45f783f6bcef53`
+- **Evidence classification:** founder evidence and provisional preference; not final architecture
+  approval, production authorization, or a selected product.
+- **Finding:** Desk and Notebook were the two strongest concepts. Desk is the preferred
+  architectural foundation. “Moves for this moment” read as optional novice guidance. Current
+  Draft, Process Reflection, Finish, Review Center, and Evidence so far were especially clear.
+  Desk remained clear in browser phone emulation.
+- **Synthesis evidence:** Notebook showed the value of durable preparation material available beside
+  the Draft. Its prompts offered more writing space but thinner guidance and another top-level mental
+  model. The preferred reversible synthesis is Desk with persistent notes attached to genre-specific
+  Moves.
+- **Interaction correction:** the green informational strip under the editor was mistaken for an
+  interactive coach surface. Integrated Desk adds a visibly actionable **Ask Tu Pana** affordance;
+  the strip remains informational and visually quieter.
+- **Mobile limit:** browser phone emulation does not close physical-iPhone selection, iOS keyboard,
+  native selection, safe-area, visual-viewport, or VoiceOver requirements.
+- **Next reversible test:** compare plain Desk with Integrated Desk without facilitator explanation,
+  then test the same distinctions in Notebook, Hybrid, and Journey. Preference alone cannot promote
+  the architecture.
+
+---
+
+## 2026-08-03 — Concept 5: Integrated Desk · Finalist
+
+- **Concept:** additive final planned prototype, visually labeled **Finalist under evaluation**.
+- **Hypothesis:** Desk can retain one unmistakable canonical Draft while adding durable Move notes,
+  novice genre scaffolding, culturally and translingually responsive guidance where appropriate,
+  contextual critical-AI judgment, and visible coaching—without restoring density, interruptions,
+  or another navigation model.
+- **Classification:** one Draft, exact persistence, authorship, payload disclosure, consent, no
+  automatic rewrite/transfer, truthful evidence, student-authored reflection, separate appendix,
+  final-draft confirmation, genre correctness, isolated deletion, and no external calls are
+  `INVARIANT`. Move wording, note presentation, onboarding timing, contextual-question selection,
+  rationale length, visible coach placement, Council availability message, and Focus behavior are
+  `REVISABLE-WITH-EVIDENCE`.
+- **Student-experience lens:** retained Current Draft → Process Reflection → Finish and one Review
+  Center. Moves, Planning notes, and Evidence remain supporting surfaces. Direct drafting is never
+  punished or blocked. No navigation action creates completion evidence.
+- **Writing-process lens:** preparation appears as three optional, genre-shaped Moves with concise
+  nudge, rationale, and durable note. Notes never transfer. Review, decision, reflection, version,
+  and Finish boundaries support iterative revision without ten destinations.
+- **Critical-AI-literacy lens:** canonical Five Questions were traced to `assets/js/ui.js`,
+  `index.html`, the project brief, and reflection-checkpoint design note. Exact purpose, scope,
+  reviewer/roles, represented calls, preview, ownership, and consent precede mock calls. One relevant
+  canonical question follows; the remainder stays behind progressive disclosure. The factual ledger
+  records source, scope, prompt, decision, optional student reason, time, and Draft version.
+- **Culturally sustaining/translingual lens:** admissions offers concise, skippable, revisitable
+  knowledge-and-language onboarding plus Moves that protect disclosure choice and code-meshed voice.
+  STEM instead uses disciplinary knowledge, data, methods, and evidence, with no cultural/identity
+  prompt leakage. No personal disclosure is required.
+- **Accessibility/mobile lens:** Draft and Ask Tu Pana precede supporting panels on mobile; controls
+  and disclosures meet local 44px geometry; dialog focus, Escape, names, reduced motion, no overflow,
+  and a local 200% text-size reflow check pass. Passage Tray stays in the 390 × 844 emulated viewport.
+  These are not physical-iPhone or VoiceOver evidence.
+- **Trust lens:** one isolated key
+  `tupana-explore:writing-studio-ux-2026-08:integrated:v1`; exact Move-note non-transfer; no AI prose
+  mutation; explicit Save/Finish/Create packet/Backup/external Submit meanings; one typed Danger Zone
+  deletion path; no R0 key read/enumeration/deletion.
+- **Evidence/test lens:** five-concept functional journey, contrasting-genre leakage, critical
+  mapping, decision ledger, exact reload, origin isolation, no external request, responsive,
+  keyboard, focus, reduced-motion, target, overflow, and reflow assertions were added without
+  editing R0 safety assertions.
+- **Density/interruption signal:** Integrated Desk keeps three primary destinations and one inline
+  first-use surface only in admissions. The full Five Questions remain hidden until requested;
+  one blocking dialog maximum was observed; English-only and Spanish-only replace primary chrome;
+  bilingual density increases only by explicit choice. Compared with plain Desk, the finalist adds
+  one inline onboarding card, note actions, one coach action, and post-response disclosure. Compared
+  with the audited original, it omits ten destinations, milestone/progress vocabularies, repeated
+  question walls, chat notices, and celebratory decision interruptions. Visible-word counts are
+  comparative signals documented in verification, not universal thresholds.
+- **Source record:** immutable contracts came from R0 safety/product sources; canonical pedagogy from
+  the source files named in the traceability record; founder findings from this authorization;
+  durable preparation from Notebook and Claude/Fable design evidence; all layout, selection, and
+  presentation details are reversible prototype assumptions.
+- **Concerns:** notes may become mini-drafts or a hidden Notebook; added pedagogy may make Desk dense;
+  cultural onboarding may feel imposed; critical prompts or rationale may feel like homework; coach
+  action may still be missed; STEM Council absence may reduce usefulness; mobile Focus may hide
+  reference material.
+- **Next reversible test:** use `integrated-finalist-falsification.md` with the founder and
+  representative students, then run physical-iPhone/VoiceOver checks. Do not select or promote from
+  automation.
+
+---
+
+## 2026-08-03 — five-concept comparative verification checkpoint
+
+- **Concept:** shared local comparison across Desk, Journey, Hybrid, Notebook & Draft, and
+  Integrated Desk.
+- **Safety results:** prototype suite 218/218 after the final rerun; unchanged R0 safety selection
+  results are recorded in `verification-results.md`. Exact integrated Draft/Move-note non-transfer,
+  full reload continuity, factual decision ledger, STEM leakage boundary, R0 sentinel preservation,
+  local-only requests, dialog ceiling, 390 × 844 geometry, targets, focus, Escape, reduced motion,
+  and local 200% text reflow passed.
+- **Snapshot changes:** none. Existing four-concept behavior assertions remain green.
+- **Comparative/user evidence:** automation proves functional reachability and state/safety
+  behavior. It does not prove first-time comprehension, cultural welcome, critical judgment,
+  cognitive calm, or mobile lived experience.
+- **Open evidence:** physical iPhone with native selection and keyboard, real safe-area and visual
+  viewport, VoiceOver and other physical assistive technology, unprompted founder comprehension,
+  representative students, live Gemini tone/latency/failure, production migration, and final
+  architecture approval.
+- **Boundary status:** no winner selected; no push, deploy, merge, promotion, migration, product-main
+  change, R0-branch change, family-preview change, Worker/live Gemini call, SaaS work, or VC-OS
+  change.
+
+---
+
+## 2026-08-03 — Integrated Desk Path A correction: canonical autobiography
+
+- **Correction classification:** founder-required evidence correction. The prior Integrated Desk
+  checkpoint records admissions as the culturally responsive Path A. That path is superseded for
+  the finalist by the canonical mixed-genre autobiographical essay; the prior entry remains visible
+  because this log is append-only.
+- **Blocker resolved:** the original autobiographical profile was not represented in the four prior
+  prototypes and was never folded into General Writing. Integrated Desk now exposes it explicitly.
+  General Writing remains a neutral, explicitly selected profile. Unknown assignment ids stop for
+  genre configuration and inherit neither autobiography nor General Writing.
+- **Canonical evidence consulted:** `assets/js/genre-template.js`, `assets/js/data.js`, `index.html`
+  Tu Conocimiento, `assets/js/ui.js`, `assets/js/council.js`, the project brief and genre pathway,
+  audit root-cause/progressive-disclosure/bilingual/leakage records, and pilot/colleague-review
+  packets. The resulting element-by-element mapping is in
+  `autobiographical-pedagogy-traceability.md`.
+- **Pedagogical translation:** the ten-stage route was not restored. Four optional Moves preserve
+  the canonical arc: choose a memory and boundary; connect it to a larger historical/social/
+  cultural/linguistic/economic/political force; test experience with research/context; and protect
+  language and voice. Notes persist beside one canonical Draft and never transfer into it.
+- **Cultural and translingual contract:** first-use onboarding is inline, optional, revisitable, and
+  permits English, Spanish, or code-meshing. It names cultural, linguistic, family, community,
+  historical, and experiential knowledge as possible resources while explicitly making identity,
+  trauma, family, migration, and cultural disclosure optional. Exact student-selected phrases can
+  be protected without mock-AI judgment or prose mutation.
+- **Review and critical-AI behavior:** focused lenses address personal-to-social connection,
+  evidence/historical grounding, and voice/translingual integrity. Council roles translate the
+  canonical structure, evidence/context, and voice/cultural-integrity mandates. Contextual cues ask
+  whether mock output might genericize, flatten, stereotype, depoliticize, or misread situated
+  writing; the canonical Five Question remains the decision prompt.
+- **Reflection and Finish:** factual Evidence may report notes, protected exact phrases, reviews,
+  decisions, and student-marked checks but never understanding. The optional reflection prompt
+  names cultural, linguistic, family, community, historical, or experiential knowledge only if the
+  student chose to use it. A student-controlled autobiographical Finish check covers connection,
+  traceable sources, intended voice, and disclosure boundaries without gating or rewriting.
+- **Targeted safety result:** five-concept suite **233/233 PASS**. This includes autobiographical
+  availability; onboarding relevance/optionality; exact multilingual preservation; no compelled
+  disclosure; correct review/Council configuration; zero autobiographical Move/onboarding leakage
+  into STEM, SOP, admissions, and neutral profiles; and loud unknown-assignment failure. Unchanged
+  R0 safety selection remains **277/277 PASS**.
+- **Evidence limit:** functional routing and byte preservation do not prove that students experience
+  the onboarding as welcoming, the four-Move translation as pedagogically sufficient, or the risk
+  cues as culturally accurate. Founder, representative-student, physical-iPhone, and VoiceOver
+  evidence remain open. No concept is selected or promoted.
+
+---
+
+## 2026-08-03 — Product-restraint governing clarification
+
+- **Constraint:** the primary student job is developing one piece of writing, in the student's own
+  voice, without losing control. Cultural responsiveness, translingual behavior, critical AI
+  literacy, reflection, and evidence remain subordinate to that job and do not become destinations
+  or compliance workflows.
+- **Ordinary path:** automated coverage confirms immediate typing with onboarding unanswered, zero
+  Move notes, zero mock-AI calls, exact local save, Process Reflection, and Finish. No Council or AI
+  activity is shown as an optional choice rather than failed readiness. Mandatory actions before
+  typing remain zero; the three primary Integrated Desk destinations are unchanged.
+- **Density signal:** at 1440 × 960 the same local harness measured 168–172 first-viewport words in
+  plain Desk across final reruns and 175 in Integrated Desk. Blocking entry interruptions are 0/0.
+  The +3-to-+7-word result is a comparative signal, not comprehension evidence.
+- **Progressive disclosure:** cultural intelligence remains mainly inside assignment-specific Moves,
+  review/Council interpretation, and voice protection. Exact phrase protection appears after
+  selection. Critical AI prompts appear only after mock AI; one contextual question is collapsed by
+  default and the rest are optional. No tutorial, declaration, or new primary concept was added.
+- **Review record:** `product-restraint-review.md` identifies every visible addition, why it earned
+  space, what remains quiet, and the final values-versus-modules review. The cultural invitation and
+  Ask Tu Pana placement remain reversible lived-evidence hypotheses.
+- **Verification result:** final five-concept suite **238/238 PASS**; unchanged R0 safety selection
+  **277/277 PASS**.

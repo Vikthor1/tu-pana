@@ -11,12 +11,29 @@ const check = (label, condition, detail = '') => {
     console.log(`  ${ok ? '✅' : '❌'} ${label}${ok || !detail ? '' : ` — ${detail}`}`);
     if (ok) passed++; else failed++;
 };
+const visibleWordCount = page => page.evaluate(() => {
+    const words = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+        const node = walker.currentNode;
+        const parent = node.parentElement;
+        if (!parent || !node.textContent.trim()) continue;
+        const style = getComputedStyle(parent);
+        if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) continue;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        const visible = Array.from(range.getClientRects()).some(rect => rect.bottom > 0 && rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth);
+        if (visible) words.push(...node.textContent.trim().split(/\s+/));
+    }
+    return words.length;
+});
 
 const landing = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 await landing.goto(BASE);
-check('comparison hub exposes exactly four concepts', await landing.locator('.concept-card').count() === 4);
+check('comparison hub exposes exactly five concepts', await landing.locator('.concept-card').count() === 5);
 check('comparison hub exposes the same eleven-task journey', await landing.locator('.task-grid li').count() === 11);
 check('comparison hub links to Notebook & Draft', await landing.locator('a[href="?concept=notebook"]').count() === 1);
+check('comparison hub labels Integrated Desk as under evaluation', await landing.locator('a[href="?concept=integrated"]').count() === 1 && /Finalist under evaluation/.test(await landing.locator('.finalist-card').textContent()));
 await landing.close();
 
 for (const concept of ['desk', 'journey', 'hybrid']) {
@@ -134,7 +151,7 @@ await notebook.evaluate(() => {
 });
 await notebook.reload();
 
-check('switcher includes all four concepts', await notebook.locator('.concept-switcher a[href*="concept="]').count() === 4);
+check('switcher includes all five concepts', await notebook.locator('.concept-switcher a[href*="concept="]').count() === 5);
 check('Notebook is the truthful starting place', (await notebook.locator('.location-pill').textContent()).trim() === 'Notebook');
 check('admissions notebook has five genre-shaped cards', await notebook.locator('[data-action="notebook-card"]').count() === 5);
 check('draft does not exist before student creates it', await notebook.locator('#draftEditor').count() === 0 && /Doesn.t exist yet/.test(await notebook.locator('.orientation-next').textContent()));
@@ -265,6 +282,223 @@ check('Notebook makes no external network requests', notebookExternalRequests.le
 check('Notebook produces no page JavaScript errors', notebookErrors.length === 0, notebookErrors.join(' | '));
 await notebook.close();
 
+console.log('\nINTEGRATED DESK finalist');
+const integrated = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+const integratedErrors = [];
+const integratedExternalRequests = [];
+integrated.on('pageerror', error => integratedErrors.push(String(error)));
+integrated.on('request', request => {
+    if (!request.url().startsWith('http://127.0.0.1:3001/')) integratedExternalRequests.push(request.url());
+});
+await integrated.goto(`${BASE}?concept=integrated`);
+await integrated.evaluate(() => {
+    localStorage.setItem('tupana_draft', 'R0 SENTINEL — MUST SURVIVE');
+    localStorage.removeItem('tupana-explore:writing-studio-ux-2026-08:integrated:v1');
+});
+await integrated.reload();
+
+const densityDesk = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+await densityDesk.goto(`${BASE}?concept=desk`);
+await densityDesk.evaluate(() => localStorage.removeItem('tupana-explore:writing-studio-ux-2026-08:desk:v1'));
+await densityDesk.reload();
+const plainDeskInitialWords = await visibleWordCount(densityDesk);
+const integratedInitialWords = await visibleWordCount(integrated);
+console.log(`  ℹ️ density signal — plain Desk ${plainDeskInitialWords} visible words; Integrated Desk ${integratedInitialWords}; audited original stage-1 chrome ≈205 single-language / ≈330 bilingual`);
+check('Integrated initial density stays below the audited original single-language stage-1 chrome signal', integratedInitialWords < 205);
+check('Integrated adds guidance without doubling plain Desk initial density', integratedInitialWords < plainDeskInitialWords * 2);
+await densityDesk.close();
+
+check('Integrated Desk is labeled as a finalist under evaluation, not selected', /Finalist under evaluation/.test(await integrated.locator('.prototype-header').textContent()) && !/selected product/i.test(await integrated.locator('body').textContent()));
+check('Integrated Desk retains exactly three primary Desk destinations', await integrated.locator('.phase-strip .phase-tab').count() === 3 && /Current draft/.test(await integrated.locator('.phase-strip').textContent()));
+check('canonical mixed-genre autobiographical profile is available and selected for Path A', await integrated.locator('[data-action="genre"] option[value="autobiographical"]').count() === 1 && await integrated.locator('[data-action="genre"]').inputValue() === 'autobiographical');
+check('cultural onboarding is brief, inline, optional, and not a blocking dialog', await integrated.locator('.knowledge-onboarding').isVisible() && await integrated.locator('[role="dialog"]').count() === 0 && await integrated.locator('.knowledge-actions button').count() === 2);
+check('cultural onboarding names canonical knowledge resources and protects disclosure choice', /cultural, linguistic, family, community, historical, and experiential knowledge/i.test(await integrated.locator('.knowledge-onboarding').textContent()) && /always optional/i.test(await integrated.locator('.knowledge-onboarding').textContent()));
+check('cultural onboarding explicitly permits multilingual and translingual expression', /English, Spanish, or code-mesh/.test(await integrated.locator('.knowledge-onboarding').textContent()));
+await integrated.locator('[data-action="knowledge-choice"][data-choice="engage"]').click();
+check('knowledge and language lens remains revisitable after engagement', await integrated.locator('.knowledge-revisit').isVisible());
+check('autobiographical path exposes four skippable genre-specific Moves', await integrated.locator('.integrated-move').count() === 4 && /Connect memory to a larger force/.test(await integrated.locator('.integrated-moves').textContent()) && /optional guidance/.test(await integrated.locator('.integrated-moves').textContent()));
+
+const moveNote = 'Synthetic planning note: connect language access to institutional power without disclosing a private family story.';
+await integrated.locator('[data-action="integrated-move-note"][data-move="1"]').click();
+check('Move note dialog explains the reference-only authorship boundary', /never transfers into or changes the canonical draft/.test(await integrated.locator('[role="dialog"]').textContent()));
+check('Integrated Desk never shows more than one blocking dialog', await integrated.locator('[role="dialog"]').count() === 1);
+await integrated.locator('#integratedMoveNote').fill(moveNote);
+await integrated.locator('[data-action="save-integrated-note"]').click();
+check('useful Move content—not navigation—creates planning evidence', /1 Move notes with content/.test(await integrated.locator('.integrated-support').textContent()));
+check('saved Move note becomes a compact reference beside the Draft', await integrated.locator('.planning-reference').isVisible());
+check('canonical Draft remains exactly empty after saving a Move note', await integrated.locator('#draftEditor').inputValue() === '');
+
+const integratedDraft = `${Array.from({ length: 22 }, (_, index) => `Synthetic paragraph ${index + 1}. The writer connects a chosen memory to language access, institutional history, and power without exposing private details.`).join('\n\n')}\n\nNear the bottom, the writer explains that the real problem was trust and keeps the phrase aquí escuchamos primero because its rhythm carries culturally situated meaning.`;
+await integrated.locator('#draftEditor').fill(integratedDraft);
+await integrated.waitForTimeout(230);
+check('student may draft directly without completing Moves or receiving warnings', await integrated.locator('#draftEditor').inputValue() === integratedDraft && await integrated.locator('.integrated-move').count() === 4);
+check('visible Ask Tu Pana is actionable near the editor', await integrated.locator('.coach-entry [data-action="coach"]').isVisible());
+await integrated.locator('.coach-entry [data-action="coach"]').click();
+check('coach entry previews purpose, reviewer, one mock call, and decision ownership', /Purpose/.test(await integrated.locator('.transmission-facts').textContent()) && /Tu Pana mock writing coach/.test(await integrated.locator('.transmission-facts').textContent()) && /1/.test(await integrated.locator('.transmission-facts').textContent()) && /remain the author and decision-maker/.test(await integrated.locator('.transmission-facts').textContent()));
+check('coach entry presents passage, paragraph, and full-draft scopes with exact preview', await integrated.locator('input[name="reviewScope"]').count() === 3 && (await integrated.locator('#scopePreview').textContent()).length > 0);
+check('coach request remains disabled until explicit consent', await integrated.locator('[data-action="submit-mock"]').isDisabled());
+await integrated.locator('[data-action="close-dialog"]').first().click();
+
+const protectedPhrase = 'aquí escuchamos primero';
+await integrated.locator('#draftEditor').evaluate((editor, passage) => {
+    const start = editor.value.lastIndexOf(passage);
+    editor.focus(); editor.setSelectionRange(start, start + passage.length);
+    editor.dispatchEvent(new Event('select', { bubbles: true }));
+}, protectedPhrase);
+await integrated.waitForTimeout(50);
+check('autobiographical Passage Tray offers exact student-controlled phrase protection', await integrated.locator('[data-action="protect-phrase"]').isVisible() && await integrated.locator('#passageExcerpt').textContent() === protectedPhrase);
+await integrated.locator('[data-action="protect-phrase"]').click();
+check('protecting a multilingual phrase preserves exact text without changing the Draft', await integrated.evaluate(({ draft, phrase }) => {
+    const saved = JSON.parse(localStorage.getItem('tupana-explore:writing-studio-ux-2026-08:integrated:v1'));
+    return saved.draft === draft && saved.protectedPhrases.length === 1 && saved.protectedPhrases[0].text === phrase;
+}, { draft: integratedDraft, phrase: protectedPhrase }) && /1 student-protected voice phrases/.test(await integrated.locator('.integrated-support').textContent()));
+
+const integratedPassage = 'the real problem was trust';
+await integrated.locator('#draftEditor').evaluate((editor, passage) => {
+    editor.scrollTop = editor.scrollHeight;
+    const start = editor.value.lastIndexOf(passage);
+    editor.focus(); editor.setSelectionRange(start, start + passage.length);
+    editor.dispatchEvent(new Event('select', { bubbles: true }));
+}, integratedPassage);
+await integrated.waitForTimeout(50);
+check('bottom selection opens the persistent app-owned Passage Tray', await integrated.locator('#passageBar').isVisible());
+await integrated.locator('#draftEditor').evaluate(editor => editor.setSelectionRange(editor.value.length, editor.value.length));
+check('Passage Tray preserves exact text after native selection collapse', await integrated.locator('#passageExcerpt').textContent() === integratedPassage);
+await integrated.locator('[data-action="passage-review"]').click();
+check('Passage Tray consent previews the exact selected payload', await integrated.locator('#scopePreview').textContent() === integratedPassage);
+await integrated.locator('#transmitConsent').check();
+await integrated.locator('[data-action="submit-mock"]').click();
+await integrated.waitForTimeout(350);
+check('deterministic mock feedback returns without rewriting the Draft', await integrated.locator('.review-card').count() === 1 && await integrated.evaluate(text => JSON.parse(localStorage.getItem('tupana-explore:writing-studio-ux-2026-08:integrated:v1')).draft === text, integratedDraft));
+check('critical AI literacy starts collapsed with one contextual action', await integrated.locator('.critical-moment').count() === 1 && !(await integrated.locator('.critical-moment').evaluate(el => el.open)));
+await integrated.locator('.critical-moment > summary').click();
+check('contextual prompt retains canonical Five Questions wording', /Does this still sound like the specific person who wrote it/.test(await integrated.locator('.critical-moment').textContent()));
+check('autobiographical voice prompt surfaces the risk of genericizing or flattening situated language', /genericize or flatten multilingual, family, community, or dialectal meaning/.test(await integrated.locator('.critical-moment').textContent()));
+check('remaining framework stays behind optional progressive disclosure', await integrated.locator('.critical-framework').count() === 1 && !(await integrated.locator('.critical-framework').evaluate(el => el.open)));
+await integrated.locator('[data-action="decision"][data-choice="adapt"]').first().click();
+check('student decision opens a lightweight optional rationale—not an automatic rewrite', await integrated.locator('#decisionRationale').isVisible() && await integrated.locator('[role="dialog"]').count() === 1);
+const rationale = 'I will adapt the question because the Spanish phrase protects my voice while the surrounding evidence needs more specificity.';
+await integrated.locator('#decisionRationale').fill(rationale);
+await integrated.locator('[data-action="save-integrated-decision"]').click();
+await integrated.locator('[data-action="review-tab"][data-tab="decisions"]').click();
+check('decision ledger preserves source, scope, critical prompt, and student rationale', /selected/.test(await integrated.locator('.review-feed').textContent()) && /Critical prompt/.test(await integrated.locator('.review-feed').textContent()) && (await integrated.locator('.review-feed').textContent()).includes(rationale));
+check('decision remains separate from unchanged canonical prose', await integrated.evaluate(text => JSON.parse(localStorage.getItem('tupana-explore:writing-studio-ux-2026-08:integrated:v1')).draft === text, integratedDraft));
+await integrated.locator('[data-action="close-dialog"]').first().click();
+
+await integrated.locator('[data-action="focused-review"]').click();
+check('focused review identifies exact payload and one genre-aware lens', await integrated.locator('input[name="reviewLens"]').count() === 3 && /one chosen genre-aware review lens/i.test(await integrated.locator('.transmission-facts').textContent()));
+await integrated.locator('#transmitConsent').check();
+await integrated.locator('[data-action="submit-mock"]').click();
+await integrated.waitForTimeout(350);
+check('focused review is saved in reload-proof Review Center history', await integrated.locator('.review-card').count() === 2);
+await integrated.locator('[data-action="close-dialog"]').first().click();
+
+await integrated.locator('[data-action="council"]').first().click();
+check('autobiographical Council disclosure names canonical role translations, exact full payload, and four represented mock calls', /Connection and structure reviewer/.test(await integrated.locator('.transmission-facts').textContent()) && /Evidence and historical-context reviewer/.test(await integrated.locator('.transmission-facts').textContent()) && /Voice and cultural-integrity reviewer/.test(await integrated.locator('.transmission-facts').textContent()) && /3 reviewer calls \+ 1 synthesis/.test(await integrated.locator('.transmission-facts').textContent()) && await integrated.locator('.exact-preview').textContent() === integratedDraft);
+await integrated.locator('#transmitConsent').check();
+await integrated.locator('[data-action="run-council"]').click();
+check('mock Council report is persisted and revisitable', /\(1\)/.test(await integrated.locator('[data-tab="council"]').textContent()));
+await integrated.locator('.critical-moment > summary').click();
+check('Council critical prompt names stereotyping, depoliticizing, and misreading risks', /stereotype, depoliticize, or misread culturally situated knowledge/.test(await integrated.locator('.critical-moment').textContent()));
+await integrated.locator('[data-action="close-dialog"]').first().click();
+check('Evidence so far reports factual activity without claiming understanding', /1 Move notes with content/.test(await integrated.locator('.integrated-support').textContent()) && !/understood|mastered|learned/i.test(await integrated.locator('.integrated-support').textContent()));
+
+await integrated.locator('[data-action="continue"]').click();
+check('Integrated reflection has three required student-authored prompts and one optional knowledge prompt', await integrated.locator('#reflectionForm textarea[required]').count() === 3 && await integrated.locator('#reflection-knowledge:not([required])').count() === 1);
+await integrated.locator('#reflection-changed').fill('I made the turn from efficiency to trust more precise with evidence I selected.');
+await integrated.locator('#reflection-decision').fill('I adapted one mock question because it protected my voice and identified a real evidence gap.');
+await integrated.locator('#reflection-voice').fill('I preserved aquí escuchamos primero because the phrase carries the rhythm I intended.');
+await integrated.locator('#reflection-knowledge').fill('Language choice and community knowledge shaped the explanation, without requiring private disclosure.');
+await integrated.locator('[data-action="finish"]').click();
+check('Finish separates student reflection from system-generated instructor evidence', await integrated.getByRole('heading', { name: /Student reflection/ }).count() === 1 && await integrated.getByRole('heading', { name: /Instructor evidence appendix/ }).count() === 1);
+check('Integrated Finish distinguishes Save, Finish, packet, Backup, and external Submit', /Save[\s\S]*Finish[\s\S]*Create local packet[\s\S]*Backup[\s\S]*External Submit/.test(await integrated.locator('.action-meanings').textContent()));
+check('final-draft confirmation previews the exact canonical Draft', await integrated.locator('#finalDraftPreview').textContent() === integratedDraft);
+check('autobiographical Finish presents four genre-appropriate student checks without app inference', await integrated.locator('.genre-finish-check input').count() === 4 && /historical, social, cultural, linguistic, economic, or political force/.test(await integrated.locator('.genre-finish-check').textContent()) && /Your check—not an app inference/.test(await integrated.locator('.genre-finish-check').textContent()));
+for (const checkbox of await integrated.locator('.genre-finish-check input').all()) await checkbox.check();
+await integrated.locator('#packetConfirm').check();
+await integrated.locator('[data-action="create-packet"]').click();
+check('local packet appears only after deliberate exact-draft confirmation', await integrated.locator('[data-action="download-packet"]').isVisible());
+await integrated.reload();
+const persistedIntegrated = await integrated.evaluate(() => JSON.parse(localStorage.getItem('tupana-explore:writing-studio-ux-2026-08:integrated:v1')));
+check('reload restores exact Draft, Move note, protected phrase, reviews, Council, decision, rationale, reflection, Finish checks, versions, and packet', persistedIntegrated.draft === integratedDraft && persistedIntegrated.moveNotes['autobiographical:larger-force'].text === moveNote && persistedIntegrated.protectedPhrases[0].text === protectedPhrase && persistedIntegrated.reviews.length === 2 && persistedIntegrated.councilRuns.length === 1 && persistedIntegrated.decisions.length === 1 && persistedIntegrated.decisions[0].rationale === rationale && persistedIntegrated.reflections.changed.length > 0 && Object.values(persistedIntegrated.finishChecks).filter(Boolean).length === 4 && persistedIntegrated.versions.length >= 1 && persistedIntegrated.packetDraft === integratedDraft);
+check('critical-prompt evidence records opening only, not claimed understanding', persistedIntegrated.criticalViews.length >= 1 && persistedIntegrated.criticalViews.every(view => Boolean(view.openedAt) && !('understood' in view)));
+check('Move note never transfers into canonical Draft after reload', !persistedIntegrated.draft.includes(moveNote) && persistedIntegrated.moveNotes['autobiographical:larger-force'].text === moveNote);
+check('English/Spanish code-meshed student text survives save and reload byte-for-byte', persistedIntegrated.draft === integratedDraft && persistedIntegrated.draft.includes('aquí escuchamos primero'));
+
+await integrated.locator('[data-action="genre"]').selectOption('stem');
+await integrated.locator('[data-action="return-write"]').click();
+const stemSupport = await integrated.locator('.integrated-support').textContent();
+check('STEM path uses disciplinary Moves with no cultural-onboarding leakage', /Question and prediction/.test(stemSupport) && /Separate observation from interpretation/.test(stemSupport) && await integrated.locator('.knowledge-onboarding').count() === 0 && !/family story|cultural disclosure|admissions reader/i.test(stemSupport));
+check('unavailable STEM Council profile fails explicitly instead of inventing roles', /Council is not configured for this genre/.test(stemSupport) && await integrated.locator('.support-action.unavailable').count() === 1);
+await integrated.locator('[data-action="reflection"]').first().click();
+check('STEM optional reflection asks about disciplinary knowledge, not identity disclosure', /disciplinary knowledge, data, or observations/.test(await integrated.locator('label[for="reflection-knowledge"]').textContent()) && !/family|community|cultural/i.test(await integrated.locator('label[for="reflection-knowledge"]').textContent()));
+await integrated.locator('[data-action="return-write"]').click();
+
+for (const [genre, expected] of [['admissions', 'Choose what you want to reveal'], ['sop', 'Trace a supported direction'], ['neutral', 'Clarify purpose and audience']]) {
+    await integrated.locator('[data-action="genre"]').selectOption(genre);
+    const support = await integrated.locator('.integrated-support').textContent();
+    check(`${genre} profile has its own guidance with zero autobiographical onboarding or Move leakage`, support.includes(expected) && await integrated.locator('.knowledge-onboarding').count() === 0 && !/Choose a memory and a boundary|Connect memory to a larger force|Protect language and voice/.test(support));
+}
+check('General Writing remains explicitly neutral rather than an autobiographical fallback', await integrated.locator('[data-action="genre"]').inputValue() === 'neutral' && /Clarify purpose and audience/.test(await integrated.locator('.integrated-support').textContent()) && !/identity|family|trauma|memory|cultural disclosure/i.test(await integrated.locator('.integrated-support').textContent()));
+
+await integrated.locator('[data-action="genre"]').selectOption('stem');
+await integrated.locator('[data-action="language"]').selectOption('es');
+const spanishVisibleWords = (await integrated.locator('body').innerText()).trim().split(/\s+/).length;
+check('Spanish-only mode replaces primary chrome instead of duplicating every control', /Borrador actual/.test(await integrated.locator('.phase-strip').textContent()) && !/Current draft/.test(await integrated.locator('.phase-strip').textContent()));
+await integrated.locator('[data-action="language"]').selectOption('both');
+const bilingualVisibleWords = (await integrated.locator('body').innerText()).trim().split(/\s+/).length;
+check('optional bilingual mode is coherent and denser only by explicit choice', bilingualVisibleWords > spanishVisibleWords && /Select words in the draft/.test(await integrated.locator('body').textContent()));
+
+await integrated.locator('[data-action="language"]').selectOption('en');
+await integrated.locator('[data-action="settings"]').click();
+check('Integrated Settings documents Focus and one isolated Danger Zone path', /Integrated Desk keeps Focus/.test(await integrated.locator('[role="dialog"]').textContent()) && await integrated.getByRole('heading', { name: /Danger Zone|Zona de peligro/ }).count() === 1);
+await integrated.locator('#deleteConfirm').fill('DELETE');
+await integrated.locator('[data-action="delete-state"]').click();
+check('Integrated deletion removes only its namespaced record and preserves R0 sentinel', await integrated.evaluate(() => localStorage.getItem('tupana-explore:writing-studio-ux-2026-08:integrated:v1') === null && localStorage.getItem('tupana_draft') === 'R0 SENTINEL — MUST SURVIVE'));
+check('Integrated Desk makes no external network requests', integratedExternalRequests.length === 0, integratedExternalRequests.join(', '));
+check('Integrated Desk produces no page JavaScript errors', integratedErrors.length === 0, integratedErrors.join(' | '));
+await integrated.close();
+
+const unknownContext = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+await unknownContext.addInitScript(() => localStorage.setItem('tupana-explore:writing-studio-ux-2026-08:integrated:v1', JSON.stringify({ schema: 1, concept: 'integrated', genre: 'mystery-genre' })));
+const unknown = await unknownContext.newPage();
+const unknownExternalRequests = [];
+unknown.on('request', request => {
+    if (!request.url().startsWith('http://127.0.0.1:3001/')) unknownExternalRequests.push(request.url());
+});
+await unknown.goto(`${BASE}?concept=integrated`);
+check('unknown assignment fails loudly and names the unresolved genre id', /This writing genre is not configured/.test(await unknown.locator('main').textContent()) && /mystery-genre/.test(await unknown.locator('main').textContent()));
+check('unknown assignment inherits neither autobiography nor General Writing', await unknown.locator('.integrated-moves').count() === 0 && !/Choose a memory and a boundary|Clarify purpose and audience/.test(await unknown.locator('main').textContent()));
+check('unknown assignment makes no external request while awaiting explicit selection', unknownExternalRequests.length === 0, unknownExternalRequests.join(', '));
+await unknownContext.close();
+
+const ordinaryContext = await browser.newContext({ viewport: { width: 1440, height: 960 } });
+const ordinary = await ordinaryContext.newPage();
+const ordinaryExternalRequests = [];
+ordinary.on('request', request => {
+    if (!request.url().startsWith('http://127.0.0.1:3001/')) ordinaryExternalRequests.push(request.url());
+});
+await ordinary.goto(`${BASE}?concept=integrated`);
+const ordinaryPrimaryPlaces = await ordinary.locator('.phase-strip .phase-tab').count();
+check('ordinary Integrated path allows immediate writing without answering cultural onboarding', await ordinary.locator('.knowledge-onboarding').isVisible() && await ordinary.locator('#draftEditor').isEditable());
+const ordinaryDraft = 'Synthetic ordinary-path draft. The student writes one piece in their own voice and chooses not to invoke optional support.';
+await ordinary.locator('#draftEditor').fill(ordinaryDraft);
+await ordinary.waitForTimeout(230);
+await ordinary.locator('[data-action="continue"]').click();
+check('ordinary path reaches Process Reflection with zero Move, onboarding, or AI actions', await ordinary.locator('#reflectionForm').isVisible() && await ordinary.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem('tupana-explore:writing-studio-ux-2026-08:integrated:v1'));
+    return saved.knowledgeChoice === null && Object.keys(saved.moveNotes).length === 0 && saved.reviews.length === 0 && saved.councilRuns.length === 0 && saved.decisions.length === 0;
+}));
+await ordinary.locator('#reflection-changed').fill('I clarified the purpose in my own words.');
+await ordinary.locator('#reflection-decision').fill('I chose not to use optional AI review for this draft.');
+await ordinary.locator('#reflection-voice').fill('I kept the language that sounded like me.');
+await ordinary.locator('[data-action="finish"]').click();
+const ordinaryReadiness = ordinary.locator('.finish-grid').first().locator('.check-list');
+check('ordinary non-AI path reaches Finish without implying optional Council or AI is missing', await ordinary.locator('[data-action="create-packet"]').isEnabled() && /No Council requested—optional/.test(await ordinaryReadiness.textContent()) && /No AI decisions—AI is optional/.test(await ordinaryReadiness.textContent()));
+check('ordinary path adds zero mandatory action before writing and no new primary destination', ordinaryPrimaryPlaces === 3 && await ordinary.locator('.knowledge-onboarding button[required]').count() === 0 && await ordinary.locator('[role="dialog"]').count() === 0);
+check('ordinary no-AI path makes no external request', ordinaryExternalRequests.length === 0, ordinaryExternalRequests.join(', '));
+await ordinaryContext.close();
+
 console.log('\nMobile, keyboard, and accessibility geometry');
 const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 await mobile.goto(`${BASE}?concept=desk`);
@@ -325,6 +559,52 @@ const notebookTrayGeometry = await mobile.locator('#passageBar').evaluate(el => 
     return { top: r.top, bottom: r.bottom, width: r.width, viewport: { w: innerWidth, h: innerHeight } };
 });
 check('Notebook mobile Passage Tray stays within the visual viewport', notebookTrayGeometry.top >= 0 && notebookTrayGeometry.bottom <= notebookTrayGeometry.viewport.h && notebookTrayGeometry.width <= notebookTrayGeometry.viewport.w);
+
+await mobile.goto(`${BASE}?concept=integrated`);
+await mobile.evaluate(() => localStorage.removeItem('tupana-explore:writing-studio-ux-2026-08:integrated:v1'));
+await mobile.reload();
+await mobile.locator('[data-action="knowledge-choice"][data-choice="skip"]').click();
+await mobile.locator('#draftEditor').fill(`${'Synthetic mobile paragraph keeps one canonical draft and calm optional guidance. '.repeat(120)}Near the bottom is an exact passage for Integrated Desk coaching.`);
+await mobile.waitForTimeout(230);
+check('Integrated mobile gives the canonical Draft priority over supporting notes', await mobile.locator('#draftEditor').isVisible() && (await mobile.locator('#draftEditor').boundingBox()).y < 700 && (await mobile.locator('.integrated-support').boundingBox()).y > (await mobile.locator('#draftEditor').boundingBox()).y);
+const integratedCoachBox = await mobile.locator('.coach-entry').boundingBox();
+check('Integrated mobile keeps the actionable coach entry adjacent to the editor', await mobile.locator('.coach-entry [data-action="coach"]').isVisible() && integratedCoachBox.y < 844);
+const integratedSwitcher = await mobile.locator('.concept-switcher [aria-current="page"]').boundingBox();
+check('Integrated current switcher item begins inside the mobile viewport', integratedSwitcher.x >= 0 && integratedSwitcher.x + integratedSwitcher.width <= 390);
+check('Integrated deliberately retains Focus on mobile', await mobile.locator('[data-action="focus"]').isVisible());
+check('Integrated mobile has no horizontal overflow at 390×844', await mobile.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth));
+const integratedTargets = await mobile.locator('button:visible, a.switch-link:visible, summary:visible').evaluateAll(elements => elements.map(el => ({ name: el.getAttribute('aria-label') || el.textContent.trim(), rect: el.getBoundingClientRect() })).filter(item => item.rect.width < 44 || item.rect.height < 44));
+check('Integrated visible mobile controls and disclosures meet 44px target minimum', integratedTargets.length === 0, JSON.stringify(integratedTargets.slice(0, 8)));
+const integratedUnnamed = await mobile.locator('button:visible').evaluateAll(elements => elements.filter(el => !(el.getAttribute('aria-label') || el.textContent.trim())).length);
+check('Integrated visible buttons have accessible names', integratedUnnamed === 0);
+await mobile.locator('#draftEditor').evaluate(editor => {
+    const passage = 'exact passage for Integrated Desk coaching';
+    const start = editor.value.indexOf(passage);
+    editor.scrollTop = editor.scrollHeight;
+    editor.focus(); editor.setSelectionRange(start, start + passage.length);
+    editor.dispatchEvent(new Event('select', { bubbles: true }));
+});
+await mobile.waitForTimeout(50);
+const integratedTrayGeometry = await mobile.locator('#passageBar').evaluate(el => {
+    const r = el.getBoundingClientRect();
+    return { top: r.top, bottom: r.bottom, width: r.width, viewport: { w: innerWidth, h: innerHeight } };
+});
+check('Integrated Passage Tray stays inside the emulated mobile visual viewport', integratedTrayGeometry.top >= 0 && integratedTrayGeometry.bottom <= integratedTrayGeometry.viewport.h && integratedTrayGeometry.width <= integratedTrayGeometry.viewport.w);
+await mobile.locator('[data-action="passage-review"]').focus();
+await mobile.keyboard.press('Enter');
+await mobile.waitForTimeout(50);
+check('Integrated disclosure dialog receives focus and remains the only dialog', await mobile.locator('[role="dialog"]').isVisible() && await mobile.locator('[role="dialog"]').count() === 1 && await mobile.locator('[role="dialog"]').evaluate(dialog => dialog.contains(document.activeElement)));
+await mobile.keyboard.press('Escape');
+check('Integrated Escape closes disclosure and restores passage context', await mobile.locator('[role="dialog"]').count() === 0 && await mobile.locator('#passageBar').isVisible());
+await mobile.emulateMedia({ reducedMotion: 'reduce' });
+check('Integrated honors reduced-motion preference', await mobile.evaluate(() => {
+    const duration = getComputedStyle(document.querySelector('.button')).transitionDuration;
+    const seconds = duration.endsWith('ms') ? parseFloat(duration) / 1000 : parseFloat(duration);
+    return matchMedia('(prefers-reduced-motion: reduce)').matches && seconds <= 0.001;
+}));
+await mobile.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+check('Integrated reflows without horizontal overflow at a local 200% text-size check', await mobile.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth));
+await mobile.evaluate(() => { document.documentElement.style.fontSize = ''; });
 await mobile.close();
 
 await browser.close();

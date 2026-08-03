@@ -1,4 +1,4 @@
-# Comparative evaluation — four Writing Studio concepts
+# Comparative evaluation — five Writing Studio concepts
 
 **Fourth-prototype checkpoint:** `e8678738dfab6ef42992fc0c16aee1c46a87680c`
 **Evidence level:** implemented local prototype + automated Chromium walkthrough; founder and
@@ -6,7 +6,7 @@ representative-student evidence pending
 
 ## Shared contract across all concepts
 
-All four concepts use synthetic examples, deterministic mock AI, explicit pre-send consent, and
+All five concepts use synthetic examples, deterministic mock AI, explicit pre-send consent, and
 one isolated storage record per concept. None sends a network request. All preserve student prose
 verbatim and record review choices without applying a rewrite. Every concept includes:
 
@@ -20,7 +20,8 @@ verbatim and record review choices without applying a rewrite. Every concept inc
   activity evidence, and no AI-authored reflective content;
 - a deliberate Finish space separating quiet saving, packet creation, and external submission;
 - exact final-draft confirmation plus separate student reflection and instructor evidence appendix;
-- admissions, STEM, SOP, and neutral genre profiles, with no autobiographical fallback;
+- autobiographical, admissions, STEM, SOP, and neutral genre profiles in Integrated Desk, with no
+  silent fallback; the earlier four concepts retain their existing explicit profiles;
 - English, Spanish, and Spanish-primary optional bilingual presentation;
 - one Settings → Danger Zone deletion path scoped to the active concept only.
 
@@ -93,21 +94,50 @@ consent, mock coaching may discuss only ideas already in the active card and ask
 not write draft prose, create a draft, or transfer text. Draft-level review begins only after the
 student creates the canonical draft. This is reversible and requires student evidence.
 
+## 5. Integrated Desk · Finalist
+
+| Topic | Record |
+|---|---|
+| Core mental model | **My essay lives in the Draft. Moves and notes help me think.** One canonical Draft remains home; durable Move notes are reference-only supports, not a Notebook destination or alternate draft. |
+| Navigation and artifact model | Desk's three primary places—Current Draft, Process Reflection, Finish—remain. Beside the Draft are optional genre Moves with persistent notes, Review Center, and Evidence so far. A visible **Ask Tu Pana** action opens passage/paragraph/full-draft disclosure; deeper history stays in Review Center. |
+| Removed or simplified | No ten-stage corridor, Notebook top-level place, critical-AI destination, culture destination, coach column, chat notice stream, mandatory Move order, navigation completion, repeated disclosure wall, or automatic transfer/rewrite. One concise autobiographical-only knowledge-and-language onboarding is inline and revisitable. |
+| Audit root causes addressed | RC-1 keeps one Draft and one primary movement grammar; RC-2 routes AI history to Review Center and makes coach access actionable; RC-3 persists notes, protected phrases, versions, decisions, and exact Draft state without competing drafts; RC-4 contrasts the canonical mixed-genre autobiographical profile with disciplinary STEM, keeps General neutral, and stops unknown ids rather than falling back. |
+| Mobile behavior | Draft is first; optional supports stack below rather than compressing a split view. Ask Tu Pana remains adjacent to the editor. Passage Tray uses `visualViewport` and safe-area offsets. Focus is retained because only one canonical Draft exists; Exit and Passage Tray remain available. 390 × 844 emulation, target geometry, reduced motion, and local 200% text reflow passed. Physical iPhone and VoiceOver remain open. |
+| Bilingual behavior | English-only and Spanish-only modes reduce density by replacing chrome rather than duplicating it. Optional bilingual mode keeps Spanish-primary chrome and adds secondary instructional text selectively. Student prose, notes, and rationales are never translated. Equal-prominence dual language remains an open Claude/Fable disagreement. |
+| Protected strengths | Immutable R0 authorship/privacy/trust contracts; canonical Five Questions; Council plurality where configured; explicit purpose/reviewer/call count/payload/consent; critical judgment at authentic decisions; student rationale; culturally grounded and translingual voice; three required reflections; separate factual appendix; exact final-draft confirmation; isolated deletion. |
+| New risks | Added Move explanations, onboarding, and critical prompts may restore density; notes may be mistaken for mini-drafts or a hidden Notebook; cultural relevance may feel imposed; Ask Tu Pana may still be missed; rationale may feel like homework; contextual Five Questions may be ignored; Focus may hide useful references. |
+| Migration implications | High and unimplemented. Existing stage work would require separately authorized classification and recovery. The prototype does not read, infer, import, merge, or migrate real R0 work. |
+| Founder-test questions | Is the Draft still unmistakable? Do notes remain one supporting mental model? Is coach access clearer? Is autobiographical onboarding relevant and skippable? Does contextual critical AI deepen judgment without fatigue? Does STEM remain free of autobiographical leakage? Is phone use understandable without facilitator explanation? |
+| Safety-contract result | Five-concept automated journey 238/238 after the autobiographical and ordinary-path checks; unchanged R0 safety selection 277/277. Automated reachability is not comprehension evidence. |
+
+### Principal comparison: Integrated Desk versus plain Desk
+
+Plain Desk is the lower-density reference: three optional Move cards, Review Center, and factual
+Evidence around one Draft. Integrated Desk adds durable Move notes, a concise relevant-genre
+onboarding, explicit coach action, pre-send purpose/reviewer/call facts, one contextual canonical
+critical prompt, and optional student rationale. It deliberately does not add another primary place.
+
+The finalist is falsified if those additions make the Draft less obvious, create a compulsory
+planning corridor, repeat disclosure content, turn AI reflection into a questionnaire, or make
+mobile support obscure writing. It is supported—not proven—if novice testers can still say “my
+essay lives in the Draft,” discover notes when useful, find coaching without mistaking the status
+strip for a control, and explain an AI decision without facilitator instruction.
+
 ## Same-journey implementation coverage
 
-| Task | Desk | Journey | Hybrid | Notebook & Draft |
-|---|---|---|---|---|
-| Start / paste synthetic writing | Canonical editor | Active-step artifact + carry-forward | Canonical editor | Genre-shaped notebook card with boundary warning |
-| Save, leave, return | Isolated draft record | Isolated artifacts + current mark | Isolated draft record | Separate isolated notebook entries + canonical draft |
-| Find prior work | Version/evidence panel | Work rail + timestamps | Evidence panel | My Work + notebook cards + dated draft snapshots |
-| Back / Continue | Desk → Finish | Ten-step spine | Four-phase spine | Between skippable cards; Notebook ↔ Draft does not change evidence |
-| Create canonical draft | Exists from first word | Stage-owned artifact model | Exists from first word | Explicit empty draft; no notebook transfer |
-| Passage coaching | Shared captured-passage sheet | Shared captured-passage sheet | Shared captured-passage sheet | Same, after student creates draft |
-| Focused review | Shared Review Center | Shared Review Center | Shared Review Center | Same, after draft boundary |
-| Council / revisit | Shared genre-specific history | Shared genre-specific history | Shared genre-specific history | Same, reload-proof after draft boundary |
-| Act on suggestion | Shared decision grammar; never auto-rewrite | Same | Same | Same; notebook and draft text remain unchanged |
-| Reflection | Three required + one optional | Same | Same | Same + separate notebook/draft factual evidence |
-| Final packet | Exact canonical draft | Exact marked current artifact | Exact canonical draft | Exact canonical draft; notebook is not silently included |
+| Task | Desk | Journey | Hybrid | Notebook & Draft | Integrated Desk |
+|---|---|---|---|---|---|
+| Start / paste synthetic writing | Canonical editor | Active-step artifact + carry-forward | Canonical editor | Genre-shaped notebook card with boundary warning | Canonical editor; optional genre lens and Moves never block drafting |
+| Save, leave, return | Isolated draft record | Isolated artifacts + current mark | Isolated draft record | Separate isolated notebook entries + canonical draft | Isolated Draft + genre-keyed Move notes + ledger state |
+| Find prior work | Version/evidence panel | Work rail + timestamps | Evidence panel | My Work + notebook cards + dated draft snapshots | Planning reference + Review Center + Evidence + dated versions |
+| Back / Continue | Desk → Finish | Ten-step spine | Four-phase spine | Between skippable cards; Notebook ↔ Draft does not change evidence | Draft → Reflection → Finish; Move navigation never becomes completion |
+| Create canonical draft | Exists from first word | Stage-owned artifact model | Exists from first word | Explicit empty draft; no notebook transfer | Exists from first word; notes never transfer |
+| Passage coaching | Shared captured-passage sheet | Shared captured-passage sheet | Shared captured-passage sheet | Same, after student creates draft | Same + visible Ask Tu Pana and purpose/reviewer/call facts |
+| Focused review | Shared Review Center | Shared Review Center | Shared Review Center | Same, after draft boundary | Same + one contextual canonical critical prompt |
+| Council / revisit | Shared genre-specific history | Shared genre-specific history | Shared genre-specific history | Same, reload-proof after draft boundary | Saved history; autobiographical connection/evidence/voice roles configured, STEM unavailable explicitly |
+| Act on suggestion | Shared decision grammar; never auto-rewrite | Same | Same | Same; notebook and draft text remain unchanged | Same + optional student rationale and traceable source/scope/prompt/version |
+| Reflection | Three required + one optional | Same | Same | Same + separate notebook/draft factual evidence | Three required + genre-appropriate optional knowledge prompt; factual ledger aid |
+| Final packet | Exact canonical draft | Exact marked current artifact | Exact canonical draft | Exact canonical draft; notebook is not silently included | Exact canonical Draft; notes excluded; separate reflection and appendix |
 
 ## Direct comparison and falsification questions
 

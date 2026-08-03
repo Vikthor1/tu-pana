@@ -8,7 +8,7 @@
 
     const WINDOW_ID = 'writing-studio-ux-2026-08';
     const STORAGE_BASE = `tupana-explore:${WINDOW_ID}`;
-    const CONCEPTS = ['desk', 'journey', 'hybrid', 'notebook'];
+    const CONCEPTS = ['desk', 'journey', 'hybrid', 'notebook', 'integrated'];
     const root = document.getElementById('prototypeRoot');
     const dialogRoot = document.getElementById('dialogRoot');
     const live = document.getElementById('liveRegion');
@@ -20,6 +20,7 @@
     let saveTimer = null;
     let lastFocus = null;
     let reviewTab = 'history';
+    let pendingDecision = null;
 
     const conceptMeta = {
         desk: {
@@ -45,6 +46,12 @@
             mental: 'Think in a notebook; write one draft.',
             summary: 'Genre-shaped, skippable notebook cards support preparation. A calm authorship boundary begins one empty canonical draft without transferring notebook prose.',
             tags: ['2 kinds of work', '1 draft', 'Authorship boundary'],
+        },
+        integrated: {
+            short: 'Finalist', name: 'Integrated Desk · Finalist', number: '5', finalist: true,
+            mental: 'My essay lives in the Draft. Moves and notes help me think.',
+            summary: 'Desk clarity with durable genre-specific Move notes, visible coach access, contextual critical-AI judgment, and optional culturally responsive preparation.',
+            tags: ['Finalist under evaluation', '1 draft', 'Persistent Move notes'],
         },
     };
 
@@ -102,6 +109,13 @@
             notebookReference: 'Notebook reference', draftToolsLocked: 'Draft review unlocks after you create your draft.',
             createdEmpty: 'Canonical draft created empty. Notebook text was not transferred.',
             versions: 'Versions', draftSnapshot: 'Dated draft snapshot', directDraft: 'Begin drafting now',
+            finalist: 'Finalist under evaluation', planningNotes: 'Planning notes', makeNote: 'Make a note', editNote: 'Edit note',
+            askVisible: 'Ask Tu Pana', coachEntryHint: 'Ask about a passage, paragraph, or the full draft. Select text for the Passage Tray.',
+            knowledgeTitle: 'Your knowledge and language may belong here', knowledgeBody: 'Your language, experience, family, or community knowledge may help here. You choose what stays private.',
+            useKnowledge: 'Use this lens', notNow: 'Not now', revisitKnowledge: 'Knowledge & language lens',
+            criticalAction: 'Think critically about this response', allQuestions: 'View the Five Questions', rationale: 'Optional reason in your own words', saveDecision: 'Save decision',
+            decisionMaker: 'You remain the author and decision-maker. No response changes your draft.', purpose: 'Purpose', reviewer: 'Mock reviewer', calls: 'Mock calls represented',
+            councilUnavailable: 'Council is not configured for this genre. Use focused review or ask your instructor for disciplinary feedback.',
         },
         es: {
             prototype: 'Prototipo UX local — solo texto sintético e IA simulada. No pegues trabajo académico real.',
@@ -156,10 +170,26 @@
             notebookReference: 'Referencia del cuaderno', draftToolsLocked: 'La revisión del borrador se activa después de crear tu borrador.',
             createdEmpty: 'Borrador canónico creado vacío. No se transfirió texto del cuaderno.',
             versions: 'Versiones', draftSnapshot: 'Instantánea fechada del borrador', directDraft: 'Comenzar a redactar ahora',
+            finalist: 'Finalista bajo evaluación', planningNotes: 'Notas de planificación', makeNote: 'Hacer una nota', editNote: 'Editar nota',
+            askVisible: 'Preguntar a Tu Pana', coachEntryHint: 'Pregunta sobre un pasaje, párrafo o el borrador completo. Selecciona texto para abrir la bandeja de pasaje.',
+            knowledgeTitle: 'Tu conocimiento y lenguaje pueden pertenecer aquí', knowledgeBody: 'Tu idioma, experiencia, familia o comunidad pueden ayudar aquí. Tú eliges qué queda privado.',
+            useKnowledge: 'Usar esta lente', notNow: 'Ahora no', revisitKnowledge: 'Lente de conocimiento e idioma',
+            criticalAction: 'Pensar críticamente sobre esta respuesta', allQuestions: 'Ver las Cinco Preguntas', rationale: 'Razón opcional en tus propias palabras', saveDecision: 'Guardar decisión',
+            decisionMaker: 'Tú sigues siendo autor/a y quien decide. Ninguna respuesta cambia tu borrador.', purpose: 'Propósito', reviewer: 'Revisor simulado', calls: 'Llamadas simuladas representadas',
+            councilUnavailable: 'El Consejo no está configurado para este género. Usa una revisión enfocada o pide retroalimentación disciplinaria a tu instructor/a.',
         },
     };
 
     const genres = {
+        autobiographical: {
+            label: { en: 'Mixed-genre autobiographical essay', es: 'Ensayo autobiográfico de género mixto' },
+            sample: 'At the neighborhood library, I answered my aunt in English until she said, “aquí escuchamos primero.” I had treated translation as a quick exchange of words. Her phrase made me notice who was expected to adapt, whose knowledge counted, and why language access is also a question of power. This synthetic essay connects that chosen memory to a larger history of public institutions and multilingual communities without asking any student to disclose a private family story.',
+            moves: {
+                discover: ['Choose a memory and a boundary', 'Connect memory to a larger force', 'Test experience with research and context', 'Protect language and voice'],
+                review: ['Personal-to-social connection', 'Evidence and historical grounding', 'Voice and translingual integrity'],
+                council: ['Connection and structure reviewer', 'Evidence and historical-context reviewer', 'Voice and cultural-integrity reviewer'],
+            },
+        },
         admissions: {
             label: { en: 'College personal statement', es: 'Ensayo de admisión universitaria' },
             sample: 'The first week at the neighborhood learning center, I designed a color-coded signup sheet because I thought efficiency was the problem. By Friday, I understood that the real problem was trust. Families did not need a faster form; they needed someone to explain what the form would change. I began sitting beside each visitor, listening before writing. That shift—from solving the visible task to understanding the human need—now guides how I approach community technology and the questions I hope to study in college.',
@@ -199,6 +229,11 @@
     };
 
     const genreMovesEs = {
+        autobiographical: {
+            discover: ['Elige una memoria y un límite', 'Conecta la memoria con una fuerza mayor', 'Contrasta la experiencia con investigación y contexto', 'Protege el idioma y la voz'],
+            review: ['Conexión personal y social', 'Evidencia y contexto histórico', 'Voz e integridad translingüe'],
+            council: ['Revisor de conexión y estructura', 'Revisor de evidencia y contexto histórico', 'Revisor de voz e integridad cultural'],
+        },
         admissions: {
             discover: ['Elige un punto de cambio concreto', 'Nombra qué cambió en tu comprensión', 'Conecta el momento con lo que quieres perseguir'],
             review: ['Propósito y reflexión personal', 'Estructura y movimiento narrativo', 'Voz y especificidad'],
@@ -248,6 +283,186 @@
             { id: 'audience', en: 'Audience', es: 'Audiencia', promptEn: 'What does this audience already know, and what will it need?', promptEs: '¿Qué sabe ya esta audiencia y qué necesitará?' },
             { id: 'evidence', en: 'Evidence', es: 'Evidencia', promptEn: 'Gather relevant examples, facts, quotations, or observations.', promptEs: 'Reúne ejemplos, hechos, citas u observaciones relevantes.' },
             { id: 'structure', en: 'Structure', es: 'Estructura', promptEn: 'Sketch an order that helps the audience follow the purpose.', promptEs: 'Bosqueja un orden que ayude a seguir el propósito.' },
+        ],
+    };
+
+    // Canonical Five Questions, traced to assets/js/ui.js EVAL_QUESTIONS and
+    // index.html #fiveQStrip. The finalist selects one question per authentic
+    // decision and keeps the remainder behind progressive disclosure.
+    const criticalQuestions = {
+        cultural: {
+            en: 'Does it miss what you know from your own community?',
+            es: '¿Está perdiendo algo que tú sabes desde tu comunidad?',
+            principle: 'Cultural knowledge',
+        },
+        accuracy: {
+            en: 'Are factual or academic claims real and verified — or does this need a source?',
+            es: '¿Las afirmaciones académicas o históricas son reales y verificadas — o necesitan una fuente?',
+            principle: 'Accuracy',
+        },
+        voice: {
+            en: 'Does this still sound like the specific person who wrote it?',
+            es: '¿Todavía suena como la persona específica que lo escribió?',
+            principle: 'Voice',
+        },
+        specificity: {
+            en: 'Are there concrete details, or does it stay too abstract?',
+            es: '¿Hay detalles concretos o se queda demasiado abstracto?',
+            principle: 'Specificity',
+        },
+        thinking: {
+            en: 'Does this deepen the thinking this piece of writing is trying to do?',
+            es: '¿Profundiza el pensamiento que este trabajo escrito intenta desarrollar?',
+            principle: 'Thinking',
+        },
+    };
+
+    const integratedMoveProfiles = {
+        autobiographical: [
+            {
+                id: 'memory-boundary', criticalKey: 'specificity',
+                en: 'Choose a memory and a boundary', es: 'Elige una memoria y un límite',
+                nudgeEn: 'Find a place, relationship, and moment of change—or choose another entry point.',
+                nudgeEs: 'Encuentra un lugar, una relación y un cambio—o elige otro punto de entrada.',
+                whyEn: 'Specificity helps the reader enter the essay. Identity, family, migration, and trauma disclosure are never required.',
+                whyEs: 'La especificidad ayuda al lector. Nunca se exige divulgar identidad, familia, migración ni trauma.',
+                promptEn: 'Possible memory, concrete detail, shift, privacy boundary, or a different entry point…',
+                promptEs: 'Memoria posible, detalle, cambio, límite de privacidad u otro punto de entrada…',
+            },
+            {
+                id: 'larger-force', criticalKey: 'thinking',
+                en: 'Connect memory to a larger force', es: 'Conecta la memoria con una fuerza mayor',
+                nudgeEn: 'Ask what historical, social, cultural, linguistic, economic, or political force meets this moment.',
+                nudgeEs: 'Pregunta qué fuerza histórica, social, cultural, lingüística, económica o política cruza este momento.',
+                whyEn: 'The genre moves from chosen experience toward analysis; the story is not decoration.',
+                whyEs: 'El género avanza de la experiencia elegida al análisis; la historia no es decoración.',
+                promptEn: 'Larger pattern, tension, bridge, question, standpoint, or system to investigate…',
+                promptEs: 'Patrón, tensión, puente, pregunta, perspectiva o sistema por investigar…',
+            },
+            {
+                id: 'research-context', criticalKey: 'accuracy',
+                en: 'Test experience with research and context', es: 'Contrasta la experiencia con investigación y contexto',
+                nudgeEn: 'Identify a source that could confirm, complicate, or challenge what experience suggests.',
+                nudgeEs: 'Identifica una fuente que pueda confirmar, complicar o cuestionar lo que sugiere la experiencia.',
+                whyEn: 'Experiential and community knowledge can guide inquiry; factual claims still need traceable support.',
+                whyEs: 'El conocimiento vivido y comunitario guía la investigación; los hechos aún necesitan apoyo rastreable.',
+                promptEn: 'Community source, scholarly source, historical fact, search term, contradiction, or verification need…',
+                promptEs: 'Fuente comunitaria o académica, hecho histórico, término, contradicción o verificación…',
+            },
+            {
+                id: 'voice-language', criticalKey: 'voice',
+                en: 'Protect language and voice', es: 'Protege el idioma y la voz',
+                nudgeEn: 'Keep code-meshing, dialect, family language, or culturally specific phrasing when it carries meaning.',
+                nudgeEs: 'Conserva la mezcla de códigos, dialecto, lenguaje familiar o frase cultural cuando lleva significado.',
+                whyEn: 'Smoother is not always truer. Revision must not flatten the writer into generic academic English.',
+                whyEs: 'Más pulido no siempre es más verdadero. La revisión no debe aplanar la voz en inglés académico genérico.',
+                promptEn: 'Phrase, rhythm, language choice, translation limit, community meaning, or voice risk to protect…',
+                promptEs: 'Frase, ritmo, idioma, límite de traducción, significado comunitario o riesgo para la voz…',
+            },
+        ],
+        admissions: [
+            {
+                id: 'disclosure', criticalKey: 'cultural',
+                en: 'Choose what you want to reveal', es: 'Elige lo que quieres revelar',
+                nudgeEn: 'Choose a small moment you can tell fully—or choose another.',
+                nudgeEs: 'Elige un momento pequeño que puedas contar por completo—o elige otro.',
+                whyEn: 'A personal essay needs specificity, not trauma or compulsory disclosure.',
+                whyEs: 'Un ensayo personal necesita especificidad, no trauma ni divulgación obligatoria.',
+                promptEn: 'Possible moments, boundaries, or details I choose to keep private…',
+                promptEs: 'Momentos posibles, límites o detalles que decido mantener privados…',
+            },
+            {
+                id: 'language', criticalKey: 'voice',
+                en: 'Protect language and cultural meaning', es: 'Protege el idioma y el significado cultural',
+                nudgeEn: 'Protect a word, rhythm, code-meshed phrase, or community meaning.',
+                nudgeEs: 'Protege una palabra, ritmo, frase mezclada o significado comunitario.',
+                whyEn: 'Clarity should not flatten multilingual voice into generic admissions language.',
+                whyEs: 'La claridad no debe aplanar la voz multilingüe en lenguaje genérico de admisiones.',
+                promptEn: 'Language, phrase, translation choice, or meaning I want to protect…',
+                promptEs: 'Idioma, frase, decisión de traducción o significado que quiero proteger…',
+            },
+            {
+                id: 'connection', criticalKey: 'thinking',
+                en: 'Connect moment to insight', es: 'Conecta el momento con la reflexión',
+                nudgeEn: 'What changed in your understanding, and why does it matter here?',
+                nudgeEs: '¿Qué cambió en tu comprensión y por qué importa aquí?',
+                whyEn: 'The essay becomes more than a scene when your own thinking gives it direction.',
+                whyEs: 'El ensayo se vuelve más que una escena cuando tu propio pensamiento le da dirección.',
+                promptEn: 'The change, tension, audience connection, or larger meaning I may develop…',
+                promptEs: 'El cambio, tensión, conexión con el lector o significado mayor que podría desarrollar…',
+            },
+        ],
+        stem: [
+            {
+                id: 'question', criticalKey: 'accuracy',
+                en: 'Question and prediction', es: 'Pregunta y predicción',
+                nudgeEn: 'State what the investigation can test and what result you predicted.',
+                nudgeEs: 'Declara qué puede comprobar la investigación y qué resultado predijiste.',
+                whyEn: 'A testable question keeps the report aligned with the actual experiment.',
+                whyEs: 'Una pregunta comprobable mantiene el informe alineado con el experimento real.',
+                promptEn: 'Research question, prediction, variables, or course concept to verify…',
+                promptEs: 'Pregunta, predicción, variables o concepto del curso que debo verificar…',
+            },
+            {
+                id: 'observation', criticalKey: 'specificity',
+                en: 'Separate observation from interpretation', es: 'Separa observación de interpretación',
+                nudgeEn: 'Record only what you measured or observed before explaining what it may mean.',
+                nudgeEs: 'Registra solo lo que mediste u observaste antes de explicar qué podría significar.',
+                whyEn: 'Scientific readers need to distinguish data from the writer’s interpretation.',
+                whyEs: 'Los lectores científicos necesitan distinguir los datos de la interpretación.',
+                promptEn: 'Measurements, observations, table notes, outliers, or uncertainties…',
+                promptEs: 'Mediciones, observaciones, notas de tabla, valores atípicos o incertidumbres…',
+            },
+            {
+                id: 'reasoning', criticalKey: 'thinking',
+                en: 'Link evidence to the claim', es: 'Conecta la evidencia con la afirmación',
+                nudgeEn: 'Name which data supports the claim and which course concept explains the link.',
+                nudgeEs: 'Nombra qué datos apoyan la afirmación y qué concepto del curso explica la conexión.',
+                whyEn: 'Reasoning—not confident tone—shows why evidence supports a conclusion.',
+                whyEs: 'El razonamiento—no un tono seguro—muestra por qué la evidencia apoya una conclusión.',
+                promptEn: 'Claim, supporting data, reasoning, limitation, or source of error…',
+                promptEs: 'Afirmación, datos, razonamiento, limitación o fuente de error…',
+            },
+        ],
+        sop: [
+            {
+                id: 'trajectory', criticalKey: 'thinking', en: 'Trace a supported direction', es: 'Traza una dirección respaldada',
+                nudgeEn: 'Connect a concrete experience to the question or problem you want to study.', nudgeEs: 'Conecta una experiencia concreta con la pregunta o problema que quieres estudiar.',
+                whyEn: 'A supported trajectory is stronger than an invented origin story.', whyEs: 'Una trayectoria respaldada es más fuerte que una historia de origen inventada.',
+                promptEn: 'Experience, preparation, question, or forward link…', promptEs: 'Experiencia, preparación, pregunta o conexión futura…',
+            },
+            {
+                id: 'evidence', criticalKey: 'specificity', en: 'Pair claims with evidence', es: 'Une afirmaciones con evidencia',
+                nudgeEn: 'Name the action, result, and learning behind each preparation claim.', nudgeEs: 'Nombra la acción, el resultado y el aprendizaje detrás de cada afirmación.',
+                whyEn: 'Evidence distinguishes demonstrated preparation from résumé summary.', whyEs: 'La evidencia distingue la preparación demostrada del resumen del currículum.',
+                promptEn: 'Claim, concrete action, result, and what it demonstrates…', promptEs: 'Afirmación, acción, resultado y qué demuestra…',
+            },
+            {
+                id: 'fit', criticalKey: 'accuracy', en: 'Verify program fit', es: 'Verifica el encaje con el programa',
+                nudgeEn: 'Use only program details you can trace to an official source.', nudgeEs: 'Usa solo detalles del programa que puedas rastrear a una fuente oficial.',
+                whyEn: 'Confident but invented fit claims damage trust.', whyEs: 'Las afirmaciones seguras pero inventadas dañan la confianza.',
+                promptEn: 'Official source, verified feature, open question, or fact to check…', promptEs: 'Fuente oficial, característica verificada, pregunta o dato por comprobar…',
+            },
+        ],
+        neutral: [
+            {
+                id: 'purpose', criticalKey: 'thinking', en: 'Clarify purpose and audience', es: 'Aclara propósito y audiencia',
+                nudgeEn: 'Name what the reader should understand or do.', nudgeEs: 'Nombra qué debe comprender o hacer el lector.',
+                whyEn: 'Purpose helps you decide what belongs and what does not.', whyEs: 'El propósito ayuda a decidir qué pertenece y qué no.',
+                promptEn: 'Purpose, audience, constraint, or question…', promptEs: 'Propósito, audiencia, restricción o pregunta…',
+            },
+            {
+                id: 'evidence', criticalKey: 'accuracy', en: 'Gather defensible evidence', es: 'Reúne evidencia defendible',
+                nudgeEn: 'List examples, observations, or sources you can verify.', nudgeEs: 'Enumera ejemplos, observaciones o fuentes que puedas verificar.',
+                whyEn: 'Evidence lets readers test the writing’s claims.', whyEs: 'La evidencia permite que los lectores comprueben las afirmaciones.',
+                promptEn: 'Evidence, source, observation, or verification need…', promptEs: 'Evidencia, fuente, observación o necesidad de verificación…',
+            },
+            {
+                id: 'structure', criticalKey: 'specificity', en: 'Sketch a useful sequence', es: 'Bosqueja una secuencia útil',
+                nudgeEn: 'Arrange the claim, evidence, complication, and conclusion.', nudgeEs: 'Ordena la afirmación, evidencia, complicación y conclusión.',
+                whyEn: 'A sequence gives the reader a path without writing the draft for you.', whyEs: 'Una secuencia orienta al lector sin escribir el borrador por ti.',
+                promptEn: 'Possible order, missing section, or transition job…', promptEs: 'Orden posible, sección faltante o función de transición…',
+            },
         ],
     };
 
@@ -312,10 +527,12 @@
     function defaultState(name) {
         const now = new Date().toISOString();
         return {
-            schema: 1, concept: name, lang: 'en', genre: 'admissions', draft: '',
+            schema: 1, concept: name, lang: 'en', genre: name === 'integrated' ? 'autobiographical' : 'admissions', draft: '',
             step: 1, phase: 1, view: 'write', savedAt: now, createdAt: now,
             place: name === 'notebook' ? 'notebook' : 'write', activeNotebook: 0,
             notebookEntries: {}, notebookCoachRuns: [], draftDeclared: false, draftCreatedAt: null,
+            moveNotes: {}, knowledgeChoice: null, knowledgeChoiceAt: null,
+            criticalViews: [], onboardingSeenAt: null, protectedPhrases: [], finishChecks: {},
             artifacts: {}, currentArtifact: name === 'journey' ? 'step-1' : 'draft',
             versions: [], reviews: [], decisions: [], councilRuns: [],
             reflections: { changed: '', decision: '', voice: '', knowledge: '' },
@@ -364,7 +581,11 @@
 
     function wordCount(text) { return String(text || '').trim() ? String(text).trim().split(/\s+/).length : 0; }
     function shortDate(iso) { return new Intl.DateTimeFormat(state?.lang === 'es' ? 'es' : 'en', { hour: 'numeric', minute: '2-digit' }).format(new Date(iso)); }
-    function currentGenre() { return genres[state.genre] || genres.neutral; }
+    const unknownGenre = {
+        label: { en: 'Genre selection required', es: 'Se requiere elegir un género' },
+        sample: '', moves: { discover: [], review: [], council: [] },
+    };
+    function currentGenre() { return genres[state.genre] || (concept === 'integrated' ? unknownGenre : genres.neutral); }
     function genreLabel() { return currentGenre().label[state.lang === 'en' ? 'en' : 'es']; }
     function genreMoves(kind) {
         if (state.lang === 'en') return currentGenre().moves[kind];
@@ -375,6 +596,33 @@
     function notebookCardPrompt(card) { return card[state.lang === 'en' ? 'promptEn' : 'promptEs']; }
     function activeNotebookCard() { return notebookCards()[Math.min(state.activeNotebook, notebookCards().length - 1)]; }
     function notebookEntryKey(card) { return `${state.genre}:${card.id}`; }
+    function integratedMoves() { return integratedMoveProfiles[state.genre] || (state.genre === 'neutral' ? integratedMoveProfiles.neutral : []); }
+    function integratedMoveLabel(move) { return move[state.lang === 'en' ? 'en' : 'es']; }
+    function integratedMoveNudge(move) { return move[state.lang === 'en' ? 'nudgeEn' : 'nudgeEs']; }
+    function integratedMoveWhy(move) { return move[state.lang === 'en' ? 'whyEn' : 'whyEs']; }
+    function integratedMovePrompt(move) { return move[state.lang === 'en' ? 'promptEn' : 'promptEs']; }
+    function moveNoteKey(move) { return `${state.genre}:${move.id}`; }
+    function criticalQuestion(key) { return criticalQuestions[key] || criticalQuestions.thinking; }
+    function criticalQuestionText(key) { return criticalQuestion(key)[state.lang === 'en' ? 'en' : 'es']; }
+    function criticalRiskText(key) {
+        if (state.genre !== 'autobiographical') return '';
+        if (key === 'cultural') return state.lang === 'en'
+            ? 'Could this response stereotype, depoliticize, or misread culturally situated knowledge?'
+            : '¿Podría esta respuesta estereotipar, despolitizar o malinterpretar conocimiento culturalmente situado?';
+        if (key === 'voice') return state.lang === 'en'
+            ? 'Could this response genericize or flatten multilingual, family, community, or dialectal meaning?'
+            : '¿Podría esta respuesta volver genérico o aplanar un significado multilingüe, familiar, comunitario o dialectal?';
+        return state.lang === 'en'
+            ? 'Could this response remove the history, power, or standpoint that makes the passage meaningful?'
+            : '¿Podría esta respuesta borrar la historia, el poder o la perspectiva que da significado al pasaje?';
+    }
+    function integratedCriticalKey(kind, lens = '') {
+        if (kind === 'council') return state.genre === 'stem' ? 'accuracy' : 'cultural';
+        if (/evidence|accuracy|method|limit|claim/i.test(lens)) return 'accuracy';
+        if (/voice|voz|personal|purpose/i.test(lens)) return 'voice';
+        if (/structure|specific|precision|clarity|estructura|precisión/i.test(lens)) return 'specificity';
+        return state.genre === 'admissions' || state.genre === 'autobiographical' ? 'voice' : 'thinking';
+    }
 
     function renderBanner() {
         return `<div class="exploration-banner"><span class="banner-dot" aria-hidden="true"></span><strong>${escapeHtml(t('prototype'))}</strong></div>`;
@@ -387,14 +635,14 @@
             <div class="comparison-shell">
                 <section class="comparison-hero" aria-labelledby="comparisonTitle">
                     <div><p class="eyebrow">Founder comparison · August 2026</p>
-                        <h1 id="comparisonTitle">Four ways to understand a writing studio.</h1>
+                        <h1 id="comparisonTitle">Five ways to understand a writing studio.</h1>
                         <p class="lede">Each local concept supports the same complete task journey with isolated synthetic data and deterministic mock AI. The question is which mental model a first-time student can understand and trust.</p></div>
                     <aside class="comparison-note"><strong>No winner is implied.</strong><p>Test the same eleven tasks in each concept. Leave and return freely—each concept keeps its own local prototype state.</p></aside>
                 </section>
                 <section class="concept-grid" aria-label="Writing Studio concepts">
                     ${CONCEPTS.map(name => {
                         const item = conceptMeta[name];
-                        return `<article class="concept-card"><span class="concept-number">${item.number}</span><h2>${item.name}</h2><p><strong>${item.mental}</strong> ${item.summary}</p><div class="concept-tags">${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div><a class="button primary" href="?concept=${name}">Open ${item.short} prototype <span aria-hidden="true">→</span></a></article>`;
+                        return `<article class="concept-card ${item.finalist ? 'finalist-card' : ''}">${item.finalist ? `<span class="finalist-badge">${escapeHtml(copy.en.finalist)}</span>` : ''}<span class="concept-number">${item.number}</span><h2>${item.name}</h2><p><strong>${item.mental}</strong> ${item.summary}</p><div class="concept-tags">${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div><a class="button primary" href="?concept=${name}">Open ${item.short} prototype <span aria-hidden="true">→</span></a></article>`;
                     }).join('')}
                 </section>
                 <section class="journey-script" aria-labelledby="taskJourneyTitle"><h2 id="taskJourneyTitle">Use the same journey every time</h2><p>Observe whether the concept answers where you are, what you are doing, and what happens next without facilitator explanation.</p><ol class="task-grid">${['Start writing or prewriting','Paste existing synthetic writing','Save, leave, and return','Find prior work','Move forward and backward','Ask the coach about a passage','Request focused review','Convene and revisit the Council','Act on a suggestion','Complete reflection','Prepare the final packet'].map(task => `<li>${task}</li>`).join('')}</ol></section>
@@ -405,6 +653,10 @@
         let where, doing, next;
         if (concept === 'desk') {
             where = t('whereDesk'); doing = t('doingDesk'); next = t('nextDesk');
+        } else if (concept === 'integrated') {
+            where = t('whereDesk');
+            doing = state.lang === 'en' ? 'Write one draft. Use a Move or coach when helpful.' : 'Escribe un borrador. Usa una Movida o el coach cuando ayude.';
+            next = state.lang === 'en' ? 'Next: draft, make a note, or ask for review.' : 'Próximo: redacta, haz una nota o pide revisión.';
         } else if (concept === 'journey') {
             where = t('whereJourney', { n: state.step }); doing = t('doingJourney');
             next = t('nextJourney', { next: state.step < 10 ? stepData(state.step)[0] : t('finish') });
@@ -424,12 +676,14 @@
 
     function renderHeader() {
         const o = orientation();
+        const selectableGenres = Object.entries(genres).filter(([id]) => concept === 'integrated' || id !== 'autobiographical');
+        const invalidGenreOption = !genres[state.genre] ? `<option value="" selected disabled>${escapeHtml(state.lang === 'en' ? 'Select a configured genre' : 'Elige un género configurado')}</option>` : '';
         return `${renderBanner()}
             <header class="prototype-header"><div class="prototype-header-inner">
-                <a class="brand-lockup" href="?" aria-label="${escapeHtml(t('compare'))}"><span class="brand-mark" aria-hidden="true">TP</span><span class="brand-copy"><strong>Tu Pana Writing Studio</strong><small>${escapeHtml(conceptMeta[concept].name)}</small></span></a>
+                <a class="brand-lockup" href="?" aria-label="${escapeHtml(t('compare'))}"><span class="brand-mark" aria-hidden="true">TP</span><span class="brand-copy"><strong>Tu Pana Writing Studio</strong><small>${escapeHtml(conceptMeta[concept].name)}${concept === 'integrated' ? ` · ${escapeHtml(t('finalist'))}` : ''}</small></span></a>
                 <nav class="concept-switcher" aria-label="Prototype switcher"><a class="switch-link" href="?">${escapeHtml(t('compare'))}</a>${CONCEPTS.map(name => `<a class="switch-link" href="?concept=${name}" ${name === concept ? 'aria-current="page"' : ''}>${conceptMeta[name].number}. ${conceptMeta[name].short}</a>`).join('')}</nav>
                 <div class="prototype-actions"><span class="save-state"><span class="save-state-dot" aria-hidden="true"></span><span data-save-state>${escapeHtml(t('saved'))}</span></span>
-                    <select class="header-select genre-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${Object.entries(genres).map(([id, g]) => `<option value="${id}" ${id === state.genre ? 'selected' : ''}>${escapeHtml(g.label[state.lang === 'en' ? 'en' : 'es'])}</option>`).join('')}</select>
+                    <select class="header-select genre-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${invalidGenreOption}${selectableGenres.map(([id, g]) => `<option value="${id}" ${id === state.genre ? 'selected' : ''}>${escapeHtml(g.label[state.lang === 'en' ? 'en' : 'es'])}</option>`).join('')}</select>
                     <select class="header-select" data-action="language" aria-label="${escapeHtml(t('language'))}"><option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option><option value="es" ${state.lang === 'es' ? 'selected' : ''}>Español</option><option value="both" ${state.lang === 'both' ? 'selected' : ''}>Español + English</option></select>
                     <button class="icon-button" data-action="settings" aria-label="${escapeHtml(t('settings'))}" title="${escapeHtml(t('settings'))}">⚙</button></div>
             </div></header>
@@ -477,9 +731,14 @@
 
     function renderWorkspace() {
         if (concept === 'desk') return renderDeskWorkspace();
+        if (concept === 'integrated') return genres[state.genre] ? renderIntegratedWorkspace() : renderGenreConfigurationError();
         if (concept === 'journey') return renderJourneyWorkspace();
         if (concept === 'hybrid') return renderHybridWorkspace();
         return renderNotebookWorkspace();
+    }
+
+    function renderGenreConfigurationError() {
+        return `<section class="finish-page" aria-labelledby="genreErrorTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(state.lang === 'en' ? 'Configuration required' : 'Configuración requerida')}</p><h2 id="genreErrorTitle">${escapeHtml(state.lang === 'en' ? 'This writing genre is not configured.' : 'Este género de escritura no está configurado.')}</h2><p>${escapeHtml(state.lang === 'en' ? `The assignment id “${state.genre}” will not inherit Autobiographical or General Writing guidance. Choose a configured genre above.` : `La tarea “${state.genre}” no heredará guía autobiográfica ni general. Elige un género configurado arriba.`)}</p></div></section>`;
     }
 
     function renderNotebookWorkspace() {
@@ -532,6 +791,49 @@
             </div>`;
     }
 
+    function renderIntegratedWorkspace() {
+        return `<nav class="phase-strip" aria-label="Integrated Desk places"><button class="phase-tab" aria-current="step">${escapeHtml(t('currentDraft'))}</button><button class="phase-tab" data-action="reflection">${escapeHtml(t('reflection'))}</button><button class="phase-tab" data-action="finish">${escapeHtml(t('finish'))}</button></nav>
+            <div class="workspace-grid desk integrated-desk">${renderEditor()}
+                <aside class="support-stack integrated-support" aria-label="Optional planning and review">${renderKnowledgeOnboarding()}${renderIntegratedMovesPanel()}${renderReviewPanel()}${renderEvidencePanel()}</aside>
+            </div>`;
+    }
+
+    function renderKnowledgeOnboarding() {
+        if (concept !== 'integrated' || state.genre !== 'autobiographical') return '';
+        if (state.knowledgeChoice !== null) return '';
+        const body = state.lang === 'en'
+            ? 'Cultural, linguistic, family, community, historical, and experiential knowledge can be resources here. Use only what you choose.'
+            : 'El conocimiento cultural, lingüístico, familiar, comunitario, histórico y vivido puede ser un recurso. Usa solo lo que elijas.';
+        return `<section class="panel knowledge-onboarding" aria-labelledby="knowledgeTitle"><div class="panel-body"><span class="panel-kicker">${escapeHtml(state.lang === 'en' ? 'Optional' : 'Opcional')}</span><h2 id="knowledgeTitle">${escapeHtml(state.lang === 'en' ? 'What you already know can matter here' : 'Lo que ya sabes puede importar aquí')}</h2><p>${escapeHtml(body)}</p><p>${escapeHtml(state.lang === 'en' ? 'Write in English, Spanish, or code-mesh when that carries your meaning.' : 'Escribe en inglés, español o mezcla códigos cuando eso lleve tu significado.')}</p><div class="knowledge-actions"><button class="button secondary" data-action="knowledge-choice" data-choice="engage">${escapeHtml(t('useKnowledge'))}</button><button class="button ghost" data-action="knowledge-choice" data-choice="skip">${escapeHtml(t('notNow'))}</button></div><small>${escapeHtml(state.lang === 'en' ? 'Identity, trauma, family, migration, and cultural disclosure are always optional.' : 'Divulgar identidad, trauma, familia, migración o cultura siempre es opcional.')}</small></div></section>`;
+    }
+
+    function renderIntegratedMovesPanel() {
+        const moves = integratedMoves();
+        const filled = moves.filter(move => wordCount(state.moveNotes[moveNoteKey(move)]?.text)).length;
+        return `<section class="panel integrated-moves"><div class="panel-header"><div><h2>${escapeHtml(t('moves'))}</h2><p>${escapeHtml(`${genreLabel()} · ${state.lang === 'en' ? 'optional guidance' : 'guía opcional'}`)}</p></div><span class="evidence-count" aria-label="${filled} ${escapeHtml(state.lang === 'en' ? 'notes with content' : 'notas con contenido')}">${filled}</span></div><div class="panel-body move-list">${moves.map((move, index) => {
+            const note = state.moveNotes[moveNoteKey(move)];
+            const hasNote = Boolean(note && wordCount(note.text));
+            return `<article class="move-card integrated-move"><strong>${escapeHtml(integratedMoveLabel(move))}</strong><span>${escapeHtml(integratedMoveNudge(move))}</span><details><summary>${escapeHtml(state.lang === 'en' ? 'Why this may help' : 'Por qué podría ayudar')}</summary><p>${escapeHtml(integratedMoveWhy(move))}</p></details><button class="text-button" data-action="integrated-move-note" data-move="${index}">${escapeHtml(hasNote ? t('editNote') : t('makeNote'))}${hasNote ? ` · ${wordCount(note.text)} ${escapeHtml(state.lang === 'en' ? 'words' : 'palabras')}` : ''}</button></article>`;
+        }).join('')}${renderPlanningNotesReference()}${renderProtectedPhrasesReference()}${renderKnowledgeRevisit()}</div></section>`;
+    }
+
+    function renderPlanningNotesReference() {
+        const notes = integratedMoves().map(move => ({ move, note: state.moveNotes[moveNoteKey(move)] })).filter(item => wordCount(item.note?.text));
+        if (!notes.length) return `<p class="planning-empty">${escapeHtml(state.lang === 'en' ? 'Planning notes appear here only after you write useful content. They never enter the draft automatically.' : 'Las notas aparecen aquí solo cuando escribes contenido útil. Nunca entran al borrador automáticamente.')}</p>`;
+        return `<details class="planning-reference"><summary>${escapeHtml(t('planningNotes'))} · ${notes.length}</summary><div class="artifact-list">${notes.map(({ move, note }) => `<button class="artifact-row notebook-reference-row" data-action="integrated-move-note" data-move="${integratedMoves().indexOf(move)}"><strong>${escapeHtml(integratedMoveLabel(move))}</strong><small>${escapeHtml(`${wordCount(note.text)} ${state.lang === 'en' ? 'words' : 'palabras'} · ${note.text.slice(0, 88)}`)}</small></button>`).join('')}</div><p>${escapeHtml(state.lang === 'en' ? 'Reference only—nothing transfers to the canonical draft.' : 'Solo referencia—nada se transfiere al borrador canónico.')}</p></details>`;
+    }
+
+    function renderProtectedPhrasesReference() {
+        if (state.genre !== 'autobiographical' || !state.protectedPhrases.length) return '';
+        return `<details class="planning-reference protected-phrases"><summary>${escapeHtml(state.lang === 'en' ? 'Protected voice phrases' : 'Frases de voz protegidas')} · ${state.protectedPhrases.length}</summary><div class="artifact-list">${state.protectedPhrases.map(item => `<div class="artifact-row"><strong>“${escapeHtml(item.text)}”</strong><small>${escapeHtml(state.lang === 'en' ? 'Student protected exact text; mock AI cannot edit it.' : 'Texto exacto protegido por el estudiante; la IA simulada no puede editarlo.')}</small></div>`).join('')}</div></details>`;
+    }
+
+    function renderKnowledgeRevisit() {
+        if (state.genre !== 'autobiographical' || state.knowledgeChoice === null) return '';
+        const engaged = state.knowledgeChoice === 'engage';
+        return `<details class="knowledge-revisit"><summary>${escapeHtml(t('revisitKnowledge'))}</summary><p>${escapeHtml(state.lang === 'en' ? 'Cultural, linguistic, family, community, historical, and experiential knowledge may be resources. You control what remains private.' : 'El conocimiento cultural, lingüístico, familiar, comunitario, histórico y vivido puede ser recurso. Tú controlas lo privado.')}</p><p><strong>${escapeHtml(engaged ? (state.lang === 'en' ? 'You chose to use this lens.' : 'Elegiste usar esta lente.') : (state.lang === 'en' ? 'You chose not now. You may return at any time.' : 'Elegiste ahora no. Puedes regresar cuando quieras.'))}</strong></p><button class="text-button" data-action="knowledge-reset">${escapeHtml(state.lang === 'en' ? 'Choose again' : 'Elegir de nuevo')}</button></details>`;
+    }
+
     function renderJourneyWorkspace() {
         return `<div class="workspace-grid">
             <aside class="panel journey-panel"><div class="panel-header"><div><span class="panel-kicker">${escapeHtml(state.step <= 5 ? t('actStart') : state.step <= 9 ? t('actRevise') : t('actFinish'))}</span><h2>10 ${escapeHtml(state.lang !== 'en' ? 'pasos' : 'steps')}</h2><p>${escapeHtml(t('completeRule'))}</p></div></div><nav class="journey-steps" aria-label="Writing steps">${(state.lang === 'en' ? journeySteps : journeyStepsEs).map((step, index) => renderStepButton(step, index + 1)).join('')}</nav></aside>
@@ -554,10 +856,11 @@
 
     function renderEditor() {
         const isCurrent = concept !== 'journey' || state.currentArtifact === `step-${state.step}`;
-        const focusAvailable = concept === 'desk' || concept === 'journey';
+        const focusAvailable = concept === 'desk' || concept === 'journey' || concept === 'integrated';
         return `<section class="panel editor-panel" aria-labelledby="draftTitle"><div class="editor-topline"><div class="draft-identity"><strong id="draftTitle">${escapeHtml(concept === 'journey' ? stepData(state.step - 1)[0] : t('currentDraft'))}</strong><span>${escapeHtml(isCurrent ? t('currentVersion') : t('priorWork'))}${concept === 'journey' ? ` · ${escapeHtml(t('whereJourney', { n: state.step }))}` : ''}</span></div><div class="editor-actions"><button class="button ghost" data-action="paste">${escapeHtml(t('paste'))}</button>${!getDraft() ? `<button class="button secondary" data-action="sample">${escapeHtml(t('useSample'))}</button>` : ''}${focusAvailable ? `<button class="button ghost focus-btn" data-action="focus">${escapeHtml(t('focus'))}</button>` : ''}</div></div>
             <div class="editor-wrap"><textarea id="draftEditor" class="draft-editor" spellcheck="true" aria-label="${escapeHtml(t('currentDraft'))}" placeholder="${escapeHtml(state.lang !== 'en' ? 'Comienza con tus propias palabras…' : 'Start with your own words…')}">${escapeHtml(getDraft())}</textarea><div class="editor-meta"><span id="wordCount">${escapeHtml(t('words', { n: wordCount(getDraft()) }))}</span><span class="autosave-message" data-save-state>${escapeHtml(t('autosaved'))}</span></div></div>
             <p class="editor-privacy">${instruction('selectHint')} ${escapeHtml(t('noNetwork'))}</p>
+            ${concept === 'integrated' ? `<section class="coach-entry" aria-label="${escapeHtml(t('askVisible'))}"><div><strong>${escapeHtml(t('askVisible'))}</strong><span>${escapeHtml(t('coachEntryHint'))}</span></div><button class="button secondary" data-action="coach">${escapeHtml(t('askVisible'))}</button></section>` : ''}
             <footer class="editor-footer"><div class="footer-group"><button class="button ghost" data-action="back" ${atBeginning() ? 'disabled' : ''}>← ${escapeHtml(t('back'))}</button><button class="button primary" data-action="continue">${escapeHtml(continueLabel())} →</button></div><div class="footer-group">${concept === 'journey' && !isCurrent && state.step >= 6 ? `<button class="button secondary" data-action="mark-current">${escapeHtml(t('markCurrent'))}</button>` : ''}<button class="button secondary" data-action="review-center">${escapeHtml(t('reviewCenter'))}</button></div></footer>
         </section>`;
     }
@@ -576,12 +879,17 @@
     }
 
     function renderReviewPanel() {
-        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('reviewCenter'))}</h2><p>${state.reviews.length + state.councilRuns.length} ${escapeHtml(state.lang === 'en' ? 'saved reports' : 'informes guardados')}</p></div><span class="evidence-count">${state.decisions.length}</span></div><div class="panel-body"><button class="support-action" data-action="coach"><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(state.lang === 'en' ? 'passage, paragraph, or draft' : 'pasaje, párrafo o borrador')}</span></button><button class="support-action" data-action="focused-review"><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(genreMoves('review')[0])}</span></button><button class="support-action" data-action="council"><strong>${escapeHtml(t('council'))}</strong><span>${state.councilRuns.length ? escapeHtml(t('revisit')) : escapeHtml(t('convene'))}</span></button><button class="support-action" data-action="review-center"><strong>${escapeHtml(t('priorWork'))}</strong><span>${escapeHtml(t('revisit'))}</span></button></div></section>`;
+        const councilAction = concept === 'integrated' && state.genre === 'stem'
+            ? `<div class="support-action unavailable"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(t('councilUnavailable'))}</span></div>`
+            : `<button class="support-action" data-action="council"><strong>${escapeHtml(t('council'))}</strong><span>${state.councilRuns.length ? escapeHtml(t('revisit')) : escapeHtml(t('convene'))}</span></button>`;
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('reviewCenter'))}</h2><p>${state.reviews.length + state.councilRuns.length} ${escapeHtml(state.lang === 'en' ? 'saved reports' : 'informes guardados')}</p></div><span class="evidence-count">${state.decisions.length}</span></div><div class="panel-body"><button class="support-action" data-action="coach"><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(state.lang === 'en' ? 'passage, paragraph, or draft' : 'pasaje, párrafo o borrador')}</span></button><button class="support-action" data-action="focused-review"><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(genreMoves('review')[0])}</span></button>${councilAction}<button class="support-action" data-action="review-center"><strong>${escapeHtml(t('priorWork'))}</strong><span>${escapeHtml(t('revisit'))}</span></button></div></section>`;
     }
 
     function renderEvidencePanel() {
         const currentVersions = concept === 'journey' ? Object.keys(state.artifacts).length : state.versions.length;
-        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('evidence'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Hechos, no reflexión escrita por IA' : 'Facts, not AI-written reflection')}</p></div></div><div class="panel-body artifact-list"><div class="artifact-row"><strong>${currentVersions} ${escapeHtml(state.lang !== 'en' ? 'versiones o artefactos' : 'versions or artifacts')}</strong><small>${escapeHtml(t('autosaved'))}</small></div><div class="artifact-row"><strong>${state.decisions.length} ${escapeHtml(state.lang !== 'en' ? 'decisiones' : 'decisions')}</strong><small>${escapeHtml(state.decisions.length ? state.decisions.map(d => d.choice).join(', ') : t('noPrior'))}</small></div><div class="artifact-row"><strong>${state.councilRuns.length} ${escapeHtml(state.lang !== 'en' ? 'Consejos' : 'Council runs')}</strong><small>${escapeHtml(state.councilRuns.length ? t('revisit') : t('noPrior'))}</small></div><button class="button secondary" data-action="reflection">${escapeHtml(t('reflection'))}</button></div></section>`;
+        const moveNoteCount = concept === 'integrated' ? integratedMoves().filter(move => wordCount(state.moveNotes[moveNoteKey(move)]?.text)).length : 0;
+        const rationaleCount = state.decisions.filter(decision => decision.rationale?.trim()).length;
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('evidence'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Hechos, no reflexión escrita por IA' : 'Facts, not AI-written reflection')}</p></div></div><div class="panel-body artifact-list">${concept === 'integrated' ? `<div class="artifact-row"><strong>${moveNoteCount} ${escapeHtml(state.lang === 'en' ? 'Move notes with content' : 'notas de Movidas con contenido')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Navigation never counts as evidence.' : 'La navegación nunca cuenta como evidencia.')}</small></div>` : ''}${concept === 'integrated' && state.genre === 'autobiographical' ? `<div class="artifact-row"><strong>${state.protectedPhrases.length} ${escapeHtml(state.lang === 'en' ? 'student-protected voice phrases' : 'frases de voz protegidas por el estudiante')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Exact text only; no understanding is inferred.' : 'Solo texto exacto; no se infiere comprensión.')}</small></div>` : ''}<div class="artifact-row"><strong>${currentVersions} ${escapeHtml(state.lang !== 'en' ? 'versiones o artefactos' : 'versions or artifacts')}</strong><small>${escapeHtml(t('autosaved'))}</small></div><div class="artifact-row"><strong>${state.decisions.length} ${escapeHtml(state.lang !== 'en' ? 'decisiones' : 'decisions')}</strong><small>${escapeHtml(state.decisions.length ? `${state.decisions.map(d => d.choice).join(', ')}${concept === 'integrated' ? ` · ${rationaleCount} ${state.lang === 'en' ? 'student reasons' : 'razones estudiantiles'}` : ''}` : t('noPrior'))}</small></div><div class="artifact-row"><strong>${state.councilRuns.length} ${escapeHtml(state.lang !== 'en' ? 'Consejos' : 'Council runs')}</strong><small>${escapeHtml(state.councilRuns.length ? t('revisit') : t('noPrior'))}</small></div><button class="button secondary" data-action="reflection">${escapeHtml(t('reflection'))}</button></div></section>`;
     }
 
     function renderWorkRail() {
@@ -592,9 +900,10 @@
         }).join('') : `<div class="empty-state">${escapeHtml(t('noPrior'))}</div>`}</div></section>`;
     }
 
-    function atBeginning() { return concept === 'desk' ? true : concept === 'journey' ? state.step === 1 : concept === 'hybrid' ? state.phase === 1 : false; }
+    function atBeginning() { return concept === 'desk' || concept === 'integrated' ? true : concept === 'journey' ? state.step === 1 : concept === 'hybrid' ? state.phase === 1 : false; }
     function continueLabel() {
         if (concept === 'desk') return t('finish');
+        if (concept === 'integrated') return `${t('continue')}: ${t('reflection')}`;
         if (concept === 'journey') return state.step < 10 ? `${t('continue')}: ${stepData(state.step)[0]}` : t('reflection');
         if (concept === 'hybrid') return state.phase < 4 ? `${t('continue')}: ${phaseData(state.phase)[0]}` : t('reflection');
         return `${t('continue')}: ${t('reflection')}`;
@@ -603,6 +912,7 @@
     function navigateRelative(direction) {
         checkpointVersion();
         if (concept === 'desk') return setView('finish');
+        if (concept === 'integrated') return setView('reflection');
         if (concept === 'journey') {
             if (direction < 0 && state.step > 1) goStep(state.step - 1);
             else if (direction > 0 && state.step < 10) goStep(state.step + 1);
@@ -689,7 +999,24 @@
     }
 
     function renderPassageBar() {
-        return `<section id="passageBar" class="passage-bar" ${captured ? '' : 'hidden'} aria-label="${escapeHtml(t('captured'))}"><div class="passage-copy"><strong>${escapeHtml(t('captured'))}</strong><span id="passageExcerpt">${escapeHtml(captured?.text || '')}</span></div><button class="button secondary" data-action="passage-review">${escapeHtml(t('reviewPassage'))}</button><button class="icon-button" data-action="clear-passage" aria-label="${escapeHtml(t('clear'))}">×</button></section>`;
+        const protectAction = concept === 'integrated' && state?.genre === 'autobiographical'
+            ? `<button class="button ghost protect-phrase" data-action="protect-phrase">${escapeHtml(state.lang === 'en' ? 'Protect phrase' : 'Proteger frase')}</button>`
+            : '';
+        return `<section id="passageBar" class="passage-bar" ${captured ? '' : 'hidden'} aria-label="${escapeHtml(t('captured'))}"><div class="passage-copy"><strong>${escapeHtml(t('captured'))}</strong><span id="passageExcerpt">${escapeHtml(captured?.text || '')}</span></div>${protectAction}<button class="button secondary" data-action="passage-review">${escapeHtml(t('reviewPassage'))}</button><button class="icon-button" data-action="clear-passage" aria-label="${escapeHtml(t('clear'))}">×</button></section>`;
+    }
+
+    function protectCapturedPhrase() {
+        if (!captured?.text?.trim() || concept !== 'integrated' || state.genre !== 'autobiographical') return;
+        const normalized = captured.text.trim();
+        if (!state.protectedPhrases.some(item => item.text === normalized)) {
+            state.protectedPhrases.push({ text: normalized, protectedAt: new Date().toISOString(), genre: state.genre, studentAuthored: true });
+            saveState(state.lang === 'en' ? 'Exact phrase protected.' : 'Frase exacta protegida.');
+        } else {
+            announce(state.lang === 'en' ? 'That exact phrase is already protected.' : 'Esa frase exacta ya está protegida.');
+        }
+        captured = null;
+        renderApp();
+        document.getElementById('draftEditor')?.focus();
     }
 
     function updatePassageBar() {
@@ -835,6 +1162,22 @@
         openDialog(title, contextMoveDetail(index), `<div class="field"><label for="moveNote">${escapeHtml(state.lang !== 'en' ? 'Nota de apoyo (no compite con tu borrador)' : 'Supporting note (not a competing draft)')}</label><textarea id="moveNote" placeholder="${escapeHtml(state.lang !== 'en' ? 'Escribe una nota breve en tus propias palabras…' : 'Write a brief note in your own words…')}">${escapeHtml(existing)}</textarea></div><p>${escapeHtml(state.lang !== 'en' ? 'Esta tarjeta queda disponible como contexto. Nunca cambia ni inserta texto en tu borrador.' : 'This card remains available as context. It never changes or inserts text into your draft.')}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-move" data-move="${index}">${escapeHtml(t('saveReturn'))}</button>`);
     }
 
+    function openIntegratedMoveNote(index) {
+        const move = integratedMoves()[index];
+        if (!move) return;
+        const existing = state.moveNotes[moveNoteKey(move)]?.text || '';
+        openDialog(integratedMoveLabel(move), integratedMoveWhy(move), `<div class="field"><label for="integratedMoveNote">${escapeHtml(t('planningNotes'))}</label><textarea id="integratedMoveNote" placeholder="${escapeHtml(integratedMovePrompt(move))}">${escapeHtml(existing)}</textarea></div><p class="boundary-note"><strong>${escapeHtml(state.lang === 'en' ? 'Reference only.' : 'Solo referencia.')}</strong> ${escapeHtml(state.lang === 'en' ? 'This note never transfers into or changes the canonical draft. You may write a fragment, question, quotation, observation, outline point, or evidence.' : 'Esta nota nunca se transfiere ni cambia el borrador canónico. Puedes escribir un fragmento, pregunta, cita, observación, punto de esquema o evidencia.')}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-integrated-note" data-move="${index}">${escapeHtml(t('saveReturn'))}</button>`);
+    }
+
+    function saveIntegratedMoveNote(index) {
+        const move = integratedMoves()[index];
+        if (!move) return;
+        const text = document.getElementById('integratedMoveNote')?.value || '';
+        state.moveNotes[moveNoteKey(move)] = { text, updatedAt: new Date().toISOString(), provenance: 'student', genre: state.genre, moveId: move.id };
+        saveState(text.trim() ? (state.lang === 'en' ? 'Planning note saved locally.' : 'Nota de planificación guardada localmente.') : t('saved'));
+        closeDialog(); renderApp();
+    }
+
     function openCoachDialog() {
         if (concept === 'notebook' && !state.draftDeclared) {
             announce(t('draftToolsLocked'));
@@ -862,7 +1205,18 @@
             ['full', t('fullScope'), captured.full],
         ];
         const defaultScope = captured.text ? 'selected' : 'paragraph';
-        openDialog(title, subtitle, `<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(captured[defaultScope === 'selected' ? 'text' : defaultScope])}</div></div>${kind === 'focused' ? renderLensChoices() : ''}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? t('sendReview') : t('sendCoach'))}</button>`);
+        const facts = concept === 'integrated' ? renderIntegratedTransmissionFacts(kind) : '';
+        openDialog(title, subtitle, `${facts}<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(captured[defaultScope === 'selected' ? 'text' : defaultScope])}</div></div>${kind === 'focused' ? renderLensChoices() : ''}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? t('sendReview') : t('sendCoach'))}</button>`);
+    }
+
+    function renderIntegratedTransmissionFacts(kind) {
+        const purpose = kind === 'focused'
+            ? (state.lang === 'en' ? 'Apply one chosen genre-aware review lens.' : 'Aplicar una lente de revisión elegida y apropiada al género.')
+            : (state.lang === 'en' ? 'Ask for one strength and one revision question about the chosen scope.' : 'Pedir una fortaleza y una pregunta de revisión sobre el alcance elegido.');
+        const reviewer = kind === 'focused'
+            ? (state.lang === 'en' ? 'One mock genre-focused reviewer' : 'Un revisor simulado enfocado en el género')
+            : (state.lang === 'en' ? 'Tu Pana mock writing coach' : 'Coach de escritura simulado Tu Pana');
+        return `<section class="transmission-facts" aria-label="AI request facts"><dl><div><dt>${escapeHtml(t('purpose'))}</dt><dd>${escapeHtml(purpose)}</dd></div><div><dt>${escapeHtml(t('reviewer'))}</dt><dd>${escapeHtml(reviewer)}</dd></div><div><dt>${escapeHtml(t('calls'))}</dt><dd>1</dd></div></dl><p><strong>${escapeHtml(t('decisionMaker'))}</strong></p></section>`;
     }
 
     function renderLensChoices() {
@@ -895,8 +1249,9 @@
         window.setTimeout(() => {
             const genre = currentGenre();
             const suggestion = mockSuggestion(kind, lens, text);
-            if (concept === 'notebook') checkpointVersion();
-            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: true });
+            if (concept === 'notebook' || concept === 'integrated') checkpointVersion();
+            const criticalKey = concept === 'integrated' ? integratedCriticalKey(kind, lens) : null;
+            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: true, purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? 'mock genre-focused reviewer' : 'Tu Pana mock coach', calls: 1, criticalKey, criticalPrompt: criticalKey ? criticalQuestion(criticalKey).en : null, criticalContext: criticalKey ? criticalRiskText(criticalKey) : null, draftSignature: `${getDraft().length}:${getDraft().slice(0, 24)}` });
             saveState(); closeDialog(); reviewTab = 'history'; openReviewCenter();
         }, 260);
     }
@@ -912,21 +1267,31 @@
             announce(t('draftToolsLocked'));
             return;
         }
+        if (concept === 'integrated' && state.genre === 'stem') {
+            openDialog(t('council'), state.lang === 'en' ? 'Explicit profile boundary' : 'Límite explícito del perfil', `<p>${escapeHtml(t('councilUnavailable'))}</p><p>${escapeHtml(state.lang === 'en' ? 'No mock Council calls are represented. Your draft remains unchanged.' : 'No se representa ninguna llamada simulada del Consejo. Tu borrador no cambia.')}</p>`, `<button class="button primary" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+            return;
+        }
         if (state.councilRuns.length && !getDraft().trim()) return openReviewCenter('council');
         const draft = getDraft();
         if (!draft.trim()) return openCoachDialog();
         const roles = genreMoves('council');
-        openDialog(t('council'), state.lang !== 'en' ? 'Tres perspectivas configuradas para este género. Ninguna reemplaza tu decisión.' : 'Three genre-configured perspectives. None replaces your decision.', `<div class="choice-stack">${roles.map(role => `<div class="radio-card"><span><strong>${escapeHtml(role)}</strong><br><small>${escapeHtml(state.lang !== 'en' ? 'Busca una fortaleza y una pregunta.' : 'Looks for one strength and one question.')}</small></span></div>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview">${escapeHtml(draft)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="run-council" disabled>${escapeHtml(t('convene'))}</button>`);
+        const councilFacts = concept === 'integrated' ? `<section class="transmission-facts"><dl><div><dt>${escapeHtml(t('purpose'))}</dt><dd>${escapeHtml(state.lang === 'en' ? 'Compare three genre-appropriate perspectives, then synthesize priorities.' : 'Comparar tres perspectivas apropiadas al género y sintetizar prioridades.')}</dd></div><div><dt>${escapeHtml(t('reviewer'))}</dt><dd>${escapeHtml(roles.join(' · '))}</dd></div><div><dt>${escapeHtml(t('calls'))}</dt><dd>${escapeHtml(state.lang === 'en' ? '3 reviewer calls + 1 synthesis' : '3 llamadas de revisión + 1 síntesis')}</dd></div></dl><p><strong>${escapeHtml(t('decisionMaker'))}</strong></p></section>` : '';
+        openDialog(t('council'), state.lang !== 'en' ? 'Tres perspectivas configuradas para este género. Ninguna reemplaza tu decisión.' : 'Three genre-configured perspectives. None replaces your decision.', `${councilFacts}<div class="choice-stack">${roles.map(role => `<div class="radio-card"><span><strong>${escapeHtml(role)}</strong><br><small>${escapeHtml(state.lang !== 'en' ? 'Busca una fortaleza y una pregunta.' : 'Looks for one strength and one question.')}</small></span></div>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview">${escapeHtml(draft)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="run-council" disabled>${escapeHtml(t('convene'))}</button>`);
     }
 
     function runCouncil(button) {
         button.disabled = true;
-        if (concept === 'notebook') checkpointVersion();
+        if (concept === 'notebook' || concept === 'integrated') checkpointVersion();
         const roles = genreMoves('council');
         const run = {
             id: `council-${Date.now()}`, createdAt: new Date().toISOString(), genre: state.genre,
             words: wordCount(getDraft()), signature: `${getDraft().length}:${getDraft().slice(0, 24)}`,
             findings: roles.map((role, index) => ({ role, suggestion: councilSuggestion(index) })), mock: true,
+            calls: concept === 'integrated' ? 4 : undefined,
+            criticalKey: concept === 'integrated' ? integratedCriticalKey('council') : null,
+            criticalPrompt: concept === 'integrated' ? criticalQuestion(integratedCriticalKey('council')).en : null,
+            criticalContext: concept === 'integrated' ? criticalRiskText(integratedCriticalKey('council')) : null,
+            draftSignature: `${getDraft().length}:${getDraft().slice(0, 24)}`,
         };
         state.councilRuns.push(run);
         saveState(); closeDialog(); reviewTab = 'council'; openReviewCenter();
@@ -953,19 +1318,26 @@
         }
         if (tab === 'council') {
             if (!state.councilRuns.length) return `<div class="empty-state">${escapeHtml(t('noReviews'))}<br><button class="button secondary" data-action="council" style="margin-top:12px">${escapeHtml(t('convene'))}</button></div>`;
-            return state.councilRuns.slice().reverse().map(run => `<article class="review-card"><span class="mock-label">Mock Council · ${escapeHtml(genreLabel())}</span><h3>${escapeHtml(t('council'))}</h3><p class="review-meta">${shortDate(run.createdAt)} · ${run.words} ${escapeHtml(state.lang === 'en' ? 'words reviewed' : 'palabras revisadas')}</p>${run.findings.map((finding, index) => `<blockquote><strong>${escapeHtml(finding.role)}</strong><br>${escapeHtml(finding.suggestion)}</blockquote>${decisionButtons(run.id, index, finding.suggestion)}`).join('')}</article>`).join('');
+            return state.councilRuns.slice().reverse().map(run => `<article class="review-card"><span class="mock-label">Mock Council · ${escapeHtml(genreLabel())}</span><h3>${escapeHtml(t('council'))}</h3><p class="review-meta">${shortDate(run.createdAt)} · ${run.words} ${escapeHtml(state.lang === 'en' ? 'words reviewed' : 'palabras revisadas')}${concept === 'integrated' ? ` · ${escapeHtml(state.lang === 'en' ? '4 mock calls represented' : '4 llamadas simuladas representadas')}` : ''}</p>${concept === 'integrated' ? renderCriticalPrompt(run.criticalKey) : ''}${run.findings.map((finding, index) => `<blockquote><strong>${escapeHtml(finding.role)}</strong><br>${escapeHtml(finding.suggestion)}</blockquote>${decisionButtons(run.id, index, finding.suggestion, run.criticalKey)}`).join('')}</article>`).join('');
         }
         if (!state.decisions.length) return `<div class="empty-state">${escapeHtml(state.lang !== 'en' ? 'Todavía no has decidido sobre una sugerencia.' : 'You have not decided on a suggestion yet.')}</div>`;
-        return state.decisions.slice().reverse().map(decision => `<article class="review-card"><h3>${escapeHtml(decision.choiceLabel)}</h3><p class="review-meta">${shortDate(decision.createdAt)} · ${escapeHtml(decision.sourceType)}</p><blockquote>${escapeHtml(decision.suggestion)}</blockquote><p>${escapeHtml(t('decisionRecorded'))}</p></article>`).join('');
+        return state.decisions.slice().reverse().map(decision => `<article class="review-card"><h3>${escapeHtml(decision.choiceLabel)}</h3><p class="review-meta">${shortDate(decision.createdAt)} · ${escapeHtml(decision.sourceType)}${decision.payloadScope ? ` · ${escapeHtml(decision.payloadScope)}` : ''}</p><blockquote>${escapeHtml(decision.suggestion)}</blockquote>${decision.criticalPrompt ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Critical prompt' : 'Pregunta crítica')}:</strong> ${escapeHtml(criticalQuestionText(decision.criticalKey))}</p>` : ''}${decision.rationale ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Student reason' : 'Razón estudiantil')}:</strong> ${escapeHtml(decision.rationale)}</p>` : ''}<p>${escapeHtml(t('decisionRecorded'))}</p></article>`).join('');
     }
 
     function renderReviewCard(review) {
-        return `<article class="review-card"><span class="mock-label">Mock AI · ${escapeHtml(review.scope)}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}</p><blockquote>${escapeHtml(review.exactExcerpt)}</blockquote><p>${escapeHtml(review.suggestion)}</p>${decisionButtons(review.id, 0, review.suggestion)}</article>`;
+        return `<article class="review-card"><span class="mock-label">Mock AI · ${escapeHtml(review.scope)}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(state.lang === 'en' ? '1 mock call' : '1 llamada simulada')}` : ''}</p><blockquote>${escapeHtml(review.exactExcerpt)}</blockquote><p>${escapeHtml(review.suggestion)}</p>${concept === 'integrated' ? renderCriticalPrompt(review.criticalKey) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}</article>`;
     }
 
-    function decisionButtons(sourceId, suggestionIndex, suggestion) {
+    function renderCriticalPrompt(key) {
+        if (!key) return '';
+        const available = Object.entries(criticalQuestions).filter(([questionKey]) => !(state.genre === 'stem' && questionKey === 'cultural'));
+        const risk = criticalRiskText(key);
+        return `<details class="critical-moment" data-critical-key="${escapeHtml(key)}"><summary>${escapeHtml(t('criticalAction'))}</summary><div class="critical-moment-body"><span class="panel-kicker">${escapeHtml(criticalQuestion(key).principle)}</span>${risk ? `<p class="critical-risk">${escapeHtml(risk)}</p>` : ''}<p class="critical-primary">${escapeHtml(criticalQuestionText(key))}</p><p>${escapeHtml(t('decisionMaker'))}</p><details class="critical-framework"><summary>${escapeHtml(t('allQuestions'))}</summary><ul>${available.map(([questionKey, question]) => `<li class="${questionKey === key ? 'current' : ''}"><strong>${escapeHtml(question.principle)}</strong> — ${escapeHtml(question[state.lang === 'en' ? 'en' : 'es'])}</li>`).join('')}</ul></details></div></details>`;
+    }
+
+    function decisionButtons(sourceId, suggestionIndex, suggestion, criticalKey = '') {
         const prior = state.decisions.find(d => d.sourceId === sourceId && d.suggestionIndex === suggestionIndex);
-        return `<div class="decision-row" aria-label="Student decision">${[['accept', t('accept')], ['adapt', t('adapt')], ['reject', t('reject')], ['later', t('later')]].map(([choice, label]) => `<button class="decision-button" data-action="decision" data-source="${escapeHtml(sourceId)}" data-index="${suggestionIndex}" data-choice="${choice}" data-suggestion="${escapeHtml(suggestion)}" ${prior?.choice === choice ? 'aria-pressed="true"' : 'aria-pressed="false"'}>${escapeHtml(label)}</button>`).join('')}</div>`;
+        return `<div class="decision-row" aria-label="Student decision">${[['accept', t('accept')], ['adapt', t('adapt')], ['reject', t('reject')], ['later', t('later')]].map(([choice, label]) => `<button class="decision-button" data-action="decision" data-source="${escapeHtml(sourceId)}" data-index="${suggestionIndex}" data-choice="${choice}" data-critical="${escapeHtml(criticalKey)}" data-suggestion="${escapeHtml(suggestion)}" ${prior?.choice === choice ? 'aria-pressed="true"' : 'aria-pressed="false"'}>${escapeHtml(label)}</button>`).join('')}</div>`;
     }
 
     function recordDecision(button) {
@@ -973,8 +1345,51 @@
         const index = Number(button.dataset.index || 0);
         const choice = button.dataset.choice;
         const labels = { accept: t('accept'), adapt: t('adapt'), reject: t('reject'), later: t('later') };
+        if (concept === 'integrated') {
+            const review = state.reviews.find(item => item.id === sourceId);
+            const council = state.councilRuns.find(item => item.id === sourceId);
+            pendingDecision = {
+                sourceId, index, choice, choiceLabel: labels[choice], suggestion: button.dataset.suggestion,
+                criticalKey: button.dataset.critical || review?.criticalKey || council?.criticalKey || 'thinking',
+                criticalContext: review?.criticalContext || council?.criticalContext || criticalRiskText(button.dataset.critical || 'thinking'),
+                sourceType: council ? t('council') : t('focusedReview'),
+                aiSource: council ? 'Mock Council' : (review?.reviewer || 'Tu Pana mock coach'),
+                payloadScope: council ? 'full' : (review?.scope || 'unknown'),
+                draftSignature: council?.draftSignature || review?.draftSignature || `${getDraft().length}:${getDraft().slice(0, 24)}`,
+            };
+            openDialog(labels[choice], t('criticalAction'), `<div class="critical-decision-summary"><span class="panel-kicker">${escapeHtml(criticalQuestion(pendingDecision.criticalKey).principle)}</span><p>${escapeHtml(criticalQuestionText(pendingDecision.criticalKey))}</p><blockquote>${escapeHtml(pendingDecision.suggestion)}</blockquote></div><div class="field"><label for="decisionRationale">${escapeHtml(t('rationale'))}</label><textarea id="decisionRationale" maxlength="500" placeholder="${escapeHtml(state.lang === 'en' ? 'I chose this because…' : 'Elegí esto porque…')}"></textarea></div><p>${escapeHtml(t('decisionMaker'))}</p>`, `<button class="button ghost" data-action="review-center">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-integrated-decision">${escapeHtml(t('saveDecision'))}</button>`);
+            return;
+        }
         state.decisions = state.decisions.filter(d => !(d.sourceId === sourceId && d.suggestionIndex === index));
         state.decisions.push({ id: `decision-${Date.now()}`, sourceId, suggestionIndex: index, sourceType: sourceId.startsWith('council') ? t('council') : t('focusedReview'), choice, choiceLabel: labels[choice], suggestion: button.dataset.suggestion, createdAt: new Date().toISOString(), studentAuthored: true });
+        saveState(t('decisionRecorded'));
+        openReviewCenter(reviewTab);
+    }
+
+    function saveIntegratedDecision() {
+        if (!pendingDecision) return;
+        const rationale = document.getElementById('decisionRationale')?.value || '';
+        state.decisions = state.decisions.filter(d => !(d.sourceId === pendingDecision.sourceId && d.suggestionIndex === pendingDecision.index));
+        state.decisions.push({
+            id: `decision-${Date.now()}`,
+            sourceId: pendingDecision.sourceId,
+            suggestionIndex: pendingDecision.index,
+            sourceType: pendingDecision.sourceType,
+            choice: pendingDecision.choice,
+            choiceLabel: pendingDecision.choiceLabel,
+            suggestion: pendingDecision.suggestion,
+            rationale,
+            aiSource: pendingDecision.aiSource,
+            payloadScope: pendingDecision.payloadScope,
+            criticalKey: pendingDecision.criticalKey,
+            criticalPrompt: criticalQuestion(pendingDecision.criticalKey).en,
+            criticalContext: pendingDecision.criticalContext,
+            draftSignature: pendingDecision.draftSignature,
+            relatedVersionId: state.versions.at(-1)?.id || null,
+            createdAt: new Date().toISOString(),
+            studentAuthored: true,
+        });
+        pendingDecision = null;
         saveState(t('decisionRecorded'));
         openReviewCenter(reviewTab);
     }
@@ -986,19 +1401,38 @@
             if (notebookCount) items.push(`${notebookCount}/${notebookCards().length} ${state.lang !== 'en' ? 'tarjetas de cuaderno con trabajo' : 'notebook cards with work'}`);
             if (state.draftCreatedAt) items.push(`${state.lang !== 'en' ? 'Borrador creado por el estudiante' : 'Student-created draft'} · ${shortDate(state.draftCreatedAt)}`);
         }
+        if (concept === 'integrated') {
+            const moveCount = integratedMoves().filter(move => wordCount(state.moveNotes[moveNoteKey(move)]?.text)).length;
+            if (moveCount) items.push(`${moveCount}/${integratedMoves().length} ${state.lang !== 'en' ? 'notas de Movidas con contenido' : 'Move notes with content'}`);
+            if (state.knowledgeChoice) items.push(state.knowledgeChoice === 'engage'
+                ? (state.lang !== 'en' ? 'Lente opcional de conocimiento e idioma abierta' : 'Optional knowledge and language lens opened')
+                : (state.lang !== 'en' ? 'Lente opcional omitida por ahora' : 'Optional knowledge and language lens skipped for now'));
+            if (state.criticalViews.length) items.push(`${state.criticalViews.length} ${state.lang !== 'en' ? 'preguntas críticas abiertas' : 'critical prompts opened'}`);
+            if (state.genre === 'autobiographical' && state.protectedPhrases.length) items.push(`${state.protectedPhrases.length} ${state.lang !== 'en' ? 'frases exactas protegidas por el estudiante' : 'exact phrases protected by the student'}`);
+            if (state.genre === 'autobiographical' && Object.values(state.finishChecks).filter(Boolean).length) items.push(`${Object.values(state.finishChecks).filter(Boolean).length}/4 ${state.lang !== 'en' ? 'marcas del checklist hechas por el estudiante' : 'student-marked Finish checks'}`);
+        }
         if (wordCount(getDraft())) items.push(`${wordCount(getDraft())} ${state.lang !== 'en' ? 'palabras en la versión actual' : 'words in the current version'}`);
         if (state.versions.length) items.push(`${state.versions.length} ${state.lang !== 'en' ? 'instantáneas locales' : 'local snapshots'}`);
         if (Object.keys(state.artifacts).length) items.push(`${Object.keys(state.artifacts).length} ${state.lang !== 'en' ? 'artefactos con texto' : 'artifacts with text'}`);
         if (state.reviews.length) items.push(`${state.reviews.length} ${state.lang !== 'en' ? 'lecturas enfocadas' : 'focused reviews'}`);
         if (state.councilRuns.length) items.push(`${state.councilRuns.length} ${state.lang !== 'en' ? 'reuniones del Consejo' : 'Council runs'}`);
-        state.decisions.forEach(d => items.push(`${d.choiceLabel}: ${d.sourceType}`));
+        state.decisions.forEach(d => items.push(`${d.choiceLabel}: ${d.sourceType}${d.rationale?.trim() ? (state.lang !== 'en' ? ' · razón estudiantil guardada' : ' · student reason saved') : ''}`));
         return items;
     }
 
-    function renderReflectionPage() {
-        const prompts = [
-            ['changed', t('prompt1'), false], ['decision', t('prompt2'), false], ['voice', t('prompt3'), false], ['knowledge', t('prompt4'), true],
+    function reflectionPrompts() {
+        const knowledge = concept === 'integrated' && state.genre === 'stem'
+            ? (state.lang !== 'en' ? '¿Qué conocimiento disciplinario, datos u observaciones dieron forma a este trabajo?' : 'What disciplinary knowledge, data, or observations shaped this work?')
+            : concept === 'integrated' && state.genre === 'autobiographical'
+                ? (state.lang !== 'en' ? 'Si decidiste usarlo, ¿qué conocimiento cultural, lingüístico, familiar, comunitario, histórico o vivido dio forma a este trabajo?' : 'If you chose to use it, what cultural, linguistic, family, community, historical, or experiential knowledge shaped this work?')
+            : t('prompt4');
+        return [
+            ['changed', t('prompt1'), false], ['decision', t('prompt2'), false], ['voice', t('prompt3'), false], ['knowledge', knowledge, true],
         ];
+    }
+
+    function renderReflectionPage() {
+        const prompts = reflectionPrompts();
         const complete = ['changed', 'decision', 'voice'].filter(key => state.reflections[key].trim()).length;
         return `<section class="finish-page" aria-labelledby="reflectionTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(t('whereDesk'))}</p><h2 id="reflectionTitle">${escapeHtml(t('reflection'))}</h2><p>${escapeHtml(t('reflectionWhy'))}</p><strong>${complete}/3 ${escapeHtml(state.lang !== 'en' ? 'respuestas requeridas guardadas' : 'required responses saved')}</strong></div>
             <section class="panel"><div class="panel-body"><div class="reflection-intro"><strong>${escapeHtml(t('reflectionEvidence'))}</strong><div class="evidence-chips">${factualEvidence().length ? factualEvidence().map(item => `<span class="evidence-chip">${escapeHtml(item)}</span>`).join('') : `<span class="evidence-chip">${escapeHtml(state.lang !== 'en' ? 'La evidencia aparecerá al trabajar.' : 'Evidence will appear as you work.')}</span>`}</div></div>
@@ -1021,16 +1455,34 @@
 
     function reflectionComplete() { return ['changed', 'decision', 'voice'].every(key => state.reflections[key].trim().length >= 1); }
 
+    function renderGenreFinishChecklist() {
+        if (concept !== 'integrated' || state.genre !== 'autobiographical') return '';
+        const items = state.lang === 'en'
+            ? [
+                ['connection', 'My chosen experience connects to a historical, social, cultural, linguistic, economic, or political force.'],
+                ['sources', 'I verified factual or historical claims with sources I can trace.'],
+                ['voice', 'Multilingual, family, community, dialectal, or culturally specific phrases remain as I intend.'],
+                ['privacy', 'The personal details in this version match what I choose to disclose.'],
+            ]
+            : [
+                ['connection', 'Mi experiencia elegida se conecta con una fuerza histórica, social, cultural, lingüística, económica o política.'],
+                ['sources', 'Verifiqué afirmaciones históricas o factuales con fuentes rastreables.'],
+                ['voice', 'Las frases multilingües, familiares, comunitarias, dialectales o culturales quedan como yo quiero.'],
+                ['privacy', 'Los detalles personales en esta versión coinciden con lo que elijo divulgar.'],
+            ];
+        return `<section class="packet-section genre-finish-check"><h3>${escapeHtml(state.lang === 'en' ? 'Autobiographical essay check' : 'Revisión del ensayo autobiográfico')}</h3><p>${escapeHtml(state.lang === 'en' ? 'Your check—not an app inference. These marks do not submit or rewrite anything.' : 'Tu revisión—no una inferencia de la app. Estas marcas no entregan ni reescriben nada.')}</p><div class="choice-stack">${items.map(([key, label]) => `<label class="consent-box"><input type="checkbox" data-action="finish-check" data-key="${key}" ${state.finishChecks[key] ? 'checked' : ''}><span>${escapeHtml(label)}</span></label>`).join('')}</div></section>`;
+    }
+
     function renderFinishPage() {
         const draft = markedDraft();
         const ready = Boolean(draft.trim()) && reflectionComplete();
         const packetReady = Boolean(state.packetCreatedAt);
         return `<section class="finish-page" aria-labelledby="finishTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(t('finish'))}</p><h2 id="finishTitle">${escapeHtml(t('preparePacket'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Guardar mantiene tu trabajo en progreso. Finalizar confirma una versión y arma un paquete local. Entregar ocurre fuera de este prototipo, según las instrucciones de tu instructor.' : 'Save keeps work in progress. Finish confirms one version and assembles a local packet. Submission happens outside this prototype, according to your instructor’s directions.')}</p></div>
             <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('packetDraft'))}</h3><p>${wordCount(draft)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')} · ${escapeHtml(concept === 'journey' ? state.currentArtifact : t('currentDraft'))}</p><div class="packet-preview" id="finalDraftPreview">${escapeHtml(draft || (state.lang !== 'en' ? 'No hay borrador todavía.' : 'No draft yet.'))}</div><label class="consent-box" style="margin-top:12px"><input id="packetConfirm" type="checkbox" ${state.packetCreatedAt ? 'checked' : ''}><span>${escapeHtml(t('confirmDraft'))}</span></label></section>
-            <section class="packet-section"><h3>${escapeHtml(state.lang !== 'en' ? 'Comprobación honesta' : 'Truthful readiness check')}</h3><ul class="check-list"><li class="${draft.trim() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Una versión exacta está identificada' : 'One exact version is identified')}</li><li class="${reflectionComplete() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Tres respuestas estudiantiles están completas' : 'Three student-authored responses are complete')}</li><li class="${state.councilRuns.length ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'La evidencia del Consejo está incluida si existe' : 'Council evidence is included when it exists')}</li><li class="${state.decisions.length ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Las decisiones sobre sugerencias están incluidas' : 'Suggestion decisions are included')}</li></ul><p><strong>${escapeHtml(ready ? (state.lang !== 'en' ? 'Listo para crear el paquete local' : 'Ready to create the local packet') : (state.lang !== 'en' ? 'Todavía en progreso' : 'Still in progress'))}</strong></p><button class="button primary" data-action="create-packet" ${!ready ? 'disabled' : ''}>${escapeHtml(t('createPacket'))}</button></section></div>
-            <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('studentReflection'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Solo contiene las palabras del estudiante.' : 'Contains only the student’s words.')}</p>${['changed', 'decision', 'voice', 'knowledge'].map((key, i) => state.reflections[key] ? `<h4>${i + 1}. ${escapeHtml([t('prompt1'), t('prompt2'), t('prompt3'), t('prompt4')][i])}</h4><p>${escapeHtml(state.reflections[key])}</p>` : '').join('') || `<p>${escapeHtml(state.lang !== 'en' ? 'Todavía no hay reflexión.' : 'No reflection yet.')}</p>`}</section>
-            <section class="packet-section"><h3>${escapeHtml(t('instructorAppendix'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Evidencia factual del sistema, separada de la reflexión.' : 'Factual system evidence, separate from reflection.')}</p><ul class="check-list">${factualEvidence().map(item => `<li class="done">${escapeHtml(item)}</li>`).join('') || `<li>${escapeHtml(t('noPrior'))}</li>`}</ul></section></div>
-            ${concept === 'notebook' ? `<section class="packet-section action-meanings"><h3>${escapeHtml(state.lang === 'en' ? 'Five different actions' : 'Cinco acciones distintas')}</h3><div class="artifact-list"><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Save' : 'Guardar')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Keeps exact work in this isolated browser.' : 'Mantiene el trabajo exacto en este navegador aislado.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('finish'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Confirms which draft and reflection belong in the packet.' : 'Confirma qué borrador y reflexión pertenecen al paquete.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('createPacket'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Assembles a local preview; it submits nothing.' : 'Arma una vista previa local; no entrega nada.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Backup' : 'Copia de seguridad')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Downloads this concept’s isolated synthetic state.' : 'Descarga el estado sintético aislado de este concepto.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'External Submit' : 'Entrega externa')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Happens outside Tu Pana under instructor directions.' : 'Ocurre fuera de Tu Pana según las instrucciones del instructor.')}</small></div></div><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button></section>` : ''}
+            <section class="packet-section"><h3>${escapeHtml(state.lang !== 'en' ? 'Comprobación honesta' : 'Truthful readiness check')}</h3><ul class="check-list"><li class="${draft.trim() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Una versión exacta está identificada' : 'One exact version is identified')}</li><li class="${reflectionComplete() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Tres respuestas estudiantiles están completas' : 'Three student-authored responses are complete')}</li><li class="${concept === 'integrated' || state.councilRuns.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.councilRuns.length ? (state.lang !== 'en' ? 'No se solicitó Consejo—es opcional' : 'No Council requested—optional') : (state.lang !== 'en' ? 'La evidencia del Consejo está incluida si existe' : 'Council evidence is included when it exists'))}</li><li class="${concept === 'integrated' || state.decisions.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.decisions.length ? (state.lang !== 'en' ? 'No hubo decisiones de IA—la IA es opcional' : 'No AI decisions—AI is optional') : (state.lang !== 'en' ? 'Las decisiones sobre sugerencias están incluidas' : 'Suggestion decisions are included'))}</li></ul><p><strong>${escapeHtml(ready ? (state.lang !== 'en' ? 'Listo para crear el paquete local' : 'Ready to create the local packet') : (state.lang !== 'en' ? 'Todavía en progreso' : 'Still in progress'))}</strong></p><button class="button primary" data-action="create-packet" ${!ready ? 'disabled' : ''}>${escapeHtml(t('createPacket'))}</button></section></div>
+            <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('studentReflection'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Solo contiene las palabras del estudiante.' : 'Contains only the student’s words.')}</p>${reflectionPrompts().map(([key, label], i) => state.reflections[key] ? `<h4>${i + 1}. ${escapeHtml(label)}</h4><p>${escapeHtml(state.reflections[key])}</p>` : '').join('') || `<p>${escapeHtml(state.lang !== 'en' ? 'Todavía no hay reflexión.' : 'No reflection yet.')}</p>`}</section>
+            <section class="packet-section"><h3>${escapeHtml(t('instructorAppendix'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Evidencia factual del sistema, separada de la reflexión.' : 'Factual system evidence, separate from reflection.')}</p><ul class="check-list">${factualEvidence().map(item => `<li class="done">${escapeHtml(item)}</li>`).join('') || `<li>${escapeHtml(t('noPrior'))}</li>`}</ul></section></div>${renderGenreFinishChecklist()}
+            ${concept === 'notebook' || concept === 'integrated' ? `<section class="packet-section action-meanings"><h3>${escapeHtml(state.lang === 'en' ? 'Five different actions' : 'Cinco acciones distintas')}</h3><div class="artifact-list"><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Save' : 'Guardar')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Keeps exact work in this isolated browser.' : 'Mantiene el trabajo exacto en este navegador aislado.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('finish'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Confirms which draft and reflection belong in the packet.' : 'Confirma qué borrador y reflexión pertenecen al paquete.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('createPacket'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Assembles a local preview; it submits nothing.' : 'Arma una vista previa local; no entrega nada.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Backup' : 'Copia de seguridad')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Downloads this concept’s isolated synthetic state.' : 'Descarga el estado sintético aislado de este concepto.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'External Submit' : 'Entrega externa')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Happens outside Tu Pana under instructor directions.' : 'Ocurre fuera de Tu Pana según las instrucciones del instructor.')}</small></div></div><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button></section>` : ''}
             ${packetReady ? `<section class="packet-section"><h3>${escapeHtml(t('packetReady'))}</h3><button class="button primary" data-action="download-packet">${escapeHtml(t('downloadPacket'))}</button></section>` : ''}
             <footer class="editor-footer"><button class="button ghost" data-action="reflection">← ${escapeHtml(t('reflection'))}</button><button class="button secondary" data-action="return-write">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button></footer></section>`;
     }
@@ -1046,7 +1498,14 @@
             `2. ${copy.en.prompt2}\n${state.reflections.decision}`,
             `3. ${copy.en.prompt3}\n${state.reflections.voice}`,
         ];
-        if (state.reflections.knowledge) lines.push(`4. ${copy.en.prompt4}\n${state.reflections.knowledge}`);
+        if (state.reflections.knowledge) {
+            const knowledgePrompt = concept === 'integrated' && state.genre === 'stem'
+                ? 'What disciplinary knowledge, data, or observations shaped this work?'
+                : concept === 'integrated' && state.genre === 'autobiographical'
+                    ? 'If you chose to use it, what cultural, linguistic, family, community, historical, or experiential knowledge shaped this work?'
+                : copy.en.prompt4;
+            lines.push(`4. ${knowledgePrompt}\n${state.reflections.knowledge}`);
+        }
         lines.push('', 'INSTRUCTOR EVIDENCE APPENDIX', ...factualEvidence().map(item => `- ${item}`), '', 'Mock AI only. No AI-authored reasoning or reflective claim is included.');
         return lines.join('\n');
     }
@@ -1058,7 +1517,7 @@
             document.getElementById('packetConfirm')?.focus();
             return;
         }
-        if (concept === 'notebook') checkpointVersion();
+        if (concept === 'notebook' || concept === 'integrated') checkpointVersion();
         state.packetCreatedAt = new Date().toISOString();
         state.packetDraft = markedDraft();
         saveState(t('packetReady')); renderApp();
@@ -1074,6 +1533,7 @@
 
     function focusDecisionText() {
         if (concept === 'desk') return state.lang !== 'en' ? 'Sí. El Escritorio ofrece Enfoque en móvil porque una sola área de escritura sigue visible; Salir y la barra de pasaje permanecen dentro del viewport.' : 'Yes. The Desk offers mobile Focus because one writing surface stays visible; Exit and the passage bar remain inside the viewport.';
+        if (concept === 'integrated') return state.lang !== 'en' ? 'Sí. El Escritorio Integrado conserva Enfoque porque hay un solo borrador canónico. Salir y la bandeja de pasaje permanecen dentro del viewport; las notas vuelven al salir.' : 'Yes. Integrated Desk keeps Focus because there is one canonical draft. Exit and the Passage Tray remain inside the viewport; planning notes return when Focus closes.';
         if (concept === 'journey') return state.lang !== 'en' ? 'No en móvil. Ocultar los diez pasos debilitaría orientación y verdad sobre versiones; el editor móvil ya recibe prioridad.' : 'No on mobile. Hiding ten steps would weaken orientation and version truth; the mobile editor already gets priority.';
         if (concept === 'hybrid') return state.lang !== 'en' ? 'No hay modo Enfoque separado. El híbrido reduce el recorrido a cuatro fases y trata el espacio móvil normal como la vista enfocada.' : 'No separate Focus mode. The hybrid reduces the journey to four phases and treats its normal mobile workspace as the focused view.';
         return state.lang !== 'en' ? 'No hay modo Enfoque separado. En móvil, el borrador recibe prioridad y Cuaderno queda como pestaña estable de una acción; no se comprime la vista dividida de escritorio.' : 'No separate Focus mode. On mobile, the draft gets priority and Notebook remains a stable one-action tab; the desktop split view is not compressed.';
@@ -1097,6 +1557,10 @@
         if (action === 'settings') openSettings();
         else if (action === 'close-dialog') closeDialog();
         else if (action === 'overlay-close') closeDialog();
+        else if (action === 'knowledge-choice') { state.knowledgeChoice = target.dataset.choice === 'engage' ? 'engage' : 'skip'; state.knowledgeChoiceAt = new Date().toISOString(); state.onboardingSeenAt ||= state.knowledgeChoiceAt; saveState(); renderApp(); }
+        else if (action === 'knowledge-reset') { state.knowledgeChoice = null; saveState(); renderApp(); }
+        else if (action === 'integrated-move-note') openIntegratedMoveNote(Number(target.dataset.move));
+        else if (action === 'save-integrated-note') saveIntegratedMoveNote(Number(target.dataset.move));
         else if (action === 'place-notebook') { state.place = 'notebook'; state.view = 'write'; captured = null; saveState(); renderApp(); }
         else if (action === 'place-draft') { if (state.draftDeclared) { state.place = 'draft'; state.view = 'write'; saveState(); renderApp(); } }
         else if (action === 'create-draft') createCanonicalDraft();
@@ -1123,6 +1587,7 @@
         else if (action === 'mark-current') { state.currentArtifact = `step-${state.step}`; saveState(); renderApp(); }
         else if (action === 'coach') openCoachDialog();
         else if (action === 'passage-review') openScopeDialog('coach', t('coach'), state.lang !== 'en' ? 'La selección ya está capturada aunque iOS la cierre.' : 'The selection is already captured even if iOS collapses it.');
+        else if (action === 'protect-phrase') protectCapturedPhrase();
         else if (action === 'clear-passage') { captured = null; updatePassageBar(); document.getElementById('draftEditor')?.focus(); }
         else if (action === 'focused-review') { closeDialog(); openFocusedReviewDialog(); }
         else if (action === 'council') { closeDialog(); openCouncilDialog(); }
@@ -1131,9 +1596,10 @@
         else if (action === 'run-council') runCouncil(target);
         else if (action === 'review-tab') openReviewCenter(target.dataset.tab);
         else if (action === 'decision') recordDecision(target);
+        else if (action === 'save-integrated-decision') saveIntegratedDecision();
         else if (action === 'reflection') { if (state.view === 'reflection') saveReflection(); setView('reflection'); }
         else if (action === 'save-reflection') saveReflection();
-        else if (action === 'finish') { if (state.view === 'reflection') saveReflection(); if (concept === 'notebook') checkpointVersion(); setView('finish'); }
+        else if (action === 'finish') { if (state.view === 'reflection') saveReflection(); if (concept === 'notebook' || concept === 'integrated') checkpointVersion(); setView('finish'); }
         else if (action === 'return-write') { if (concept === 'notebook' && state.draftDeclared) state.place = 'draft'; setView('write'); }
         else if (action === 'create-packet') createPacket();
         else if (action === 'download-packet') downloadText(packetText(), `tupana-${concept}-synthetic-packet.txt`);
@@ -1154,6 +1620,7 @@
         const target = event.target;
         if (target.matches('[data-action="language"]')) { state.lang = target.value; saveState(); renderApp(); }
         else if (target.matches('[data-action="genre"]')) { state.genre = genres[target.value] ? target.value : 'neutral'; saveState(); renderApp(); }
+        else if (target.matches('[data-action="finish-check"]')) { state.finishChecks[target.dataset.key] = target.checked; saveState(); }
         else if (target.name === 'reviewScope') { const preview = document.getElementById('scopePreview'); if (preview) preview.textContent = scopeText(target.value); }
         else if (target.id === 'transmitConsent') { const button = dialogRoot.querySelector('[data-action="submit-mock"], [data-action="run-council"], [data-action="submit-notebook-coach"]'); if (button) button.disabled = !target.checked; }
     });
@@ -1163,6 +1630,18 @@
         if (event.target.id === 'pasteNotebookText') { const preview = document.getElementById('pasteNotebookPreview'); if (preview) preview.textContent = event.target.value; }
         if (event.target.id === 'deleteConfirm') { const button = dialogRoot.querySelector('[data-action="delete-state"]'); if (button) button.disabled = event.target.value !== 'DELETE'; }
     });
+
+    document.addEventListener('toggle', event => {
+        const target = event.target;
+        if (concept !== 'integrated' || !target.matches?.('.critical-moment') || !target.open) return;
+        const key = target.dataset.criticalKey || 'thinking';
+        const nearby = target.closest('.review-card');
+        const signature = `${key}:${nearby?.querySelector('.review-meta')?.textContent || ''}`;
+        if (!state.criticalViews.some(view => view.signature === signature)) {
+            state.criticalViews.push({ key, signature, openedAt: new Date().toISOString() });
+            saveState();
+        }
+    }, true);
 
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && dialogRoot.firstElementChild) closeDialog();

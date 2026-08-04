@@ -460,3 +460,58 @@ separately governed production implementation authorization remain outside this 
 - **Boundary status:** correction only; no sixth concept, architecture selection, production
   implementation, push, deploy, merge, promotion, migration, family-preview change, Worker/live
   Gemini call, SaaS work, R0/product-main mutation, or VC-OS mutation.
+
+---
+
+## 2026-08-04 — Integrated Desk student agency and resilience utilities checkpoint
+
+- **Scope:** bounded additive refinement of the hardened Integrated Desk finalist only. Desk,
+  Journey, Hybrid, and Notebook & Draft remain unchanged. The recovery target was the student
+  purpose of legacy editing controls, “I’m stuck” triage, Voice Vault, appearance choice, and a
+  bug-report safety valve—not their stage logic, screen structure, modal chains, or density.
+- **Editing:** compact Undo / Redo and the collapsed **Edit** menu act on the active student writing
+  surface (Draft, student note, rationale, paste, or reflection where present). History is
+  in-session only and never creates evidence, snapshots, AI, Council, readiness, or instructor
+  records. Browser/device clipboard limitations answer truthfully and direct the student to the
+  device Edit menu; no false copy, cut, or paste confirmation is made.
+- **Stuck support:** the Review Center’s secondary **I’m stuck · Need one small next step?** opens
+  one accessible choice surface with five needs. It offers a genre-aware optional micro-task and
+  existing Move, reopens saved feedback rather than creating a duplicate request, offers reversible
+  Focus for overwhelm, confirms a local no-timer return point for breaks, and previews a
+  writing-free local instructor summary. It remains useful without AI and never inserts prose.
+- **Your Voice:** selection now offers **Keep as my voice** for any Integrated genre. The exact
+  student-selected phrase or passage is local, byte-preserved, optionally annotated by the student,
+  and visible later only after an entry exists. It is neither a quality score nor an inferred cultural
+  claim. A reviewer sees Voice entries only after the student opens the optional disclosure,
+  inspects the exact entries, and separately consents; the local mock records the request without
+  claiming live-model enforcement.
+- **Appearance and Help:** a compact labelled header control cycles System default / Paper / Dark;
+  Settings offers the full local preference and keeps native spelling assistance quiet. Help offers
+  separate Report a problem and Share feedback routes. The resulting preview can contain only an
+  optional student description and opt-in safe technical context (prototype version, genre id,
+  browser/device category). It explicitly excludes all student writing and is never sent.
+- **Restraint/density:** Current Draft, Process Reflection, and Finish remain the only primary
+  destinations; no entry interruption, required action, empty Voice panel, permanent editing ribbon,
+  chat column, or added first-viewport dominant CTA exists. The same fresh 1440 × 960 harness now
+  measures plain Desk **168** visible words and Integrated Desk **185** (+10 versus the hardened
+  175 baseline). The only measured visible addition is the quiet Review Center stuck invitation;
+  appearance, Help, Edit choices, report route, Voice reference, and Settings detail are progressive
+  disclosure. Mandatory actions before typing remain **0** and blocking entry interruptions **0**.
+- **Functional evidence:** new agency suite **27/27 PASS**; Integrated corrections **48/48 PASS**;
+  complete five-concept journey **238/238 PASS**. The new suite covers exact Draft undo/redo,
+  context Edit menu, absent evidence side effects, phrase protection and optional reason, opt-in
+  Voice preview, each no-AI stuck route, temporary Focus, local break truth, writing-free instructor
+  summary, appearance persistence, Help local-preview exclusion, R0 sentinel preservation, no
+  external requests, and 390 × 844 target/overflow checks.
+- **Spelling boundary:** native browser/device spellcheck remains default-on where supported for
+  student fields. It sends no Tu Pana request, makes no evidence/readiness/quality claim, and does
+  not mutate text. Its actual English/Spanish suggestion interface remains a desktop and physical
+  iPhone/browser test, not an automated Tu Pana result.
+- **Open lived evidence and deferred production work:** physical-iPhone selection, keyboard,
+  safe-area, and native spelling UI; VoiceOver and physical assistive technology; founder and
+  representative-student comprehension of I’m stuck, Your Voice, and appearance controls; whether
+  optional Voice constraints help live feedback; live Gemini behavior; a real privacy-reviewed
+  report endpoint; cross-device synchronization; production-grade editing/restore; and any SaaS or
+  migration work all remain open and unimplemented.
+- **Boundary status:** no push, deploy, merge, promotion, migration, selection, product-main/R0/
+  VC-OS/family-preview mutation, Worker/live Gemini call, or SaaS work.

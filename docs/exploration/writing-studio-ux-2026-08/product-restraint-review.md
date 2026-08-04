@@ -14,7 +14,7 @@ Measured at 1440 × 960, empty English state, with the same local visible-text h
 
 | Signal | Plain Desk | Integrated Desk | Difference |
 |---|---:|---:|---:|
-| First-viewport visible words | 168–172 across final reruns | 175 | +3 to +7 |
+| First-viewport visible words | 168–172 across final reruns | 185 | +13 to +17 |
 | Mandatory actions before typing | 0 | 0 | 0 |
 | Primary destinations | Desk / Finish in the plain comparison; its Draft is home | Current Draft / Process Reflection / Finish | No new culture, AI, Coach, or Notebook destination |
 | Blocking interruptions on entry | 0 | 0 | 0 |
@@ -34,6 +34,8 @@ than showing those choices as failed readiness checks.
 | **Make a note** on a genre Move | Durable preparation was the valuable Notebook affordance identified in founder evidence | Notes live inside existing Moves, never become a destination, never transfer, and create evidence only from content |
 | Compact **Ask Tu Pana** action beside the editor | Founder evidence showed the prior informational strip was mistaken for the coach control | One button, no chat column; history and deeper review stay in Review Center |
 | Existing support rail gains factual counts | Students need truthful return paths and save/evidence state | Counts report actions only and never claim understanding, readiness, cultural identity, or quality |
+| **I’m stuck · Need one small next step?** in Review Center | A student who cannot begin or interpret feedback needs a non-AI, non-chat route to one reversible next action | The only new ordinary visible wording (+10 words); no panel opens by default, no required step, and its five choices reuse existing Move, Focus, report-history, and save concepts |
+| Appearance icon and Help icon in the header | Visual comfort and a local safety valve should be reachable without shortcut knowledge | Icons are 44px, labelled, and contain no visible curriculum or CTA copy; detailed choices live in Settings/Help |
 
 ## Capability deliberately kept quiet
 
@@ -48,6 +50,10 @@ than showing those choices as failed readiness checks.
 - Move explanations stay behind **Why this may help**. Planning reference appears only after useful
   note content. Review history stays in Review Center. The autobiographical checklist appears only
   in Finish and does not gate packet creation.
+- Undo/Redo and the Edit menu appear only beside an active writing field. They are temporary
+  in-session control, not version management. **Your Voice** appears only after the student keeps
+  exact wording, and Help/report preview appears only after deliberate opening; neither is a
+  primary surface or an empty-state obligation.
 - Neutral, STEM, SOP, and admissions receive only configured genre guidance. General Writing is
   neutral; unknown assignments stop for selection.
 

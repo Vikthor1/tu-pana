@@ -117,7 +117,7 @@ At a 1440 × 960 first viewport with empty English state, the local text-node ha
 |---|---:|---:|
 | Plain Desk | 168–172 across final reruns | 0 |
 | Integrated Desk before correction (`90931c1`) | 175 | 0 |
-| Integrated Desk after correction | 175 | 0 |
+| Integrated Desk after resilience-utilities pass | 185 | 0 |
 | Audited original stage-1 chrome | ≈205 single-language / ≈330 bilingual | 18 onboarding clicks in the audited desktop walk before the studio |
 
 The original numbers come from the audit's bilingual/visual inventory and navigation walk; the
@@ -128,6 +128,21 @@ Questions wall until optional disclosure; no automatic Move sequence; no navigat
 no celebratory decision interruption; no coach-chat accumulation; and no repeated simultaneously
 visible disclosure wall. English-only and Spanish-only replace primary chrome, while bilingual
 density increases only after explicit choice.
+
+## Student-agency and resilience utilities
+
+`prototype_integrated_agency_test.mjs` passed **27/27** against the local Integrated Desk.
+It verifies compact pointer Undo/Redo and Edit-menu Select all on the active Draft; no editing
+utility evidence/snapshot/AI/Council/decision side effect; exact-byte local Your Voice text plus
+optional student reason; default-off and explicit exact-preview Voice inclusion in a mock review;
+all five no-AI stuck choices; reversible Focus and no-timer break truth; writing-free instructor
+summary; System/Paper/Dark persistence; Help’s local-only safe report preview; R0 sentinel and
+network isolation; no page errors; and 390 × 844 header target/overflow geometry.
+
+The measured +10 visible words from the hardened 175 baseline is the secondary Review Center
+invitation “I’m stuck · Need one small next step?” in the ordinary viewport. Appearance, Help,
+editing options, Voice, report preview, and spelling details stay hidden until invoked. This is a
+comparative signal, not a comprehension result.
 
 ## Unchanged R0 safety-contract selection
 

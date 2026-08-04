@@ -92,6 +92,16 @@ the compact writing-project control to switch autobiography → STEM and recover
 In Settings, verify the quiet browser/device spelling explanation; native suggestion quality itself
 still requires desktop and physical-iPhone observation.
 
+For the bounded student-agency refinement, the Integrated Desk also keeps three quiet utilities
+outside its primary destinations: compact in-session **Undo / Redo** plus an **Edit** menu on the
+active writing field; **I’m stuck · Need one small next step?** in Review Center; and **Your Voice**
+only after the student explicitly keeps selected wording. Undo is temporary editing control, not
+durable snapshot restore. Your Voice stores exact student-selected text locally; it is not a quality
+score and is included with a mock review only after a separate exact-text opt-in. The header’s
+appearance icon cycles System / Paper / Dark; Settings exposes the same three choices and native
+browser/device spelling preference. **Help** offers local-only Report a problem and Share feedback
+previews; neither sends nor attaches writing.
+
 ## Evidence and results
 
 - [Comparative evaluation](comparative-evaluation.md)
@@ -108,6 +118,7 @@ Automated local verification commands:
 ```bash
 node prototype_exploration_test.mjs
 node prototype_integrated_corrections_test.mjs
+node prototype_integrated_agency_test.mjs
 ```
 
 ## Founder evidence governing the finalist

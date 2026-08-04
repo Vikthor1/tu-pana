@@ -351,7 +351,7 @@ await integrated.locator('[data-action="protect-phrase"]').click();
 check('protecting a multilingual phrase preserves exact text without changing the Draft', await integrated.evaluate(({ draft, phrase }) => {
     const saved = JSON.parse(localStorage.getItem('tupana-explore:writing-studio-ux-2026-08:integrated:v1'));
     return saved.draft === draft && saved.protectedPhrases.length === 1 && saved.protectedPhrases[0].text === phrase;
-}, { draft: integratedDraft, phrase: protectedPhrase }) && /1 student-protected voice phrases/.test(await integrated.locator('.integrated-support').textContent()));
+}, { draft: integratedDraft, phrase: protectedPhrase }) && /1 student-owned Your Voice entries/.test(await integrated.locator('.integrated-support').textContent()));
 
 const integratedPassage = 'the real problem was trust';
 await integrated.locator('#draftEditor').evaluate((editor, passage) => {

@@ -24,6 +24,8 @@
     let dialogGuard = null;
     let dialogAfterDiscard = null;
     let editorCaret = null;
+    let activeEditSurface = null;
+    const editHistories = new Map();
 
     const conceptMeta = {
         desk: {
@@ -535,7 +537,8 @@
             place: name === 'notebook' ? 'notebook' : 'write', activeNotebook: 0,
             notebookEntries: {}, notebookCoachRuns: [], draftDeclared: false, draftCreatedAt: null,
             moveNotes: {}, knowledgeChoice: null, knowledgeChoiceAt: null,
-            criticalViews: [], onboardingSeenAt: null, protectedPhrases: [], finishChecks: {}, genreStates: {}, nativeSpellcheck: true,
+            criticalViews: [], onboardingSeenAt: null, protectedPhrases: [], voiceEntries: [], finishChecks: {}, genreStates: {}, nativeSpellcheck: true,
+            appearance: 'system',
             artifacts: {}, currentArtifact: name === 'journey' ? 'step-1' : 'draft',
             versions: [], reviews: [], decisions: [], councilRuns: [],
             reflections: { changed: '', decision: '', voice: '', knowledge: '' },
@@ -550,7 +553,11 @@
             if (!raw) return fallback;
             const parsed = JSON.parse(raw);
             if (!parsed || parsed.schema !== 1 || parsed.concept !== name) return fallback;
-            return { ...fallback, ...parsed, reflections: { ...fallback.reflections, ...(parsed.reflections || {}) } };
+            const loaded = { ...fallback, ...parsed, reflections: { ...fallback.reflections, ...(parsed.reflections || {}) } };
+            if (name === 'integrated' && !Array.isArray(parsed.voiceEntries)) {
+                loaded.voiceEntries = (parsed.protectedPhrases || []).map(item => ({ ...item, id: item.id || `legacy-voice-${item.protectedAt || Date.now()}` }));
+            }
+            return loaded;
         } catch (error) {
             console.warn('[Exploration] isolated state could not be restored', error);
             return fallback;
@@ -597,6 +604,26 @@
         return state.lang === 'es' ? 'Género no guardado · registro sintético anterior' : 'Genre not stored · earlier synthetic record';
     }
     function spellcheckEnabled() { return state.nativeSpellcheck !== false; }
+    function uiText(en, es) { return state.lang === 'en' ? en : es; }
+    function voiceEntries() { return state.voiceEntries || []; }
+    function appearanceName(value = state.appearance || 'system') {
+        const labels = state.lang === 'en'
+            ? { system: 'System default', light: 'Paper', dark: 'Dark' }
+            : { system: 'Sistema', light: 'Papel', dark: 'Oscuro' };
+        return labels[value] || labels.system;
+    }
+    function nextAppearance(value = state.appearance || 'system') { return value === 'system' ? 'light' : value === 'light' ? 'dark' : 'system'; }
+    function applyAppearance() {
+        document.documentElement.dataset.appearance = state?.appearance || 'system';
+        document.documentElement.style.colorScheme = state?.appearance === 'dark' ? 'dark' : state?.appearance === 'light' ? 'light' : 'light dark';
+    }
+    function setAppearance(value) {
+        if (!['system', 'light', 'dark'].includes(value)) return;
+        state.appearance = value;
+        applyAppearance();
+        saveState(uiText(`Appearance: ${appearanceName()}.`, `Apariencia: ${appearanceName()}.`));
+        document.querySelectorAll('[data-appearance-current]').forEach(el => { el.textContent = appearanceName(); });
+    }
     function genreOptionsMarkup() {
         const selectable = Object.entries(genres).filter(([id]) => concept === 'integrated' || id !== 'autobiographical');
         const invalid = !genres[state.genre] ? `<option value="" selected disabled>${escapeHtml(state.lang === 'en' ? 'Select a configured genre' : 'Elige un género configurado')}</option>` : '';
@@ -713,6 +740,9 @@
 
     function renderHeader() {
         const o = orientation();
+        const appearanceControl = concept === 'integrated'
+            ? `<button class="icon-button appearance-button" data-action="appearance-cycle" aria-label="${escapeHtml(uiText(`Appearance: ${appearanceName()}. Switch to ${appearanceName(nextAppearance())}.`, `Apariencia: ${appearanceName()}. Cambiar a ${appearanceName(nextAppearance())}.`))}" title="${escapeHtml(uiText(`Appearance: ${appearanceName()}`, `Apariencia: ${appearanceName()}`))}">◐</button><button class="icon-button" data-action="help" aria-label="${escapeHtml(uiText('Help', 'Ayuda'))}" title="${escapeHtml(uiText('Help', 'Ayuda'))}">?</button>`
+            : '';
         return `${renderBanner()}
             <header class="prototype-header"><div class="prototype-header-inner">
                 <a class="brand-lockup" href="?" aria-label="${escapeHtml(t('compare'))}"><span class="brand-mark" aria-hidden="true">TP</span><span class="brand-copy"><strong>Tu Pana Writing Studio</strong><small>${escapeHtml(conceptMeta[concept].name)}${concept === 'integrated' ? ` · ${escapeHtml(t('finalist'))}` : ''}</small></span></a>
@@ -720,7 +750,7 @@
                 <div class="prototype-actions"><span class="save-state"><span class="save-state-dot" aria-hidden="true"></span><span data-save-state>${escapeHtml(t('saved'))}</span></span>
                     <select class="header-select genre-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${genreOptionsMarkup()}</select>
                     <select class="header-select" data-action="language" aria-label="${escapeHtml(t('language'))}"><option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option><option value="es" ${state.lang === 'es' ? 'selected' : ''}>Español</option><option value="both" ${state.lang === 'both' ? 'selected' : ''}>Español + English</option></select>
-                    <button class="icon-button" data-action="settings" aria-label="${escapeHtml(t('settings'))}" title="${escapeHtml(t('settings'))}">⚙</button></div>
+                    ${appearanceControl}<button class="icon-button" data-action="settings" aria-label="${escapeHtml(t('settings'))}" title="${escapeHtml(t('settings'))}">⚙</button></div>
             </div></header>
             <section class="orientation-bar" aria-label="Current location and next action"><div class="orientation-inner"><div class="orientation-copy"><span class="location-pill">${escapeHtml(o.where)}</span><div class="orientation-text"><strong>${escapeHtml(o.doing)}</strong><span>${escapeHtml(o.next)}</span></div>${concept === 'integrated' ? `<button class="mobile-project-chip" data-action="settings" aria-label="${escapeHtml(`${t('genre')}: ${genreLabel()}`)}"><span>${escapeHtml(t('genre'))}</span><strong>${escapeHtml(genreLabel())}</strong></button>` : ''}</div><div class="orientation-next"><small>${escapeHtml(t('currentDraft'))}</small><strong id="orientationDraftWords">${concept === 'notebook' && !state.draftDeclared ? escapeHtml(t('draftMissing')) : `${wordCount(getDraft())} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}`}</strong></div></div></section>`;
     }
@@ -728,10 +758,12 @@
     function renderApp() {
         document.documentElement.lang = state.lang === 'en' ? 'en' : 'es';
         document.body.dataset.concept = concept;
+        applyAppearance();
         const content = state.view === 'reflection' ? renderReflectionPage() : state.view === 'finish' ? renderFinishPage() : renderWorkspace();
         root.innerHTML = `${renderHeader()}<div class="prototype-main">${content}</div><button class="button primary focus-exit" data-action="exit-focus">${escapeHtml(t('exitFocus'))}</button>${renderPassageBar()}`;
         bindEditor();
         bindNotebookEditor();
+        bindEditSurfaces();
         updateVisualViewport();
         requestAnimationFrame(ensureCurrentSwitcherVisible);
     }
@@ -755,6 +787,112 @@
             state.artifacts[key] = { text, updatedAt: new Date().toISOString(), label: stepData(state.step - 1)[0] };
         }
         scheduleSave();
+    }
+
+    function editSurfaceKey(field) { return field?.dataset.editKey || field?.id || ''; }
+    function ensureEditHistory(field) {
+        if (!field || !/^(TEXTAREA|INPUT)$/.test(field.tagName)) return null;
+        const key = editSurfaceKey(field);
+        if (!key) return null;
+        if (!editHistories.has(key)) editHistories.set(key, { stack: [field.value], index: 0, restoring: false });
+        return editHistories.get(key);
+    }
+    function setActiveEditSurface(field) {
+        if (!field || !/^(TEXTAREA|INPUT)$/.test(field.tagName)) return;
+        activeEditSurface = field;
+        ensureEditHistory(field);
+        updateEditControls();
+    }
+    function recordEditInput(field) {
+        const history = ensureEditHistory(field);
+        if (!history || history.restoring) return;
+        if (history.stack[history.index] === field.value) return;
+        history.stack.splice(history.index + 1);
+        history.stack.push(field.value);
+        if (history.stack.length > 100) history.stack.shift();
+        history.index = history.stack.length - 1;
+        updateEditControls();
+    }
+    function currentEditSurface() {
+        if (activeEditSurface && document.contains(activeEditSurface)) return activeEditSurface;
+        if (document.activeElement?.matches?.('textarea, input[type="text"]')) return document.activeElement;
+        return document.getElementById('draftEditor');
+    }
+    function updateEditControls() {
+        const field = currentEditSurface();
+        const history = ensureEditHistory(field);
+        document.querySelectorAll('[data-action="edit-undo"]').forEach(button => { button.disabled = !history || history.index <= 0; });
+        document.querySelectorAll('[data-action="edit-redo"]').forEach(button => { button.disabled = !history || history.index >= history.stack.length - 1; });
+    }
+    function applyEditHistory(direction) {
+        const field = currentEditSurface();
+        const history = ensureEditHistory(field);
+        if (!field || !history) return;
+        const next = history.index + direction;
+        if (next < 0 || next >= history.stack.length) return;
+        history.restoring = true;
+        history.index = next;
+        field.value = history.stack[next];
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        history.restoring = false;
+        field.focus();
+        updateEditControls();
+        announce(uiText(direction < 0 ? 'Undid the last in-session edit. This is not a draft snapshot.' : 'Redid the in-session edit.', direction < 0 ? 'Se deshizo la última edición de esta sesión. No es una instantánea del borrador.' : 'Se rehízo la edición de esta sesión.'));
+    }
+    async function copyTextWithFallback(text, success, unavailable) {
+        try {
+            if (!navigator.clipboard?.writeText) throw new Error('Clipboard write unavailable');
+            await navigator.clipboard.writeText(text);
+            announce(success);
+            return true;
+        } catch (error) {
+            announce(unavailable);
+            return false;
+        }
+    }
+    function selectedEditRange(field) {
+        if (!field || !Number.isFinite(field.selectionStart) || field.selectionEnd <= field.selectionStart) return null;
+        return { start: field.selectionStart, end: field.selectionEnd, text: field.value.slice(field.selectionStart, field.selectionEnd) };
+    }
+    async function runEditAction(action) {
+        const field = currentEditSurface();
+        if (!field) return;
+        setActiveEditSurface(field);
+        if (action === 'edit-select-all') {
+            field.focus(); field.select(); announce(uiText('Selected this writing field.', 'Se seleccionó este campo de escritura.')); return;
+        }
+        const selected = selectedEditRange(field);
+        if (action === 'edit-copy') {
+            if (!selected) return announce(uiText('Select text first.', 'Selecciona texto primero.'));
+            return copyTextWithFallback(selected.text, uiText('Copied locally to your device clipboard.', 'Copiado localmente al portapapeles de tu dispositivo.'), uiText('Copy is unavailable here. Use your device’s Edit menu.', 'Copiar no está disponible aquí. Usa el menú Editar de tu dispositivo.'));
+        }
+        if (action === 'edit-cut') {
+            if (!selected) return announce(uiText('Select text first.', 'Selecciona texto primero.'));
+            const copied = await copyTextWithFallback(selected.text, '', uiText('Cut is unavailable here. Use your device’s Edit menu.', 'Cortar no está disponible aquí. Usa el menú Editar de tu dispositivo.'));
+            if (!copied) return;
+            field.setRangeText('', selected.start, selected.end, 'start');
+            field.dispatchEvent(new Event('input', { bubbles: true }));
+            announce(uiText('Cut. Your writing is still saved locally.', 'Cortado. Tu escritura sigue guardada localmente.'));
+            return;
+        }
+        if (action === 'edit-paste') {
+            try {
+                if (!navigator.clipboard?.readText) throw new Error('Clipboard read unavailable');
+                const text = await navigator.clipboard.readText();
+                const start = field.selectionStart ?? field.value.length;
+                const end = field.selectionEnd ?? start;
+                field.setRangeText(text, start, end, 'end');
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+                field.focus();
+                announce(uiText('Pasted into this writing field.', 'Pegado en este campo de escritura.'));
+            } catch (error) {
+                announce(uiText('Paste is unavailable here. Use your device’s Edit menu.', 'Pegar no está disponible aquí. Usa el menú Editar de tu dispositivo.'));
+            }
+        }
+    }
+    function renderEditControls(context = 'draft') {
+        const label = uiText('Edit writing', 'Editar escritura');
+        return `<div class="edit-utility ${context === 'dialog' ? 'dialog-edit-utility' : ''}" aria-label="${escapeHtml(label)}"><button class="icon-button" data-action="edit-undo" aria-label="${escapeHtml(uiText('Undo in-session edit', 'Deshacer edición de esta sesión'))}" title="${escapeHtml(uiText('Undo', 'Deshacer'))}">↶</button><button class="icon-button" data-action="edit-redo" aria-label="${escapeHtml(uiText('Redo in-session edit', 'Rehacer edición de esta sesión'))}" title="${escapeHtml(uiText('Redo', 'Rehacer'))}">↷</button><details class="edit-menu"><summary aria-label="${escapeHtml(uiText('Edit options', 'Opciones de edición'))}">${escapeHtml(uiText('Edit', 'Editar'))}</summary><div class="edit-menu-popover"><button data-action="edit-cut">${escapeHtml(uiText('Cut', 'Cortar'))}</button><button data-action="edit-copy">${escapeHtml(uiText('Copy', 'Copiar'))}</button><button data-action="edit-paste">${escapeHtml(uiText('Paste', 'Pegar'))}</button><button data-action="edit-select-all">${escapeHtml(uiText('Select all', 'Seleccionar todo'))}</button></div></details></div>`;
     }
 
     function setView(view) {
@@ -849,7 +987,7 @@
             const note = state.moveNotes[moveNoteKey(move)];
             const hasNote = Boolean(note && wordCount(note.text));
             return `<article class="move-card integrated-move"><strong>${escapeHtml(integratedMoveLabel(move))}</strong><span>${escapeHtml(integratedMoveNudge(move))}</span><details><summary>${escapeHtml(state.lang === 'en' ? 'Why this may help' : 'Por qué podría ayudar')}</summary><p>${escapeHtml(integratedMoveWhy(move))}</p></details><button class="text-button" data-action="integrated-move-note" data-move="${index}">${escapeHtml(hasNote ? t('editNote') : t('makeNote'))}${hasNote ? ` · ${wordCount(note.text)} ${escapeHtml(state.lang === 'en' ? 'words' : 'palabras')}` : ''}</button></article>`;
-        }).join('')}${renderPlanningNotesReference()}${renderProtectedPhrasesReference()}${renderKnowledgeRevisit()}</div></section>`;
+        }).join('')}${renderPlanningNotesReference()}${renderYourVoiceReference()}${renderKnowledgeRevisit()}</div></section>`;
     }
 
     function renderPlanningNotesReference() {
@@ -858,9 +996,10 @@
         return `<details class="planning-reference"><summary>${escapeHtml(t('planningNotes'))} · ${notes.length}</summary><div class="artifact-list">${notes.map(({ move, note }) => `<button class="artifact-row notebook-reference-row" data-action="integrated-move-note" data-move="${integratedMoves().indexOf(move)}"><strong>${escapeHtml(integratedMoveLabel(move))}</strong><small>${escapeHtml(`${wordCount(note.text)} ${state.lang === 'en' ? 'words' : 'palabras'} · ${note.text.slice(0, 88)}`)}</small></button>`).join('')}</div><p>${escapeHtml(state.lang === 'en' ? 'Reference only—nothing transfers to the canonical draft.' : 'Solo referencia—nada se transfiere al borrador canónico.')}</p></details>`;
     }
 
-    function renderProtectedPhrasesReference() {
-        if (state.genre !== 'autobiographical' || !state.protectedPhrases.length) return '';
-        return `<details class="planning-reference protected-phrases"><summary>${escapeHtml(state.lang === 'en' ? 'Protected voice phrases' : 'Frases de voz protegidas')} · ${state.protectedPhrases.length}</summary><div class="artifact-list">${state.protectedPhrases.map(item => `<div class="artifact-row"><strong>“${escapeHtml(item.text)}”</strong><small>${escapeHtml(state.lang === 'en' ? 'Student protected exact text; mock AI cannot edit it.' : 'Texto exacto protegido por el estudiante; la IA simulada no puede editarlo.')}</small></div>`).join('')}</div></details>`;
+    function renderYourVoiceReference() {
+        const entries = voiceEntries();
+        if (concept !== 'integrated' || !entries.length) return '';
+        return `<details class="planning-reference your-voice-reference"><summary>${escapeHtml(uiText('Your Voice', 'Tu voz'))} · ${entries.length}</summary><p>${escapeHtml(uiText('Keep what sounds like you. These student-owned entries stay local and are not sent to mock AI unless you explicitly request it in a review.', 'Conserva lo que suena como tú. Estas entradas del estudiante se quedan locales y no se envían a la IA simulada a menos que lo pidas explícitamente en una revisión.'))}</p><div class="artifact-list">${entries.map((item, index) => `<div class="artifact-row"><strong>“${escapeHtml(item.text)}”</strong><small>${escapeHtml(item.reason || uiText('No reason added. You decide what this wording means.', 'No agregaste una razón. Tú decides qué significa esta redacción.'))}</small><button class="text-button" data-action="voice-note" data-voice="${index}">${escapeHtml(item.reason ? uiText('Edit your note', 'Editar tu nota') : uiText('Add a note', 'Agregar una nota'))}</button></div>`).join('')}</div></details>`;
     }
 
     function renderKnowledgeRevisit() {
@@ -892,7 +1031,7 @@
     function renderEditor() {
         const isCurrent = concept !== 'journey' || state.currentArtifact === `step-${state.step}`;
         const focusAvailable = concept === 'desk' || concept === 'journey' || concept === 'integrated';
-        return `<section class="panel editor-panel" aria-labelledby="draftTitle"><div class="editor-topline"><div class="draft-identity"><strong id="draftTitle">${escapeHtml(concept === 'journey' ? stepData(state.step - 1)[0] : t('currentDraft'))}</strong><span>${escapeHtml(isCurrent ? t('currentVersion') : t('priorWork'))}${concept === 'journey' ? ` · ${escapeHtml(t('whereJourney', { n: state.step }))}` : ''}</span></div><div class="editor-actions"><button class="button ghost" data-action="paste">${escapeHtml(t('paste'))}</button>${!getDraft() ? `<button class="button secondary" data-action="sample">${escapeHtml(t('useSample'))}</button>` : ''}${focusAvailable ? `<button class="button ghost focus-btn" data-action="focus">${escapeHtml(t('focus'))}</button>` : ''}</div></div>
+        return `<section class="panel editor-panel" aria-labelledby="draftTitle"><div class="editor-topline"><div class="draft-identity"><strong id="draftTitle">${escapeHtml(concept === 'journey' ? stepData(state.step - 1)[0] : t('currentDraft'))}</strong><span>${escapeHtml(isCurrent ? t('currentVersion') : t('priorWork'))}${concept === 'journey' ? ` · ${escapeHtml(t('whereJourney', { n: state.step }))}` : ''}</span></div><div class="editor-actions">${concept === 'integrated' ? renderEditControls() : ''}<button class="button ghost" data-action="paste">${escapeHtml(t('paste'))}</button>${!getDraft() ? `<button class="button secondary" data-action="sample">${escapeHtml(t('useSample'))}</button>` : ''}${focusAvailable ? `<button class="button ghost focus-btn" data-action="focus">${escapeHtml(t('focus'))}</button>` : ''}</div></div>
             <div class="editor-wrap"><textarea id="draftEditor" class="draft-editor" spellcheck="${spellcheckEnabled()}" aria-label="${escapeHtml(t('currentDraft'))}" placeholder="${escapeHtml(state.lang !== 'en' ? 'Comienza con tus propias palabras…' : 'Start with your own words…')}">${escapeHtml(getDraft())}</textarea><div class="editor-meta"><span id="wordCount">${escapeHtml(t('words', { n: wordCount(getDraft()) }))}</span><span class="autosave-message" data-save-state>${escapeHtml(t('autosaved'))}</span></div></div>
             <p class="editor-privacy">${instruction('selectHint')} ${escapeHtml(t('noNetwork'))}</p>
             ${concept === 'integrated' ? `<section class="coach-entry" aria-label="${escapeHtml(t('askVisible'))}"><div><strong>${escapeHtml(t('askVisible'))}</strong><span>${escapeHtml(t('coachEntryHint'))}</span></div><button class="button secondary" data-action="coach">${escapeHtml(t('askVisible'))}</button></section>` : ''}
@@ -919,7 +1058,8 @@
             : concept === 'integrated' && state.councilRuns.length
                 ? `<button class="support-action" data-action="review-tab" data-tab="council"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(t('revisit'))}</span></button>`
                 : `<button class="support-action" data-action="council"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(state.councilRuns.length ? t('revisit') : t('convene'))}</span></button>`;
-        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('reviewCenter'))}</h2><p>${state.reviews.length + state.councilRuns.length} ${escapeHtml(state.lang === 'en' ? 'saved reports' : 'informes guardados')}</p></div><span class="evidence-count">${state.decisions.length}</span></div><div class="panel-body"><button class="support-action" data-action="coach"><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(state.lang === 'en' ? 'passage, paragraph, or draft' : 'pasaje, párrafo o borrador')}</span></button><button class="support-action" data-action="focused-review"><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(genreMoves('review')[0])}</span></button>${councilAction}<button class="support-action" data-action="review-center"><strong>${escapeHtml(t('priorWork'))}</strong><span>${escapeHtml(t('revisit'))}</span></button></div></section>`;
+        const stuckAction = concept === 'integrated' ? `<button class="support-action stuck-action" data-action="stuck"><strong>${escapeHtml(uiText('I’m stuck', 'Estoy atascado/a'))}</strong><span>${escapeHtml(uiText('Need one small next step?', '¿Necesitas un pequeño próximo paso?'))}</span></button>` : '';
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('reviewCenter'))}</h2><p>${state.reviews.length + state.councilRuns.length} ${escapeHtml(state.lang === 'en' ? 'saved reports' : 'informes guardados')}</p></div><span class="evidence-count">${state.decisions.length}</span></div><div class="panel-body"><button class="support-action" data-action="coach"><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(state.lang === 'en' ? 'passage, paragraph, or draft' : 'pasaje, párrafo o borrador')}</span></button><button class="support-action" data-action="focused-review"><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(genreMoves('review')[0])}</span></button>${councilAction}<button class="support-action" data-action="review-center"><strong>${escapeHtml(t('priorWork'))}</strong><span>${escapeHtml(t('revisit'))}</span></button>${stuckAction}</div></section>`;
     }
 
     function renderEvidencePanel() {
@@ -931,7 +1071,7 @@
         const versionEvidence = concept === 'integrated'
             ? `<div class="artifact-row"><strong>${recoverableSnapshots} ${escapeHtml(state.lang === 'en' ? 'recoverable draft snapshots' : 'instantáneas recuperables del borrador')}</strong><small>${escapeHtml(metadataCheckpoints ? `${metadataCheckpoints} ${state.lang === 'en' ? 'earlier metadata-only checkpoints' : 'puntos anteriores solo con metadatos'}` : (state.lang === 'en' ? 'Exact prior text is viewable when a snapshot exists.' : 'El texto anterior exacto se puede ver cuando existe una instantánea.'))}</small><button class="text-button" data-action="version-history">${escapeHtml(state.lang === 'en' ? 'View draft history' : 'Ver historial del borrador')}</button></div>`
             : `<div class="artifact-row"><strong>${currentVersions} ${escapeHtml(state.lang !== 'en' ? 'versiones o artefactos' : 'versions or artifacts')}</strong><small>${escapeHtml(t('autosaved'))}</small></div>`;
-        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('evidence'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Hechos, no reflexión escrita por IA' : 'Facts, not AI-written reflection')}</p></div></div><div class="panel-body artifact-list">${concept === 'integrated' ? `<div class="artifact-row"><strong>${moveNoteCount} ${escapeHtml(state.lang === 'en' ? 'Move notes with content' : 'notas de Movidas con contenido')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Navigation never counts as evidence.' : 'La navegación nunca cuenta como evidencia.')}</small></div>` : ''}${concept === 'integrated' && state.genre === 'autobiographical' ? `<div class="artifact-row"><strong>${state.protectedPhrases.length} ${escapeHtml(state.lang === 'en' ? 'student-protected voice phrases' : 'frases de voz protegidas por el estudiante')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Exact text only; no understanding is inferred.' : 'Solo texto exacto; no se infiere comprensión.')}</small></div>` : ''}${versionEvidence}<div class="artifact-row"><strong>${state.decisions.length} ${escapeHtml(state.lang !== 'en' ? 'decisiones' : 'decisions')}</strong><small>${escapeHtml(state.decisions.length ? `${state.decisions.map(d => d.choice).join(', ')}${concept === 'integrated' ? ` · ${rationaleCount} ${state.lang === 'en' ? 'student reasons' : 'razones estudiantiles'}` : ''}` : t('noPrior'))}</small></div><div class="artifact-row"><strong>${state.councilRuns.length} ${escapeHtml(state.lang !== 'en' ? 'Consejos' : 'Council runs')}</strong><small>${escapeHtml(state.councilRuns.length ? t('revisit') : t('noPrior'))}</small></div><button class="button secondary" data-action="reflection">${escapeHtml(t('reflection'))}</button></div></section>`;
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('evidence'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Hechos, no reflexión escrita por IA' : 'Facts, not AI-written reflection')}</p></div></div><div class="panel-body artifact-list">${concept === 'integrated' ? `<div class="artifact-row"><strong>${moveNoteCount} ${escapeHtml(state.lang === 'en' ? 'Move notes with content' : 'notas de Movidas con contenido')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Navigation never counts as evidence.' : 'La navegación nunca cuenta como evidencia.')}</small></div><div class="artifact-row"><strong>${voiceEntries().length} ${escapeHtml(uiText('student-owned Your Voice entries', 'entradas de Tu voz del estudiante'))}</strong><small>${escapeHtml(uiText('Exact text only; no quality or understanding is inferred.', 'Solo texto exacto; no se infiere calidad ni comprensión.'))}</small></div>` : ''}${versionEvidence}<div class="artifact-row"><strong>${state.decisions.length} ${escapeHtml(state.lang !== 'en' ? 'decisiones' : 'decisions')}</strong><small>${escapeHtml(state.decisions.length ? `${state.decisions.map(d => d.choice).join(', ')}${concept === 'integrated' ? ` · ${rationaleCount} ${state.lang === 'en' ? 'student reasons' : 'razones estudiantiles'}` : ''}` : t('noPrior'))}</small></div><div class="artifact-row"><strong>${state.councilRuns.length} ${escapeHtml(state.lang !== 'en' ? 'Consejos' : 'Council runs')}</strong><small>${escapeHtml(state.councilRuns.length ? t('revisit') : t('noPrior'))}</small></div><button class="button secondary" data-action="reflection">${escapeHtml(t('reflection'))}</button></div></section>`;
     }
 
     function renderWorkRail() {
@@ -1023,6 +1163,13 @@
         ['select'].forEach(type => editor.addEventListener(type, () => setTimeout(() => captureSelection(editor), 0), { passive: true }));
     }
 
+    function bindEditSurfaces() {
+        const preferred = document.getElementById('draftEditor');
+        document.querySelectorAll('textarea, input[type="text"]').forEach(field => ensureEditHistory(field));
+        if (preferred) setActiveEditSurface(preferred);
+        updateEditControls();
+    }
+
     function bindNotebookEditor() {
         const editor = document.getElementById('notebookEditor');
         if (!editor) return;
@@ -1060,20 +1207,22 @@
     }
 
     function renderPassageBar() {
-        const protectAction = concept === 'integrated' && state?.genre === 'autobiographical'
-            ? `<button class="button ghost protect-phrase" data-action="protect-phrase">${escapeHtml(state.lang === 'en' ? 'Protect phrase' : 'Proteger frase')}</button>`
+        const protectAction = concept === 'integrated'
+            ? `<button class="button ghost protect-phrase" data-action="protect-phrase">${escapeHtml(uiText('Keep as my voice', 'Guardar como mi voz'))}</button>`
             : '';
         return `<section id="passageBar" class="passage-bar" ${captured?.hasSelection ? '' : 'hidden'} aria-label="${escapeHtml(t('captured'))}"><div class="passage-copy"><strong>${escapeHtml(t('captured'))}</strong><span id="passageExcerpt">${escapeHtml(captured?.text || '')}</span></div>${protectAction}<button class="button secondary" data-action="passage-review">${escapeHtml(t('reviewPassage'))}</button><button class="icon-button" data-action="clear-passage" aria-label="${escapeHtml(t('clear'))}">×</button></section>`;
     }
 
     function protectCapturedPhrase() {
-        if (!captured?.text?.trim() || concept !== 'integrated' || state.genre !== 'autobiographical') return;
+        if (!captured?.text?.trim() || concept !== 'integrated') return;
         const normalized = captured.text.trim();
-        if (!state.protectedPhrases.some(item => item.text === normalized)) {
-            state.protectedPhrases.push({ text: normalized, protectedAt: new Date().toISOString(), genre: state.genre, studentAuthored: true });
-            saveState(state.lang === 'en' ? 'Exact phrase protected.' : 'Frase exacta protegida.');
+        if (!voiceEntries().some(item => item.text === normalized)) {
+            const entry = { id: `voice-${Date.now()}`, text: normalized, protectedAt: new Date().toISOString(), genre: state.genre, studentAuthored: true, reason: '' };
+            state.voiceEntries.push(entry);
+            state.protectedPhrases.push(entry);
+            saveState(uiText('Kept as your voice. You can add a note later if useful.', 'Guardado como tu voz. Puedes agregar una nota después si te sirve.'));
         } else {
-            announce(state.lang === 'en' ? 'That exact phrase is already protected.' : 'Esa frase exacta ya está protegida.');
+            announce(uiText('That exact wording is already in Your Voice.', 'Esa redacción exacta ya está en Tu voz.'));
         }
         captured = null;
         renderApp();
@@ -1102,6 +1251,12 @@
         lastFocus = document.activeElement;
         dialogRoot.innerHTML = `<div class="overlay" data-action="overlay-close"><section class="dialog ${options.wide ? 'wide' : ''}" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><header class="dialog-header"><div><h2 id="dialogTitle">${escapeHtml(title)}</h2>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div><button class="icon-button" data-action="close-dialog" aria-label="${escapeHtml(t('cancel'))}">×</button></header><div class="dialog-body">${body}</div>${footer ? `<footer class="dialog-footer">${footer}</footer>` : ''}</section></div>`;
         const dialog = dialogRoot.querySelector('[role="dialog"]');
+        const editable = dialog.querySelector('textarea, input[type="text"]');
+        if (editable && concept === 'integrated') {
+            editable.dataset.editKey ||= `dialog-${editable.id || 'writing'}`;
+            dialog.querySelector('.dialog-header')?.insertAdjacentHTML('beforeend', renderEditControls('dialog'));
+            setActiveEditSurface(editable);
+        }
         dialogGuard = {
             fields: Array.from(dialog.querySelectorAll('[data-protect-dirty]')).map(field => ({ field, initial: field.value })),
         };
@@ -1317,7 +1472,12 @@
         const defaultScope = scopes[0]?.[0] || 'full';
         const facts = concept === 'integrated' ? renderIntegratedTransmissionFacts(kind) : '';
         const scopeHint = captured?.hasSelection ? '' : `<p class="scope-hint">${escapeHtml(state.lang === 'en' ? 'No passage is selected. Select words in the draft to add a passage option.' : 'No hay un pasaje seleccionado. Selecciona palabras del borrador para añadir esa opción.')}</p>`;
-        openDialog(title, subtitle, `${facts}${scopeHint}<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(scopeText(defaultScope))}</div></div>${kind === 'focused' ? renderLensChoices() : ''}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? t('sendReview') : t('sendCoach'))}</button>`);
+        openDialog(title, subtitle, `${facts}${scopeHint}<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(scopeText(defaultScope))}</div></div>${kind === 'focused' ? renderLensChoices() : ''}${renderVoiceConstraintOffer()}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? t('sendReview') : t('sendCoach'))}</button>`);
+    }
+
+    function renderVoiceConstraintOffer() {
+        if (concept !== 'integrated' || !voiceEntries().length) return '';
+        return `<details class="voice-constraint"><summary>${escapeHtml(uiText('Optional: ask the mock reviewer to honor selected Your Voice entries', 'Opcional: pide al revisor simulado que respete entradas seleccionadas de Tu voz'))}</summary><label class="check-line"><input type="checkbox" id="includeVoiceEntries"> <span>${escapeHtml(uiText('Include these exact entries with this mock request', 'Incluye estas entradas exactas con esta solicitud simulada'))}</span></label><div class="exact-preview voice-entry-preview">${voiceEntries().map(item => `“${escapeHtml(item.text)}”`).join('\n')}</div><p>${escapeHtml(uiText('This local mock records your request only. It does not claim live-model enforcement.', 'Esta simulación local solo registra tu solicitud. No afirma que un modelo en vivo la aplique.'))}</p></details>`;
     }
 
     function renderIntegratedTransmissionFacts(kind) {
@@ -1355,6 +1515,7 @@
         const text = scopeText(scope);
         if (!text) return;
         const lens = kind === 'focused' ? dialogRoot.querySelector('input[name="reviewLens"]:checked')?.value : (state.lang !== 'en' ? 'Pregunta del estudiante' : 'Student question');
+        const voiceEntriesIncluded = dialogRoot.querySelector('#includeVoiceEntries')?.checked ? voiceEntries().map(item => ({ id: item.id, text: item.text })) : [];
         button.disabled = true;
         button.textContent = state.lang !== 'en' ? 'Leyendo localmente…' : 'Reading locally…';
         window.setTimeout(() => {
@@ -1364,7 +1525,7 @@
                 ? checkpointVersion(kind === 'focused' ? 'before focused review' : 'before coach feedback')
                 : null;
             const criticalKey = concept === 'integrated' ? integratedCriticalKey(kind, lens) : null;
-            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: true, purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? 'mock genre-focused reviewer' : 'Tu Pana mock coach', calls: 1, criticalKey, criticalPrompt: criticalKey ? criticalQuestion(criticalKey).en : null, criticalContext: criticalKey ? criticalRiskText(criticalKey) : null, draftSignature: `${getDraft().length}:${getDraft().slice(0, 24)}`, snapshotId, genre: state.genre, genreLabel: genre.label.en, genreLabelEs: genre.label.es });
+            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: true, purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? 'mock genre-focused reviewer' : 'Tu Pana mock coach', calls: 1, criticalKey, criticalPrompt: criticalKey ? criticalQuestion(criticalKey).en : null, criticalContext: criticalKey ? criticalRiskText(criticalKey) : null, draftSignature: `${getDraft().length}:${getDraft().slice(0, 24)}`, snapshotId, genre: state.genre, genreLabel: genre.label.en, genreLabelEs: genre.label.es, voiceEntriesIncluded });
             saveState(); closeDialog(true); renderApp(); reviewTab = 'history'; openReviewCenter();
         }, 260);
     }
@@ -1441,7 +1602,8 @@
     }
 
     function renderReviewCard(review) {
-        return `<article class="review-card"><span class="mock-label">Mock AI · ${escapeHtml(storedGenreLabel(review))} · ${escapeHtml(review.scope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(review.calls ? `${review.calls} ${state.lang === 'en' ? 'mock call' : 'llamada simulada'}` : (state.lang === 'en' ? 'mock call count not stored' : 'cantidad de llamadas simuladas no guardada'))}` : ''}</p>${renderSnapshotLink(review.snapshotId, 'history')}<blockquote>${escapeHtml(review.exactExcerpt)}</blockquote><p>${escapeHtml(review.suggestion)}</p>${concept === 'integrated' ? renderCriticalPrompt(review.criticalKey, review.genre) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}</article>`;
+        const voiceRequest = review.voiceEntriesIncluded?.length ? `<p class="voice-request-note">${escapeHtml(uiText(`You asked this local mock to consider ${review.voiceEntriesIncluded.length} Your Voice entr${review.voiceEntriesIncluded.length === 1 ? 'y' : 'ies'}. This records your request; it does not claim live-model enforcement.`, `Pediste que esta simulación local considere ${review.voiceEntriesIncluded.length} entrada${review.voiceEntriesIncluded.length === 1 ? '' : 's'} de Tu voz. Esto registra tu solicitud; no afirma una aplicación por un modelo en vivo.`))}</p>` : '';
+        return `<article class="review-card"><span class="mock-label">Mock AI · ${escapeHtml(storedGenreLabel(review))} · ${escapeHtml(review.scope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(review.calls ? `${review.calls} ${state.lang === 'en' ? 'mock call' : 'llamada simulada'}` : (state.lang === 'en' ? 'mock call count not stored' : 'cantidad de llamadas simuladas no guardada'))}` : ''}</p>${renderSnapshotLink(review.snapshotId, 'history')}<blockquote>${escapeHtml(review.exactExcerpt)}</blockquote>${voiceRequest}<p>${escapeHtml(review.suggestion)}</p>${concept === 'integrated' ? renderCriticalPrompt(review.criticalKey, review.genre) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}</article>`;
     }
 
     function renderSnapshotLink(snapshotId, returnTab = reviewTab) {
@@ -1595,7 +1757,7 @@
                 ? (state.lang !== 'en' ? 'Lente opcional de conocimiento e idioma abierta' : 'Optional knowledge and language lens opened')
                 : (state.lang !== 'en' ? 'Lente opcional omitida por ahora' : 'Optional knowledge and language lens skipped for now'));
             if (state.criticalViews.length) items.push(`${state.criticalViews.length} ${state.lang !== 'en' ? 'preguntas críticas abiertas' : 'critical prompts opened'}`);
-            if (state.genre === 'autobiographical' && state.protectedPhrases.length) items.push(`${state.protectedPhrases.length} ${state.lang !== 'en' ? 'frases exactas protegidas por el estudiante' : 'exact phrases protected by the student'}`);
+            if (voiceEntries().length) items.push(`${voiceEntries().length} ${state.lang !== 'en' ? 'entradas exactas de Tu voz elegidas por el estudiante' : 'student-selected exact Your Voice entries'}`);
             if (state.genre === 'autobiographical' && Object.values(state.finishChecks).filter(Boolean).length) items.push(`${Object.values(state.finishChecks).filter(Boolean).length}/4 ${state.lang !== 'en' ? 'marcas del checklist hechas por el estudiante' : 'student-marked Finish checks'}`);
         }
         if (wordCount(getDraft())) items.push(`${wordCount(getDraft())} ${state.lang !== 'en' ? 'palabras en la versión actual' : 'words in the current version'}`);
@@ -1627,7 +1789,7 @@
         const prompts = reflectionPrompts();
         const complete = ['changed', 'decision', 'voice'].filter(key => state.reflections[key].trim()).length;
         return `<section class="finish-page" aria-labelledby="reflectionTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(t('whereDesk'))}</p><h2 id="reflectionTitle">${escapeHtml(t('reflection'))}</h2><p>${escapeHtml(t('reflectionWhy'))}</p><strong>${complete}/3 ${escapeHtml(state.lang !== 'en' ? 'respuestas requeridas guardadas' : 'required responses saved')}</strong></div>
-            <section class="panel"><div class="panel-body"><div class="reflection-intro"><strong>${escapeHtml(t('reflectionEvidence'))}</strong><div class="evidence-chips">${factualEvidence().length ? factualEvidence().map(item => `<span class="evidence-chip">${escapeHtml(item)}</span>`).join('') : `<span class="evidence-chip">${escapeHtml(state.lang !== 'en' ? 'La evidencia aparecerá al trabajar.' : 'Evidence will appear as you work.')}</span>`}</div></div>
+            <section class="panel"><div class="panel-header"><div><h3>${escapeHtml(t('reflection'))}</h3><p>${escapeHtml(state.lang === 'en' ? 'Student-authored only.' : 'Solo escrito por el estudiante.')}</p></div>${concept === 'integrated' ? renderEditControls() : ''}</div><div class="panel-body"><div class="reflection-intro"><strong>${escapeHtml(t('reflectionEvidence'))}</strong><div class="evidence-chips">${factualEvidence().length ? factualEvidence().map(item => `<span class="evidence-chip">${escapeHtml(item)}</span>`).join('') : `<span class="evidence-chip">${escapeHtml(state.lang !== 'en' ? 'La evidencia aparecerá al trabajar.' : 'Evidence will appear as you work.')}</span>`}</div></div>
             <form id="reflectionForm">${prompts.map(([key, label, optional]) => `<div class="reflection-prompt"><label for="reflection-${key}">${escapeHtml(label)} ${optional ? `<span class="optional-label">(${escapeHtml(t('optional'))})</span>` : ''}</label><textarea id="reflection-${key}" name="${key}" spellcheck="${spellcheckEnabled()}" ${optional ? '' : 'required'}>${escapeHtml(state.reflections[key])}</textarea></div>`).join('')}</form></div><footer class="editor-footer"><button class="button ghost" data-action="return-write">← ${escapeHtml(state.lang !== 'en' ? 'Volver a escribir' : 'Return to writing')}</button><div class="footer-group"><button class="button secondary" data-action="save-reflection">${escapeHtml(t('saveReturn'))}</button><button class="button primary" data-action="finish">${escapeHtml(t('preparePacket'))} →</button></div></footer></section></section>`;
     }
 
@@ -1731,8 +1893,107 @@
         return state.lang !== 'en' ? 'No hay modo Enfoque separado. En móvil, el borrador recibe prioridad y Cuaderno queda como pestaña estable de una acción; no se comprime la vista dividida de escritorio.' : 'No separate Focus mode. On mobile, the draft gets priority and Notebook remains a stable one-action tab; the desktop split view is not compressed.';
     }
 
+    function openVoiceNote(index) {
+        const entry = voiceEntries()[index];
+        if (!entry) return;
+        openDialog(uiText('Your Voice', 'Tu voz'), uiText('Keep what sounds like you', 'Guarda lo que suena como tú'), `<blockquote class="voice-entry-quote">${escapeHtml(entry.text)}</blockquote><div class="field"><label for="voiceReason">${escapeHtml(uiText('Why do you want to keep this? (optional)', '¿Por qué quieres guardar esto? (opcional)'))}</label><textarea id="voiceReason" data-protect-dirty spellcheck="${spellcheckEnabled()}" maxlength="500">${escapeHtml(entry.reason || '')}</textarea></div><p>${escapeHtml(uiText('This exact student-selected wording stays local. It is not a quality score and is never included with mock AI unless you choose it in a request.', 'Esta redacción exacta seleccionada por el estudiante permanece local. No es una puntuación de calidad y nunca se incluye con IA simulada a menos que la elijas en una solicitud.'))}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-voice-note" data-index="${index}">${escapeHtml(t('save'))}</button>`);
+    }
+
+    function saveVoiceNote(index) {
+        const entry = voiceEntries()[index];
+        if (!entry) return;
+        entry.reason = document.getElementById('voiceReason')?.value || '';
+        entry.updatedAt = new Date().toISOString();
+        const legacy = state.protectedPhrases?.find(item => item.id === entry.id);
+        if (legacy) legacy.reason = entry.reason;
+        saveState(uiText('Your Voice note saved locally.', 'Nota de Tu voz guardada localmente.'));
+        closeDialog(true); renderApp();
+    }
+
+    function stuckMicroTask() {
+        const tasks = {
+            autobiographical: uiText('Write one detail that only you can name. Leave out anything you do not want to disclose.', 'Escribe un detalle que solo tú puedes nombrar. Omite cualquier cosa que no quieras revelar.'),
+            stem: uiText('Name one observation and one variable that might matter.', 'Nombra una observación y una variable que podrían importar.'),
+            sop: uiText('Name one preparation detail that supports your next question.', 'Nombra un detalle de preparación que respalde tu próxima pregunta.'),
+            admissions: uiText('Name one concrete action before explaining what changed.', 'Nombra una acción concreta antes de explicar qué cambió.'),
+            neutral: uiText('Name the reader, purpose, and one piece of evidence.', 'Nombra al lector, el propósito y una evidencia.'),
+        };
+        return tasks[state.genre] || tasks.neutral;
+    }
+
+    function openStuckSupport() {
+        const choices = [
+            ['idea', uiText('I don’t know what to write', 'No sé qué escribir')],
+            ['feedback', uiText('I don’t understand this feedback', 'No entiendo esta retroalimentación')],
+            ['overwhelmed', uiText('I feel overwhelmed', 'Me siento abrumado/a')],
+            ['break', uiText('I need a break', 'Necesito un descanso')],
+            ['instructor', uiText('I want instructor help', 'Quiero ayuda del instructor')],
+        ];
+        openDialog(uiText('I’m stuck', 'Estoy atascado/a'), uiText('Choose one small next step. Nothing here is required.', 'Elige un pequeño próximo paso. Nada aquí es obligatorio.'), `<div class="choice-stack stuck-choices">${choices.map(([id, label]) => `<button class="radio-card" data-action="stuck-choice" data-choice="${id}"><span>${escapeHtml(label)}</span></button>`).join('')}</div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+    }
+
+    function openStuckChoice(choice) {
+        if (choice === 'idea') {
+            openDialog(uiText('One small writing step', 'Un pequeño paso de escritura'), uiText('Optional and genre-aware', 'Opcional y apropiado al género'), `<p class="stuck-microtask">${escapeHtml(stuckMicroTask())}</p><p>${escapeHtml(uiText('You can use this as a private starting point, open a Move, or keep writing in your own way. Nothing is inserted into your draft.', 'Puedes usar esto como inicio privado, abrir una Movida o seguir escribiendo a tu manera. No se inserta nada en tu borrador.'))}</p>`, `<button class="button ghost" data-action="copy-stuck-starter" data-starter="${escapeHtml(stuckMicroTask())}">${escapeHtml(uiText('Copy starter', 'Copiar inicio'))}</button><button class="button secondary" data-action="stuck-open-move" data-move="0">${escapeHtml(uiText('Open a Move', 'Abrir una Movida'))}</button><button class="button primary" data-action="return-write">${escapeHtml(uiText('Return to draft', 'Volver al borrador'))}</button>`);
+            return;
+        }
+        if (choice === 'feedback') {
+            const review = state.reviews.at(-1);
+            const council = state.councilRuns.at(-1);
+            const latest = review || council;
+            if (!latest) {
+                openDialog(uiText('Understand feedback', 'Entender la retroalimentación'), uiText('No saved feedback yet', 'Aún no hay retroalimentación guardada'), `<p>${escapeHtml(uiText('There is no saved report to explain. You can keep writing, or ask for review later if it would help.', 'No hay un informe guardado para explicar. Puedes seguir escribiendo o pedir una revisión más tarde si te ayuda.'))}</p>`, `<button class="button primary" data-action="return-write">${escapeHtml(uiText('Return to draft', 'Volver al borrador'))}</button>`);
+                return;
+            }
+            const tab = review ? 'history' : 'council';
+            closeDialog(true, () => openReviewCenter(tab));
+            return;
+        }
+        if (choice === 'overwhelmed') {
+            openDialog(uiText('Make the page quieter', 'Haz la página más tranquila'), uiText('A reversible next action', 'Una acción reversible'), `<p>${escapeHtml(uiText('Focus hides optional supports for now. You can leave it at any time; your draft stays here.', 'Enfoque oculta los apoyos opcionales por ahora. Puedes salir en cualquier momento; tu borrador permanece aquí.'))}</p><p class="stuck-microtask">${escapeHtml(uiText('Try one sentence, then decide what you need next.', 'Prueba una oración y luego decide qué necesitas.'))}</p>`, `<button class="button ghost" data-action="return-write">${escapeHtml(uiText('Keep normal view', 'Mantener vista normal'))}</button><button class="button primary" data-action="stuck-focus">${escapeHtml(uiText('Use Focus for now', 'Usar Enfoque por ahora'))}</button>`);
+            return;
+        }
+        if (choice === 'break') {
+            saveState(uiText('Saved locally.', 'Guardado localmente.'));
+            openDialog(uiText('You can take a break', 'Puedes tomar un descanso'), uiText('Your work is saved on this device', 'Tu trabajo está guardado en este dispositivo'), `<p>${escapeHtml(uiText('You may return later. There is no timer and no lost progress.', 'Puedes volver más tarde. No hay temporizador ni progreso perdido.'))}</p>`, `<button class="button primary" data-action="return-write">${escapeHtml(uiText('Return when ready', 'Volver cuando estés listo/a'))}</button>`);
+            return;
+        }
+        const summary = safeInstructorSummary();
+        openDialog(uiText('Ask an instructor for help', 'Pedir ayuda al instructor'), uiText('Local, writing-free summary', 'Resumen local sin escritura'), `<p>${escapeHtml(uiText('This preview does not include your draft, notes, Voice entries, feedback text, reflection, or personal information.', 'Esta vista previa no incluye tu borrador, notas, entradas de Tu voz, texto de retroalimentación, reflexión ni información personal.'))}</p><pre class="safe-summary">${escapeHtml(summary)}</pre>`, `<button class="button ghost" data-action="copy-instructor-summary">${escapeHtml(uiText('Copy summary', 'Copiar resumen'))}</button><button class="button primary" data-action="return-write">${escapeHtml(uiText('Return to draft', 'Volver al borrador'))}</button>`);
+    }
+
+    function safeInstructorSummary() {
+        return [
+            `Tu Pana Writing Studio · local exploration`,
+            `${uiText('Writing project', 'Proyecto de escritura')}: ${genreLabel()}`,
+            `${uiText('Draft word count', 'Conteo de palabras del borrador')}: ${wordCount(getDraft())}`,
+            `${uiText('Saved feedback reports', 'Informes de retroalimentación guardados')}: ${state.reviews.length + state.councilRuns.length}`,
+            `${uiText('Student decisions recorded', 'Decisiones estudiantiles registradas')}: ${state.decisions.length}`,
+        ].join('\n');
+    }
+
+    function openHelp() {
+        openDialog(uiText('Help', 'Ayuda'), uiText('Local prototype help', 'Ayuda del prototipo local'), `<p>${escapeHtml(uiText('Choose a safe route. Reports and feedback stay local in this prototype.', 'Elige una ruta segura. Los reportes y comentarios permanecen locales en este prototipo.'))}</p><div class="choice-stack"><button class="radio-card" data-action="help-report"><span>${escapeHtml(uiText('Report a problem', 'Reportar un problema'))}</span></button><button class="radio-card" data-action="help-feedback"><span>${escapeHtml(uiText('Share feedback', 'Compartir comentarios'))}</span></button></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+    }
+
+    function openHelpReport(category = 'problem') {
+        const categories = category === 'feedback'
+            ? [['feedback', uiText('I have feedback', 'Tengo comentarios')]]
+            : [['broken', uiText('Something did not work', 'Algo no funcionó')], ['confused', uiText('I’m confused', 'Estoy confundido/a')]];
+        openDialog(category === 'feedback' ? uiText('Share feedback', 'Compartir comentarios') : uiText('Report a problem', 'Reportar un problema'), uiText('Preview what would be shared', 'Vista previa de lo que se compartiría'), `<div class="field"><label for="reportCategory">${escapeHtml(uiText('Category', 'Categoría'))}</label><select id="reportCategory">${categories.map(([value, label]) => `<option value="${value}">${escapeHtml(label)}</option>`).join('')}</select></div><div class="field"><label for="reportDescription">${escapeHtml(uiText('What happened? (optional)', '¿Qué pasó? (opcional)'))}</label><textarea id="reportDescription" data-protect-dirty spellcheck="${spellcheckEnabled()}" maxlength="1000"></textarea></div><label class="check-line"><input type="checkbox" id="reportTechContext"> <span>${escapeHtml(uiText('Include safe technical context: prototype version, writing-project identifier, and browser/device category.', 'Incluye contexto técnico seguro: versión del prototipo, identificador del proyecto y categoría de navegador/dispositivo.'))}</span></label><p>${escapeHtml(uiText('Never included: your draft, notes, Your Voice entries, AI payloads, reports, reflection, identity, history, or precise location. This prototype does not send reports.', 'Nunca se incluye: tu borrador, notas, entradas de Tu voz, cargas de IA, informes, reflexión, identidad, historial o ubicación precisa. Este prototipo no envía reportes.'))}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="preview-local-report" data-kind="${category}">${escapeHtml(uiText('Preview local report', 'Vista previa del reporte local'))}</button>`);
+    }
+
+    function previewLocalReport(kind) {
+        const category = document.getElementById('reportCategory')?.value || kind;
+        const description = document.getElementById('reportDescription')?.value || '';
+        const includeTech = document.getElementById('reportTechContext')?.checked;
+        const report = { category, description, sent: false };
+        if (includeTech) report.technicalContext = { prototype: 'writing-studio-ux-2026-08', genre: state.genre, deviceCategory: window.matchMedia('(max-width: 640px)').matches ? 'mobile-sized browser' : 'desktop-sized browser' };
+        openDialog(uiText('Local report preview', 'Vista previa del reporte local'), uiText('Nothing is sent', 'No se envía nada'), `<pre class="safe-summary">${escapeHtml(JSON.stringify(report, null, 2))}</pre><p>${escapeHtml(uiText('This is a local preview only. Tu Pana has not sent any information.', 'Esta es solo una vista previa local. Tu Pana no ha enviado información.'))}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="return-write">${escapeHtml(uiText('Return to draft', 'Volver al borrador'))}</button>`);
+    }
+
     function openSettings() {
-        const integratedSettings = concept === 'integrated' ? `<section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing project' : 'Proyecto de escritura')}</h3><p>${escapeHtml(state.lang === 'en' ? 'This local control supports honest prototype comparison. A production assignment may set the genre through its link.' : 'Este control local permite una comparación honesta del prototipo. Una tarea de producción podría definir el género mediante su enlace.')}</p><label class="field" for="settingsGenre"><span>${escapeHtml(t('genre'))}</span><select id="settingsGenre" class="settings-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${genreOptionsMarkup()}</select></label></section><section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing utilities' : 'Utilidades de escritura')}</h3><label class="check-line"><input type="checkbox" data-action="native-spellcheck" ${spellcheckEnabled() ? 'checked' : ''}> <span>${escapeHtml(state.lang === 'en' ? 'Native spelling suggestions' : 'Sugerencias ortográficas nativas')}</span></label><p>${escapeHtml(state.lang === 'en' ? 'Spelling suggestions come from your browser or device. Tu Pana does not send your writing for this feature.' : 'Las sugerencias ortográficas provienen de tu navegador o dispositivo. Tu Pana no envía tu escritura para esta función.')}</p></section>` : '';
+        const integratedSettings = concept === 'integrated' ? `<section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing project' : 'Proyecto de escritura')}</h3><p>${escapeHtml(state.lang === 'en' ? 'This local control supports honest prototype comparison. A production assignment may set the genre through its link.' : 'Este control local permite una comparación honesta del prototipo. Una tarea de producción podría definir el género mediante su enlace.')}</p><label class="field" for="settingsGenre"><span>${escapeHtml(t('genre'))}</span><select id="settingsGenre" class="settings-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${genreOptionsMarkup()}</select></label></section><section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing utilities' : 'Utilidades de escritura')}</h3><label class="check-line"><input type="checkbox" data-action="native-spellcheck" ${spellcheckEnabled() ? 'checked' : ''}> <span>${escapeHtml(state.lang === 'en' ? 'Native spelling suggestions' : 'Sugerencias ortográficas nativas')}</span></label><p>${escapeHtml(state.lang === 'en' ? 'Spelling suggestions come from your browser or device. Tu Pana does not send your writing for this feature.' : 'Las sugerencias ortográficas provienen de tu navegador o dispositivo. Tu Pana no envía tu escritura para esta función.')}</p></section><section class="packet-section settings-section"><h3>${escapeHtml(uiText('Appearance', 'Apariencia'))}</h3><p>${escapeHtml(uiText('Choose a local visual-comfort preference. It does not affect your writing or evidence.', 'Elige una preferencia local de comodidad visual. No afecta tu escritura ni la evidencia.'))}</p><div class="choice-stack appearance-choices">${[['system', uiText('System default', 'Predeterminado del sistema')], ['light', uiText('Paper / Light', 'Papel / Claro')], ['dark', uiText('Dark', 'Oscuro')]].map(([value, label]) => `<button class="radio-card ${state.appearance === value ? 'selected' : ''}" data-action="appearance-choice" data-appearance="${value}" aria-pressed="${state.appearance === value}"><span>${escapeHtml(label)}</span></button>`).join('')}</div></section>` : '';
         openDialog(t('settingsTitle'), conceptMeta[concept].name, `<p>${escapeHtml(t('storageNote'))}</p>${integratedSettings}<section class="packet-section"><h3>${escapeHtml(t('focusDecision'))}</h3><p>${escapeHtml(focusDecisionText())}</p></section><section class="danger-zone"><h3>${escapeHtml(t('danger'))}</h3><p>${escapeHtml(t('deleteExplain'))}</p><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button><div class="field" style="margin-top:15px"><label for="deleteConfirm">${escapeHtml(t('typeDelete'))}</label><input class="delete-confirm" id="deleteConfirm" type="text" autocomplete="off"></div><button class="button danger" data-action="delete-state" disabled>${escapeHtml(t('deleteNow'))}</button></section>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
     }
 
@@ -1748,6 +2009,23 @@
         const action = target.dataset.action;
         if (!action) return;
         if (action === 'settings') openSettings();
+        else if (action === 'appearance-cycle') setAppearance(nextAppearance());
+        else if (action === 'appearance-choice') { setAppearance(target.dataset.appearance); openSettings(); }
+        else if (action === 'help') openHelp();
+        else if (action === 'help-report') openHelpReport('problem');
+        else if (action === 'help-feedback') openHelpReport('feedback');
+        else if (action === 'preview-local-report') previewLocalReport(target.dataset.kind);
+        else if (action === 'stuck') openStuckSupport();
+        else if (action === 'stuck-choice') openStuckChoice(target.dataset.choice);
+        else if (action === 'stuck-open-move') { closeDialog(true); openIntegratedMoveNote(Number(target.dataset.move)); }
+        else if (action === 'copy-stuck-starter') copyTextWithFallback(target.dataset.starter || '', uiText('Starter copied.', 'Inicio copiado.'), uiText('Copy is unavailable here. Use your device’s Edit menu.', 'Copiar no está disponible aquí. Usa el menú Editar de tu dispositivo.'));
+        else if (action === 'stuck-focus') { closeDialog(true); document.body.classList.add('focus-mode'); document.getElementById('draftEditor')?.focus(); }
+        else if (action === 'copy-instructor-summary') copyTextWithFallback(safeInstructorSummary(), uiText('Summary copied.', 'Resumen copiado.'), uiText('Copy is unavailable here. Use your device’s Edit menu.', 'Copiar no está disponible aquí. Usa el menú Editar de tu dispositivo.'));
+        else if (action === 'voice-note') openVoiceNote(Number(target.dataset.voice));
+        else if (action === 'save-voice-note') saveVoiceNote(Number(target.dataset.index));
+        else if (action === 'edit-undo') applyEditHistory(-1);
+        else if (action === 'edit-redo') applyEditHistory(1);
+        else if (action === 'edit-cut' || action === 'edit-copy' || action === 'edit-paste' || action === 'edit-select-all') runEditAction(action);
         else if (action === 'close-dialog') closeDialog();
         else if (action === 'overlay-close') closeDialog();
         else if (action === 'discard-dialog') discardDialogChanges();
@@ -1798,7 +2076,7 @@
         else if (action === 'reflection') { if (state.view === 'reflection') saveReflection(); setView('reflection'); }
         else if (action === 'save-reflection') saveReflection();
         else if (action === 'finish') { if (state.view === 'reflection') saveReflection(); if (concept === 'notebook' || concept === 'integrated') checkpointVersion('entered Finish'); setView('finish'); }
-        else if (action === 'return-write') { if (concept === 'notebook' && state.draftDeclared) state.place = 'draft'; setView('write'); }
+        else if (action === 'return-write') { if (dialogRoot.contains(target)) closeDialog(true); if (concept === 'notebook' && state.draftDeclared) state.place = 'draft'; setView('write'); }
         else if (action === 'create-packet') createPacket();
         else if (action === 'download-packet') downloadText(packetText(), `tupana-${concept}-synthetic-packet.txt`);
         else if (action === 'export-state') downloadText(JSON.stringify({ window: WINDOW_ID, concept, exportedAt: new Date().toISOString(), state }, null, 2), `tupana-${concept}-prototype-backup.json`, 'application/json');
@@ -1839,9 +2117,17 @@
     });
 
     document.addEventListener('input', event => {
+        if (event.target.matches?.('textarea, input[type="text"]')) {
+            setActiveEditSurface(event.target);
+            recordEditInput(event.target);
+        }
         if (event.target.id === 'pasteDraft') { const preview = document.getElementById('pastePreview'); if (preview) preview.textContent = event.target.value; }
         if (event.target.id === 'pasteNotebookText') { const preview = document.getElementById('pasteNotebookPreview'); if (preview) preview.textContent = event.target.value; }
         if (event.target.id === 'deleteConfirm') { const button = dialogRoot.querySelector('[data-action="delete-state"]'); if (button) button.disabled = event.target.value !== 'DELETE'; }
+    });
+
+    document.addEventListener('focusin', event => {
+        if (event.target.matches?.('textarea, input[type="text"]')) setActiveEditSurface(event.target);
     });
 
     document.addEventListener('toggle', event => {

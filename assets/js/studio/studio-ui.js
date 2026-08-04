@@ -333,7 +333,14 @@
         return state.lang === 'es' ? 'Género no guardado · registro sintético anterior' : 'Genre not stored · earlier synthetic record';
     }
     function spellcheckEnabled() { return state.nativeSpellcheck !== false; }
-    function uiText(en, es) { return state.lang === 'en' ? en : es; }
+    // Bilingual helper for surfaces built after the copy dictionary. The finalist
+    // dropped 'both' mode here (Spanish only); the studio honors the student's
+    // explicit Español + English choice, Spanish-primary, on every surface.
+    function uiText(en, es) {
+        if (state.lang === 'en') return en;
+        if (state.lang === 'both' && en !== es) return `${es} · ${en}`;
+        return es;
+    }
     function voiceEntries() { return state.voiceEntries || []; }
     function appearanceName(value = state.appearance || 'system') {
         const labels = state.lang === 'en'

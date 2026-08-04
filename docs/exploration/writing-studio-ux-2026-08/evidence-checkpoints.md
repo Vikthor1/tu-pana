@@ -515,3 +515,60 @@ separately governed production implementation authorization remain outside this 
   migration work all remain open and unimplemented.
 - **Boundary status:** no push, deploy, merge, promotion, migration, selection, product-main/R0/
   VC-OS/family-preview mutation, Worker/live Gemini call, or SaaS work.
+
+---
+
+## 2026-08-04 — Integrated Desk bounded Revision Cycle checkpoint
+
+- **Exact base:** Student Agency and Resilience Utilities checkpoint
+  `19f1584fe8f034c0b61818c5d3ff5163476e09fa`, verified clean before work. This is an additive
+  Integrated Desk refinement, not a sixth concept, final lock, architecture decision, or stage
+  sequence.
+- **Current-map evidence:** exact local snapshots were already read-only/recoverable and linked to
+  mock review/Council records; Review Center already re-opened saved reports without a rerun;
+  Process Reflection accepted factual evidence only; Finish confirmed an exact Draft separately
+  from packet creation. Binding contracts retained: one canonical editable Draft, exact snapshots,
+  explicit payload/consent, no automatic rewrite, no AI reflection, decisions separate from prose,
+  protected Voice, local-only storage, and distinct Save/Finish/packet/Submit meanings.
+- **Minimal translation:** a `reviewCopy` pointer names one existing exact snapshot as the local
+  review copy; `revisionCycle` stores only optional student-authored focus/brief-note text. Review
+  Center and Finish expose the entry; existing Review Center, snapshot viewer, protected Voice,
+  Process Reflection, and Finish surfaces carry the rest. No new workspace, primary destination,
+  timeline, version dashboard, score, grading signal, feed, checklist, chat, or required sequence
+  was added.
+- **Cycle behavior:** **Ready for a second look** opens a calm local explanation and **Save a review
+  copy**. It stores exact current Draft text, keeps the live Draft editable, and never calls the
+  copy final, locked, complete, ready, or submitted. If the Draft later changes, **Update review
+  copy** is a deliberate action; the prior exact snapshot remains recoverable in local history.
+- **Choice, not funnel:** after saving, self-review, saved feedback, exact-scope Tu Pana mock
+  feedback, and separately consented genre-configured Council are sibling choices. Saved-feedback
+  re-entry does not make a new call; Council preserves availability blocking, revisit truth, roles,
+  cost disclosure, and consent. Students may proceed to Finish with no AI/Council use.
+- **Revision bridge and comparison:** self-review or any saved finding can open **Choose what to
+  work on** for one optional student-authored focus. Existing Accept/Adapt/Reject/Decide-later
+  remains intact. Your Voice appears only as exact student-defined preservation context. Comparison
+  presents the exact review copy and exact live Draft, side-by-side on desktop and Before/Current
+  tabs on phone. It makes no difference score, grade, improvement claim, red/green judgment, or
+  norm against multilingual/culturally situated phrasing.
+- **Closure:** optional brief revision note asks what changed, what sounded like the student, or
+  what to revisit later. It creates factual local evidence only; Process Reflection remains wholly
+  student-authored. Keep revising and Finish for now are explicit, equal exits; another review is
+  always deliberate.
+- **Verification:** focused revision-cycle suite **22/22 PASS**; agency suite **27/27 PASS**;
+  correction suite **48/48 PASS**; complete five-concept suite **238/238 PASS**. Coverage includes
+  exact-copy/viewability/live editability, deliberate update and history retention, optional paths,
+  consent/no silent Council call, student-controlled focus/Voice, factual reflection evidence,
+  no external requests, R0 sentinel, native spellcheck/theme/Edit/Stuck/Help preservation, mobile
+  Before/Current tabs, target size, overflow, and zero page errors.
+- **Density/restraint:** fresh ordinary Draft state remains **185 visible words** (plain Desk 168),
+  unchanged from the student-agency checkpoint because the Revision Cycle is only exposed in Review
+  Center/Finish context. Mandatory actions before typing: 0. Blocking entry interruptions: 0.
+  Primary destinations: 3.
+- **Open evidence:** physical-iPhone comparison interaction, native selection/keyboard/safe-area,
+  VoiceOver, high-zoom beyond local checks, founder and student comprehension of “review copy,”
+  whether the cycle feels encouraging rather than burdensome, value of one-revision framing across
+  genres, live Gemini behavior, production storage/migration/restore, and real instructor-feedback
+  routing remain unvalidated and unimplemented.
+- **Boundary status:** local mock/synthetic exploration only; no push, deploy, merge, promotion,
+  migration, production/R0/VC-OS/family-preview/Worker/live-Gemini change, SaaS work, or prototype
+  selection.

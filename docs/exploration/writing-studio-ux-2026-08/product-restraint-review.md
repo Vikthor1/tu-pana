@@ -36,6 +36,7 @@ than showing those choices as failed readiness checks.
 | Existing support rail gains factual counts | Students need truthful return paths and save/evidence state | Counts report actions only and never claim understanding, readiness, cultural identity, or quality |
 | **I’m stuck · Need one small next step?** in Review Center | A student who cannot begin or interpret feedback needs a non-AI, non-chat route to one reversible next action | The only new ordinary visible wording (+10 words); no panel opens by default, no required step, and its five choices reuse existing Move, Focus, report-history, and save concepts |
 | Appearance icon and Help icon in the header | Visual comfort and a local safety valve should be reachable without shortcut knowledge | Icons are 44px, labelled, and contain no visible curriculum or CTA copy; detailed choices live in Settings/Help |
+| Review-copy entry inside Review Center and Finish | A first draft needs a calm, non-final point for re-seeing and choosing feedback/self-review | Hidden from fresh Draft state; one exact local copy, not a timeline; self/peer/AI/Council are sibling options; comparison and brief note stay dialog-level |
 
 ## Capability deliberately kept quiet
 
@@ -54,6 +55,10 @@ than showing those choices as failed readiness checks.
   in-session control, not version management. **Your Voice** appears only after the student keeps
   exact wording, and Help/report preview appears only after deliberate opening; neither is a
   primary surface or an empty-state obligation.
+- The Revision Cycle has no automatic first-draft trigger, readiness inference, review requirement,
+  rerun, score, or completion gate. It appears only when the student opens Review Center or Finish,
+  offers **Keep revising** and **Finish for now**, and leaves the existing live Draft as the sole
+  writing home.
 - Neutral, STEM, SOP, and admissions receive only configured genre guidance. General Writing is
   neutral; unknown assignments stop for selection.
 

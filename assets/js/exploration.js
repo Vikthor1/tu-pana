@@ -538,6 +538,7 @@
             notebookEntries: {}, notebookCoachRuns: [], draftDeclared: false, draftCreatedAt: null,
             moveNotes: {}, knowledgeChoice: null, knowledgeChoiceAt: null,
             criticalViews: [], onboardingSeenAt: null, protectedPhrases: [], voiceEntries: [], finishChecks: {}, genreStates: {}, nativeSpellcheck: true,
+            reviewCopy: null, revisionCycle: { focus: '', closure: '', selectedSuggestion: null, updatedAt: null },
             appearance: 'system',
             artifacts: {}, currentArtifact: name === 'journey' ? 'step-1' : 'draft',
             versions: [], reviews: [], decisions: [], councilRuns: [],
@@ -1062,6 +1063,23 @@
         return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('reviewCenter'))}</h2><p>${state.reviews.length + state.councilRuns.length} ${escapeHtml(state.lang === 'en' ? 'saved reports' : 'informes guardados')}</p></div><span class="evidence-count">${state.decisions.length}</span></div><div class="panel-body"><button class="support-action" data-action="coach"><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(state.lang === 'en' ? 'passage, paragraph, or draft' : 'pasaje, párrafo o borrador')}</span></button><button class="support-action" data-action="focused-review"><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(genreMoves('review')[0])}</span></button>${councilAction}<button class="support-action" data-action="review-center"><strong>${escapeHtml(t('priorWork'))}</strong><span>${escapeHtml(t('revisit'))}</span></button>${stuckAction}</div></section>`;
     }
 
+    function reviewCopySnapshot() {
+        const id = state.reviewCopy?.snapshotId;
+        return id ? state.versions.find(version => version.id === id) || null : null;
+    }
+
+    function renderRevisionCycleEntry(context = 'review') {
+        if (concept !== 'integrated' || !getDraft().trim()) return '';
+        const copy = reviewCopySnapshot();
+        const label = copy
+            ? uiText('View review copy', 'Ver copia de revisión')
+            : uiText('Ready for a second look', '¿Listo/a para una segunda mirada?');
+        const detail = copy
+            ? uiText(`Saved ${versionTimestamp(copy)}. Your live draft is still editable.`, `Guardada ${versionTimestamp(copy)}. Tu borrador activo sigue siendo editable.`)
+            : uiText('Save an exact local copy when you want to look again—not a final lock.', 'Guarda una copia local exacta cuando quieras volver a mirar; no es un cierre final.');
+        return `<section class="revision-cycle-entry revision-cycle-${context}"><div><strong>${escapeHtml(uiText('Revision cycle', 'Ciclo de revisión'))}</strong><span>${escapeHtml(detail)}</span></div><button class="button secondary" data-action="revision-cycle">${escapeHtml(label)}</button></section>`;
+    }
+
     function renderEvidencePanel() {
         const currentVersions = concept === 'journey' ? Object.keys(state.artifacts).length : state.versions.length;
         const moveNoteCount = concept === 'integrated' ? integratedMoves().filter(move => wordCount(state.moveNotes[moveNoteKey(move)]?.text)).length : 0;
@@ -1578,13 +1596,88 @@
         return state.lang !== 'en' ? `Observa una base sólida en ${review}. Pregunta dónde una evidencia más precisa apoyaría la decisión del lector.` : `Sees a sound foundation in ${review}. Asks where more precise evidence would support the reader’s judgment.`;
     }
 
+    function saveReviewCopy() {
+        const text = getDraft();
+        if (!text.trim()) {
+            announce(uiText('Write something before saving a review copy.', 'Escribe algo antes de guardar una copia de revisión.'));
+            return false;
+        }
+        const existing = reviewCopySnapshot();
+        if (existing?.text === text) {
+            announce(uiText('Your review copy already matches the live draft.', 'Tu copia de revisión ya coincide con el borrador activo.'));
+            return true;
+        }
+        const snapshotId = checkpointVersion('review copy saved for a second look');
+        const snapshot = state.versions.find(version => version.id === snapshotId);
+        state.reviewCopy = {
+            snapshotId,
+            savedAt: snapshot?.createdAt || new Date().toISOString(),
+            genre: state.genre,
+            genreLabel: currentGenre().label.en,
+            genreLabelEs: currentGenre().label.es,
+        };
+        saveState(uiText('Exact review copy saved locally. Your live draft is still editable.', 'Copia de revisión exacta guardada localmente. Tu borrador activo sigue siendo editable.'));
+        return true;
+    }
+
+    function openRevisionCycle() {
+        const copy = reviewCopySnapshot();
+        if (!copy) {
+            openDialog(uiText('Ready for a second look?', '¿Listo/a para una segunda mirada?'), uiText('A review copy is a local point for reflection—not a final lock.', 'Una copia de revisión es un punto local para reflexionar; no es un cierre final.'), `<p>${escapeHtml(uiText('Save an exact copy of the draft as it is now. You can keep editing before and after feedback, and this does not claim your writing is complete or ready to submit.', 'Guarda una copia exacta del borrador tal como está. Puedes seguir editando antes y después de recibir comentarios, y esto no afirma que tu escritura esté completa ni lista para entregar.'))}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-review-copy">${escapeHtml(uiText('Save a review copy', 'Guardar una copia de revisión'))}</button>`);
+            return;
+        }
+        const saved = versionTimestamp(copy);
+        const councilAllowed = state.genre !== 'stem';
+        const differs = copy.text !== getDraft();
+        openDialog(uiText('Choose a second look', 'Elige una segunda mirada'), uiText(`Review copy saved ${saved}`, `Copia de revisión guardada ${saved}`), `<p>${escapeHtml(uiText('Choose the kind of support that fits today. Every path is optional; your live draft remains editable.', 'Elige el apoyo que te sirva hoy. Cada camino es opcional; tu borrador activo sigue siendo editable.'))}</p>${differs ? `<p class="revision-copy-note">${escapeHtml(uiText('Your live draft has changed since this copy. You may update the review copy deliberately; the earlier exact snapshot remains in local history.', 'Tu borrador activo cambió desde esta copia. Puedes actualizar la copia de revisión deliberadamente; la instantánea exacta anterior permanece en el historial local.'))}</p>` : ''}<div class="choice-stack revision-paths"><button class="radio-card" data-action="revision-self-review"><span><strong>${escapeHtml(uiText('Review it myself', 'Revisarlo yo mismo/a'))}</strong><br><small>${escapeHtml(uiText('Choose one thing to revisit in your own words.', 'Elige una cosa para revisar con tus propias palabras.'))}</small></span></button><button class="radio-card" data-action="revision-existing-feedback"><span><strong>${escapeHtml(uiText('Use feedback I already have', 'Usar comentarios que ya tengo'))}</strong><br><small>${escapeHtml(uiText('Reopen a saved report; this does not make a new request.', 'Reabre un informe guardado; esto no crea una solicitud nueva.'))}</small></span></button><button class="radio-card" data-action="revision-ask-feedback"><span><strong>${escapeHtml(uiText('Ask Tu Pana for feedback', 'Pedir comentarios a Tu Pana'))}</strong><br><small>${escapeHtml(uiText('Shows exact scope and consent before a local mock response.', 'Muestra el alcance exacto y el consentimiento antes de una respuesta simulada local.'))}</small></span></button>${councilAllowed ? `<button class="radio-card" data-action="revision-council"><span><strong>${escapeHtml(uiText('Convene the Council', 'Convocar al Consejo'))}</strong><br><small>${escapeHtml(uiText('Optional, genre-configured, and separately consented.', 'Opcional, configurado por género y con consentimiento aparte.'))}</small></span></button>` : `<div class="radio-card unavailable"><span><strong>${escapeHtml(t('council'))}</strong><br><small>${escapeHtml(t('councilUnavailable'))}</small></span></div>`}</div><p class="revision-copy-note">${escapeHtml(uiText('Saved copy: exact local text only. No quality score, lock, or automatic review.', 'Copia guardada: solo texto local exacto. Sin puntuación de calidad, cierre ni revisión automática.'))}</p>`, `<button class="button ghost" data-action="compare-review-copy">${escapeHtml(uiText('Compare copy and current draft', 'Comparar copia y borrador actual'))}</button>${differs ? `<button class="button secondary" data-action="update-review-copy">${escapeHtml(uiText('Update review copy', 'Actualizar copia de revisión'))}</button>` : ''}<button class="button secondary" data-action="return-write">${escapeHtml(uiText('Keep revising', 'Seguir revisando'))}</button>`);
+    }
+
+    function openRevisionFocus(suggestion = '') {
+        const voice = voiceEntries();
+        const existing = state.revisionCycle?.focus || '';
+        const prompt = suggestion
+            ? uiText('A saved suggestion is shown as context. You decide whether to use it, adapt it, reject it, or set it aside.', 'Una sugerencia guardada aparece como contexto. Tú decides si la usas, adaptas, rechazas o la dejas para después.')
+            : uiText('Pick one revision to try. You do not need to fix everything or use feedback.', 'Elige una revisión para probar. No necesitas corregir todo ni usar comentarios.');
+        openDialog(uiText('Choose what to work on', 'Elige en qué trabajar'), uiText('One student-chosen next move', 'Un próximo paso elegido por el estudiante'), `${suggestion ? `<blockquote>${escapeHtml(suggestion)}</blockquote>` : ''}<p>${escapeHtml(prompt)}</p>${voice.length ? `<p class="voice-constraint-note"><strong>${escapeHtml(uiText('Your Voice is here if useful.', 'Tu voz está aquí si te sirve.'))}</strong> ${escapeHtml(uiText(`${voice.length} exact student-selected entr${voice.length === 1 ? 'y' : 'ies'} remain local; you decide what to preserve.`, `${voice.length} entrada${voice.length === 1 ? '' : 's'} exacta${voice.length === 1 ? '' : 's'} seleccionada${voice.length === 1 ? '' : 's'} por el estudiante permanece${voice.length === 1 ? '' : 'n'} local${voice.length === 1 ? '' : 'es'}; tú decides qué conservar.`))}</p>` : ''}<div class="field"><label for="revisionFocus">${escapeHtml(uiText('My one revision to try (optional)', 'Mi una revisión para probar (opcional)'))}</label><textarea id="revisionFocus" data-protect-dirty spellcheck="${spellcheckEnabled()}" maxlength="500">${escapeHtml(existing)}</textarea></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-revision-focus" data-suggestion="${escapeHtml(suggestion)}">${escapeHtml(uiText('Return to draft', 'Volver al borrador'))}</button>`);
+    }
+
+    function saveRevisionFocus(suggestion = '') {
+        state.revisionCycle ||= {};
+        state.revisionCycle.focus = document.getElementById('revisionFocus')?.value || '';
+        state.revisionCycle.selectedSuggestion = suggestion || null;
+        state.revisionCycle.updatedAt = new Date().toISOString();
+        saveState(state.revisionCycle.focus.trim() ? uiText('Your revision choice is saved locally.', 'Tu elección de revisión está guardada localmente.') : uiText('You can return to the draft without choosing a revision.', 'Puedes volver al borrador sin elegir una revisión.'));
+        closeDialog(true); setView('write');
+    }
+
+    function openRevisionComparison(view = 'before') {
+        const copy = reviewCopySnapshot();
+        if (!copy?.text) return openRevisionCycle();
+        const current = getDraft();
+        const beforeActive = view === 'before';
+        openDialog(uiText('Review copy and current draft', 'Copia de revisión y borrador actual'), uiText(`Review copy saved ${versionTimestamp(copy)}`, `Copia de revisión guardada ${versionTimestamp(copy)}`), `<p>${escapeHtml(uiText('Read the exact wording. Changes are not scored, graded, or labeled better; you decide what to keep and what to revisit.', 'Lee la redacción exacta. Los cambios no se puntúan, califican ni se etiquetan como mejores; tú decides qué conservar y qué revisar.'))}</p><div class="compare-mobile-tabs" role="tablist" aria-label="Draft comparison"><button role="tab" aria-selected="${beforeActive}" data-action="compare-view" data-view="before">${escapeHtml(uiText('Before: review copy', 'Antes: copia de revisión'))}</button><button role="tab" aria-selected="${!beforeActive}" data-action="compare-view" data-view="current">${escapeHtml(uiText('Current draft', 'Borrador actual'))}</button></div><div class="revision-compare-grid" data-compare-view="${view}"><section class="compare-pane compare-before" aria-label="Review copy"><h3>${escapeHtml(uiText('Review copy', 'Copia de revisión'))}</h3><small>${escapeHtml(versionTimestamp(copy))} · ${copy.words} ${escapeHtml(uiText('words', 'palabras'))}</small><pre>${escapeHtml(copy.text)}</pre></section><section class="compare-pane compare-current" aria-label="Current draft"><h3>${escapeHtml(t('currentDraft'))}</h3><small>${wordCount(current)} ${escapeHtml(uiText('words', 'palabras'))} · ${escapeHtml(uiText('Still editable', 'Aún editable'))}</small><pre>${escapeHtml(current)}</pre></section></div>`, `<button class="button ghost" data-action="revision-brief-reflection">${escapeHtml(uiText('Reflect briefly', 'Reflexionar brevemente'))}</button><button class="button secondary" data-action="return-write">${escapeHtml(uiText('Keep revising', 'Seguir revisando'))}</button><button class="button primary" data-action="finish-from-revision">${escapeHtml(uiText('Finish for now', 'Finalizar por ahora'))}</button>`, { wide: true });
+    }
+
+    function openRevisionBriefReflection() {
+        const existing = state.revisionCycle?.closure || '';
+        openDialog(uiText('Brief revision note', 'Nota breve de revisión'), uiText('Optional student-authored note', 'Nota opcional escrita por el estudiante'), `<p>${escapeHtml(uiText('If useful, name what you changed, what you kept because it sounded like you, or one thing you would revisit later. This is not another required reflection.', 'Si te sirve, nombra qué cambiaste, qué conservaste porque sonaba como tú o una cosa que revisarías después. No es otra reflexión obligatoria.'))}</p><div class="field"><label for="revisionClosure">${escapeHtml(uiText('My brief revision note (optional)', 'Mi nota breve de revisión (opcional)'))}</label><textarea id="revisionClosure" data-protect-dirty spellcheck="${spellcheckEnabled()}" maxlength="500">${escapeHtml(existing)}</textarea></div><p>${escapeHtml(uiText('Saving this creates factual local evidence only. Process Reflection stays in your own words.', 'Guardar esto crea solo evidencia factual local. La Reflexión del proceso sigue con tus propias palabras.'))}</p>`, `<button class="button ghost" data-action="return-write">${escapeHtml(uiText('Keep revising', 'Seguir revisando'))}</button><button class="button secondary" data-action="finish-from-revision">${escapeHtml(uiText('Finish for now', 'Finalizar por ahora'))}</button><button class="button primary" data-action="save-revision-closure">${escapeHtml(uiText('Save note', 'Guardar nota'))}</button>`);
+    }
+
+    function saveRevisionClosure() {
+        state.revisionCycle ||= {};
+        state.revisionCycle.closure = document.getElementById('revisionClosure')?.value || '';
+        state.revisionCycle.updatedAt = new Date().toISOString();
+        saveState(uiText('Revision note saved locally.', 'Nota de revisión guardada localmente.'));
+        closeDialog(true); setView('reflection');
+    }
+
     function openReviewCenter(tab = reviewTab) {
         if (concept === 'notebook' && !state.draftDeclared) {
             announce(t('draftToolsLocked'));
             return;
         }
         reviewTab = tab;
-        openDialog(t('reviewCenter'), state.lang !== 'en' ? 'Pide, escucha, decide, revisa y verifica.' : 'Ask, hear, decide, revise, and verify.', `<div class="review-layout"><nav class="review-nav" aria-label="Review sections"><button data-action="review-tab" data-tab="history" ${tab === 'history' ? 'aria-current="page"' : ''}>${escapeHtml(t('focusedReview'))} (${state.reviews.length})</button><button data-action="review-tab" data-tab="council" ${tab === 'council' ? 'aria-current="page"' : ''}>${escapeHtml(t('council'))} (${state.councilRuns.length})</button><button data-action="review-tab" data-tab="decisions" ${tab === 'decisions' ? 'aria-current="page"' : ''}>${escapeHtml(state.lang !== 'en' ? 'Decisiones' : 'Decisions')} (${state.decisions.length})</button></nav><section class="review-feed" id="reviewFeed">${renderReviewFeed(tab)}</section></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button>`, { wide: true });
+        openDialog(t('reviewCenter'), state.lang !== 'en' ? 'Pide, escucha, decide, revisa y verifica.' : 'Ask, hear, decide, revise, and verify.', `${renderRevisionCycleEntry('center')}<div class="review-layout"><nav class="review-nav" aria-label="Review sections"><button data-action="review-tab" data-tab="history" ${tab === 'history' ? 'aria-current="page"' : ''}>${escapeHtml(t('focusedReview'))} (${state.reviews.length})</button><button data-action="review-tab" data-tab="council" ${tab === 'council' ? 'aria-current="page"' : ''}>${escapeHtml(t('council'))} (${state.councilRuns.length})</button><button data-action="review-tab" data-tab="decisions" ${tab === 'decisions' ? 'aria-current="page"' : ''}>${escapeHtml(state.lang !== 'en' ? 'Decisiones' : 'Decisions')} (${state.decisions.length})</button></nav><section class="review-feed" id="reviewFeed">${renderReviewFeed(tab)}</section></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button>`, { wide: true });
     }
 
     function renderReviewFeed(tab) {
@@ -1594,7 +1687,7 @@
         }
         if (tab === 'council') {
             if (!state.councilRuns.length) return `<div class="empty-state">${escapeHtml(t('noReviews'))}<br><button class="button secondary" data-action="council" style="margin-top:12px">${escapeHtml(t('convene'))}</button></div>`;
-            const reports = state.councilRuns.slice().reverse().map(run => `<article class="review-card"><span class="mock-label">Mock Council · ${escapeHtml(storedGenreLabel(run))}</span><h3>${escapeHtml(t('council'))}</h3><p class="review-meta">${shortDate(run.createdAt)} · ${escapeHtml(run.payloadScope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))} · ${run.words} ${escapeHtml(state.lang === 'en' ? 'words reviewed' : 'palabras revisadas')}${concept === 'integrated' ? ` · ${escapeHtml(run.calls ? `${run.calls} ${state.lang === 'en' ? 'mock calls represented' : 'llamadas simuladas representadas'}` : (state.lang === 'en' ? 'mock call count not stored' : 'cantidad de llamadas simuladas no guardada'))}` : ''}</p>${renderSnapshotLink(run.snapshotId, 'council')}${concept === 'integrated' ? renderCriticalPrompt(run.criticalKey, run.genre) : ''}${run.findings.map((finding, index) => `<blockquote><strong>${escapeHtml(finding.role)}</strong><br>${escapeHtml(finding.suggestion)}</blockquote>${decisionButtons(run.id, index, finding.suggestion, run.criticalKey)}`).join('')}</article>`).join('');
+            const reports = state.councilRuns.slice().reverse().map(run => `<article class="review-card"><span class="mock-label">Mock Council · ${escapeHtml(storedGenreLabel(run))}</span><h3>${escapeHtml(t('council'))}</h3><p class="review-meta">${shortDate(run.createdAt)} · ${escapeHtml(run.payloadScope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))} · ${run.words} ${escapeHtml(state.lang === 'en' ? 'words reviewed' : 'palabras revisadas')}${concept === 'integrated' ? ` · ${escapeHtml(run.calls ? `${run.calls} ${state.lang === 'en' ? 'mock calls represented' : 'llamadas simuladas representadas'}` : (state.lang === 'en' ? 'mock call count not stored' : 'cantidad de llamadas simuladas no guardada'))}` : ''}</p>${renderSnapshotLink(run.snapshotId, 'council')}${concept === 'integrated' ? renderCriticalPrompt(run.criticalKey, run.genre) : ''}${run.findings.map((finding, index) => `<blockquote><strong>${escapeHtml(finding.role)}</strong><br>${escapeHtml(finding.suggestion)}</blockquote>${decisionButtons(run.id, index, finding.suggestion, run.criticalKey)}${concept === 'integrated' ? `<button class="text-button revision-focus-suggestion" data-action="revision-focus-suggestion" data-suggestion="${escapeHtml(finding.suggestion)}">${escapeHtml(uiText('Pick one revision to try', 'Elige una revisión para probar'))}</button>` : ''}`).join('')}</article>`).join('');
             return `${reports}${concept === 'integrated' ? `<div class="review-secondary-action"><button class="button secondary" data-action="convene-again">${escapeHtml(state.lang === 'en' ? 'Convene again' : 'Convocar de nuevo')}</button><small>${escapeHtml(state.lang === 'en' ? 'Creates a new mock Council report after a separate consent step.' : 'Crea un nuevo informe simulado después de un consentimiento separado.')}</small></div>` : ''}`;
         }
         if (!state.decisions.length) return `<div class="empty-state">${escapeHtml(state.lang !== 'en' ? 'Todavía no has decidido sobre una sugerencia.' : 'You have not decided on a suggestion yet.')}</div>`;
@@ -1603,7 +1696,7 @@
 
     function renderReviewCard(review) {
         const voiceRequest = review.voiceEntriesIncluded?.length ? `<p class="voice-request-note">${escapeHtml(uiText(`You asked this local mock to consider ${review.voiceEntriesIncluded.length} Your Voice entr${review.voiceEntriesIncluded.length === 1 ? 'y' : 'ies'}. This records your request; it does not claim live-model enforcement.`, `Pediste que esta simulación local considere ${review.voiceEntriesIncluded.length} entrada${review.voiceEntriesIncluded.length === 1 ? '' : 's'} de Tu voz. Esto registra tu solicitud; no afirma una aplicación por un modelo en vivo.`))}</p>` : '';
-        return `<article class="review-card"><span class="mock-label">Mock AI · ${escapeHtml(storedGenreLabel(review))} · ${escapeHtml(review.scope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(review.calls ? `${review.calls} ${state.lang === 'en' ? 'mock call' : 'llamada simulada'}` : (state.lang === 'en' ? 'mock call count not stored' : 'cantidad de llamadas simuladas no guardada'))}` : ''}</p>${renderSnapshotLink(review.snapshotId, 'history')}<blockquote>${escapeHtml(review.exactExcerpt)}</blockquote>${voiceRequest}<p>${escapeHtml(review.suggestion)}</p>${concept === 'integrated' ? renderCriticalPrompt(review.criticalKey, review.genre) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}</article>`;
+        return `<article class="review-card"><span class="mock-label">Mock AI · ${escapeHtml(storedGenreLabel(review))} · ${escapeHtml(review.scope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(review.calls ? `${review.calls} ${state.lang === 'en' ? 'mock call' : 'llamada simulada'}` : (state.lang === 'en' ? 'mock call count not stored' : 'cantidad de llamadas simuladas no guardada'))}` : ''}</p>${renderSnapshotLink(review.snapshotId, 'history')}<blockquote>${escapeHtml(review.exactExcerpt)}</blockquote>${voiceRequest}<p>${escapeHtml(review.suggestion)}</p>${concept === 'integrated' ? renderCriticalPrompt(review.criticalKey, review.genre) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}${concept === 'integrated' ? `<button class="text-button revision-focus-suggestion" data-action="revision-focus-suggestion" data-suggestion="${escapeHtml(review.suggestion)}">${escapeHtml(uiText('Pick one revision to try', 'Elige una revisión para probar'))}</button>` : ''}</article>`;
     }
 
     function renderSnapshotLink(snapshotId, returnTab = reviewTab) {
@@ -1758,6 +1851,9 @@
                 : (state.lang !== 'en' ? 'Lente opcional omitida por ahora' : 'Optional knowledge and language lens skipped for now'));
             if (state.criticalViews.length) items.push(`${state.criticalViews.length} ${state.lang !== 'en' ? 'preguntas críticas abiertas' : 'critical prompts opened'}`);
             if (voiceEntries().length) items.push(`${voiceEntries().length} ${state.lang !== 'en' ? 'entradas exactas de Tu voz elegidas por el estudiante' : 'student-selected exact Your Voice entries'}`);
+            if (reviewCopySnapshot()) items.push(state.lang !== 'en' ? 'Copia de revisión exacta guardada localmente' : 'Exact review copy saved locally');
+            if (state.revisionCycle?.focus?.trim()) items.push(state.lang !== 'en' ? 'Elección de revisión escrita por el estudiante' : 'Student-authored revision choice');
+            if (state.revisionCycle?.closure?.trim()) items.push(state.lang !== 'en' ? 'Nota breve de revisión escrita por el estudiante' : 'Student-authored brief revision note');
             if (state.genre === 'autobiographical' && Object.values(state.finishChecks).filter(Boolean).length) items.push(`${Object.values(state.finishChecks).filter(Boolean).length}/4 ${state.lang !== 'en' ? 'marcas del checklist hechas por el estudiante' : 'student-marked Finish checks'}`);
         }
         if (wordCount(getDraft())) items.push(`${wordCount(getDraft())} ${state.lang !== 'en' ? 'palabras en la versión actual' : 'words in the current version'}`);
@@ -1832,7 +1928,7 @@
         const ready = Boolean(draft.trim()) && reflectionComplete();
         const packetReady = Boolean(state.packetCreatedAt);
         return `<section class="finish-page" aria-labelledby="finishTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(t('finish'))}</p><h2 id="finishTitle">${escapeHtml(t('preparePacket'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Guardar mantiene tu trabajo en progreso. Finalizar confirma una versión y arma un paquete local. Entregar ocurre fuera de este prototipo, según las instrucciones de tu instructor.' : 'Save keeps work in progress. Finish confirms one version and assembles a local packet. Submission happens outside this prototype, according to your instructor’s directions.')}</p></div>
-            <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('packetDraft'))}</h3><p>${wordCount(draft)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')} · ${escapeHtml(concept === 'journey' ? state.currentArtifact : t('currentDraft'))}</p><div class="packet-preview" id="finalDraftPreview">${escapeHtml(draft || (state.lang !== 'en' ? 'No hay borrador todavía.' : 'No draft yet.'))}</div><label class="consent-box" style="margin-top:12px"><input id="packetConfirm" type="checkbox" ${state.packetCreatedAt ? 'checked' : ''}><span>${escapeHtml(t('confirmDraft'))}</span></label></section>
+            ${concept === 'integrated' ? renderRevisionCycleEntry('finish') : ''}<div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('packetDraft'))}</h3><p>${wordCount(draft)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')} · ${escapeHtml(concept === 'journey' ? state.currentArtifact : t('currentDraft'))}</p><div class="packet-preview" id="finalDraftPreview">${escapeHtml(draft || (state.lang !== 'en' ? 'No hay borrador todavía.' : 'No draft yet.'))}</div><label class="consent-box" style="margin-top:12px"><input id="packetConfirm" type="checkbox" ${state.packetCreatedAt ? 'checked' : ''}><span>${escapeHtml(t('confirmDraft'))}</span></label></section>
             <section class="packet-section"><h3>${escapeHtml(state.lang !== 'en' ? 'Comprobación honesta' : 'Truthful readiness check')}</h3><ul class="check-list"><li class="${draft.trim() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Una versión exacta está identificada' : 'One exact version is identified')}</li><li class="${reflectionComplete() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Tres respuestas contienen texto' : 'Three student-authored responses contain text')}</li><li class="${concept === 'integrated' || state.councilRuns.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.councilRuns.length ? (state.lang !== 'en' ? 'No se solicitó Consejo—es opcional' : 'No Council requested—optional') : (state.lang !== 'en' ? 'La evidencia del Consejo está incluida si existe' : 'Council evidence is included when it exists'))}</li><li class="${concept === 'integrated' || state.decisions.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.decisions.length ? (state.lang !== 'en' ? 'No hubo decisiones de IA—la IA es opcional' : 'No AI decisions—AI is optional') : (state.lang !== 'en' ? 'Las decisiones sobre sugerencias están incluidas' : 'Suggestion decisions are included'))}</li></ul><p><strong>${escapeHtml(ready ? (state.lang !== 'en' ? 'Listo para crear el paquete local' : 'Ready to create the local packet') : (state.lang !== 'en' ? 'Todavía en progreso' : 'Still in progress'))}</strong></p><button class="button primary" data-action="create-packet" ${!ready ? 'disabled' : ''}>${escapeHtml(t('createPacket'))}</button></section></div>
             <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('studentReflection'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Solo contiene las palabras del estudiante.' : 'Contains only the student’s words.')}</p>${reflectionPrompts().map(([key, label], i) => state.reflections[key] ? `<h4>${i + 1}. ${escapeHtml(label)}</h4><p>${escapeHtml(state.reflections[key])}</p>` : '').join('') || `<p>${escapeHtml(state.lang !== 'en' ? 'Todavía no hay reflexión.' : 'No reflection yet.')}</p>`}</section>
             <section class="packet-section"><h3>${escapeHtml(t('instructorAppendix'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Evidencia factual del sistema, separada de la reflexión.' : 'Factual system evidence, separate from reflection.')}</p><ul class="check-list">${factualEvidence().map(item => `<li class="done">${escapeHtml(item)}</li>`).join('') || `<li>${escapeHtml(t('noPrior'))}</li>`}</ul></section></div>${renderGenreFinishChecklist()}
@@ -2016,6 +2112,20 @@
         else if (action === 'help-feedback') openHelpReport('feedback');
         else if (action === 'preview-local-report') previewLocalReport(target.dataset.kind);
         else if (action === 'stuck') openStuckSupport();
+        else if (action === 'revision-cycle') openRevisionCycle();
+        else if (action === 'save-review-copy') { if (saveReviewCopy()) openRevisionCycle(); }
+        else if (action === 'update-review-copy') { if (saveReviewCopy()) openRevisionCycle(); }
+        else if (action === 'revision-self-review') openRevisionFocus();
+        else if (action === 'revision-existing-feedback') { if (state.reviews.length || state.councilRuns.length) closeDialog(true, () => openReviewCenter(state.reviews.length ? 'history' : 'council')); else openDialog(uiText('Use feedback I already have', 'Usar comentarios que ya tengo'), uiText('No saved feedback yet', 'Aún no hay comentarios guardados'), `<p>${escapeHtml(uiText('There is no saved report to reopen. You can review the copy yourself, keep revising, or intentionally ask for feedback later.', 'No hay un informe guardado para reabrir. Puedes revisar la copia por tu cuenta, seguir revisando o pedir comentarios más tarde de forma intencional.'))}</p>`, `<button class="button secondary" data-action="revision-self-review">${escapeHtml(uiText('Review it myself', 'Revisarlo yo mismo/a'))}</button><button class="button ghost" data-action="return-write">${escapeHtml(uiText('Keep revising', 'Seguir revisando'))}</button>`); }
+        else if (action === 'revision-ask-feedback') closeDialog(true, openFocusedReviewDialog);
+        else if (action === 'revision-council') closeDialog(true, openCouncilDialog);
+        else if (action === 'revision-focus-suggestion') openRevisionFocus(target.dataset.suggestion || '');
+        else if (action === 'save-revision-focus') saveRevisionFocus(target.dataset.suggestion || '');
+        else if (action === 'compare-review-copy') openRevisionComparison();
+        else if (action === 'compare-view') openRevisionComparison(target.dataset.view || 'before');
+        else if (action === 'revision-brief-reflection') openRevisionBriefReflection();
+        else if (action === 'save-revision-closure') saveRevisionClosure();
+        else if (action === 'finish-from-revision') { closeDialog(true); checkpointVersion('entered Finish'); setView('finish'); }
         else if (action === 'stuck-choice') openStuckChoice(target.dataset.choice);
         else if (action === 'stuck-open-move') { closeDialog(true); openIntegratedMoveNote(Number(target.dataset.move)); }
         else if (action === 'copy-stuck-starter') copyTextWithFallback(target.dataset.starter || '', uiText('Starter copied.', 'Inicio copiado.'), uiText('Copy is unavailable here. Use your device’s Edit menu.', 'Copiar no está disponible aquí. Usa el menú Editar de tu dispositivo.'));

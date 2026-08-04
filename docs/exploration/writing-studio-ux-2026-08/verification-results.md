@@ -144,6 +144,24 @@ invitation “I’m stuck · Need one small next step?” in the ordinary viewpo
 editing options, Voice, report preview, and spelling details stay hidden until invoked. This is a
 comparative signal, not a comprehension result.
 
+## Bounded Revision Cycle
+
+`prototype_integrated_revision_cycle_test.mjs` passed **22/22** against the local Integrated Desk.
+It verifies exact review-copy persistence and read-only viewing; continued live-Draft editability;
+deliberate update with earlier snapshot retention; self-review, saved-feedback, mock-coach, and
+Council as optional sibling paths; existing exact-scope consent and no silent Council rerun;
+one student-authored revision focus; protected Voice as a student-defined preservation context;
+desktop exact-text comparison; mobile Before / Current comparison controls; optional local brief
+note feeding factual—not AI-authored—Process Reflection evidence; native spelling/theme/Edit/Stuck/
+Help preservation; R0 sentinel; no external requests; no page errors; 44px tabs; and no 390 × 844
+overflow.
+
+The revision cycle remains dialog/Finish-context disclosure. The 1440 × 960 fresh ordinary Draft
+measurement remains **185** visible words, with zero mandatory actions, zero entry interruption,
+and three primary destinations. Its comparison does not calculate scores, grades, improvement, or
+quality rankings. These checks are functional evidence, not proof that students understand a first
+draft as revisable or experience the language as encouraging.
+
 ## Unchanged R0 safety-contract selection
 
 All suites ran from the exact R0-rooted exploration worktree without assertion changes:

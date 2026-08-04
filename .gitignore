@@ -94,6 +94,7 @@
 !prototype_exploration_test.mjs
 !prototype_integrated_corrections_test.mjs
 !prototype_integrated_agency_test.mjs
+!prototype_integrated_revision_cycle_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

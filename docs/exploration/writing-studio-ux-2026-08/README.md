@@ -102,6 +102,25 @@ appearance icon cycles System / Paper / Dark; Settings exposes the same three ch
 browser/device spelling preference. **Help** offers local-only Report a problem and Share feedback
 previews; neither sends nor attaches writing.
 
+For the bounded Revision Cycle, open **Review Center** and choose **Ready for a second look**.
+Saving a review copy stores exact local text but never locks the live Draft or claims it is final.
+Choose self-review, saved feedback, optional Tu Pana feedback, or the separately consented Council
+where configured. Pick one revision only if useful, then compare the review copy with the current
+Draft. On a phone, use the accessible Before / Current switch rather than a compressed split view.
+The short revision note is optional; it contributes only factual evidence to Process Reflection.
+**Keep revising** and **Finish for now** are equally valid exits.
+
+### Founder revision-cycle test
+
+With a short synthetic first draft, ask a founder or student to open Review Center and save a review
+copy without coaching. Then ask: “What did that do—did it lock or judge my draft?” Have them choose
+self-review, name one revision, make it, compare Before / Current, and choose either Keep revising
+or Finish for now. Repeat once with an existing saved report and once on a phone. Observe whether
+they can explain that feedback is optional, the exact copy is recoverable, their live Draft remains
+the real work, and preservation of a multilingual or meaningful phrase feels supported rather than
+treated as an exception. Record burden, pressure to use AI, and any confusion between review copy,
+Finish, and submission; do not treat automated reachability as comprehension evidence.
+
 ## Evidence and results
 
 - [Comparative evaluation](comparative-evaluation.md)
@@ -119,6 +138,7 @@ Automated local verification commands:
 node prototype_exploration_test.mjs
 node prototype_integrated_corrections_test.mjs
 node prototype_integrated_agency_test.mjs
+node prototype_integrated_revision_cycle_test.mjs
 ```
 
 ## Founder evidence governing the finalist

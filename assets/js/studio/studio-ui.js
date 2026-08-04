@@ -162,81 +162,11 @@
         },
     };
 
-    const genres = {
-        autobiographical: {
-            label: { en: 'Mixed-genre autobiographical essay', es: 'Ensayo autobiográfico de género mixto' },
-            sample: 'At the neighborhood library, I answered my aunt in English until she said, “aquí escuchamos primero.” I had treated translation as a quick exchange of words. Her phrase made me notice who was expected to adapt, whose knowledge counted, and why language access is also a question of power. This synthetic essay connects that chosen memory to a larger history of public institutions and multilingual communities without asking any student to disclose a private family story.',
-            moves: {
-                discover: ['Choose a memory and a boundary', 'Connect memory to a larger force', 'Test experience with research and context', 'Protect language and voice'],
-                review: ['Personal-to-social connection', 'Evidence and historical grounding', 'Voice and translingual integrity'],
-                council: ['Connection and structure reviewer', 'Evidence and historical-context reviewer', 'Voice and cultural-integrity reviewer'],
-            },
-        },
-        admissions: {
-            label: { en: 'College personal statement', es: 'Ensayo de admisión universitaria' },
-            sample: 'The first week at the neighborhood learning center, I designed a color-coded signup sheet because I thought efficiency was the problem. By Friday, I understood that the real problem was trust. Families did not need a faster form; they needed someone to explain what the form would change. I began sitting beside each visitor, listening before writing. That shift—from solving the visible task to understanding the human need—now guides how I approach community technology and the questions I hope to study in college.',
-            moves: {
-                discover: ['Choose one concrete turning point', 'Name what changed in your understanding', 'Connect the moment to what you will pursue'],
-                review: ['Purpose and personal insight', 'Structure and narrative movement', 'Voice and specificity'],
-                council: ['Admissions reader', 'Writing teacher', 'Student voice advocate'],
-            },
-        },
-        stem: {
-            label: { en: 'STEM lab report', es: 'Informe de laboratorio STEM' },
-            sample: 'The basil seedlings exposed to eight hours of light grew an average of 2.4 centimeters more than the seedlings exposed to four hours. This result supports the prediction that longer light exposure increases early stem growth under otherwise controlled conditions. The small sample size and one unusually tall seedling limit the strength of the conclusion. A second trial with more plants and randomized tray positions would test whether the pattern persists.',
-            moves: {
-                discover: ['State the research question and prediction', 'Separate observation from interpretation', 'Connect the result to the evidence'],
-                review: ['Claim–evidence alignment', 'Methods and reproducibility', 'Limitations and precision'],
-                council: ['Lab instructor', 'Methods reviewer', 'Scientific clarity editor'],
-            },
-        },
-        sop: {
-            label: { en: 'Graduate statement of purpose', es: 'Carta de propósito para posgrado' },
-            sample: 'My work on a public transit accessibility project showed me how technical decisions become public consequences. I entered the project focused on routing efficiency and left asking how disabled riders could shape the systems intended to serve them. Graduate study in human-centered computing would let me build the research methods needed to investigate that question with rigor. I hope to study participatory design, accessible infrastructure, and the ways public institutions can evaluate whether technology expands meaningful access.',
-            moves: {
-                discover: ['Name the problem you want to study', 'Connect prior preparation to future inquiry', 'Make program fit specific and evidence-based'],
-                review: ['Purpose and research trajectory', 'Preparation and evidence', 'Program fit and contribution'],
-                council: ['Faculty reader', 'Research mentor', 'Purpose-and-fit editor'],
-            },
-        },
-        neutral: {
-            label: { en: 'General writing project', es: 'Proyecto general de escritura' },
-            sample: 'This synthetic draft begins with a clear purpose, develops one idea with concrete evidence, and leaves room for the writer to decide what should change next. The language is intentionally neutral so that no assignment inherits expectations from an unrelated genre.',
-            moves: {
-                discover: ['Clarify the purpose and audience', 'Choose relevant evidence', 'Arrange ideas so the reader can follow'],
-                review: ['Purpose and clarity', 'Structure and evidence', 'Voice and precision'],
-                council: ['Audience reader', 'Structure reviewer', 'Voice advocate'],
-            },
-        },
-    };
-
-    const genreMovesEs = {
-        autobiographical: {
-            discover: ['Elige una memoria y un límite', 'Conecta la memoria con una fuerza mayor', 'Contrasta la experiencia con investigación y contexto', 'Protege el idioma y la voz'],
-            review: ['Conexión personal y social', 'Evidencia y contexto histórico', 'Voz e integridad translingüe'],
-            council: ['Revisor de conexión y estructura', 'Revisor de evidencia y contexto histórico', 'Revisor de voz e integridad cultural'],
-        },
-        admissions: {
-            discover: ['Elige un punto de cambio concreto', 'Nombra qué cambió en tu comprensión', 'Conecta el momento con lo que quieres perseguir'],
-            review: ['Propósito y reflexión personal', 'Estructura y movimiento narrativo', 'Voz y especificidad'],
-            council: ['Lector de admisiones', 'Docente de escritura', 'Defensor de la voz estudiantil'],
-        },
-        stem: {
-            discover: ['Declara la pregunta y la predicción', 'Separa observación de interpretación', 'Conecta el resultado con la evidencia'],
-            review: ['Alineación de afirmación y evidencia', 'Métodos y reproducibilidad', 'Limitaciones y precisión'],
-            council: ['Instructor de laboratorio', 'Revisor de métodos', 'Editor de claridad científica'],
-        },
-        sop: {
-            discover: ['Nombra el problema que quieres estudiar', 'Conecta tu preparación con la investigación futura', 'Haz que el encaje con el programa sea específico'],
-            review: ['Propósito y trayectoria de investigación', 'Preparación y evidencia', 'Encaje y contribución al programa'],
-            council: ['Lector de facultad', 'Mentor de investigación', 'Editor de propósito y encaje'],
-        },
-        neutral: {
-            discover: ['Aclara el propósito y la audiencia', 'Elige evidencia relevante', 'Ordena las ideas para orientar al lector'],
-            review: ['Propósito y claridad', 'Estructura y evidencia', 'Voz y precisión'],
-            council: ['Lector de audiencia', 'Revisor de estructura', 'Defensor de la voz'],
-        },
-    };
+    const {
+        genres, genreMovesEs, integratedMoveProfiles, criticalQuestions,
+        councilConfig, lensCriticalKeys, coachCriticalKeys, reflectionPrompt4,
+        stuckStarters, moveDeeper, resolveAssignment,
+    } = window.StudioProfiles;
 
     const genreNotebooks = {
         admissions: [
@@ -265,186 +195,6 @@
             { id: 'audience', en: 'Audience', es: 'Audiencia', promptEn: 'What does this audience already know, and what will it need?', promptEs: '¿Qué sabe ya esta audiencia y qué necesitará?' },
             { id: 'evidence', en: 'Evidence', es: 'Evidencia', promptEn: 'Gather relevant examples, facts, quotations, or observations.', promptEs: 'Reúne ejemplos, hechos, citas u observaciones relevantes.' },
             { id: 'structure', en: 'Structure', es: 'Estructura', promptEn: 'Sketch an order that helps the audience follow the purpose.', promptEs: 'Bosqueja un orden que ayude a seguir el propósito.' },
-        ],
-    };
-
-    // Canonical Five Questions, traced to assets/js/ui.js EVAL_QUESTIONS and
-    // index.html #fiveQStrip. The finalist selects one question per authentic
-    // decision and keeps the remainder behind progressive disclosure.
-    const criticalQuestions = {
-        cultural: {
-            en: 'Does it miss what you know from your own community?',
-            es: '¿Está perdiendo algo que tú sabes desde tu comunidad?',
-            principle: 'Cultural knowledge',
-        },
-        accuracy: {
-            en: 'Are factual or academic claims real and verified — or does this need a source?',
-            es: '¿Las afirmaciones académicas o históricas son reales y verificadas — o necesitan una fuente?',
-            principle: 'Accuracy',
-        },
-        voice: {
-            en: 'Does this still sound like the specific person who wrote it?',
-            es: '¿Todavía suena como la persona específica que lo escribió?',
-            principle: 'Voice',
-        },
-        specificity: {
-            en: 'Are there concrete details, or does it stay too abstract?',
-            es: '¿Hay detalles concretos o se queda demasiado abstracto?',
-            principle: 'Specificity',
-        },
-        thinking: {
-            en: 'Does this deepen the thinking this piece of writing is trying to do?',
-            es: '¿Profundiza el pensamiento que este trabajo escrito intenta desarrollar?',
-            principle: 'Thinking',
-        },
-    };
-
-    const integratedMoveProfiles = {
-        autobiographical: [
-            {
-                id: 'memory-boundary', criticalKey: 'specificity',
-                en: 'Choose a memory and a boundary', es: 'Elige una memoria y un límite',
-                nudgeEn: 'Find a place, relationship, and moment of change—or choose another entry point.',
-                nudgeEs: 'Encuentra un lugar, una relación y un cambio—o elige otro punto de entrada.',
-                whyEn: 'Specificity helps the reader enter the essay. Identity, family, migration, and trauma disclosure are never required.',
-                whyEs: 'La especificidad ayuda al lector. Nunca se exige divulgar identidad, familia, migración ni trauma.',
-                promptEn: 'Possible memory, concrete detail, shift, privacy boundary, or a different entry point…',
-                promptEs: 'Memoria posible, detalle, cambio, límite de privacidad u otro punto de entrada…',
-            },
-            {
-                id: 'larger-force', criticalKey: 'thinking',
-                en: 'Connect memory to a larger force', es: 'Conecta la memoria con una fuerza mayor',
-                nudgeEn: 'Ask what historical, social, cultural, linguistic, economic, or political force meets this moment.',
-                nudgeEs: 'Pregunta qué fuerza histórica, social, cultural, lingüística, económica o política cruza este momento.',
-                whyEn: 'The genre moves from chosen experience toward analysis; the story is not decoration.',
-                whyEs: 'El género avanza de la experiencia elegida al análisis; la historia no es decoración.',
-                promptEn: 'Larger pattern, tension, bridge, question, standpoint, or system to investigate…',
-                promptEs: 'Patrón, tensión, puente, pregunta, perspectiva o sistema por investigar…',
-            },
-            {
-                id: 'research-context', criticalKey: 'accuracy',
-                en: 'Test experience with research and context', es: 'Contrasta la experiencia con investigación y contexto',
-                nudgeEn: 'Identify a source that could confirm, complicate, or challenge what experience suggests.',
-                nudgeEs: 'Identifica una fuente que pueda confirmar, complicar o cuestionar lo que sugiere la experiencia.',
-                whyEn: 'Experiential and community knowledge can guide inquiry; factual claims still need traceable support.',
-                whyEs: 'El conocimiento vivido y comunitario guía la investigación; los hechos aún necesitan apoyo rastreable.',
-                promptEn: 'Community source, scholarly source, historical fact, search term, contradiction, or verification need…',
-                promptEs: 'Fuente comunitaria o académica, hecho histórico, término, contradicción o verificación…',
-            },
-            {
-                id: 'voice-language', criticalKey: 'voice',
-                en: 'Protect language and voice', es: 'Protege el idioma y la voz',
-                nudgeEn: 'Keep code-meshing, dialect, family language, or culturally specific phrasing when it carries meaning.',
-                nudgeEs: 'Conserva la mezcla de códigos, dialecto, lenguaje familiar o frase cultural cuando lleva significado.',
-                whyEn: 'Smoother is not always truer. Revision must not flatten the writer into generic academic English.',
-                whyEs: 'Más pulido no siempre es más verdadero. La revisión no debe aplanar la voz en inglés académico genérico.',
-                promptEn: 'Phrase, rhythm, language choice, translation limit, community meaning, or voice risk to protect…',
-                promptEs: 'Frase, ritmo, idioma, límite de traducción, significado comunitario o riesgo para la voz…',
-            },
-        ],
-        admissions: [
-            {
-                id: 'disclosure', criticalKey: 'cultural',
-                en: 'Choose what you want to reveal', es: 'Elige lo que quieres revelar',
-                nudgeEn: 'Choose a small moment you can tell fully—or choose another.',
-                nudgeEs: 'Elige un momento pequeño que puedas contar por completo—o elige otro.',
-                whyEn: 'A personal essay needs specificity, not trauma or compulsory disclosure.',
-                whyEs: 'Un ensayo personal necesita especificidad, no trauma ni divulgación obligatoria.',
-                promptEn: 'Possible moments, boundaries, or details I choose to keep private…',
-                promptEs: 'Momentos posibles, límites o detalles que decido mantener privados…',
-            },
-            {
-                id: 'language', criticalKey: 'voice',
-                en: 'Protect language and cultural meaning', es: 'Protege el idioma y el significado cultural',
-                nudgeEn: 'Protect a word, rhythm, code-meshed phrase, or community meaning.',
-                nudgeEs: 'Protege una palabra, ritmo, frase mezclada o significado comunitario.',
-                whyEn: 'Clarity should not flatten multilingual voice into generic admissions language.',
-                whyEs: 'La claridad no debe aplanar la voz multilingüe en lenguaje genérico de admisiones.',
-                promptEn: 'Language, phrase, translation choice, or meaning I want to protect…',
-                promptEs: 'Idioma, frase, decisión de traducción o significado que quiero proteger…',
-            },
-            {
-                id: 'connection', criticalKey: 'thinking',
-                en: 'Connect moment to insight', es: 'Conecta el momento con la reflexión',
-                nudgeEn: 'What changed in your understanding, and why does it matter here?',
-                nudgeEs: '¿Qué cambió en tu comprensión y por qué importa aquí?',
-                whyEn: 'The essay becomes more than a scene when your own thinking gives it direction.',
-                whyEs: 'El ensayo se vuelve más que una escena cuando tu propio pensamiento le da dirección.',
-                promptEn: 'The change, tension, audience connection, or larger meaning I may develop…',
-                promptEs: 'El cambio, tensión, conexión con el lector o significado mayor que podría desarrollar…',
-            },
-        ],
-        stem: [
-            {
-                id: 'question', criticalKey: 'accuracy',
-                en: 'Question and prediction', es: 'Pregunta y predicción',
-                nudgeEn: 'State what the investigation can test and what result you predicted.',
-                nudgeEs: 'Declara qué puede comprobar la investigación y qué resultado predijiste.',
-                whyEn: 'A testable question keeps the report aligned with the actual experiment.',
-                whyEs: 'Una pregunta comprobable mantiene el informe alineado con el experimento real.',
-                promptEn: 'Research question, prediction, variables, or course concept to verify…',
-                promptEs: 'Pregunta, predicción, variables o concepto del curso que debo verificar…',
-            },
-            {
-                id: 'observation', criticalKey: 'specificity',
-                en: 'Separate observation from interpretation', es: 'Separa observación de interpretación',
-                nudgeEn: 'Record only what you measured or observed before explaining what it may mean.',
-                nudgeEs: 'Registra solo lo que mediste u observaste antes de explicar qué podría significar.',
-                whyEn: 'Scientific readers need to distinguish data from the writer’s interpretation.',
-                whyEs: 'Los lectores científicos necesitan distinguir los datos de la interpretación.',
-                promptEn: 'Measurements, observations, table notes, outliers, or uncertainties…',
-                promptEs: 'Mediciones, observaciones, notas de tabla, valores atípicos o incertidumbres…',
-            },
-            {
-                id: 'reasoning', criticalKey: 'thinking',
-                en: 'Link evidence to the claim', es: 'Conecta la evidencia con la afirmación',
-                nudgeEn: 'Name which data supports the claim and which course concept explains the link.',
-                nudgeEs: 'Nombra qué datos apoyan la afirmación y qué concepto del curso explica la conexión.',
-                whyEn: 'Reasoning—not confident tone—shows why evidence supports a conclusion.',
-                whyEs: 'El razonamiento—no un tono seguro—muestra por qué la evidencia apoya una conclusión.',
-                promptEn: 'Claim, supporting data, reasoning, limitation, or source of error…',
-                promptEs: 'Afirmación, datos, razonamiento, limitación o fuente de error…',
-            },
-        ],
-        sop: [
-            {
-                id: 'trajectory', criticalKey: 'thinking', en: 'Trace a supported direction', es: 'Traza una dirección respaldada',
-                nudgeEn: 'Connect a concrete experience to the question or problem you want to study.', nudgeEs: 'Conecta una experiencia concreta con la pregunta o problema que quieres estudiar.',
-                whyEn: 'A supported trajectory is stronger than an invented origin story.', whyEs: 'Una trayectoria respaldada es más fuerte que una historia de origen inventada.',
-                promptEn: 'Experience, preparation, question, or forward link…', promptEs: 'Experiencia, preparación, pregunta o conexión futura…',
-            },
-            {
-                id: 'evidence', criticalKey: 'specificity', en: 'Pair claims with evidence', es: 'Une afirmaciones con evidencia',
-                nudgeEn: 'Name the action, result, and learning behind each preparation claim.', nudgeEs: 'Nombra la acción, el resultado y el aprendizaje detrás de cada afirmación.',
-                whyEn: 'Evidence distinguishes demonstrated preparation from résumé summary.', whyEs: 'La evidencia distingue la preparación demostrada del resumen del currículum.',
-                promptEn: 'Claim, concrete action, result, and what it demonstrates…', promptEs: 'Afirmación, acción, resultado y qué demuestra…',
-            },
-            {
-                id: 'fit', criticalKey: 'accuracy', en: 'Verify program fit', es: 'Verifica el encaje con el programa',
-                nudgeEn: 'Use only program details you can trace to an official source.', nudgeEs: 'Usa solo detalles del programa que puedas rastrear a una fuente oficial.',
-                whyEn: 'Confident but invented fit claims damage trust.', whyEs: 'Las afirmaciones seguras pero inventadas dañan la confianza.',
-                promptEn: 'Official source, verified feature, open question, or fact to check…', promptEs: 'Fuente oficial, característica verificada, pregunta o dato por comprobar…',
-            },
-        ],
-        neutral: [
-            {
-                id: 'purpose', criticalKey: 'thinking', en: 'Clarify purpose and audience', es: 'Aclara propósito y audiencia',
-                nudgeEn: 'Name what the reader should understand or do.', nudgeEs: 'Nombra qué debe comprender o hacer el lector.',
-                whyEn: 'Purpose helps you decide what belongs and what does not.', whyEs: 'El propósito ayuda a decidir qué pertenece y qué no.',
-                promptEn: 'Purpose, audience, constraint, or question…', promptEs: 'Propósito, audiencia, restricción o pregunta…',
-            },
-            {
-                id: 'evidence', criticalKey: 'accuracy', en: 'Gather defensible evidence', es: 'Reúne evidencia defendible',
-                nudgeEn: 'List examples, observations, or sources you can verify.', nudgeEs: 'Enumera ejemplos, observaciones o fuentes que puedas verificar.',
-                whyEn: 'Evidence lets readers test the writing’s claims.', whyEs: 'La evidencia permite que los lectores comprueben las afirmaciones.',
-                promptEn: 'Evidence, source, observation, or verification need…', promptEs: 'Evidencia, fuente, observación o necesidad de verificación…',
-            },
-            {
-                id: 'structure', criticalKey: 'specificity', en: 'Sketch a useful sequence', es: 'Bosqueja una secuencia útil',
-                nudgeEn: 'Arrange the claim, evidence, complication, and conclusion.', nudgeEs: 'Ordena la afirmación, evidencia, complicación y conclusión.',
-                whyEn: 'A sequence gives the reader a path without writing the draft for you.', whyEs: 'Una secuencia orienta al lector sin escribir el borrador por ti.',
-                promptEn: 'Possible order, missing section, or transition job…', promptEs: 'Orden posible, sección faltante o función de transición…',
-            },
         ],
     };
 
@@ -644,6 +394,10 @@
     function integratedMoveNudge(move) { return move[state.lang === 'en' ? 'nudgeEn' : 'nudgeEs']; }
     function integratedMoveWhy(move) { return move[state.lang === 'en' ? 'whyEn' : 'whyEs']; }
     function integratedMovePrompt(move) { return move[state.lang === 'en' ? 'promptEn' : 'promptEs']; }
+    function integratedMoveDeeper(move) {
+        const deeper = moveDeeper[state.genre]?.[move.id];
+        return deeper ? (state.lang === 'en' ? deeper.en : deeper.es) : '';
+    }
     function moveNoteKey(move) { return `${state.genre}:${move.id}`; }
     function draftSignature(text = getDraft()) { return `${text.length}:${text.slice(0, 24)}`; }
     function draftInvitationKey() { return `${state.createdAt}:${state.genre}`; }
@@ -691,12 +445,17 @@
             ? 'Could this response remove the history, power, or standpoint that makes the passage meaningful?'
             : '¿Podría esta respuesta borrar la historia, el poder o la perspectiva que da significado al pasaje?';
     }
-    function integratedCriticalKey(kind, lens = '') {
-        if (kind === 'council') return state.genre === 'stem' ? 'accuracy' : 'cultural';
-        if (/evidence|accuracy|method|limit|claim/i.test(lens)) return 'accuracy';
-        if (/voice|voz|personal|purpose/i.test(lens)) return 'voice';
-        if (/structure|specific|precision|clarity|estructura|precisión/i.test(lens)) return 'specificity';
-        return state.genre === 'admissions' || state.genre === 'autobiographical' ? 'voice' : 'thinking';
+    // Data-driven contextual-question selection (replaces the finalist's
+    // display-label regex): council/lens/coach keys come from the profile registry.
+    function integratedCriticalKey(kind, lensIndex = null) {
+        if (kind === 'council') return councilConfig[state.genre]?.criticalKey || 'cultural';
+        const lensKeys = lensCriticalKeys[state.genre];
+        if (Number.isInteger(lensIndex) && lensKeys && lensKeys[lensIndex]) return lensKeys[lensIndex];
+        return coachCriticalKeys[state.genre] || 'thinking';
+    }
+
+    function councilEnabled(genreId = state.genre) {
+        return councilConfig[genreId]?.enabled === true;
     }
 
     function renderBanner() {
@@ -975,7 +734,7 @@
         return `<section class="panel integrated-moves"><div class="panel-header"><div><h2>${escapeHtml(t('moves'))}</h2><p>${escapeHtml(`${genreLabel()} · ${state.lang === 'en' ? 'optional guidance' : 'guía opcional'}`)}</p></div><span class="evidence-count" aria-label="${filled} ${escapeHtml(state.lang === 'en' ? 'notes with content' : 'notas con contenido')}">${filled}</span></div><div class="panel-body move-list">${moves.map((move, index) => {
             const note = state.moveNotes[moveNoteKey(move)];
             const hasNote = Boolean(note && wordCount(note.text));
-            return `<article class="move-card integrated-move"><strong>${escapeHtml(integratedMoveLabel(move))}</strong><span>${escapeHtml(integratedMoveNudge(move))}</span><details><summary>${escapeHtml(state.lang === 'en' ? 'Why this may help' : 'Por qué podría ayudar')}</summary><p>${escapeHtml(integratedMoveWhy(move))}</p></details><button class="text-button" data-action="integrated-move-note" data-move="${index}">${escapeHtml(hasNote ? t('editNote') : t('makeNote'))}${hasNote ? ` · ${wordCount(note.text)} ${escapeHtml(state.lang === 'en' ? 'words' : 'palabras')}` : ''}</button></article>`;
+            return `<article class="move-card integrated-move"><strong>${escapeHtml(integratedMoveLabel(move))}</strong><span>${escapeHtml(integratedMoveNudge(move))}</span><details><summary>${escapeHtml(state.lang === 'en' ? 'Why this may help' : 'Por qué podría ayudar')}</summary><p>${escapeHtml(integratedMoveWhy(move))}</p>${integratedMoveDeeper(move) ? `<p class="move-deeper">${escapeHtml(integratedMoveDeeper(move))}</p>` : ''}</details><button class="text-button" data-action="integrated-move-note" data-move="${index}">${escapeHtml(hasNote ? t('editNote') : t('makeNote'))}${hasNote ? ` · ${wordCount(note.text)} ${escapeHtml(state.lang === 'en' ? 'words' : 'palabras')}` : ''}</button></article>`;
         }).join('')}${renderPlanningNotesReference()}${renderYourVoiceReference()}${renderKnowledgeRevisit()}</div></section>`;
     }
 
@@ -1045,7 +804,7 @@
     }
 
     function renderReviewPanel() {
-        const councilAction = concept === 'integrated' && state.genre === 'stem'
+        const councilAction = concept === 'integrated' && !councilEnabled()
             ? `<div class="support-action unavailable"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(t('councilUnavailable'))}</span></div>`
             : concept === 'integrated' && state.councilRuns.length
                 ? `<button class="support-action" data-action="review-tab" data-tab="council"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(t('revisit'))}</span></button>`
@@ -1567,7 +1326,7 @@
     }
 
     function renderLensChoices() {
-        return `<fieldset class="field"><legend>${escapeHtml(state.lang === 'en' ? 'Review lens' : 'Lente de revisión')}</legend><div class="choice-stack">${genreMoves('review').map((lens, i) => `<label class="radio-card"><input type="radio" name="reviewLens" value="${escapeHtml(lens)}" ${i === 0 ? 'checked' : ''}><span>${escapeHtml(lens)}</span></label>`).join('')}</div></fieldset>`;
+        return `<fieldset class="field"><legend>${escapeHtml(state.lang === 'en' ? 'Review lens' : 'Lente de revisión')}</legend><div class="choice-stack">${genreMoves('review').map((lens, i) => `<label class="radio-card"><input type="radio" name="reviewLens" value="${escapeHtml(lens)}" data-lens-index="${i}" ${i === 0 ? 'checked' : ''}><span>${escapeHtml(lens)}</span></label>`).join('')}</div></fieldset>`;
     }
 
     function openFocusedReviewDialog() {
@@ -1590,7 +1349,9 @@
         const scope = dialogRoot.querySelector('input[name="reviewScope"]:checked')?.value || 'full';
         const text = scopeText(scope);
         if (!text) return;
-        const lens = kind === 'focused' ? dialogRoot.querySelector('input[name="reviewLens"]:checked')?.value : (state.lang !== 'en' ? 'Pregunta del estudiante' : 'Student question');
+        const lensInput = kind === 'focused' ? dialogRoot.querySelector('input[name="reviewLens"]:checked') : null;
+        const lens = lensInput ? lensInput.value : (state.lang !== 'en' ? 'Pregunta del estudiante' : 'Student question');
+        const lensIndex = lensInput ? Number(lensInput.dataset.lensIndex) : null;
         const voiceEntriesIncluded = dialogRoot.querySelector('#includeVoiceEntries')?.checked ? voiceEntries().map(item => ({ id: item.id, text: item.text })) : [];
         const moveIndex = Number(dialogRoot.querySelector('input[name="moveContext"]:checked')?.value);
         const linkedMove = Number.isInteger(moveIndex) ? integratedMoves()[moveIndex] : null;
@@ -1604,7 +1365,7 @@
             const snapshotId = concept === 'notebook' || concept === 'integrated'
                 ? checkpointVersion(kind === 'focused' ? 'before focused review' : 'before coach feedback')
                 : null;
-            const criticalKey = concept === 'integrated' ? integratedCriticalKey(kind, lens) : null;
+            const criticalKey = concept === 'integrated' ? integratedCriticalKey(kind, lensIndex) : null;
             state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: true, purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? 'mock genre-focused reviewer' : 'Tu Pana mock coach', calls: 1, criticalKey, criticalPrompt: criticalKey ? criticalQuestion(criticalKey).en : null, criticalContext: criticalKey ? criticalRiskText(criticalKey) : null, draftSignature: draftSignature(), snapshotId, genre: state.genre, genreLabel: genre.label.en, genreLabelEs: genre.label.es, voiceEntriesIncluded, moveContextIncluded });
             saveState(); closeDialog(true); renderApp(); reviewTab = 'history'; openReviewCenter();
         }, 260);
@@ -1621,7 +1382,7 @@
             announce(t('draftToolsLocked'));
             return;
         }
-        if (concept === 'integrated' && state.genre === 'stem') {
+        if (concept === 'integrated' && !councilEnabled()) {
             openDialog(t('council'), state.lang === 'en' ? 'Explicit profile boundary' : 'Límite explícito del perfil', `<p>${escapeHtml(t('councilUnavailable'))}</p><p>${escapeHtml(state.lang === 'en' ? 'No mock Council calls are represented. Your draft remains unchanged.' : 'No se representa ninguna llamada simulada del Consejo. Tu borrador no cambia.')}</p>`, `<button class="button primary" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
             return;
         }
@@ -1689,7 +1450,7 @@
             return;
         }
         const saved = versionTimestamp(copy);
-        const councilAllowed = state.genre !== 'stem';
+        const councilAllowed = councilEnabled();
         const differs = copy.text !== getDraft();
         openDialog(uiText('Choose a second look', 'Elige una segunda mirada'), uiText(`Review copy saved ${saved}`, `Copia de revisión guardada ${saved}`), `<p>${escapeHtml(uiText('Choose the kind of support that fits today. Every path is optional; your live draft remains editable.', 'Elige el apoyo que te sirva hoy. Cada camino es opcional; tu borrador activo sigue siendo editable.'))}</p>${differs ? `<p class="revision-copy-note">${escapeHtml(uiText('Your live draft has changed since this copy. You may update the review copy deliberately; the earlier exact snapshot remains in local history.', 'Tu borrador activo cambió desde esta copia. Puedes actualizar la copia de revisión deliberadamente; la instantánea exacta anterior permanece en el historial local.'))}</p>` : ''}<div class="choice-stack revision-paths"><button class="radio-card" data-action="revision-self-review"><span><strong>${escapeHtml(uiText('Review it myself', 'Revisarlo yo mismo/a'))}</strong><br><small>${escapeHtml(uiText('Choose one thing to revisit in your own words.', 'Elige una cosa para revisar con tus propias palabras.'))}</small></span></button><button class="radio-card" data-action="revision-existing-feedback"><span><strong>${escapeHtml(uiText('Use feedback I already have', 'Usar comentarios que ya tengo'))}</strong><br><small>${escapeHtml(uiText('Reopen a saved report; this does not make a new request.', 'Reabre un informe guardado; esto no crea una solicitud nueva.'))}</small></span></button><button class="radio-card" data-action="revision-ask-feedback"><span><strong>${escapeHtml(uiText('Ask Tu Pana for feedback', 'Pedir comentarios a Tu Pana'))}</strong><br><small>${escapeHtml(uiText('Shows exact scope and consent before a local mock response.', 'Muestra el alcance exacto y el consentimiento antes de una respuesta simulada local.'))}</small></span></button>${councilAllowed ? `<button class="radio-card" data-action="revision-council"><span><strong>${escapeHtml(uiText('Convene the Council', 'Convocar al Consejo'))}</strong><br><small>${escapeHtml(uiText('Optional, genre-configured, and separately consented.', 'Opcional, configurado por género y con consentimiento aparte.'))}</small></span></button>` : `<div class="radio-card unavailable"><span><strong>${escapeHtml(t('council'))}</strong><br><small>${escapeHtml(t('councilUnavailable'))}</small></span></div>`}</div><p class="revision-copy-note">${escapeHtml(uiText('Saved copy: exact local text only. No quality score, lock, or automatic review.', 'Copia guardada: solo texto local exacto. Sin puntuación de calidad, cierre ni revisión automática.'))}</p>`, `<button class="button ghost" data-action="compare-review-copy">${escapeHtml(uiText('Compare copy and current draft', 'Comparar copia y borrador actual'))}</button>${differs ? `<button class="button secondary" data-action="update-review-copy">${escapeHtml(uiText('Update review copy', 'Actualizar copia de revisión'))}</button>` : ''}<button class="button secondary" data-action="return-write">${escapeHtml(uiText('Not now', 'Ahora no'))}</button>`);
     }
@@ -1962,11 +1723,8 @@
     }
 
     function reflectionPrompts() {
-        const knowledge = concept === 'integrated' && state.genre === 'stem'
-            ? (state.lang !== 'en' ? '¿Qué conocimiento disciplinario, datos u observaciones dieron forma a este trabajo?' : 'What disciplinary knowledge, data, or observations shaped this work?')
-            : concept === 'integrated' && state.genre === 'autobiographical'
-                ? (state.lang !== 'en' ? 'Si decidiste usarlo, ¿qué conocimiento cultural, lingüístico, familiar, comunitario, histórico o vivido dio forma a este trabajo?' : 'If you chose to use it, what cultural, linguistic, family, community, historical, or experiential knowledge shaped this work?')
-            : t('prompt4');
+        const rp4 = concept === 'integrated' ? reflectionPrompt4[state.genre] : null;
+        const knowledge = rp4 ? (state.lang !== 'en' ? rp4.es : rp4.en) : t('prompt4');
         return [
             ['changed', t('prompt1'), false], ['decision', t('prompt2'), false], ['voice', t('prompt3'), false], ['knowledge', knowledge, true],
         ];
@@ -2055,11 +1813,8 @@
             `3. ${copy.en.prompt3}\n${state.reflections.voice}`,
         ];
         if (state.reflections.knowledge) {
-            const knowledgePrompt = concept === 'integrated' && state.genre === 'stem'
-                ? 'What disciplinary knowledge, data, or observations shaped this work?'
-                : concept === 'integrated' && state.genre === 'autobiographical'
-                    ? 'If you chose to use it, what cultural, linguistic, family, community, historical, or experiential knowledge shaped this work?'
-                : copy.en.prompt4;
+            const packetRp4 = concept === 'integrated' ? reflectionPrompt4[state.genre] : null;
+            const knowledgePrompt = packetRp4 ? packetRp4.en : copy.en.prompt4;
             lines.push(`4. ${knowledgePrompt}\n${state.reflections.knowledge}`);
         }
         lines.push('', 'INSTRUCTOR EVIDENCE APPENDIX', ...factualEvidence().map(item => `- ${item}`), '', 'Mock AI only. No AI-authored reasoning or reflective claim is included.');
@@ -2120,6 +1875,8 @@
             admissions: uiText('Name one concrete action before explaining what changed.', 'Nombra una acción concreta antes de explicar qué cambió.'),
             neutral: uiText('Name the reader, purpose, and one piece of evidence.', 'Nombra al lector, el propósito y una evidencia.'),
         };
+        const starter = stuckStarters[state.genre];
+        if (starter) return uiText(starter.en, starter.es);
         return tasks[state.genre] || tasks.neutral;
     }
 
@@ -2195,7 +1952,7 @@
     }
 
     function openSettings() {
-        const integratedSettings = concept === 'integrated' ? `<section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing project' : 'Proyecto de escritura')}</h3><p>${escapeHtml(state.lang === 'en' ? 'This local control supports honest prototype comparison. A production assignment may set the genre through its link.' : 'Este control local permite una comparación honesta del prototipo. Una tarea de producción podría definir el género mediante su enlace.')}</p><label class="field" for="settingsGenre"><span>${escapeHtml(t('genre'))}</span><select id="settingsGenre" class="settings-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${genreOptionsMarkup()}</select></label></section><section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing utilities' : 'Utilidades de escritura')}</h3><label class="check-line"><input type="checkbox" data-action="native-spellcheck" ${spellcheckEnabled() ? 'checked' : ''}> <span>${escapeHtml(state.lang === 'en' ? 'Native spelling suggestions' : 'Sugerencias ortográficas nativas')}</span></label><p>${escapeHtml(state.lang === 'en' ? 'Spelling suggestions come from your browser or device. Tu Pana does not send your writing for this feature.' : 'Las sugerencias ortográficas provienen de tu navegador o dispositivo. Tu Pana no envía tu escritura para esta función.')}</p></section><section class="packet-section settings-section"><h3>${escapeHtml(uiText('Appearance', 'Apariencia'))}</h3><p>${escapeHtml(uiText('Choose a local visual-comfort preference. It does not affect your writing or evidence.', 'Elige una preferencia local de comodidad visual. No afecta tu escritura ni la evidencia.'))}</p><div class="choice-stack appearance-choices">${[['system', uiText('System default', 'Predeterminado del sistema')], ['light', uiText('Paper / Light', 'Papel / Claro')], ['dark', uiText('Dark', 'Oscuro')]].map(([value, label]) => `<button class="radio-card ${state.appearance === value ? 'selected' : ''}" data-action="appearance-choice" data-appearance="${value}" aria-pressed="${state.appearance === value}"><span>${escapeHtml(label)}</span></button>`).join('')}</div></section>` : '';
+        const integratedSettings = concept === 'integrated' ? `<section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing project' : 'Proyecto de escritura')}</h3><p>${escapeHtml(state.lang === 'en' ? 'An assignment link can set this writing project automatically; this control also lets you choose it yourself.' : 'Un enlace de tarea puede definir este proyecto de escritura automáticamente; este control también te deja elegirlo.')}</p>${state.assignmentNotice ? `<p class="assignment-notice">${escapeHtml(state.lang === 'en' ? state.assignmentNotice.en : state.assignmentNotice.es)}</p>` : ''}<label class="field" for="settingsGenre"><span>${escapeHtml(t('genre'))}</span><select id="settingsGenre" class="settings-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${genreOptionsMarkup()}</select></label></section><section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing utilities' : 'Utilidades de escritura')}</h3><label class="check-line"><input type="checkbox" data-action="native-spellcheck" ${spellcheckEnabled() ? 'checked' : ''}> <span>${escapeHtml(state.lang === 'en' ? 'Native spelling suggestions' : 'Sugerencias ortográficas nativas')}</span></label><p>${escapeHtml(state.lang === 'en' ? 'Spelling suggestions come from your browser or device. Tu Pana does not send your writing for this feature.' : 'Las sugerencias ortográficas provienen de tu navegador o dispositivo. Tu Pana no envía tu escritura para esta función.')}</p></section><section class="packet-section settings-section"><h3>${escapeHtml(uiText('Appearance', 'Apariencia'))}</h3><p>${escapeHtml(uiText('Choose a local visual-comfort preference. It does not affect your writing or evidence.', 'Elige una preferencia local de comodidad visual. No afecta tu escritura ni la evidencia.'))}</p><div class="choice-stack appearance-choices">${[['system', uiText('System default', 'Predeterminado del sistema')], ['light', uiText('Paper / Light', 'Papel / Claro')], ['dark', uiText('Dark', 'Oscuro')]].map(([value, label]) => `<button class="radio-card ${state.appearance === value ? 'selected' : ''}" data-action="appearance-choice" data-appearance="${value}" aria-pressed="${state.appearance === value}"><span>${escapeHtml(label)}</span></button>`).join('')}</div></section>` : '';
         openDialog(t('settingsTitle'), conceptMeta[concept].name, `<p>${escapeHtml(t('storageNote'))}</p>${integratedSettings}<section class="packet-section"><h3>${escapeHtml(t('focusDecision'))}</h3><p>${escapeHtml(focusDecisionText())}</p></section><section class="danger-zone"><h3>${escapeHtml(t('danger'))}</h3><p>${escapeHtml(t('deleteExplain'))}</p><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button><div class="field" style="margin-top:15px"><label for="deleteConfirm">${escapeHtml(t('typeDelete'))}</label><input class="delete-confirm" id="deleteConfirm" type="text" autocomplete="off"></div><button class="button danger" data-action="delete-state" disabled>${escapeHtml(t('deleteNow'))}</button></section>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
     }
 
@@ -2386,5 +2143,28 @@
     window.addEventListener('resize', updateVisualViewport);
     window.addEventListener('beforeunload', () => saveState());
 
+    // Assignment resolution: legacy and current links map to explicit profiles
+    // (studio-profiles.js aliases). Unknown ids stop loudly in renderWorkspace and
+    // inherit neither the autobiographical nor the General Writing profile.
+    (function resolveAssignmentFromLink() {
+        const raw = new URLSearchParams(location.search).get('assignment');
+        if (!raw) return;
+        const resolved = resolveAssignment(raw);
+        if (resolved) {
+            if (state.genre !== resolved.profileId) {
+                storeActiveGenreState();
+                state.genre = resolved.profileId;
+                loadActiveGenreState(resolved.profileId);
+                captured = null;
+            }
+            state.assignmentId = raw.trim();
+            state.assignmentNotice = resolved.notice || null;
+        } else {
+            state.genre = raw.trim();
+            state.assignmentId = raw.trim();
+            state.assignmentNotice = null;
+        }
+        saveState();
+    }());
     renderApp();
 })();

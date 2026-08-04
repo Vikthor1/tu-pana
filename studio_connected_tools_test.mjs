@@ -59,6 +59,10 @@ const fullPageWords = await page.evaluate(() => {
         if (!parent || !node.textContent.trim()) continue;
         const style = getComputedStyle(parent);
         if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) continue;
+        // Progressive disclosure stays undisclosed: content inside a closed
+        // <details> is not visible surface and does not count toward density.
+        const closedDetails = parent.closest('details:not([open])');
+        if (closedDetails && !parent.closest('summary')) continue;
         const range = document.createRange();
         range.selectNodeContents(node);
         const rect = range.getBoundingClientRect();

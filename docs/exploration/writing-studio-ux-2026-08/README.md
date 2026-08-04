@@ -110,6 +110,14 @@ Draft. On a phone, use the accessible Before / Current switch rather than a comp
 The short revision note is optional; it contributes only factual evidence to Process Reflection.
 **Keep revising** and **Finish for now** are equally valid exits.
 
+For the bounded Connected Writing Tools pass, select a synthetic passage and choose **Use a Move**
+from the existing Passage Tray. Save a student-authored note, revise around the passage, and reopen
+the note from Planning Notes or **Evidence so far → Browse evidence**. Ask Tu Pana about the same
+selection first through general passage help, then by explicitly opting into the linked Move note;
+the exact note and quotation must be visible before consent. Reopen saved reports from Evidence and
+confirm that no mock call is repeated. Dismiss the one-time Review Center and Finish invitations and
+verify that their natural homes remain available without pressure.
+
 ### Founder revision-cycle test
 
 With a short synthetic first draft, ask a founder or student to open Review Center and save a review
@@ -121,6 +129,14 @@ the real work, and preservation of a multilingual or meaningful phrase feels sup
 treated as an exception. Record burden, pressure to use AI, and any confusion between review copy,
 Finish, and submission; do not treat automated reachability as comprehension evidence.
 
+### Founder connected-tools test
+
+Use the five-step script in [Connected Writing Tools hardening](connected-writing-tools.md). The
+governing question is whether a first-time student experiences timely connections among their own
+passage, note, Voice entry, feedback, evidence, and reflection—or experiences a monitoring system.
+Repeat the Passage Tray portion on a physical iPhone; emulation cannot close selection, keyboard,
+safe-area, or VoiceOver evidence.
+
 ## Evidence and results
 
 - [Comparative evaluation](comparative-evaluation.md)
@@ -131,6 +147,7 @@ Finish, and submission; do not treat automated reachability as comprehension evi
 - [Culturally responsive genre comparison](culturally-responsive-genre-comparison.md)
 - [Product-restraint review](product-restraint-review.md)
 - [Integrated finalist falsification questions](integrated-finalist-falsification.md)
+- [Connected Writing Tools hardening](connected-writing-tools.md)
 
 Automated local verification commands:
 
@@ -139,6 +156,7 @@ node prototype_exploration_test.mjs
 node prototype_integrated_corrections_test.mjs
 node prototype_integrated_agency_test.mjs
 node prototype_integrated_revision_cycle_test.mjs
+node prototype_integrated_connected_tools_test.mjs
 ```
 
 ## Founder evidence governing the finalist

@@ -572,3 +572,54 @@ separately governed production implementation authorization remain outside this 
 - **Boundary status:** local mock/synthetic exploration only; no push, deploy, merge, promotion,
   migration, production/R0/VC-OS/family-preview/Worker/live-Gemini change, SaaS work, or prototype
   selection.
+
+---
+
+## 2026-08-04 — Integrated Desk Connected Writing Tools checkpoint
+
+- **Exact base:** clean bounded Revision Cycle checkpoint
+  `dc52940ff73aca0aed03f6e791f5eabc13f9e193`. Existing Student Agency utilities, correction
+  contracts, Revision Cycle, all five concepts, isolated storage keys, and R0 contracts were
+  present before modification. This pass connects existing tools; it adds no concept, destination,
+  workspace, architecture decision, or production behavior.
+- **Passage-linked Moves:** deliberate selection in the existing app-owned Passage Tray exposes
+  only current-genre Move actions. A record exists only after the student writes and saves a note.
+  It stores exact selected quotation, paragraph, nearby before/after context, capture time, Draft
+  signature, genre, and student provenance. Recovery reports exact/current, nearby-context, or
+  saved-only truth and never trusts offsets or changes the Draft.
+- **Optional mock-AI context:** Ask Tu Pana retains its unframed general passage path. When an exact
+  linked Move exists, optional framing is collapsed and unselected; the exact student note and
+  quotation are visible before the existing scope consent. Saved review provenance records whether
+  the context was chosen. No note, prompt, scope, call, or Council run is automatic.
+- **Student-owned archive:** Evidence so far retains factual counts and adds one progressively
+  disclosed filtered reference for current Move notes, Your Voice, decision provenance, the exact
+  review copy/comparison, and saved review/Council records. Entries are dated and reopen their
+  existing artifacts. The surface explicitly rejects completion, quality, readiness, streak, and
+  compliance inference.
+- **Timely invitations:** review-copy choice now has **Not now**. A substantive Move note can reveal
+  one nonmodal invitation only after the student later opens Review Center. Meaningful,
+  genre-relevant student evidence can reveal one nonmodal Process Reflection invitation only after
+  the student enters Finish. Both offer **Not now** and per-Draft suppression, write nothing, use no
+  word-count/time readiness signal, and leave their natural homes available.
+- **Revision-cycle closure preserved:** one live canonical Draft, exact review copy, optional
+  self/instructor/mock-AI/Council support, one student-chosen revision, humane comparison, optional
+  brief note, Keep revising, and Finish for now remain unchanged. Council revisit never reruns;
+  exact Voice and multilingual text remain student controlled.
+- **Restraint evidence:** fresh English 1440 × 960 Integrated Desk remains **185 visible words**;
+  plain Desk remains **168** in the comparative harness. Mandatory actions before typing: 0.
+  Blocking entry interruptions: 0. Primary destinations: 3. No empty support panel, permanent
+  toolbar/feed, inline selection toolbar, dashboard, score, generic banner, automatic review,
+  or composition-time prompt was added.
+- **Verification:** Connected Tools **29/29 PASS**; Revision Cycle **22/22**; Student Agency
+  **27/27**; corrections **48/48**; five-concept comparison **238/238**. Unchanged reruns: R0 safety
+  **29/29**, passage coaching **26/26**, storage isolation **13/13**, Voice Vault **28/28**, genre
+  leakage **30/30**. JavaScript syntax and diff whitespace checks pass. Local browser checks cover
+  390 × 844 targets/overflow, keyboard/Escape, accessible names, no external request, exact bytes,
+  provenance, R0 sentinel, and existing reduced-motion/200% reflow coverage.
+- **Open lived evidence:** founder/student comprehension and perceived pressure; whether Evidence
+  feels like a personal archive rather than monitoring; passage-link language after substantial
+  edits; physical-iPhone native selection, keyboard, safe area, and tray density; VoiceOver and
+  physical assistive technology; multilingual/culturally situated writer experience; live Gemini
+  usefulness/failure/stereotyping behavior; and production migration/synchronization remain open.
+- **Boundary status:** no push, deploy, merge, promotion, migration, architecture selection,
+  product-main/R0/VC-OS/family-preview/Worker/live-Gemini change, SaaS work, or production action.

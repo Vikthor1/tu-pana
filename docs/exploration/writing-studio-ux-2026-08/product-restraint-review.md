@@ -37,6 +37,8 @@ than showing those choices as failed readiness checks.
 | **I’m stuck · Need one small next step?** in Review Center | A student who cannot begin or interpret feedback needs a non-AI, non-chat route to one reversible next action | The only new ordinary visible wording (+10 words); no panel opens by default, no required step, and its five choices reuse existing Move, Focus, report-history, and save concepts |
 | Appearance icon and Help icon in the header | Visual comfort and a local safety valve should be reachable without shortcut knowledge | Icons are 44px, labelled, and contain no visible curriculum or CTA copy; detailed choices live in Settings/Help |
 | Review-copy entry inside Review Center and Finish | A first draft needs a calm, non-final point for re-seeing and choosing feedback/self-review | Hidden from fresh Draft state; one exact local copy, not a timeline; self/peer/AI/Council are sibling options; comparison and brief note stay dialog-level |
+| **Use a Move** in the active Passage Tray | A deliberate selection is the clearest moment to connect genre pedagogy to exact student text | Appears only while a passage is captured; opens one optional note; blank clicks save no evidence; no inline toolbar or automatic AI framing |
+| **Browse evidence** in Evidence so far | Students need to recover their own notes, protected wording, choices, copies, and reports without reconstructing the path | One existing panel action; filtered dialog, not a feed/dashboard; no quality, readiness, streak, or compliance inference |
 
 ## Capability deliberately kept quiet
 
@@ -59,6 +61,10 @@ than showing those choices as failed readiness checks.
   rerun, score, or completion gate. It appears only when the student opens Review Center or Finish,
   offers **Keep revising** and **Finish for now**, and leaves the existing live Draft as the sole
   writing home.
+- Passage-linked Moves reuse the app-owned Passage Tray and store exact quotation plus surrounding
+  recovery context. Ask Tu Pana keeps its general path, and linked Move framing remains collapsed,
+  unselected, exactly disclosed, and separately consented. Evidence browsing and invitations stay
+  behind Evidence, Review Center, and Finish; none appears while composing.
 - Neutral, STEM, SOP, and admissions receive only configured genre guidance. General Writing is
   neutral; unknown assignments stop for selection.
 

@@ -214,6 +214,42 @@ Viewport checks are implementation evidence, not physical-iPhone validation.
 
 No claim of physical-iPhone passage validation is made.
 
+## Connected Writing Tools hardening
+
+Exact base: `dc52940ff73aca0aed03f6e791f5eabc13f9e193`.
+
+| Verification | Result |
+|---|---:|
+| Connected Writing Tools focused browser suite | 29/29 PASS |
+| Revision Cycle regression | 22/22 PASS |
+| Student Agency regression | 27/27 PASS |
+| Integrated correction regression | 48/48 PASS |
+| Complete five-concept comparative journey | 238/238 PASS |
+| R0 safety selection | 29/29 PASS |
+| Passage-coaching selection | 26/26 PASS |
+| Storage-isolation selection | 13/13 PASS |
+| Voice Vault selection | 28/28 PASS |
+| Genre-leakage selection | 30/30 PASS |
+| JavaScript syntax / diff whitespace | PASS |
+
+Focused assertions cover student-authored/genre-correct Move notes, blank-click non-evidence,
+exact quotation plus surrounding-context recovery after edits, optional Move framing with a retained
+general path, exact preview/consent/provenance, filtered student-owned Evidence re-entry, no silent
+mock or Council rerun, dismissible nonmodal invitations, exact multilingual/Your Voice persistence,
+R0 sentinel isolation, and no external requests.
+
+At 390 × 844, the Passage Tray's Move action and evidence filters remain 44px or larger, keyboard
+reachable, Escape-safe, and free of page-level horizontal overflow. The complete comparison retains
+accessible names, reduced-motion behavior, and its available 200% local reflow check. This is
+browser automation, not physical-iPhone, safe-area, native-selection, VoiceOver, or lived
+comprehension evidence.
+
+The established 1440 × 960 harness remains plain Desk **168** visible words and fresh Integrated
+Desk **185**. Connected behavior adds zero first-viewport words, zero mandatory pre-writing actions,
+zero blocking entry interruptions, and zero primary destinations. The archive, optional Move
+framing, and invitations are revealed only inside the existing Passage Tray, Evidence, Review
+Center, and Finish contexts.
+
 ## Accessibility and responsive limits
 
 Completed: keyboard activation of passage coaching; modal focus trap implementation; Escape

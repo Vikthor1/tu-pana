@@ -35,6 +35,10 @@ check('native spellcheck is on by default for the canonical Draft', await page.l
 await page.locator('[data-action="council"]').click();
 await page.locator('#transmitConsent').check();
 await page.locator('[data-action="run-council"]').click();
+// Studio adaptation: the productionized Council routes through the provider seam,
+// so its four represented calls are genuinely asynchronous. Await the recorded run
+// (the finalist's Council was synchronous; the record contract is unchanged).
+await page.waitForFunction(key => (JSON.parse(localStorage.getItem(key) || '{}').councilRuns || []).length === 1, KEY);
 const afterCouncil = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), KEY);
 check('one Council run stores exact genre and snapshot provenance', afterCouncil.councilRuns.length === 1 && afterCouncil.councilRuns[0].genre === 'autobiographical' && Boolean(afterCouncil.councilRuns[0].snapshotId));
 check('Council snapshot stores exact canonical text and facts', afterCouncil.versions.some(version => version.id === afterCouncil.councilRuns[0].snapshotId && version.text === draftA && version.words > 0 && version.signature && version.reason === 'before Council review'));

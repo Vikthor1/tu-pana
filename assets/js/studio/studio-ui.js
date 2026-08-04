@@ -1357,18 +1357,67 @@
         const linkedMove = Number.isInteger(moveIndex) ? integratedMoves()[moveIndex] : null;
         const linkedMoveNote = linkedMove ? state.moveNotes[moveNoteKey(linkedMove)] : null;
         const moveContextIncluded = linkedMove && linkedMoveNote ? { moveId: linkedMove.id, moveLabel: integratedMoveLabel(linkedMove), noteText: linkedMoveNote.text, quote: linkedMoveNote.passageLink?.quote || '', studentAuthored: true } : null;
+        const restoreLabel = button.textContent;
         button.disabled = true;
         button.textContent = state.lang !== 'en' ? 'Leyendo localmente…' : 'Reading locally…';
-        window.setTimeout(() => {
-            const genre = currentGenre();
-            const suggestion = mockSuggestion(kind, lens, text);
+        const genre = currentGenre();
+        const providerLang = state.lang === 'en' ? 'en' : 'es';
+        const requestKind = kind === 'focused' && scope === 'full' ? 'full_draft_review' : 'passage_analysis';
+        const prompt = kind === 'focused'
+            ? StudioProvider.buildFullDraftPrompt({ genreName: genre.label.en, lang: providerLang, lensLabel: lens, lensInstruction: lens, purpose: 'genre-focused review', words: wordCount(text), text, voiceEntries: voiceEntriesIncluded })
+            : StudioProvider.buildPassagePrompt({ genreName: genre.label.en, lang: providerLang, scopeLabel: scope, text, question: lens, moveContext: moveContextIncluded, voiceEntries: voiceEntriesIncluded });
+        const provider = StudioProvider.active();
+        provider.call({ requestKind, prompt, payload: { genreName: genre.label.en }, lang: providerLang }).then(result => {
+            recordProviderUsage(requestKind, result.usage);
+            const suggestion = result.text;
             const snapshotId = concept === 'notebook' || concept === 'integrated'
                 ? checkpointVersion(kind === 'focused' ? 'before focused review' : 'before coach feedback')
                 : null;
             const criticalKey = concept === 'integrated' ? integratedCriticalKey(kind, lensIndex) : null;
-            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: true, purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? 'mock genre-focused reviewer' : 'Tu Pana mock coach', calls: 1, criticalKey, criticalPrompt: criticalKey ? criticalQuestion(criticalKey).en : null, criticalContext: criticalKey ? criticalRiskText(criticalKey) : null, draftSignature: draftSignature(), snapshotId, genre: state.genre, genreLabel: genre.label.en, genreLabelEs: genre.label.es, voiceEntriesIncluded, moveContextIncluded });
+            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: !provider.live, provider: provider.name, requestKind, truncated: Boolean(result.truncated), purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? 'mock genre-focused reviewer' : 'Tu Pana mock coach', calls: 1, criticalKey, criticalPrompt: criticalKey ? criticalQuestion(criticalKey).en : null, criticalContext: criticalKey ? criticalRiskText(criticalKey) : null, draftSignature: draftSignature(), snapshotId, genre: state.genre, genreLabel: genre.label.en, genreLabelEs: genre.label.es, voiceEntriesIncluded, moveContextIncluded });
             saveState(); closeDialog(true); renderApp(); reviewTab = 'history'; openReviewCenter();
-        }, 260);
+        }).catch(failure => {
+            recordProviderEvent(requestKind, failure);
+            button.disabled = false;
+            button.textContent = restoreLabel;
+            renderProviderFailure(failure);
+        });
+    }
+
+    // Truthful provider-failure surface inside the open dialog: the request made
+    // no change, saved nothing, and the non-AI path remains available.
+    function renderProviderFailure(failure) {
+        const dialog = dialogRoot.querySelector('.dialog');
+        if (!dialog) { announce(failure.message); return; }
+        dialog.querySelector('.provider-error')?.remove();
+        const notice = document.createElement('div');
+        notice.className = 'provider-error';
+        notice.setAttribute('role', 'alert');
+        const boundary = state.lang !== 'en'
+            ? 'Tu borrador no cambió y nada se guardó de esta solicitud. Puedes seguir escribiendo sin IA.'
+            : 'Your draft is unchanged and nothing from this request was saved. You can keep writing without AI.';
+        notice.innerHTML = `<strong>${escapeHtml(failure.message || '')}</strong><br>${escapeHtml(boundary)}`;
+        dialog.querySelector('.dialog-body, .dialog-content')?.appendChild(notice) || dialog.appendChild(notice);
+    }
+
+    // Metadata-only usage accounting (counts, never text), mirroring the legacy
+    // tupana_ai_usage contract inside the studio record.
+    function recordProviderUsage(requestKind, usage) {
+        state.usage ||= { requests: 0, byKind: {} };
+        state.usage.requests += 1;
+        state.usage.byKind[requestKind] = (state.usage.byKind[requestKind] || 0) + 1;
+        if (usage && typeof usage === 'object') {
+            for (const field of ['inputTokens', 'outputTokens', 'thoughtTokens']) {
+                if (Number.isFinite(usage[field])) state.usage[field] = (state.usage[field] || 0) + usage[field];
+            }
+        }
+    }
+
+    function recordProviderEvent(requestKind, failure) {
+        state.providerEvents ||= [];
+        state.providerEvents = state.providerEvents.slice(-9);
+        state.providerEvents.push({ requestKind, category: failure?.category || 'unknown', at: new Date().toISOString() });
+        saveState();
     }
 
     function mockSuggestion(kind, lens, text) {
@@ -1395,23 +1444,50 @@
     }
 
     function runCouncil(button) {
+        const restoreLabel = button.textContent;
         button.disabled = true;
-        const snapshotId = concept === 'notebook' || concept === 'integrated' ? checkpointVersion('before Council review') : null;
+        button.textContent = state.lang !== 'en' ? 'Convocando localmente…' : 'Convening locally…';
         const roles = genreMoves('council');
         const genre = currentGenre();
-        const run = {
-            id: `council-${Date.now()}`, createdAt: new Date().toISOString(), genre: state.genre,
-            genreLabel: genre.label.en, genreLabelEs: genre.label.es, roles: [...roles], payloadScope: 'full', snapshotId,
-            words: wordCount(getDraft()), signature: `${getDraft().length}:${getDraft().slice(0, 24)}`,
-            findings: roles.map((role, index) => ({ role, suggestion: councilSuggestion(index) })), mock: true,
-            calls: concept === 'integrated' ? 4 : undefined,
-            criticalKey: concept === 'integrated' ? integratedCriticalKey('council') : null,
-            criticalPrompt: concept === 'integrated' ? criticalQuestion(integratedCriticalKey('council')).en : null,
-            criticalContext: concept === 'integrated' ? criticalRiskText(integratedCriticalKey('council')) : null,
-            draftSignature: `${getDraft().length}:${getDraft().slice(0, 24)}`,
-        };
-        state.councilRuns.push(run);
-        saveState(); closeDialog(true); renderApp(); reviewTab = 'council'; openReviewCenter();
+        const providerLang = state.lang === 'en' ? 'en' : 'es';
+        const provider = StudioProvider.active();
+        const config = councilConfig[state.genre] || {};
+        const draftText = getDraft();
+        // Three represented reviewer calls plus one synthesis call; the record is
+        // written only if every represented call completes. On any failure the
+        // draft is unchanged and nothing is saved.
+        const reviewerCalls = roles.map((role, index) => provider.call({
+            requestKind: 'council_reviewer',
+            prompt: StudioProvider.buildCouncilReviewerPrompt({ genreName: genre.label.en, lang: providerLang, roleLabel: role, roleMandate: role, prohibitions: config.prohibitions || [], text: draftText }),
+            payload: { genreName: genre.label.en, roleSuggestion: councilSuggestion(index) },
+            lang: providerLang,
+        }).then(result => { recordProviderUsage('council_reviewer', result.usage); return { role, suggestion: result.text }; }));
+        Promise.all(reviewerCalls).then(findings => provider.call({
+            requestKind: 'council_synthesis',
+            prompt: StudioProvider.buildCouncilSynthesisPrompt({ genreName: genre.label.en, lang: providerLang, synthesisOrder: config.synthesisOrder || [], findingsJson: JSON.stringify(findings.map(({ role, suggestion }) => ({ role, suggestion }))) }),
+            payload: { genreName: genre.label.en, synthesisText: '' },
+            lang: providerLang,
+        }).then(result => { recordProviderUsage('council_synthesis', result.usage); return findings; })).then(findings => {
+            const snapshotId = concept === 'notebook' || concept === 'integrated' ? checkpointVersion('before Council review') : null;
+            const run = {
+                id: `council-${Date.now()}`, createdAt: new Date().toISOString(), genre: state.genre,
+                genreLabel: genre.label.en, genreLabelEs: genre.label.es, roles: [...roles], payloadScope: 'full', snapshotId,
+                words: wordCount(draftText), signature: `${draftText.length}:${draftText.slice(0, 24)}`,
+                findings, mock: !provider.live, provider: provider.name,
+                calls: concept === 'integrated' ? 4 : undefined,
+                criticalKey: concept === 'integrated' ? integratedCriticalKey('council') : null,
+                criticalPrompt: concept === 'integrated' ? criticalQuestion(integratedCriticalKey('council')).en : null,
+                criticalContext: concept === 'integrated' ? criticalRiskText(integratedCriticalKey('council')) : null,
+                draftSignature: `${draftText.length}:${draftText.slice(0, 24)}`,
+            };
+            state.councilRuns.push(run);
+            saveState(); closeDialog(true); renderApp(); reviewTab = 'council'; openReviewCenter();
+        }).catch(failure => {
+            recordProviderEvent('council_reviewer', failure);
+            button.disabled = false;
+            button.textContent = restoreLabel;
+            renderProviderFailure(failure);
+        });
     }
 
     function councilSuggestion(index) {

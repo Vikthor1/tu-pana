@@ -521,3 +521,15 @@ body.focus-mode .draft-editor { min-height: calc(100dvh - 96px); }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+/* Provider failure surface — calm, truthful, inside the open dialog. */
+.provider-error {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--warn-border, #b4552f);
+    border-radius: 10px;
+    background: var(--warn-bg, rgba(180, 85, 47, 0.08));
+    overflow-wrap: anywhere;
+}
+.move-deeper { margin-top: 8px; }
+.assignment-notice { font-style: italic; }

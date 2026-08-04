@@ -95,6 +95,25 @@
 !prototype_integrated_corrections_test.mjs
 !prototype_integrated_agency_test.mjs
 !prototype_integrated_revision_cycle_test.mjs
+!prototype_integrated_connected_tools_test.mjs
+# ── Allow Writing Studio migration candidate + its suites ──
+!studio.html
+!assets/js/studio/
+!assets/js/studio/*.js
+!assets/css/studio.css
+!studio_corrections_test.mjs
+!studio_agency_test.mjs
+!studio_revision_cycle_test.mjs
+!studio_connected_tools_test.mjs
+!studio_core_test.mjs
+!studio_profiles_test.mjs
+!studio_journey_test.mjs
+!studio_coach_test.mjs
+!studio_council_test.mjs
+!studio_revision_test.mjs
+!studio_closure_test.mjs
+!studio_access_test.mjs
+!studio_import_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

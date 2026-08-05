@@ -42,7 +42,11 @@ await page.waitForFunction(key => (JSON.parse(localStorage.getItem(key) || '{}')
 const afterCouncil = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), KEY);
 check('one Council run stores exact genre and snapshot provenance', afterCouncil.councilRuns.length === 1 && afterCouncil.councilRuns[0].genre === 'autobiographical' && Boolean(afterCouncil.councilRuns[0].snapshotId));
 check('Council snapshot stores exact canonical text and facts', afterCouncil.versions.some(version => version.id === afterCouncil.councilRuns[0].snapshotId && version.text === draftA && version.words > 0 && version.signature && version.reason === 'before Council review'));
-check('rail refreshes saved-report and decision counts immediately', /1 saved reports/.test(await page.locator('.integrated-support').textContent()) && /Revisit report/.test(await page.locator('.integrated-support').textContent()) && await page.locator('.integrated-support section.panel:has([data-action="coach"]) .evidence-count').textContent() === '0');
+const reviewRailAfterCouncil = page.locator('.integrated-support section.panel:has([data-action="coach"])');
+const railAfterCouncil = await reviewRailAfterCouncil.textContent();
+const reportCountAfterCouncil = await reviewRailAfterCouncil.locator('.panel-header p').textContent();
+const zeroDecisionBadges = await reviewRailAfterCouncil.locator('.evidence-count').count();
+check('rail refreshes the saved-report count immediately while hiding a zero decision badge', reportCountAfterCouncil === '1 saved report' && /Revisit report/.test(railAfterCouncil) && zeroDecisionBadges === 0, `${reportCountAfterCouncil} · badges=${zeroDecisionBadges}`);
 await page.locator('[data-action="close-dialog"]').first().click();
 await page.locator('.integrated-support [data-action="review-tab"][data-tab="council"]').click();
 check('Revisit report opens saved Council history without consent', await page.locator('.dialog #transmitConsent').count() === 0 && await page.locator('.dialog .review-card').count() === 1);
@@ -56,7 +60,7 @@ const draftB = `${draftA}\n\nSnapshot B adds disciplinary context but leaves the
 await page.locator('#draftEditor').fill(draftB);
 await page.waitForTimeout(240);
 await page.locator('[data-action="version-history"]').click();
-check('draft history stays behind Evidence and names exact records snapshots', /Draft snapshot/.test(await page.locator('.dialog').textContent()) && /Read-only local prototype history/.test(await page.locator('.dialog').textContent()));
+check('draft history stays behind Evidence and names exact records snapshots', /Draft snapshot/.test(await page.locator('.dialog').textContent()) && /Read-only local draft history/.test(await page.locator('.dialog').textContent()) && !/prototype/i.test(await page.locator('.dialog').textContent()));
 await page.locator('.dialog [data-action="view-snapshot"]').first().click();
 check('read-only viewer exposes exact prior wording A', await page.locator('#snapshotText').textContent() === draftA && await page.locator('[data-action="copy-snapshot"]').isVisible());
 check('viewing snapshot A leaves active draft B unchanged', await page.evaluate(key => JSON.parse(localStorage.getItem(key)).draft, KEY) === draftB);

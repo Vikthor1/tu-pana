@@ -68,17 +68,17 @@ await ordinaryJourney('research-paper', 'My sources disagree about how much comm
 
 console.log('\nGenre-true Moves with deeper legacy guidance');
 await fresh('mixed-genre-autobiographical-essay');
-await page.locator('.integrated-move details summary').first().click();
+await page.locator('.integrated-move details:not(.move-example) > summary').first().click();
 let deeper = await page.locator('.integrated-move .move-deeper').first().textContent();
 check('autobiographical Move discloses deeper legacy guidance (three-element memory)', /specific place, a specific person or relationship/.test(deeper));
 check('deeper guidance never uses compulsory framing', !/you must|debes\b/i.test(deeper));
 await fresh('graduate-sop');
 const sopCards = page.locator('.integrated-move');
-await sopCards.nth(1).locator('details summary').click();
+await sopCards.nth(1).locator('details:not(.move-example) > summary').click();
 deeper = await sopCards.nth(1).locator('.move-deeper').textContent();
 check('SOP evidence Move carries the CLAIM→EVIDENCE→REFLECTION→FORWARD LINK map with honesty tags', /CLAIM → CONCRETE EVIDENCE → REFLECTION → FORWARD LINK/.test(deeper) && /\[VERIFIED\]/.test(deeper));
 await fresh('college-personal-statement');
-await page.locator('.integrated-move details summary').first().click();
+await page.locator('.integrated-move details:not(.move-example) > summary').first().click();
 deeper = await page.locator('.integrated-move .move-deeper').first().textContent();
 check('admissions disclosure Move keeps the bounded no-trauma-demand inventory', /stop after three/.test(deeper) && /trauma/.test(deeper));
 

@@ -1,5 +1,5 @@
 // Writing Studio — branding and header polish verification.
-// Authentic brand asset, single identity, truthful save status, compact/full
+// Authentic brand asset, single identity, save truth in the work context, compact/full
 // genre labels, dev-language audit, bilingual + appearance + responsive checks.
 // Requires this worktree at http://127.0.0.1:3001.
 import { chromium } from 'playwright';
@@ -41,21 +41,22 @@ check('exactly one rendered product title', await page.evaluate(() => (document.
 check('no redundant Writing Studio subtitle remains', await page.locator('.brand-copy small').count() === 0);
 check('genre selector sits inside the identity block', await page.locator('.brand-copy .genre-select-wrap').count() === 1);
 
-console.log('\n5–6. Truthful polished save status (mark + text, never color alone)');
-check('fresh state reads Saved on this device with a visible mark', await page.locator('.save-state [data-save-state]').textContent() === 'Saved on this device' && await page.locator('.save-state [data-save-state-mark]').textContent() === '✓');
+console.log('\n5–6. Truthful save status stays in the work context, not the brand banner');
+check('brand banner contains no redundant save status or placeholder', await page.locator('.prototype-header .save-state, .prototype-header [data-save-state], .prototype-header [data-save-state-mark]').count() === 0);
+check('fresh editor context carries the save status as an accessible live region', await page.locator('.editor-meta [data-save-state]').textContent() === 'Autosaved locally' && await page.locator('.editor-meta [data-save-state]').getAttribute('role') === 'status' && await page.locator('.editor-meta [data-save-state]').getAttribute('aria-live') === 'polite');
 const savingText = await page.evaluate(() => {
     const editor = document.querySelector('#draftEditor');
     editor.value = 'typing…';
     editor.dispatchEvent(new Event('input', { bubbles: true }));
-    return document.querySelector('.save-state [data-save-state]').textContent;
+    return document.querySelector('.editor-meta [data-save-state]').textContent;
 });
-check('typing shows Saving… before settling', savingText === 'Saving…');
+check('typing shows Saving… in the editor before settling', savingText === 'Saving…');
 await page.waitForTimeout(400);
-check('settles back to Saved on this device', await page.locator('.save-state [data-save-state]').textContent() === 'Saved on this device');
+check('editor settles back to Saved on this device', await page.locator('.editor-meta [data-save-state]').textContent() === 'Saved on this device');
 await page.evaluate(() => { const original = Storage.prototype.setItem; window.__restore = () => { Storage.prototype.setItem = original; }; Storage.prototype.setItem = function () { throw new Error('quota'); }; });
 await page.locator('#draftEditor').fill('fail this save');
 await page.waitForTimeout(400);
-check('failure reads Couldn’t save with a distinct mark', (await page.locator('.save-state [data-save-state]').textContent()).includes('Couldn’t save') && await page.locator('.save-state [data-save-state-mark]').textContent() === '!');
+check('failure remains visible in the editor and assertively announced', (await page.locator('.editor-meta [data-save-state]').textContent()).includes('Couldn’t save') && (await page.locator('#assertiveRegion').textContent()).includes('Couldn’t save'));
 await page.evaluate(() => window.__restore());
 
 console.log('\n7–8. Genre labels: compact face, full official names in menus');
@@ -125,7 +126,7 @@ for (const [name, actions] of surfaces) {
 console.log('\n11. Bilingual header coherence');
 await fresh({ query: '?assignment=graduate-sop' });
 await page.locator('.prototype-actions [data-action="language"]').selectOption('es');
-check('Spanish header: compact es label + es save status', (await page.locator('.genre-select-face').textContent()).includes('Carta de propósito') && (await page.locator('.save-state [data-save-state]').textContent()).includes('Guardado'));
+check('Spanish header stays identity-only while editor carries Spanish save truth', (await page.locator('.genre-select-face').textContent()).includes('Carta de propósito') && await page.locator('.prototype-header [data-save-state]').count() === 0 && (await page.locator('.editor-meta [data-save-state]').textContent()).toLowerCase().includes('guardado'));
 await page.locator('.prototype-actions [data-action="language"]').selectOption('both');
 check('both mode keeps one title and a coherent face', await page.locator('.product-title').count() === 1 && (await page.locator('.genre-select-face').textContent()).length > 0);
 

@@ -188,6 +188,18 @@
                 whyEs: 'El género avanza de la experiencia elegida al análisis; la historia no es decoración.',
                 promptEn: 'Larger pattern, tension, bridge, question, standpoint, or system to investigate…',
                 promptEs: 'Patrón, tensión, puente, pregunta, perspectiva o sistema por investigar…',
+                exampleEn: [
+                    ['Chosen moment', 'The specific experience already in the draft'],
+                    ['Larger force', 'A historical, social, linguistic, economic, or political context'],
+                    ['Bridge question', 'How might that context change what the moment means?'],
+                    ['Boundary', 'What will remain private or outside this essay?'],
+                ],
+                exampleEs: [
+                    ['Momento elegido', 'La experiencia específica que ya está en el borrador'],
+                    ['Fuerza mayor', 'Un contexto histórico, social, lingüístico, económico o político'],
+                    ['Pregunta puente', '¿Cómo podría ese contexto cambiar el significado del momento?'],
+                    ['Límite', '¿Qué quedará privado o fuera de este ensayo?'],
+                ],
             },
             {
                 id: 'research-context', criticalKey: 'accuracy',
@@ -240,6 +252,18 @@
                 whyEs: 'El ensayo se vuelve más que una escena cuando tu propio pensamiento le da dirección.',
                 promptEn: 'The change, tension, audience connection, or larger meaning I may develop…',
                 promptEs: 'El cambio, tensión, conexión con el lector o significado mayor que podría desarrollar…',
+                exampleEn: [
+                    ['Moment', 'One event the writer chooses to share'],
+                    ['Shift', 'What the writer began to notice, question, or understand'],
+                    ['Why it matters', 'The insight the reader needs for this essay'],
+                    ['Privacy choice', 'Details the writer chooses not to disclose'],
+                ],
+                exampleEs: [
+                    ['Momento', 'Un suceso que quien escribe elige compartir'],
+                    ['Cambio', 'Lo que quien escribe comenzó a notar, cuestionar o comprender'],
+                    ['Por qué importa', 'La reflexión que el lector necesita para este ensayo'],
+                    ['Decisión de privacidad', 'Detalles que quien escribe elige no divulgar'],
+                ],
             },
         ],
         stem: [
@@ -272,6 +296,18 @@
                 whyEs: 'El razonamiento—no un tono seguro—muestra por qué la evidencia apoya una conclusión.',
                 promptEn: 'Claim, supporting data, reasoning, limitation, or source of error…',
                 promptEs: 'Afirmación, datos, razonamiento, limitación o fuente de error…',
+                exampleEn: [
+                    ['Claim', 'What the result may show'],
+                    ['Data', 'The exact observation or measurement that supports it'],
+                    ['Reasoning', 'The verified scientific concept connecting data and claim'],
+                    ['Limitation', 'What the evidence cannot establish'],
+                ],
+                exampleEs: [
+                    ['Afirmación', 'Lo que el resultado podría mostrar'],
+                    ['Datos', 'La observación o medición exacta que la respalda'],
+                    ['Razonamiento', 'El concepto científico verificado que conecta datos y afirmación'],
+                    ['Limitación', 'Lo que la evidencia no puede establecer'],
+                ],
             },
         ],
         sop: [
@@ -286,6 +322,18 @@
                 nudgeEn: 'Name the action, result, and learning behind each preparation claim.', nudgeEs: 'Nombra la acción, el resultado y el aprendizaje detrás de cada afirmación.',
                 whyEn: 'Evidence distinguishes demonstrated preparation from résumé summary.', whyEs: 'La evidencia distingue la preparación demostrada del resumen del currículum.',
                 promptEn: 'Claim, concrete action, result, and what it demonstrates…', promptEs: 'Afirmación, acción, resultado y qué demuestra…',
+                exampleEn: [
+                    ['Claim', 'What are you saying about your development?'],
+                    ['Evidence', 'What specific project, responsibility, action, or result supports it?'],
+                    ['Reflection', 'What did you learn or begin questioning?'],
+                    ['Forward link', 'How does that connect to what you want to pursue?'],
+                ],
+                exampleEs: [
+                    ['Afirmación', '¿Qué dices sobre tu desarrollo?'],
+                    ['Evidencia', '¿Qué proyecto, responsabilidad, acción o resultado específico la respalda?'],
+                    ['Reflexión', '¿Qué aprendiste o comenzaste a cuestionar?'],
+                    ['Conexión futura', '¿Cómo se conecta con lo que quieres estudiar o desarrollar?'],
+                ],
             },
             {
                 id: 'fit', criticalKey: 'accuracy', en: 'Verify program fit', es: 'Verifica el encaje con el programa',
@@ -312,6 +360,20 @@
                 nudgeEn: 'Arrange the claim, evidence, complication, and conclusion.', nudgeEs: 'Ordena la afirmación, evidencia, complicación y conclusión.',
                 whyEn: 'A sequence gives the reader a path without writing the draft for you.', whyEs: 'Una secuencia orienta al lector sin escribir el borrador por ti.',
                 promptEn: 'Possible order, missing section, or transition job…', promptEs: 'Orden posible, sección faltante o función de transición…',
+                exampleEn: [
+                    ['Purpose', 'What the reader should understand or do'],
+                    ['Claim', 'The main point that serves that purpose'],
+                    ['Evidence', 'Verifiable support the reader can examine'],
+                    ['Complication', 'A limit, tension, or alternative the writing must address'],
+                    ['Conclusion', 'What follows from the reasoning'],
+                ],
+                exampleEs: [
+                    ['Propósito', 'Lo que el lector debe comprender o hacer'],
+                    ['Afirmación', 'El punto principal que sirve a ese propósito'],
+                    ['Evidencia', 'Apoyo verificable que el lector puede examinar'],
+                    ['Complicación', 'Un límite, tensión o alternativa que el texto debe abordar'],
+                    ['Conclusión', 'Lo que se desprende del razonamiento'],
+                ],
             },
         ],
         cap200: [
@@ -334,6 +396,18 @@
                 whyEs: 'El reporte avanza del servicio directo al análisis; el concepto del curso no es decoración.',
                 promptEn: 'Larger issue, course concept, bridge sentence, or tension to investigate…',
                 promptEs: 'Problema más amplio, concepto del curso, oración puente o tensión por investigar…',
+                exampleEn: [
+                    ['Service observation', 'Something the writer actually did or observed'],
+                    ['Larger issue', 'The social, historical, or civic context it may reveal'],
+                    ['Course concept', 'A verified idea from the course that helps interpret it'],
+                    ['Connection to test', 'How the observation and concept might complicate one another'],
+                ],
+                exampleEs: [
+                    ['Observación del servicio', 'Algo que quien escribe realmente hizo u observó'],
+                    ['Problema mayor', 'El contexto social, histórico o cívico que podría revelar'],
+                    ['Concepto del curso', 'Una idea verificada del curso que ayuda a interpretarlo'],
+                    ['Conexión por comprobar', 'Cómo la observación y el concepto podrían complicarse mutuamente'],
+                ],
             },
             {
                 id: 'evidence-data-plan', criticalKey: 'accuracy',
@@ -396,6 +470,20 @@
                 whyEs: 'Las fuentes pueden confirmar, complicar o cuestionar lo que ya sabes — mantenerlas separadas protege tu propio pensamiento.',
                 promptEn: 'What I know, what a source says, a pattern across sources, or a tension I noticed…',
                 promptEs: 'Lo que sé, lo que dice una fuente, un patrón entre fuentes, o una tensión que noté…',
+                exampleEn: [
+                    ['What I know', 'The writer’s prior, community, or disciplinary knowledge'],
+                    ['What a source says', 'A traceable claim recorded in the writer’s source notes'],
+                    ['Tension', 'Where the sources or forms of knowledge differ'],
+                    ['My interpretation', 'What the writer currently thinks the pattern may mean'],
+                    ['Verify next', 'A fact, source, or perspective still needed'],
+                ],
+                exampleEs: [
+                    ['Lo que sé', 'El conocimiento previo, comunitario o disciplinario de quien escribe'],
+                    ['Lo que dice una fuente', 'Una afirmación rastreable anotada por quien escribe'],
+                    ['Tensión', 'Dónde difieren las fuentes o formas de conocimiento'],
+                    ['Mi interpretación', 'Lo que quien escribe piensa por ahora que podría significar el patrón'],
+                    ['Verificar después', 'Un hecho, fuente o perspectiva que todavía hace falta'],
+                ],
             },
         ],
     };

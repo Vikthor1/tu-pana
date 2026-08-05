@@ -126,3 +126,72 @@ before response (no record, no snapshot, metadata event), mid-flight edit (recor
 text; live draft keeps the edit), duplicate submit blocked, timeout and origin-forbidden copy
 (do-not-retry), simulated storage quota failure (saveFailed truth, no false success). Response
 arriving after genre switch is covered by consent-time capture (records store consented genre).
+
+## Phase 6 — bounded family-preview deployment (2026-08-04)
+
+- **Deployed:** the exact verified checkpoint surface (`index.html`, `start-here.html`,
+  `studio.html`, `assets/` — 21 hashed user-facing files + audio) from clean checkpoint
+  `91b9424` to Cloudflare Pages project `tupana-preview` only.
+- **New deployment:** `ac390d62` (`https://ac390d62.tupana-preview.pages.dev`), serving
+  `https://tupana-preview.pages.dev`.
+- **Rollback target:** prior Production deployment `f90ad8be-bd77-4c1f-87af-290d50745032`
+  (source `1462aea`) — restorable from the Pages dashboard or by redeploying that surface.
+- **Byte identity:** all 21 files verified sha256-identical between the checkpoint and the
+  canonical domain (one transient propagation lag observed and re-verified clean).
+- **Change scope:** the legacy files were already byte-identical to the previous deployment
+  (source `1462aea`), so this deploy *adds* the Studio and changes no existing user-facing file;
+  the son's link and stored browser work are untouched. Browser localStorage is never affected by
+  deployment; no Reset/Replace/import was run.
+- **Post-deploy verification (15/15):** studio boot; live provider resolution on the preview host;
+  truthful live banner; assignment routing; bilingual switch; legacy `start-here` +
+  `index.html` routes intact; 390×844 entry without overflow + project chip; consent dialog with
+  exact preview; **live passage call and complete kernel-validated live Council on the preview
+  origin (CORS end-to-end, 5 Worker POSTs)**; saved-report revisit with zero provider calls;
+  draft byte-intact; usage metadata-only.
+- **Final call ledger: 30 / 30** (13 round 1 + 2 diagnostic probes + 10 round 2 + 5 post-deploy
+  smoke). Estimated total spend ≈ **US$0.06–0.12** of the US$2.00 ceiling.
+- **Not changed:** production GitHub Pages (main, `0f66e46`), the shared Worker (probe-only +
+  normal request traffic; zero configuration or code changes), VC-OS (`e32034a`), product main,
+  R0, exploration, redesign branches. The migration branch remains local-only (no upstream).
+
+## Founder test script — live AI affordances on the family preview
+
+Open `https://tupana-preview.pages.dev/studio.html` (the live coach activates on this host; the
+banner says so). Use synthetic or throwaway text for the first pass.
+
+1. **Non-AI first.** Type immediately; reload; confirm exact persistence. Walk to Process
+   Reflection and Finish without touching AI — nothing should shame the choice.
+2. **Passage coaching (live).** Select one meaningful sentence → Passage Tray → Review passage.
+   Before the checkbox, read the exact preview: is what will be sent exactly what you chose? Send
+   once. Is the response grounded in your words, question-shaped, with no rewritten prose?
+3. **Voice constraints.** Protect a phrase (Keep as my voice), then repeat a passage request and
+   opt in to the Voice constraint. Does the disclosure name the exact entries?
+4. **Full-draft review (live).** Review Center → Focused review → full draft + a lens. Expect the
+   four labeled sections, anchored quotes, and no model paragraph.
+5. **The Council (live).** Convene it on ~80+ words. Expect three perspectives + synthesis:
+   priorities with verbatim quotes from YOUR draft, a Worth preserving section, corroboration
+   marks, and any disagreement phrased as your call. Close the report, revisit from the rail —
+   no consent, no new calls. Find Convene again — fresh consent.
+6. **Genres.** Repeat 2 and 5 in `?assignment=college-personal-statement` and
+   `?assignment=cap200-bronx-beautiful-service-learning` (Spanish interface). Confirm the
+   feedback speaks each genre's language and protects multilingual phrasing. Confirm
+   `?assignment=stem-lab-report` states the Council is not configured, and an unknown
+   `?assignment=` stops loudly.
+7. **Failure honesty.** Turn on airplane mode mid-request (or just cancel the dialog while it
+   reads): the draft must be unchanged, nothing saved, the message calm.
+8. **Phone.** Repeat 2 at 390×844 on your phone. (The ten physical-iPhone P1 requirements remain
+   a separate open gate.)
+
+## Readiness statement and remaining limitations
+
+Every intended AI affordance — passage, paragraph, and full-draft coaching, Move-contextual
+framing, Voice constraints, focused-review lenses, and the three-reviewer-plus-synthesis
+Council — now runs against real Gemini through the existing Worker contract, behind explicit
+consent with exact payload preview, with structured-response validation, truthful persistence,
+and recoverable failure. This is founder-testing readiness, **not** release readiness: no
+physical-iPhone/VoiceOver/assistive-technology evidence, no representative-student evidence, no
+Brightspace or cross-device evidence, live quality observed across 30 bounded synthetic calls
+only (latency 0.7–6.4s in these runs; long-session behavior, rate-limit behavior under real
+load, and repeated-feedback fatigue remain unobserved), Council disagreement behavior seen only
+as absent-when-not-present, and the production release + SaaS Sprint 1 remain separately
+governed and paused. The founder gate is never self-approved.

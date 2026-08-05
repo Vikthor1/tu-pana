@@ -844,12 +844,40 @@
         return `<button class="step-button" data-action="step" data-step="${number}" ${state.step === number ? 'aria-current="step"' : ''}><span class="step-number">${number}</span><span class="step-label"><strong>${escapeHtml(step[0])}</strong><small>${escapeHtml(step[1])}</small></span><span class="done-mark" aria-label="${done ? 'has evidence' : 'not complete'}">${done ? '✓' : '○'}</span></button>`;
     }
 
+    // Context handed to the quick tour. It exposes read-only descriptions of the
+    // active genre and whether real work exists; the tour cannot reach the
+    // canonical draft, any record, or the provider through it.
+    function tourContext() {
+        return {
+            lang: () => state.lang,
+            escape: escapeHtml,
+            genre: () => (genres[state.genre] ? currentGenre() : null),
+            moveById: id => integratedMoves().find(move => move.id === id) || integratedMoves()[0] || null,
+            moveLabel: integratedMoveLabel,
+            moveNudge: integratedMoveNudge,
+            hasWork: () => Boolean((getDraft() || '').trim())
+                || (state.versions || []).length > 0
+                || (state.reviews || []).length > 0
+                || (state.councilRuns || []).length > 0
+                || Boolean(state.legacyImport)
+                || hasMeaningfulStudentEvidence(),
+            openDialog: (title, subtitle, body, footer, options) => openDialog(title, subtitle, body, footer, options),
+            closeDialog: force => closeDialog(force),
+            rerender: () => renderApp(),
+            announce,
+            // preventScroll: dismissing the card or leaving the tour gives keyboard
+            // users the writing surface without moving the viewport under them.
+            focusEditor: () => document.getElementById('draftEditor')?.focus({ preventScroll: true }),
+        };
+    }
+
     function renderEditor() {
         const isCurrent = concept !== 'journey' || state.currentArtifact === `step-${state.step}`;
         const focusAvailable = concept === 'desk' || concept === 'journey' || concept === 'integrated';
         return `<section class="panel editor-panel" aria-labelledby="draftTitle"><div class="editor-topline"><div class="draft-identity"><strong id="draftTitle">${escapeHtml(concept === 'journey' ? stepData(state.step - 1)[0] : t('currentDraft'))}</strong><span>${escapeHtml(isCurrent ? t('currentVersion') : t('priorWork'))}${concept === 'journey' ? ` · ${escapeHtml(t('whereJourney', { n: state.step }))}` : ''}</span></div><div class="editor-actions">${concept === 'integrated' ? renderEditControls() : ''}<button class="button ghost" data-action="paste">${escapeHtml(t('paste'))}</button>${!getDraft() ? `<button class="button secondary" data-action="sample">${escapeHtml(t('useSample'))}</button>` : ''}${focusAvailable ? `<button class="button ghost focus-btn" data-action="focus">${escapeHtml(t('focus'))}</button>` : ''}</div></div>
             <div class="editor-wrap"><textarea id="draftEditor" class="draft-editor" spellcheck="${spellcheckEnabled()}" aria-label="${escapeHtml(t('currentDraft'))}" placeholder="${escapeHtml(state.lang !== 'en' ? 'Comienza con tus propias palabras…' : 'Start with your own words…')}">${escapeHtml(getDraft())}</textarea><div class="editor-meta"><span id="wordCount">${escapeHtml(t('words', { n: wordCount(getDraft()) }))}</span><span class="autosave-message" data-save-state role="status" aria-live="polite" aria-atomic="true">${escapeHtml(t('autosaved'))}</span></div></div>
             <p class="editor-privacy">${instruction('selectHint')} ${escapeHtml(liveProviderActive() ? uiText('Nothing is ever sent without your explicit consent and an exact preview.', 'Nada se envía nunca sin tu consentimiento explícito y una vista previa exacta.') : t('noNetwork'))}</p>
+            ${concept === 'integrated' && window.StudioTour?.shouldOfferWelcome(tourContext()) ? window.StudioTour.welcomeCardHtml(tourContext()) : ''}
             ${concept === 'integrated' ? `<section class="coach-entry" aria-label="${escapeHtml(t('askVisible'))}"><div><strong>${escapeHtml(t('askVisible'))}</strong><span>${escapeHtml(t('coachEntryHint'))}</span></div><button class="button secondary" data-action="coach">${escapeHtml(t('askVisible'))}</button></section>` : ''}
             <footer class="editor-footer"><div class="footer-group"><button class="button ghost" data-action="back" ${atBeginning() ? 'disabled' : ''}>← ${escapeHtml(t('back'))}</button><button class="button primary" data-action="continue">${escapeHtml(continueLabel())} →</button></div><div class="footer-group">${concept === 'journey' && !isCurrent && state.step >= 6 ? `<button class="button secondary" data-action="mark-current">${escapeHtml(t('markCurrent'))}</button>` : ''}<button class="button secondary" data-action="review-center">${escapeHtml(t('reviewCenter'))}</button></div></footer>
         </section>`;
@@ -1165,6 +1193,7 @@
     }
 
     function finishDialogClose() {
+        window.StudioTour?.notifyDialogClosed();
         dialogRoot.innerHTML = '';
         if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
         lastFocus = null;
@@ -2196,7 +2225,7 @@
     }
 
     function openHelp() {
-        openDialog(uiText('Help', 'Ayuda'), uiText('Tu Pana Writing Studio', 'Tu Pana Writing Studio'), `<p>${escapeHtml(uiText('Choose a safe route. Reports and feedback stay on this device.', 'Elige una ruta segura. Los reportes y comentarios permanecen en este dispositivo.'))}</p><div class="choice-stack"><button class="radio-card" data-action="help-report"><span>${escapeHtml(uiText('Report a problem', 'Reportar un problema'))}</span></button><button class="radio-card" data-action="help-feedback"><span>${escapeHtml(uiText('Share feedback', 'Compartir comentarios'))}</span></button></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+        openDialog(uiText('Help', 'Ayuda'), uiText('Tu Pana Writing Studio', 'Tu Pana Writing Studio'), `<p>${escapeHtml(uiText('Choose a safe route. Reports and feedback stay on this device.', 'Elige una ruta segura. Los reportes y comentarios permanecen en este dispositivo.'))}</p><div class="choice-stack"><button class="radio-card" data-action="tour-start"><span><strong>${escapeHtml(uiText('Take the quick tour', 'Hacer el recorrido rápido'))}</strong><br><small>${escapeHtml(uiText('About one minute. Uses a demonstration example, never your writing.', 'Cerca de un minuto. Usa un ejemplo de demostración, nunca tu escritura.'))}</small></span></button><button class="radio-card" data-action="help-report"><span>${escapeHtml(uiText('Report a problem', 'Reportar un problema'))}</span></button><button class="radio-card" data-action="help-feedback"><span>${escapeHtml(uiText('Share feedback', 'Compartir comentarios'))}</span></button></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
     }
 
     function openHelpReport(category = 'problem') {
@@ -2272,6 +2301,7 @@
     function handleAction(target) {
         const action = target.dataset.action;
         if (!action) return;
+        if (window.StudioTour?.handleAction(tourContext(), action, target)) return;
         if (action === 'settings') openSettings();
         else if (action === 'legacy-import') openLegacyImportPreview();
         else if (action === 'legacy-import-apply') applyLegacyImport();

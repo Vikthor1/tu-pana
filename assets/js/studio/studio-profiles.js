@@ -17,6 +17,14 @@
             // Rendered names (label above stays untouched for stored record provenance):
             fullName: { en: 'Mixed-Genre Autobiographical Essay', es: 'Ensayo autobiográfico de género mixto' },
             headerLabel: { en: 'Autobiographical Essay', es: 'Ensayo autobiográfico' },
+            tourExample: {
+                moveId: 'larger-force',
+                excerpt: { en: 'At the library counter I answered in English until my aunt said, aquí escuchamos primero. I had treated translating as a small favor, not as something with a history behind it.', es: 'En el mostrador de la biblioteca respondí en inglés hasta que mi tía dijo: aquí escuchamos primero. Yo trataba la traducción como un favor pequeño, no como algo con una historia detrás.' },
+                phrase: { en: 'aquí escuchamos primero', es: 'aquí escuchamos primero' },
+                suggestion: { en: 'The moment is clear, but the reader cannot yet tell what larger question it opens. Consider naming the connection in your own words before expanding it.', es: 'El momento es claro, pero el lector todavía no sabe qué pregunta más amplia abre. Considera nombrar la conexión con tus propias palabras antes de desarrollarla.' },
+                before: { en: 'I had treated translating as a small favor.', es: 'Yo trataba la traducción como un favor pequeño.' },
+                after: { en: 'I had treated translating as a small favor, not as something with a history behind it.', es: 'Yo trataba la traducción como un favor pequeño, no como algo con una historia detrás.' },
+            },
             sample: 'At the neighborhood library, I answered my aunt in English until she said, “aquí escuchamos primero.” I had treated translation as a quick exchange of words. Her phrase made me notice who was expected to adapt, whose knowledge counted, and why language access is also a question of power. This synthetic essay connects that chosen memory to a larger history of public institutions and multilingual communities without asking any student to disclose a private family story.',
             moves: {
                 discover: ['Choose a memory and a boundary', 'Connect memory to a larger force', 'Test experience with research and context', 'Protect language and voice'],
@@ -29,6 +37,14 @@
             // Rendered names (label above stays untouched for stored record provenance):
             fullName: { en: 'College Personal Statement', es: 'Ensayo de admisión universitaria' },
             headerLabel: { en: 'College Essay', es: 'Ensayo de admisión' },
+            tourExample: {
+                moveId: 'connection',
+                excerpt: { en: 'I built a color-coded signup sheet because I thought the problem was speed. By Friday I understood that people wanted to know what the form would change.', es: 'Hice una hoja de registro con colores porque pensé que el problema era la rapidez. Para el viernes entendí que la gente quería saber qué cambiaría el formulario.' },
+                phrase: { en: 'what the form would change', es: 'qué cambiaría el formulario' },
+                suggestion: { en: 'The shift in your understanding is the strongest part. Consider giving that change one more sentence of your own thinking.', es: 'El cambio en tu comprensión es la parte más fuerte. Considera darle a ese cambio una oración más de tu propio pensamiento.' },
+                before: { en: 'By Friday I understood that people wanted something else.', es: 'Para el viernes entendí que la gente quería otra cosa.' },
+                after: { en: 'By Friday I understood that people wanted to know what the form would change.', es: 'Para el viernes entendí que la gente quería saber qué cambiaría el formulario.' },
+            },
             sample: 'The first week at the neighborhood learning center, I designed a color-coded signup sheet because I thought efficiency was the problem. By Friday, I understood that the real problem was trust. Families did not need a faster form; they needed someone to explain what the form would change. I began sitting beside each visitor, listening before writing. That shift—from solving the visible task to understanding the human need—now guides how I approach community technology and the questions I hope to study in college.',
             moves: {
                 discover: ['Choose one concrete turning point', 'Name what changed in your understanding', 'Connect the moment to what you will pursue'],
@@ -41,6 +57,14 @@
             // Rendered names (label above stays untouched for stored record provenance):
             fullName: { en: 'STEM Laboratory Report', es: 'Informe de laboratorio STEM' },
             headerLabel: { en: 'STEM Lab Report', es: 'Informe de laboratorio' },
+            tourExample: {
+                moveId: 'reasoning',
+                excerpt: { en: 'The seedlings under longer light grew 2.4 centimeters more on average. One unusually tall seedling and the small sample size limit what this can show.', es: 'Las plántulas con luz más prolongada crecieron 2.4 centímetros más en promedio. Una plántula inusualmente alta y el tamaño pequeño de la muestra limitan lo que esto puede mostrar.' },
+                phrase: { en: 'the small sample size limit what this can show', es: 'el tamaño pequeño de la muestra limitan lo que esto puede mostrar' },
+                suggestion: { en: 'The observation and the limitation are both stated. Consider naming which course concept explains why the evidence supports the claim.', es: 'La observación y la limitación están declaradas. Considera nombrar qué concepto del curso explica por qué la evidencia respalda la afirmación.' },
+                before: { en: 'The seedlings under longer light grew more.', es: 'Las plántulas con luz más prolongada crecieron más.' },
+                after: { en: 'The seedlings under longer light grew 2.4 centimeters more on average.', es: 'Las plántulas con luz más prolongada crecieron 2.4 centímetros más en promedio.' },
+            },
             sample: 'The basil seedlings exposed to eight hours of light grew an average of 2.4 centimeters more than the seedlings exposed to four hours. This result supports the prediction that longer light exposure increases early stem growth under otherwise controlled conditions. The small sample size and one unusually tall seedling limit the strength of the conclusion. A second trial with more plants and randomized tray positions would test whether the pattern persists.',
             moves: {
                 discover: ['State the research question and prediction', 'Separate observation from interpretation', 'Connect the result to the evidence'],
@@ -53,6 +77,14 @@
             // Rendered names (label above stays untouched for stored record provenance):
             fullName: { en: 'Graduate Statement of Purpose', es: 'Carta de propósito para posgrado' },
             headerLabel: { en: 'Statement of Purpose', es: 'Carta de propósito' },
+            tourExample: {
+                moveId: 'evidence',
+                excerpt: { en: 'I built the intake survey and coded the responses myself. That work is where my question about participatory design actually began.', es: 'Construí la encuesta de admisión y codifiqué las respuestas yo mismo. En ese trabajo empezó realmente mi pregunta sobre el diseño participativo.' },
+                phrase: { en: 'coded the responses myself', es: 'codifiqué las respuestas yo mismo' },
+                suggestion: { en: 'The claim rests on concrete work. Consider adding what that work taught you, so the reader can follow the claim to the question.', es: 'La afirmación se apoya en trabajo concreto. Considera añadir qué te enseñó ese trabajo, para que el lector siga la afirmación hasta la pregunta.' },
+                before: { en: 'I worked on a survey project.', es: 'Trabajé en un proyecto de encuesta.' },
+                after: { en: 'I built the intake survey and coded the responses myself.', es: 'Construí la encuesta de admisión y codifiqué las respuestas yo mismo.' },
+            },
             sample: 'My work on a public transit accessibility project showed me how technical decisions become public consequences. I entered the project focused on routing efficiency and left asking how disabled riders could shape the systems intended to serve them. Graduate study in human-centered computing would let me build the research methods needed to investigate that question with rigor. I hope to study participatory design, accessible infrastructure, and the ways public institutions can evaluate whether technology expands meaningful access.',
             moves: {
                 discover: ['Name the problem you want to study', 'Connect prior preparation to future inquiry', 'Make program fit specific and evidence-based'],
@@ -65,6 +97,14 @@
             // Rendered names (label above stays untouched for stored record provenance):
             fullName: { en: 'General Writing Project', es: 'Proyecto general de escritura' },
             headerLabel: { en: 'General Writing', es: 'Escritura general' },
+            tourExample: {
+                moveId: 'structure',
+                excerpt: { en: 'The library should stay open later during exam weeks. Students who work day shifts arrive when the doors are already closing.', es: 'La biblioteca debería abrir más tarde durante las semanas de exámenes. Los estudiantes que trabajan de día llegan cuando las puertas ya se están cerrando.' },
+                phrase: { en: 'when the doors are already closing', es: 'cuando las puertas ya se están cerrando' },
+                suggestion: { en: 'The claim and one observation are here. Consider what evidence a reader would need before the cost question comes up.', es: 'La afirmación y una observación están aquí. Considera qué evidencia necesitaría un lector antes de que surja la pregunta del costo.' },
+                before: { en: 'Students have trouble using the library.', es: 'Los estudiantes tienen dificultades para usar la biblioteca.' },
+                after: { en: 'Students who work day shifts arrive when the doors are already closing.', es: 'Los estudiantes que trabajan de día llegan cuando las puertas ya se están cerrando.' },
+            },
             sample: 'This synthetic draft begins with a clear purpose, develops one idea with concrete evidence, and leaves room for the writer to decide what should change next. The language is intentionally neutral so that no assignment inherits expectations from an unrelated genre.',
             moves: {
                 discover: ['Clarify the purpose and audience', 'Choose relevant evidence', 'Arrange ideas so the reader can follow'],
@@ -77,6 +117,14 @@
             // Rendered names (label above stays untouched for stored record provenance):
             fullName: { en: 'CAP 200 Service-Learning Report', es: 'Reporte de aprendizaje-servicio CAP 200' },
             headerLabel: { en: 'Service-Learning Report', es: 'Aprendizaje-servicio' },
+            tourExample: {
+                moveId: 'community-course-bridge',
+                excerpt: { en: 'My shift notes kept returning to the same scene: explaining eligibility rules took as long as handing out food. That pattern is where the course concept became visible to me.', es: 'Mis notas de turno volvían a la misma escena: explicar las reglas de elegibilidad tomaba tanto tiempo como entregar alimentos. En ese patrón el concepto del curso se me hizo visible.' },
+                phrase: { en: 'explaining eligibility rules took as long as handing out food', es: 'explicar las reglas de elegibilidad tomaba tanto tiempo como entregar alimentos' },
+                suggestion: { en: 'The observation comes from your own notes. Consider naming which course concept explains the pattern, in your own words.', es: 'La observación viene de tus propias notas. Considera nombrar qué concepto del curso explica el patrón, con tus propias palabras.' },
+                before: { en: 'The pantry was busy and confusing.', es: 'La despensa estaba ocupada y confusa.' },
+                after: { en: 'Explaining eligibility rules took as long as handing out food.', es: 'Explicar las reglas de elegibilidad tomaba tanto tiempo como entregar alimentos.' },
+            },
             sample: 'During my ten hours at the neighborhood food pantry, I logged each shift and kept a short journal after every visit. By the third week, my notes showed a pattern: volunteers spent as much time explaining eligibility rules as they did handing out groceries. That observation connected directly to our course concept of structural barriers to access. This synthetic report draws on real logged hours and journal entries — no interview or statistic here was invented — to argue that confusion, not scarcity, was the persistent obstacle.',
             moves: {
                 discover: ['Name your community starting point', 'Connect the issue to a course concept', 'Plan your evidence and data', 'Structure the report (IMRDC)'],
@@ -89,6 +137,14 @@
             // Rendered names (label above stays untouched for stored record provenance):
             fullName: { en: 'Research Paper', es: 'Trabajo de investigación' },
             headerLabel: { en: 'Research Paper', es: 'Investigación' },
+            tourExample: {
+                moveId: 'notes-patterns',
+                excerpt: { en: 'My two sources measure different things: one looks at diet, the other at civic participation. Put side by side, they disagree about what counts as a benefit.', es: 'Mis dos fuentes miden cosas distintas: una observa la dieta y la otra la participación cívica. Puestas lado a lado, no coinciden en qué cuenta como beneficio.' },
+                phrase: { en: 'they disagree about what counts as a benefit', es: 'no coinciden en qué cuenta como beneficio' },
+                suggestion: { en: 'You have noticed a real tension between sources. Consider stating your own interpretation of that tension before adding more sources.', es: 'Notaste una tensión real entre fuentes. Considera declarar tu propia interpretación de esa tensión antes de añadir más fuentes.' },
+                before: { en: 'My sources say different things.', es: 'Mis fuentes dicen cosas distintas.' },
+                after: { en: 'Put side by side, they disagree about what counts as a benefit.', es: 'Puestas lado a lado, no coinciden en qué cuenta como beneficio.' },
+            },
             sample: 'Community gardens are often described as solutions to food insecurity, but the sources I have gathered disagree about how much they actually help. One source measures diet change directly; another focuses on social connection and civic participation instead. Placed side by side, they suggest the benefit may be real but different from what garden advocates usually claim. This synthetic paragraph models how a research paragraph puts sources in conversation rather than summarizing them one at a time — no source named here is real.',
             moves: {
                 discover: ['Turn your topic into a focused question', 'Plan your search and source types', 'Evaluate each source', 'Find patterns across your notes'],

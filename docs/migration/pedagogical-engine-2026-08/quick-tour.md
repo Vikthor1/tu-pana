@@ -111,3 +111,51 @@ Two harness artifacts were corrected during verification rather than accepted as
 clicking a below-fold control makes the harness scroll the page (density is therefore measured on
 load, in steady state), and a record edited in a live page is overwritten by the Studio's own
 beforeunload save (the imported-work fixture is injected through an init script instead).
+
+## Regression, deployment, and handoff
+
+**Battery: 58 suites run; all green except one load-dependent flake** in
+`prototype_integrated_revision_cycle_test.mjs` (a finalist-prototype suite exercising
+`explore.html`, which loads none of the files this pass touched). Verified **4/4 green when run in
+isolation**, matching the repository's documented bulk-run flakiness; not a regression from the
+tour. All fourteen `studio_*` suites were rerun at the final code state after the copy trim:
+access 14 · agency 27 · branding 45 · coach 18 · connected-tools 30 · corrections 47 · council 14 ·
+first-contact 48 · import 24 · journey 29 · kernel 38 · profiles 33 · revision-cycle 22 ·
+**tour 64** — all pass.
+
+**Checkpoint:** `4db9c5f` on `migrate/pedagogical-engine-2026-08` (local only; no push, no merge).
+**Deployment:** `1a9bbdcc` to Cloudflare Pages project `tupana-preview`; 22 user-facing files
+verified sha256-identical on both the deployment URL and the canonical alias.
+**Rollback targets, newest first:** `ca07932d` (first-contact clarity), `b058711e` (branding),
+`ac390d62` (live-AI readiness), `f90ad8be` (pre-Studio R0 surface).
+
+**Post-deploy smoke: 17/17 with zero provider calls** — live-provider host resolution, welcome
+card, all six moments, exit to an untouched desk, no repeat prompt after completion, Help replay,
+saving, focused-review and Council entry points still connected and consent-gated, direct genre
+link routing, genre-specific tour material, theme switch, the son's `start-here` route, and mobile
+entry without overflow.
+
+**Unchanged:** production Pages (`main` `0f66e46`), the Worker (zero requests this pass), R0
+(`1462aea`), the exploration worktree (`d8b92e8`), VC-OS (`e32034a`), and the migration branch's
+local-only status.
+
+## Founder test script (~3 minutes)
+
+1. Open `https://tupana-preview.pages.dev/studio.html` in a browser where you have not used the
+   Studio (or clear its site data first). Does the **Meet your writing desk** card feel like an
+   invitation rather than an interruption? Can you ignore it and just start typing?
+2. Choose **Not now**. Does it leave cleanly and stay gone when you reload?
+3. Open **Help → Take the quick tour**. Walk all six moments. At each: is the claim *true*? Is
+   anything overstated?
+4. In moment 3, select your own few words in the demonstration text and choose **Keep as my
+   voice**. Does it feel like your decision rather than the app's judgment?
+5. In moments 4 and 5, pick a feedback kind and a decision. Is it obvious that nothing was sent
+   and nothing was saved?
+6. Leave with **Explore on my own**. Confirm your desk is exactly as you left it.
+7. Repeat once in Español and once with a different writing project link (for example
+   `?assignment=graduate-sop`). Does the example fit that genre?
+8. On your phone, open the tour once.
+
+The questions to answer: **Is it useful? Is it truthful? Is it engaging without being cute? Is it
+appropriately brief — or does it still feel long?** Note any moment you would cut. The tour is
+built so that removing a moment is a small change.

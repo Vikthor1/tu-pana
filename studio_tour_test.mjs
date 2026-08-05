@@ -31,7 +31,10 @@ async function fresh(options = {}) {
     if (page) await page.close();
     page = await browser.newPage({
         viewport: options.viewport || { width: 1440, height: 960 },
-        reducedMotion: options.reducedMotion || 'no-preference',
+        // Deterministic by default: reduced motion removes the composing pause,
+        // so the suite never sleeps through conversational delays. The pacing
+        // section below opts back in to real timing where that is the subject.
+        reducedMotion: options.reducedMotion || 'reduce',
     });
     page.setDefaultTimeout(9000);
     page.on('request', request => { if (!request.url().startsWith(`${ORIGIN}/`)) external.push(request.url()); });
@@ -50,20 +53,36 @@ const recordSansTimestamp = async () => (await record() || '').replace(/"savedAt
 const tourPrefs = () => page.evaluate(key => JSON.parse(localStorage.getItem(key) || 'null'), TOUR_KEY);
 const startFromCard = () => page.locator('.tour-welcome [data-action="tour-start"]').click();
 const chapter = () => page.locator('.gd-chapter').textContent();
-const choiceLabels = () => page.locator('.gd-choice').allTextContents();
+const REPLIES = '.gd-choice:not(.gd-continue)';
+const choiceLabels = () => page.locator(REPLIES).allTextContents();
 
+// The conversation now arrives in beats and pauses at gates. `settle` walks any
+// continuation control so navigation helpers act on a finished response group.
+async function settle() {
+    for (let i = 0; i < 8; i++) {
+        if (await page.locator('.gd-continue').count()) {
+            await page.locator('.gd-continue').click();
+            await page.waitForTimeout(60);
+            continue;
+        }
+        if (await page.locator('.gd-typing').count()) { await page.waitForTimeout(120); continue; }
+        break;
+    }
+}
 async function tap(index = 0) {
-    const choices = page.locator('.gd-choice');
+    await settle();
+    const choices = page.locator(REPLIES);
     const count = await choices.count();
     if (!count) return false;
     await choices.nth(Math.min(index, count - 1)).click();
-    await page.waitForTimeout(480);
+    await page.waitForTimeout(80);
+    await settle();
     return true;
 }
 // The essential route: start → one concern → onward → judge → next → revise → leave.
 async function walkEssential() {
     for (const index of [0, 0, 0, 0, 0, 0]) await tap(index);
-    const choices = await page.locator('.gd-choice').count();
+    const choices = await page.locator(REPLIES).count();
     if (choices) await tap(choices - 1); // "I'm ready to write" is always last
 }
 
@@ -384,7 +403,7 @@ const beforeBack = await chapter();
 await page.locator('[data-action="gd-back"]').click();
 await page.waitForTimeout(200);
 check('Back returns to the previous exchange', await chapter() !== beforeBack);
-check('Back restores that step\'s replies', (await page.locator('.gd-choice').count()) > 0);
+check('Back restores that step\'s replies', (await page.locator(REPLIES).count()) > 0);
 await page.locator('[data-action="gd-restart"]').click();
 await page.waitForTimeout(200);
 check('Start over returns to the opening', (await choiceLabels()).length === 3 && await page.locator('.gd-turn').count() <= 4);
@@ -403,11 +422,16 @@ console.log('\n14. Accessibility');
 await fresh();
 await startFromCard();
 check('the conversation is inside a dialog', await page.locator('[role="dialog"]').count() === 1);
+// Focus is applied on the next frame so it wins over the dialog's own initial
+// focus; give that frame a moment before asserting where it landed.
+await page.waitForTimeout(120);
 check('focus lands on the first reply, not the top of the transcript',
     await page.evaluate(() => document.activeElement?.classList.contains('gd-choice')));
 check('replies are reachable and operable by keyboard only', await (async () => {
     await page.keyboard.press('Enter');
     await page.waitForTimeout(450);
+    await settle();
+    await page.waitForTimeout(120);
     return await page.locator('.gd-turn.me').count() >= 1;
 })());
 check('each step moves focus to the next reply',
@@ -422,7 +446,7 @@ check('Escape leaves the conversation', await page.locator('.gd-conversation').c
 await fresh({ reducedMotion: 'reduce' });
 await startFromCard();
 await tap(0);
-check('reduced motion: replies appear without waiting on an animation', await page.locator('.gd-choice').count() > 0);
+check('reduced motion: replies appear without waiting on an animation', await page.locator(REPLIES).count() > 0);
 check('reduced motion: the conversation stays warm and complete',
     /Tu Pana/.test(await page.locator('.gd-conversation').textContent()));
 await fresh({ viewport: { width: 390, height: 844 } });

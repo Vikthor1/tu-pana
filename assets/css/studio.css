@@ -645,7 +645,7 @@ html[data-appearance="dark"] .tour-welcome { background: rgba(244, 223, 189, 0.0
 }
 .gd-chapter:focus-visible { outline: 2px solid var(--jade, #315642); outline-offset: 3px; }
 .gd-transcript { display: flex; flex-direction: column; gap: 10px; }
-.gd-turn { display: flex; gap: 9px; align-items: flex-end; max-width: 100%; }
+.gd-turn, .gd-composing-row { display: flex; gap: 9px; align-items: flex-end; max-width: 100%; }
 .gd-turn.me { justify-content: flex-end; }
 .gd-avatar { flex: 0 0 34px; width: 34px; height: 34px; align-self: flex-end; }
 .gd-avatar svg { width: 100%; height: 100%; display: block; }
@@ -670,7 +670,7 @@ html[data-appearance="dark"] .tour-welcome { background: rgba(244, 223, 189, 0.0
 html[data-appearance="dark"] .gd-bubble.me { background: rgba(244, 223, 189, 0.10); }
 @media (prefers-color-scheme: dark) { html[data-appearance="system"] .gd-bubble.me { background: rgba(244, 223, 189, 0.10); } }
 
-.gd-typing { display: inline-flex; gap: 5px; align-items: center; padding: 14px 16px; }
+.gd-typing { display: inline-flex; gap: 5px; align-items: center; padding: 14px 16px; cursor: pointer; }
 .gd-typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--jade, #315642); opacity: 0.35; }
 @media (prefers-reduced-motion: no-preference) {
     .gd-typing i { animation: gdBlink 1s infinite; }
@@ -691,6 +691,25 @@ html[data-appearance="dark"] .gd-bubble.me { background: rgba(244, 223, 189, 0.1
 .gd-choice:hover { background: var(--clay, #b85c1a); color: #fff; }
 .gd-choice:focus-visible { outline: 3px solid var(--jade, #315642); outline-offset: 2px; }
 .gd-final { justify-content: flex-end; }
+
+/* Continuation control: the student, not a timer, decides when the explanation
+   after a live preview arrives. Quieter than a reply — it is a nudge onward,
+   not a fork in the conversation. */
+.gd-continue { border-style: dashed; font-weight: 600; }
+
+/* "New message ↓" — shown only when the student has scrolled up to re-read.
+   Pinned to the viewport so it cannot scroll away, and clear of the home bar. */
+.gd-unread {
+    position: fixed; z-index: 60;
+    left: 50%; transform: translateX(-50%);
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    min-height: 44px; padding: 10px 18px; border-radius: 999px;
+    border: 1px solid var(--jade, #315642);
+    background: var(--jade, #315642); color: #fff;
+    font: inherit; font-weight: 650; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(4, 20, 13, 0.28);
+}
+.gd-unread:focus-visible { outline: 3px solid var(--clay, #b85c1a); outline-offset: 3px; }
 
 .gd-demo {
     padding: 12px 14px;
@@ -754,6 +773,8 @@ html[data-appearance="dark"] .gd-preview { background: rgba(255,255,255,0.04); }
     .gd-avatar { flex-basis: 28px; width: 28px; height: 28px; }
     .gd-choice { width: 100%; text-align: center; }
     .gd-preview-surface { max-height: 260px; }
+    /* The dialog footer stacks on a phone, so the pill has to clear more of it. */
+    .gd-unread { bottom: calc(140px + env(safe-area-inset-bottom, 0px)); }
     /* Enlarging on a phone gives the sample the full width of the sheet
        instead of shrinking it into an illegible thumbnail. */
     .gd-preview--expanded { margin-inline: -12px; border-radius: 0; }

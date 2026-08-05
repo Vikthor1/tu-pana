@@ -2506,7 +2506,14 @@
 
     document.addEventListener('change', event => {
         const target = event.target;
-        if (target.matches('[data-action="language"]')) { state.lang = target.value; saveState(); renderApp(); }
+        if (target.matches('[data-action="language"]')) {
+            state.lang = target.value;
+            saveState();
+            renderApp();
+            // An open Guided Discovery rebuilds its current response group in the
+            // new language and drops anything still arriving in the old one.
+            window.StudioTour?.notifyEnvironmentChanged?.(tourContext());
+        }
         else if (target.matches('[data-action="genre"]')) {
             storeActiveGenreState();
             state.genre = genres[target.value] ? target.value : target.value;
@@ -2515,6 +2522,7 @@
             saveState();
             if (dialogRoot.contains(target)) closeDialog(true);
             renderApp();
+            window.StudioTour?.notifyEnvironmentChanged?.(tourContext());
             announce(`${t('genre')}: ${genreLabel()}`);
             requestAnimationFrame(() => (document.querySelector('.mobile-project-chip') || document.querySelector('.genre-select'))?.focus());
         }

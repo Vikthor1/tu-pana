@@ -59,11 +59,37 @@
         return Boolean(prefs.dismissedAt || prefs.completedAt || prefs.startedAt);
     }
 
+    // ── Conversational pacing ────────────────────────────────────────────────
+    // A response group is revealed one beat at a time rather than all at once.
+    // Two rules bound it: at most AUTO_LIMIT messages arrive on their own after a
+    // single student choice, and the explanation that follows a live preview
+    // always waits for the student. Everything past that is the student's pace.
+    const COMPOSING_MIN = 420;
+    const COMPOSING_MAX = 680;
+    const AUTO_LIMIT = 3;
+
+    // Deterministic, never deceptive: the pause length is derived from the
+    // message about to arrive (longer message, slightly longer pause), clamped to
+    // the messaging-interface range. No randomness, so tests are reproducible.
+    function composingDelay(turn) {
+        if (prefersReducedMotion()) return 0;
+        const scratch = document.createElement('div');
+        scratch.innerHTML = turn && turn.html ? turn.html : '';
+        const words = scratch.textContent.trim().split(/\s+/).filter(Boolean).length;
+        return Math.min(COMPOSING_MAX, COMPOSING_MIN + Math.min(words, 40) * 6);
+    }
+
     // ── In-memory conversation state (never persisted) ───────────────────────
     let demo = null;
     let revealTimer = null;
+    // Bumped whenever the conversation's identity changes — Back, Start over,
+    // Skip, Exit, close, language, genre. A scheduled reveal captures the value
+    // it was queued under and abandons itself if it no longer matches, so no
+    // stale message can arrive after the thing it belonged to is gone.
+    let generation = 0;
 
     function resetDemo(origin) {
+        generation += 1;
         demo = {
             origin,
             beat: 'open',
@@ -76,15 +102,30 @@
             voiceKept: false,
             compare: 'before',
             evidenceFocus: null,
-            expanded: null,
-            pending: false,
             history: [],
+            // reveal state
+            queue: [],
+            composing: false,
+            gate: null,
+            autoCount: 0,
+            focusPending: false,
+            // scroll orientation
+            stick: true,
+            unreadBelow: false,
+            // environment the transcript was written in
+            lang: null,
+            genreId: null,
         };
     }
     function active() { return demo !== null; }
-    function endDemo() {
+    function invalidatePending() {
+        generation += 1;
         clearTimeout(revealTimer);
         revealTimer = null;
+        if (demo) { demo.queue = []; demo.composing = false; demo.gate = null; }
+    }
+    function endDemo() {
+        invalidatePending();
         demo = null;
     }
 
@@ -622,22 +663,113 @@
             plain(ctx, 'Guided Discovery', 'Recorrido guiado'),
             plain(ctx, 'A short conversation · leave whenever you like', 'Una conversación corta · sal cuando quieras'),
             '<div id="tourBody"></div>', '<div id="tourFooter"></div>', { wide: true });
+        demo.lang = ctx.lang();
+        demo.genreId = currentGenreId(ctx);
+        // Opening the conversation is itself a deliberate action, so focus may
+        // land on the first reply once the opening group has finished arriving.
+        demo.focusPending = true;
         enterBeat(ctx, 'open', { announce: false });
     }
 
-    // Append a beat's turns and offer its replies. `beatStart` remembers where
-    // this beat's turns begin so an in-beat control (the comparison tabs) can
-    // re-render them in place instead of appending a duplicate stretch.
+    // A live preview is a conversational event of its own. Whatever explains it
+    // must not land on top of it: the student decides when that arrives.
+    function markGates(turns) {
+        let afterPreview = false;
+        turns.forEach(turn => {
+            if (afterPreview) { turn.gateBefore = 'preview'; afterPreview = false; }
+            if (turn.kind === 'preview') afterPreview = true;
+        });
+        return turns;
+    }
+
+    // Append a beat's turns through the reveal queue and offer its replies once
+    // the group has finished arriving. `beatStart` remembers where this beat's
+    // turns begin so an in-beat control (the comparison tabs) can re-render them
+    // in place instead of appending a duplicate stretch.
     function enterBeat(ctx, id, options = {}) {
         const next = beat(ctx, id);
         if (!next) return;
         demo.beat = id;
         demo.beatStart = demo.turns.length;
         demo.chapter = next.chapter;
-        demo.choices = next.choices;
+        demo.choices = [];
+        demo.beatChoices = next.choices;
         demo.final = Boolean(next.final);
-        next.turns.forEach(turn => demo.turns.push(turn));
-        render(ctx, options);
+        demo.queue = markGates(next.turns.slice());
+        demo.autoCount = 0;
+        pumpReveal(ctx, options);
+    }
+
+    // The reveal state machine. Exactly one of these is true at a time: a message
+    // is composing, the conversation is waiting at a gate, or the group has
+    // finished and the replies are showing.
+    function pumpReveal(ctx, options = {}) {
+        if (!active()) return;
+        const mine = generation;
+
+        if (!demo.queue.length) {
+            demo.composing = false;
+            demo.gate = null;
+            demo.choices = demo.beatChoices || [];
+            render(ctx, options);
+            return;
+        }
+
+        const nextTurn = demo.queue[0];
+        const gateReason = nextTurn.gateBefore
+            || (demo.autoCount >= AUTO_LIMIT ? 'pause' : null);
+        if (gateReason) {
+            demo.composing = false;
+            demo.gate = { reason: gateReason };
+            render(ctx, { ...options, focus: options.focus });
+            return;
+        }
+
+        const reveal = () => {
+            // Abandon silently if anything invalidated this reveal while it waited.
+            if (!active() || generation !== mine) return;
+            revealTimer = null;
+            demo.composing = false;
+            const turn = demo.queue.shift();
+            if (!turn) { pumpReveal(ctx, options); return; }
+            demo.turns.push(turn);
+            demo.autoCount += 1;
+            render(ctx, { ...options, arrived: turn });
+            pumpReveal(ctx, { ...options, focus: options.focus });
+        };
+
+        const delay = composingDelay(nextTurn);
+        if (delay <= 0) { reveal(); return; }
+        demo.composing = true;
+        render(ctx, { ...options, focus: false });
+        clearTimeout(revealTimer);
+        revealTimer = setTimeout(reveal, delay);
+    }
+
+    // Pointer users can bring the next message forward instead of waiting.
+    function skipComposing(ctx) {
+        if (!active() || !demo.composing) return;
+        clearTimeout(revealTimer);
+        revealTimer = null;
+        demo.composing = false;
+        const turn = demo.queue.shift();
+        if (turn) {
+            demo.turns.push(turn);
+            demo.autoCount += 1;
+            render(ctx, { arrived: turn, focus: false });
+        }
+        pumpReveal(ctx, { focus: false });
+    }
+
+    // The student asked for the rest of the group. The marker on the waiting turn
+    // is consumed here — otherwise the queue would stop at the same gate again.
+    function continueReveal(ctx) {
+        if (!active() || !demo.gate) return;
+        if (demo.queue.length) delete demo.queue[0].gateBefore;
+        demo.gate = null;
+        demo.autoCount = 0;
+        demo.focusPending = true;
+        pumpReveal(ctx);
     }
 
     function advance(ctx, choice) {
@@ -648,20 +780,23 @@
         if (choice.decision) { demo.decision = choice.decision; demo.seen.decide = true; }
         if (choice.evidenceFocus) demo.evidenceFocus = choice.evidenceFocus;
         if (choice.voiceKept) demo.voiceKept = true;
+        // The student's own reply lands first and immediately — it is theirs.
         demo.turns.push(meTurn(ctx.escape(choice.label)));
-        if (choice.reply) demo.turns.push(panaTurn(choice.reply));
         demo.choices = [];
+        demo.focusPending = true;
+        const opening = choice.reply ? [panaTurn(choice.reply)] : [];
+        render(ctx, { focus: false, arrived: demo.turns[demo.turns.length - 1] });
 
-        const reveal = () => {
-            if (!active()) return;
-            demo.pending = false;
-            enterBeat(ctx, choice.next);
-        };
-        if (prefersReducedMotion()) { reveal(); return; }
-        demo.pending = true;
-        render(ctx, { focus: false });
-        clearTimeout(revealTimer);
-        revealTimer = setTimeout(reveal, 380);
+        const next = beat(ctx, choice.next);
+        if (!next) return;
+        demo.beat = choice.next;
+        demo.beatStart = demo.turns.length;
+        demo.chapter = next.chapter;
+        demo.beatChoices = next.choices;
+        demo.final = Boolean(next.final);
+        demo.queue = markGates(opening.concat(next.turns));
+        demo.autoCount = 0;
+        pumpReveal(ctx);
     }
 
     function prefersReducedMotion() {
@@ -671,13 +806,20 @@
 
     function back(ctx) {
         if (!demo.history.length) return;
-        clearTimeout(revealTimer);
+        invalidatePending();
         const previous = demo.history.pop();
         const history = demo.history;
-        demo = { ...previous, history, pending: false };
+        // A snapshot is taken while replies are showing, so the restored beat is
+        // fully revealed: empty queue, no gate, nothing in flight.
+        demo = {
+            ...previous, history,
+            queue: [], composing: false, gate: null, autoCount: 0,
+            focusPending: true, stick: true, unreadBelow: false,
+        };
         // Re-enter the beat so its choices are rebuilt from current data.
         const rebuilt = beat(ctx, demo.beat);
         demo.choices = rebuilt ? rebuilt.choices : [];
+        demo.beatChoices = demo.choices;
         demo.chapter = rebuilt ? rebuilt.chapter : demo.chapter;
         demo.final = Boolean(rebuilt && rebuilt.final);
         render(ctx);
@@ -685,9 +827,33 @@
 
     function restart(ctx) {
         const origin = demo.origin;
-        clearTimeout(revealTimer);
+        invalidatePending();
         resetDemo(origin);
+        demo.lang = ctx.lang();
+        demo.genreId = currentGenreId(ctx);
+        demo.focusPending = true;
         enterBeat(ctx, 'open');
+    }
+
+    function currentGenreId(ctx) {
+        const genre = ctx.genre();
+        return genre ? (genre.fullName?.en || genre.label?.en || 'genre') : null;
+    }
+
+    // The Studio re-renders on a language or writing-project change while the
+    // conversation is open. Pending reveals are dropped and the current response
+    // group is rebuilt in the new language, so no group is ever half-translated.
+    // Earlier turns keep the language they were actually said in.
+    function notifyEnvironmentChanged(ctx) {
+        if (!active()) return;
+        const lang = ctx.lang();
+        const genreId = currentGenreId(ctx);
+        if (lang === demo.lang && genreId === demo.genreId) return;
+        invalidatePending();
+        demo.lang = lang;
+        demo.genreId = genreId;
+        if (!ctx.genre() || !genreData(ctx)) { finish(ctx, 'genre-change'); return; }
+        rebuildCurrentBeat(ctx);
     }
 
     // The companion's face appears once per run of consecutive messages, the way
@@ -724,24 +890,32 @@
             }
             return turnHtml(ctx, turn, index === demo.turns.length - 1, showAvatar);
         }).join('');
-        const typing = demo.pending
-            ? `<div class="gd-turn pana"><span class="gd-avatar" aria-hidden="true">${ctx.avatar ? ctx.avatar() : ''}</span><div class="gd-bubble gd-typing" aria-hidden="true"><i></i><i></i><i></i></div></div>`
+        // Decorative only: hidden from assistive technology, never labelled
+        // "thinking", and never implying a live human or a generated response.
+        // A pointer user can tap it to bring the next message forward.
+        const typing = demo.composing
+            // Not a `.gd-turn`: nothing has been said yet.
+            ? `<div class="gd-composing-row"><span class="gd-avatar" aria-hidden="true">${ctx.avatar ? ctx.avatar() : ''}</span><div class="gd-bubble gd-typing" data-action="gd-skip-composing" aria-hidden="true"><i></i><i></i><i></i></div></div>`
+            : '';
+        const gate = demo.gate
+            ? `<div class="gd-choices gd-gate">
+                    <button class="gd-choice gd-continue" data-action="gd-continue">${label(ctx, ...continueLabel(demo.gate.reason))}</button>
+                </div>`
             : '';
         const choices = (demo.choices || []).length
             ? `<div class="gd-choices" role="group" aria-label="${ctx.escape(plain(ctx, 'Your reply', 'Tu respuesta'))}">${demo.choices
                 .map((choice, index) => `<button class="gd-choice" data-action="gd-choose" data-choice="${index}">${ctx.escape(choice.label)}</button>`).join('')}</div>`
             : '';
-        const ending = demo.final
+        const ending = demo.final && !demo.queue.length && !demo.gate && !demo.composing
             ? `<div class="gd-choices gd-final">
                     <button class="button secondary" data-action="tour-explore">${label(ctx, 'Look around on my own', 'Explorar por mi cuenta')}</button>
                     <button class="button primary" data-action="tour-write">${label(ctx, 'Start writing', 'Empezar a escribir')}</button>
                 </div>`
             : '';
-
-        body.innerHTML = `<div class="gd-conversation" data-beat="${ctx.escape(demo.beat)}">
+        body.innerHTML = `<div class="gd-conversation" data-beat="${ctx.escape(demo.beat)}"${demo.composing ? ' data-composing="true"' : ''}${demo.gate ? ` data-gate="${ctx.escape(demo.gate.reason)}"` : ''}>
             <p class="gd-chapter" id="tourChapter" tabindex="-1">${ctx.escape(demo.chapter || '')}</p>
             <div class="gd-transcript">${transcript}${typing}</div>
-            ${choices}${ending}
+            ${gate}${choices}${ending}
         </div>`;
 
         if (footer) {
@@ -752,37 +926,196 @@
                 </div>`;
         }
 
-        // Focus moves to the first reply so a keyboard or screen-reader user
-        // lands on the thing to do next, not at the top of a growing transcript.
-        if (options.focus !== false && !demo.pending) {
-            const target = body.querySelector('.gd-choice, .gd-final .button.primary');
-            if (target) target.focus({ preventScroll: true });
-            else document.getElementById('tourChapter')?.focus();
+        // Focus never follows an arriving message into a bubble or a preview. It
+        // moves only after a deliberate action by the student, and only onto the
+        // control that action produced — otherwise the control they just
+        // activated disappears and focus falls to the document body.
+        const interactive = body.querySelector('.gd-choice, .gd-final .button.primary');
+        if (demo.focusPending && interactive && options.focus !== false) {
+            demo.focusPending = false;
+            // Deferred by a frame: the dialog performs its own initial focus on
+            // the next frame, so focusing synchronously here would be overwritten
+            // and a keyboard user would land on the close button instead of the
+            // reply their action produced.
+            const target = interactive;
+            requestAnimationFrame(() => {
+                if (active() && target.isConnected) target.focus({ preventScroll: true });
+            });
         }
-        // Keep the newest exchange and its replies in view, the way a chat does.
-        // A preview can be tall, so scrolling the last message is not enough —
-        // and the dialog's sticky footer makes scrollIntoView land short. The
-        // conversation's own scroll container is the dialog itself.
+
+        attachScrollWatch(ctx, body);
+        syncUnreadPill(ctx);
+        followNewContent(ctx, body, options.arrived, options.settled);
+
+        // A polite, restrained live region: one announcement per companion
+        // message that actually arrived. The composing dots are never announced,
+        // and a preview is announced by its caption rather than by reading out
+        // the whole component's markup.
+        if (options.arrived && options.arrived.who === 'pana' && options.announce !== false) {
+            ctx.announce(announcementFor(ctx, options.arrived));
+        }
+    }
+
+    function continueLabel(reason) {
+        if (reason === 'preview') return ['What am I seeing?', '¿Qué estoy viendo?'];
+        return ['Keep going', 'Sigue'];
+    }
+
+    function announcementFor(ctx, turn) {
+        const scratch = document.createElement('div');
+        scratch.innerHTML = turn.html;
+        if (turn.kind === 'preview') {
+            const caption = scratch.querySelector('.gd-preview-caption');
+            const text = caption ? caption.textContent.trim() : '';
+            return plain(ctx, `Sample shown: ${text}`, `Muestra: ${text}`);
+        }
+        return scratch.textContent.trim().slice(0, 220);
+    }
+
+    // ── Scroll orientation ───────────────────────────────────────────────────
+    // Follow the conversation while the student is reading the newest part; stop
+    // following the moment they scroll up to re-read, and tell them quietly that
+    // something arrived instead of yanking them back.
+    const NEAR_BOTTOM = 72;
+    let scrollWatchTarget = null;
+    let scrollWatchHandler = null;
+    // `scroll` events are ambiguous: our own smooth follow emits them, and so
+    // does the browser clamping scrollTop while the conversation is re-rendered.
+    // Neither means the student moved. So auto-follow is only ever switched off
+    // by evidence of an actual gesture — a wheel, a touch drag, a scrolling key,
+    // or a scrollbar drag. Everything else leaves following alone.
+    const SCROLL_KEYS = new Set(['PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown', ' ']);
+    let userIntentUntil = 0;
+    function markUserIntent() { userIntentUntil = Date.now() + 1500; }
+
+    function scrollTo(scroller, target) {
+        if (prefersReducedMotion()) scroller.scrollTop = target;
+        else scroller.scrollTo({ top: target, behavior: 'smooth' });
+    }
+
+    function isNearBottom(scroller) {
+        return scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight <= NEAR_BOTTOM;
+    }
+
+    function attachScrollWatch(ctx, body) {
         const scroller = body.closest('.dialog') || body;
-        if (scroller) {
-            // After layout: a preview's height is not known until it has been
-            // laid out, so measuring in the same frame lands short.
-            requestAnimationFrame(() => { scroller.scrollTop = scroller.scrollHeight; });
-        }
-        if (!demo.pending && options.announce !== false) {
-            const spoken = demo.turns.slice(-1)[0];
-            if (spoken && spoken.who === 'pana') {
-                const scratch = document.createElement('div');
-                scratch.innerHTML = spoken.html;
-                ctx.announce(scratch.textContent.trim().slice(0, 220));
+        if (!scroller || scrollWatchTarget === scroller) return;
+        detachScrollWatch();
+        scrollWatchTarget = scroller;
+        scrollWatchHandler = () => {
+            if (!active()) return;
+            // Sitting at the newest message is unambiguous however it happened:
+            // resume following and retire the affordance.
+            if (isNearBottom(scroller)) {
+                demo.stick = true;
+                if (demo.unreadBelow) { demo.unreadBelow = false; syncUnreadPill(ctx); }
+                return;
             }
+            // Away from the bottom, but only a gesture may stop following.
+            if (Date.now() > userIntentUntil) return;
+            demo.stick = false;
+        };
+        scroller.addEventListener('scroll', scrollWatchHandler, { passive: true });
+        scroller.addEventListener('wheel', markUserIntent, { passive: true });
+        scroller.addEventListener('touchmove', markUserIntent, { passive: true });
+        scroller.addEventListener('keydown', event => {
+            if (SCROLL_KEYS.has(event.key)) markUserIntent();
+        });
+        // A scrollbar drag starts on the scroller itself, outside its content box.
+        scroller.addEventListener('mousedown', event => {
+            if (event.offsetX > scroller.clientWidth || event.offsetY > scroller.clientHeight) markUserIntent();
+        });
+    }
+
+    function detachScrollWatch() {
+        if (scrollWatchTarget && scrollWatchHandler) {
+            scrollWatchTarget.removeEventListener('scroll', scrollWatchHandler);
+            scrollWatchTarget.removeEventListener('wheel', markUserIntent);
+            scrollWatchTarget.removeEventListener('touchmove', markUserIntent);
         }
+        scrollWatchTarget = null;
+        scrollWatchHandler = null;
+    }
+
+    // The pill lives outside the re-rendered conversation body so it survives a
+    // render, and is positioned against the viewport (honouring the safe area)
+    // rather than scrolling away with the transcript.
+    function syncUnreadPill(ctx) {
+        const existing = document.querySelector('.gd-unread');
+        if (!active() || !demo.unreadBelow) { existing?.remove(); return; }
+        if (existing) return;
+        const host = document.querySelector('.overlay') || document.body;
+        const pill = document.createElement('button');
+        pill.className = 'gd-unread';
+        pill.type = 'button';
+        pill.setAttribute('data-action', 'gd-jump');
+        pill.textContent = plain(ctx, 'New message ↓', 'Mensaje nuevo ↓');
+        pill.setAttribute('aria-label', plain(ctx,
+            'New message below. Jump to the newest message.',
+            'Mensaje nuevo abajo. Ir al mensaje más reciente.'));
+        host.appendChild(pill);
+    }
+
+    function followNewContent(ctx, body, arrived, settled) {
+        const scroller = body.closest('.dialog') || body;
+        if (!scroller) return;
+        // After layout: a preview's height is unknown until it has been laid out,
+        // so measuring in the same frame lands short.
+        requestAnimationFrame(() => {
+            if (!active() || !scroller.isConnected) return;
+            if (!demo.stick) {
+                // The student is reading further up. Say something arrived; do
+                // not move them. Replies becoming available counts as something
+                // arriving, so they are never left waiting off-screen.
+                if (arrived || settled) { demo.unreadBelow = true; syncUnreadPill(ctx); }
+                return;
+            }
+            const last = body.querySelector('.gd-transcript .gd-turn:last-child');
+            const anchor = body.querySelector('.gd-choices') || last;
+            if (!anchor) return;
+            const maxTop = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+            // Measured against the scrollport, not offsetParent — and the dialog's
+            // sticky footer covers the bottom of it, so the usable edge is higher.
+            const port = scroller.getBoundingClientRect();
+            const footer = document.querySelector('.dialog-footer');
+            const footerHeight = footer ? footer.getBoundingClientRect().height : 0;
+            const usableBottom = port.bottom - footerHeight;
+
+            let target;
+            if (last && last.getBoundingClientRect().height > (usableBottom - port.top) * 0.6) {
+                // A tall arrival — a live preview — is revealed from its top, with
+                // a strip of the preceding message still visible for context,
+                // rather than by jumping to the very bottom of the conversation.
+                target = scroller.scrollTop + (last.getBoundingClientRect().top - port.top) - 84;
+            } else {
+                // Otherwise bring the new item and the replies just inside view.
+                target = scroller.scrollTop + (anchor.getBoundingClientRect().bottom - usableBottom) + 16;
+            }
+            target = Math.max(0, Math.min(maxTop, Math.round(target)));
+
+            // Never scroll backwards: content is never moved above the student's
+            // current reading position.
+            if (target <= scroller.scrollTop) return;
+            scrollTo(scroller, target);
+        });
+    }
+
+    function jumpToNewest(ctx) {
+        const body = document.getElementById('tourBody');
+        const scroller = body ? (body.closest('.dialog') || body) : null;
+        if (!scroller) return;
+        demo.stick = true;
+        demo.unreadBelow = false;
+        syncUnreadPill(ctx);
+        scrollTo(scroller, Math.max(0, scroller.scrollHeight - scroller.clientHeight));
     }
 
     function finish(ctx, mode) {
         writePrefs({ completedAt: new Date().toISOString(), lastExit: mode });
         const originAtExit = demo ? demo.origin : 'welcome';
         endDemo();
+        detachScrollWatch();
+        document.querySelector('.gd-unread')?.remove();
         const cameFromWelcomeCard = originAtExit === 'welcome' || Boolean(document.querySelector('.tour-welcome'));
         ctx.closeDialog(true);
         if (cameFromWelcomeCard) {
@@ -817,11 +1150,23 @@
                 finish(ctx, 'explore');
                 return true;
             case 'gd-choose': {
-                if (!active() || demo.pending) return true;
+                // Guarded against repeat taps: choices exist only when the group
+                // has finished arriving, and are cleared the instant one is taken.
+                if (!active() || demo.composing || demo.gate || demo.queue.length) return true;
                 const choice = (demo.choices || [])[Number(target.dataset.choice)];
                 if (choice) advance(ctx, choice);
                 return true;
             }
+            case 'gd-continue':
+                continueReveal(ctx);
+                return true;
+            case 'gd-skip-composing':
+                skipComposing(ctx);
+                return true;
+            case 'gd-jump':
+                if (!active()) return true;
+                jumpToNewest(ctx);
+                return true;
             case 'gd-back':
                 if (!active()) return true;
                 back(ctx);
@@ -832,6 +1177,7 @@
                 return true;
             case 'gd-compare': {
                 if (!active()) return true;
+                invalidatePending();
                 demo.compare = target.dataset.choice === 'after' ? 'after' : 'before';
                 // Rebuild the revision beat's turns in place so the comparison
                 // updates without appending a duplicate stretch of conversation.
@@ -855,14 +1201,20 @@
         }
     }
 
-    // Re-render only the turns belonging to the current beat, in place.
+    // Re-render only the turns belonging to the current beat, in place. Used by
+    // the comparison tabs and by a language or writing-project change: the group
+    // is rebuilt whole, so it can never be part one language and part another.
     function rebuildCurrentBeat(ctx) {
         const start = typeof demo.beatStart === 'number' ? demo.beatStart : demo.turns.length;
         demo.turns = demo.turns.slice(0, start);
+        demo.queue = [];
+        demo.composing = false;
+        demo.gate = null;
         const rebuilt = beat(ctx, demo.beat);
         if (rebuilt) {
             rebuilt.turns.forEach(turn => demo.turns.push(turn));
             demo.choices = rebuilt.choices;
+            demo.beatChoices = rebuilt.choices;
             demo.chapter = rebuilt.chapter;
             demo.final = Boolean(rebuilt.final);
         }
@@ -870,17 +1222,19 @@
     }
 
     // Closing the dialog by any route (×, Escape, backdrop) ends the
-    // conversation and discards every value in it.
+    // conversation, cancels anything in flight, and discards every value in it.
     function notifyDialogClosed() {
         if (!active()) return;
         const origin = demo.origin;
         endDemo();
+        detachScrollWatch();
+        document.querySelector('.gd-unread')?.remove();
         restoreOriginFocus(origin);
     }
 
     window.StudioTour = {
         TOUR_KEY, TOUR_VERSION,
         readPrefs, welcomeAnswered, shouldOfferWelcome, welcomeCardHtml,
-        start, handleAction, notifyDialogClosed, isActive: active,
+        start, handleAction, notifyDialogClosed, notifyEnvironmentChanged, isActive: active,
     };
 }());

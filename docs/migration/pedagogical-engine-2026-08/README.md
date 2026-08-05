@@ -72,3 +72,5 @@ contracts; an uninterrupted non-AI route from beginning to Finish.
 - `quick-tour.md` — the six-moment Quick Tour (**superseded** by Guided Discovery)
 - `guided-discovery.md` — the choice-driven conversation that replaced the Quick Tour, its
   live-preview architecture, conversation map, and humor inventory
+- `guided-discovery-pacing.md` — the conversational pacing and scroll-orientation correction:
+  reveal state model, timing and continuation rules, and scroll-follow behavior

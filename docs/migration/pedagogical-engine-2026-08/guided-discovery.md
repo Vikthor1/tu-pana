@@ -290,7 +290,9 @@ baseline (202 / 202 English, 209 / 209 Spanish). The invitation sits below the f
 measured without returning scroll to the top reads 445 in **both** builds; that is the documented
 harness artifact (clicking a below-fold control scrolls the page), not a product change.
 
-**Battery:** see the regression totals recorded with the deployment below.
+**Battery: 58 suites / 1,965 checks / 0 failures** — the whole repository, run against the final
+code state. No suite was skipped and no flake recurred (the `studio_revision_cycle_test.mjs`
+bulk-run flake seen mid-pass returned 22/22 in the final battery and 3/3 in isolation).
 
 Screenshots reviewed internally (not committed — the repository's allowlist `.gitignore` excludes
 them): opening; Moves preview; the decision beat; revision with the review-copy preview; Evidence
@@ -298,12 +300,46 @@ preview; Review Center on the Council reply; STEM Council unavailability; Your V
 Spanish; bilingual; dark; mobile 390×844 including an enlarged preview; admissions, research, and
 CAP 200 openings; and the closing map.
 
+## Checkpoint and bounded-preview deployment
+
+**Checkpoint:** `b717d79ec32b513c809e964dc1876507380b8cde` on `migrate/pedagogical-engine-2026-08`
+(local only — the remote backup branch remains at `e8391d5`; pushing the new commit needs separate
+founder authorization).
+
+**Deployment:** `d6bf13b3` to Cloudflare Pages project `tupana-preview`
+(`https://d6bf13b3.tupana-preview.pages.dev`), serving `https://tupana-preview.pages.dev`.
+
+**All 22 user-facing files verified sha256-identical** to the checkpoint on both the deployment URL
+and the canonical alias: `studio.html`, `index.html`, `start-here.html`, `explore.html`, the five
+studio modules, the ten legacy modules, and both stylesheets. A first pass appeared to show a
+mismatch on three files; re-checking with cache-busting and redirect-following showed the canonical
+alias had simply not finished propagating.
+
+**Rollback targets, newest first:** `1a9bbdcc` (Quick Tour), `ca07932d` (first-contact clarity),
+`b058711e` (branding), `ac390d62` (live-AI readiness), `f90ad8be` (pre-Studio R0 surface). The
+`1a9bbdcc` deployment and the whole chain are preserved and restorable from the Pages dashboard.
+
+**Post-deploy smoke on the live preview host: 19/19, with a provider-call ledger of ZERO.** No live
+AI call was needed or made in this pass — the Review Center and Council entry points were verified
+present and consent-gated without invoking them. Covered: studio boot; live provider resolution
+(`gemini` on this host); the invitation; the conversation; **all five live previews rendering with
+the live adapter active and zero requests to the Worker**; record unchanged after exit; untouched
+desk; Review Center and Council entry points intact; the son's `?assignment=college-personal-statement`
+link routing with its own genre material; STEM Council unavailability truthful; the Spanish route;
+mobile without overflow; the son's `start-here.html` legacy tutorial still serving its genre; and no
+page errors.
+
 ## Unchanged
 
-Production Pages (`main` `0f66e46`), the Worker (zero requests this pass), R0 (`1462aea`), the
-exploration worktree (`d8b92e8`), and VC-OS (`08ae31a`). Nothing merged, nothing promoted.
+Production (GitHub Pages, built from product `main` `0f66e46` — no build triggered; the Cloudflare
+account holds only the `tupana-preview` project), the Worker (zero requests this pass), R0
+(`1462aea`), the exploration worktree and its remote (`d8b92e8`), the migration remote (`e8391d5`),
+and VC-OS (`main` == `origin/main` == `08ae31a`, clean). Nothing merged, nothing promoted, no SaaS
+work, no analytics.
 
 ## Founder test script (~4 minutes)
+
+Open `https://tupana-preview.pages.dev/studio.html`.
 
 1. Open the preview in a browser where you have not used the Studio (or clear its site data).
    Does **Want Tu Pana to show you around?** read as an invitation you could ignore?

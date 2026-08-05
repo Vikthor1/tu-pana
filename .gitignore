@@ -120,6 +120,7 @@
 !studio_tour_test.mjs
 !studio_pacing_test.mjs
 !studio_mobile_passage_test.mjs
+!studio_contrast_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

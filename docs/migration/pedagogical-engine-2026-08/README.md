@@ -76,3 +76,5 @@ contracts; an uninterrupted non-AI route from beginning to Finish.
   reveal state model, timing and continuation rules, and scroll-follow behavior
 - `mobile-passage-and-readability.md` — the two physical-iPhone P1 corrections: sentence-level
   Your Voice capture on iOS, and the semantic contrast fix for initial coach feedback
+- `founder-acceptance-and-contrast.md` — the founder's physical iPhone 17 Pro Max PASS on both
+  mobile P1 concerns, and the filled-primary dark-theme contrast correction

@@ -150,6 +150,31 @@ continuation controls and runs deterministically under reduced motion).
   indistinguishable from a real turn for any selector; it is now its own element.
 - **The pill collided with the mobile footer**, which stacks and is taller than the desktop one.
 
+## Checkpoint and bounded-preview deployment
+
+**Checkpoint:** `857e339527bf5cc25b9da9c34cc0d34e123c1155` on `migrate/pedagogical-engine-2026-08`.
+
+**Deployment:** `5445135c` to Cloudflare Pages project `tupana-preview`
+(`https://5445135c.tupana-preview.pages.dev`), serving `https://tupana-preview.pages.dev`.
+
+**All 22 user-facing files verified sha256-identical** to the checkpoint on both the deployment URL
+and the canonical alias. Only three files changed on the wire (`studio.css`, `studio-tour.js`,
+`studio-ui.js`); the canonical alias needed about a minute to finish propagating them, as in the
+previous pass.
+
+**Rollback targets, newest first:** `d6bf13b3` (Guided Discovery — the immediate rollback target),
+`1a9bbdcc` (Quick Tour), `ca07932d` (first-contact clarity), `b058711e` (branding), `ac390d62`
+(live-AI readiness), `f90ad8be` (pre-Studio R0 surface).
+
+**Post-deploy smoke on the live preview host: 26/26, provider-call ledger ZERO.** No live AI call
+was needed or made. Covered: live provider resolution on this host; the opening group arriving in
+stages; the pause at the live preview; following the tall preview into view; continuing; a real
+wheel gesture preserving the reading position; the new-message control appearing and jumping;
+record untouched after exit; untouched desk; Review Center still connected and consent-gated; Help
+replay; the admissions, STEM, and research genre links carrying their own material; Spanish and
+bilingual pacing; dark appearance; mobile following and no overflow; and the son's `start-here`
+legacy route still serving.
+
 ## Unchanged
 
 Dialogue, conversation map, humor inventory, English/Spanish genre content, all five live previews

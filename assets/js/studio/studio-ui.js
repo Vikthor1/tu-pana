@@ -28,6 +28,9 @@
     // Escape, backdrop) cancels the pending request: a late response is ignored,
     // persists nothing, and is recorded only as metadata-only usage + an event.
     let pendingProviderToken = null;
+    // True only inside one synchronous Guided Discovery preview render, during
+    // which the canonical state is swapped for synthetic data and saving is off.
+    let previewLock = false;
     let editorCaret = null;
     let activeEditSurface = null;
     const editHistories = new Map();
@@ -299,6 +302,9 @@
 
     function saveState(message = '') {
         if (!state) return;
+        // Guided Discovery preview window: the synthetic state installed for one
+        // synchronous render must never be persisted under any circumstance.
+        if (previewLock) return;
         state.savedAt = new Date().toISOString();
         try {
             localStorage.setItem(storageKey(concept), JSON.stringify(state));
@@ -844,9 +850,88 @@
         return `<button class="step-button" data-action="step" data-step="${number}" ${state.step === number ? 'aria-current="step"' : ''}><span class="step-number">${number}</span><span class="step-label"><strong>${escapeHtml(step[0])}</strong><small>${escapeHtml(step[1])}</small></span><span class="done-mark" aria-label="${done ? 'has evidence' : 'not complete'}">${done ? '✓' : '○'}</span></button>`;
     }
 
-    // Context handed to the quick tour. It exposes read-only descriptions of the
-    // active genre and whether real work exists; the tour cannot reach the
-    // canonical draft, any record, or the provider through it.
+    // ── Guided Discovery live-preview seam ───────────────────────────────────
+    // A preview is produced by the REAL panel renderer, so it cannot drift from
+    // the Studio: same markup, same classes, same translation source, same genre
+    // profile. Only the data is synthetic. The canonical state is swapped for a
+    // synthetic one for the duration of ONE synchronous render and restored in
+    // `finally`; `previewLock` additionally makes `saveState` a no-op for that
+    // window, so no synthetic value can reach localStorage even if a renderer
+    // asked for a save. Nothing here is async — a timer cannot interleave.
+    function syntheticPreviewState(seed = {}) {
+        const base = defaultState('integrated');
+        const genreId = state.genre;
+        const move = (integratedMoveProfiles[genreId] || [])[0] || null;
+        const at = '2026-01-15T15:04:00.000Z';
+        const synthetic = {
+            ...base,
+            lang: state.lang,
+            genre: genreId,
+            appearance: state.appearance,
+            createdAt: at,
+            savedAt: at,
+            draft: seed.draft || '',
+        };
+        if (seed.moveNote && move) {
+            synthetic.moveNotes = { [`${genreId}:${move.id}`]: { text: seed.moveNote, updatedAt: at } };
+        }
+        if (seed.voice) {
+            synthetic.voiceEntries = [{ id: 'demo-voice', text: seed.voice.text, reason: seed.voice.reason || '', protectedAt: at, genre: genreId }];
+        }
+        if (seed.decision) {
+            synthetic.decisions = [{ id: 'demo-decision', choice: seed.decision.choice, choiceLabel: seed.decision.label, suggestion: seed.decision.suggestion, rationale: seed.decision.rationale || '', createdAt: at, genre: genreId, genreLabel: (genres[genreId] || {}).label }];
+        }
+        if (seed.reviewCopy) {
+            synthetic.versions = [{ id: 'demo-copy', signature: `${seed.reviewCopy.length}:demo`, words: wordCount(seed.reviewCopy), createdAt: at, reason: 'review copy', text: seed.reviewCopy }];
+            synthetic.reviewCopy = { snapshotId: 'demo-copy', createdAt: at };
+        }
+        if (seed.review) {
+            synthetic.reviews = [{ id: 'demo-review', lens: seed.review.lens, scope: seed.review.scope, createdAt: at, genre: genreId, genreLabel: (genres[genreId] || {}).label }];
+        }
+        return synthetic;
+    }
+
+    // Inert by construction: every real `data-action` is renamed so the delegated
+    // handler can never see it, and every control is disabled and removed from
+    // the tab order. A preview is something to look at; the tour's own controls
+    // live outside the preview surface.
+    function sanitizePreviewMarkup(markup) {
+        const host = document.createElement('div');
+        host.innerHTML = markup;
+        host.querySelectorAll('[data-action]').forEach(node => {
+            node.setAttribute('data-demo-action', node.getAttribute('data-action'));
+            node.removeAttribute('data-action');
+        });
+        host.querySelectorAll('button').forEach(node => {
+            node.setAttribute('disabled', '');
+            node.setAttribute('tabindex', '-1');
+        });
+        host.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+        return host.innerHTML;
+    }
+
+    function renderTourPreview(kind, seed = {}) {
+        const realState = state;
+        let markup = '';
+        previewLock = true;
+        try {
+            state = syntheticPreviewState(seed);
+            if (kind === 'moves') markup = renderIntegratedMovesPanel();
+            else if (kind === 'review') markup = renderReviewPanel();
+            else if (kind === 'evidence') markup = renderEvidencePanel();
+            else if (kind === 'voice') markup = renderYourVoiceReference();
+            else if (kind === 'copies') markup = evidenceArchiveBody('copies');
+            else if (kind === 'decisions') markup = evidenceArchiveBody('decisions');
+        } finally {
+            state = realState;
+            previewLock = false;
+        }
+        return sanitizePreviewMarkup(markup);
+    }
+
+    // Context handed to Guided Discovery. It exposes read-only descriptions of
+    // the active genre and whether real work exists; the conversation cannot
+    // reach the canonical draft, any record, or the provider through it.
     function tourContext() {
         return {
             lang: () => state.lang,
@@ -855,6 +940,14 @@
             moveById: id => integratedMoves().find(move => move.id === id) || integratedMoves()[0] || null,
             moveLabel: integratedMoveLabel,
             moveNudge: integratedMoveNudge,
+            // Live annotated previews, rendered by the real panel renderers from
+            // synthetic data. Read-only markup: every control is inert.
+            preview: renderTourPreview,
+            genreLabel: () => genreLabel(),
+            councilAvailable: () => councilEnabled(),
+            // The same laptop-and-coffee companion as the header, so the
+            // conversation is visibly with the Studio's own character.
+            avatar: brandIconSvg,
             hasWork: () => Boolean((getDraft() || '').trim())
                 || (state.versions || []).length > 0
                 || (state.reviews || []).length > 0
@@ -2225,7 +2318,7 @@
     }
 
     function openHelp() {
-        openDialog(uiText('Help', 'Ayuda'), uiText('Tu Pana Writing Studio', 'Tu Pana Writing Studio'), `<p>${escapeHtml(uiText('Choose a safe route. Reports and feedback stay on this device.', 'Elige una ruta segura. Los reportes y comentarios permanecen en este dispositivo.'))}</p><div class="choice-stack"><button class="radio-card" data-action="tour-start"><span><strong>${escapeHtml(uiText('Take the quick tour', 'Hacer el recorrido rápido'))}</strong><br><small>${escapeHtml(uiText('About one minute. Uses a demonstration example, never your writing.', 'Cerca de un minuto. Usa un ejemplo de demostración, nunca tu escritura.'))}</small></span></button><button class="radio-card" data-action="help-report"><span>${escapeHtml(uiText('Report a problem', 'Reportar un problema'))}</span></button><button class="radio-card" data-action="help-feedback"><span>${escapeHtml(uiText('Share feedback', 'Compartir comentarios'))}</span></button></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+        openDialog(uiText('Help', 'Ayuda'), uiText('Tu Pana Writing Studio', 'Tu Pana Writing Studio'), `<p>${escapeHtml(uiText('Choose a safe route. Reports and feedback stay on this device.', 'Elige una ruta segura. Los reportes y comentarios permanecen en este dispositivo.'))}</p><div class="choice-stack"><button class="radio-card" data-action="tour-start"><span><strong>${escapeHtml(uiText('Let Tu Pana show you around', 'Deja que Tu Pana te muestre el lugar'))}</strong><br><small>${escapeHtml(uiText('A short conversation, no typing. Uses sample material, never your writing.', 'Una conversación corta, sin escribir nada. Usa material de muestra, nunca tu escritura.'))}</small></span></button><button class="radio-card" data-action="help-report"><span>${escapeHtml(uiText('Report a problem', 'Reportar un problema'))}</span></button><button class="radio-card" data-action="help-feedback"><span>${escapeHtml(uiText('Share feedback', 'Compartir comentarios'))}</span></button></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
     }
 
     function openHelpReport(category = 'problem') {

@@ -66,3 +66,9 @@ contracts; an uninterrupted non-AI route from beginning to Finish.
 - `target-architecture.md` — genre profiles, canonical state, legacy adapter design
 - `verification.md` — per-slice and comparative verification results
 - `handoff.md` — final handoff report and founder test script
+- `live-readiness.md` — live-AI connection, Council safety kernel, bounded live validation
+- `branding-pass.md` — companion identity restoration and header polish
+- `first-contact-clarity.md` — first-viewport clarity pass
+- `quick-tour.md` — the six-moment Quick Tour (**superseded** by Guided Discovery)
+- `guided-discovery.md` — the choice-driven conversation that replaced the Quick Tour, its
+  live-preview architecture, conversation map, and humor inventory

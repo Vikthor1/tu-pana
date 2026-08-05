@@ -1,5 +1,11 @@
 # Interactive Quick Tour — 2026-08-05
 
+> **Superseded 2026-08-05 by Guided Discovery** (`guided-discovery.md`). The founder's lived review
+> returned `PASS-with-concern`: elegant, clear, isolated, and technically accepted, but less
+> engaging and less informatively conversational than the legacy tutorial. This record is kept for
+> its architecture decision, isolation proof, and measurements, which Guided Discovery inherited.
+> The six-moment implementation described below no longer ships.
+
 **Base:** `6fd979f0f7bec6decf7972149379999a60541545` (first-contact clarity checkpoint; clean).
 **Scope:** one optional, isolated onboarding layer. No change to navigation, pedagogy, routing,
 provider configuration, prompts, validation, consent, storage schema, or any real record.

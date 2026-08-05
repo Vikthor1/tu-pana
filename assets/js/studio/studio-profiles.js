@@ -25,6 +25,41 @@
                 before: { en: 'I had treated translating as a small favor.', es: 'Yo trataba la traducción como un favor pequeño.' },
                 after: { en: 'I had treated translating as a small favor, not as something with a history behind it.', es: 'Yo trataba la traducción como un favor pequeño, no como algo con una historia detrás.' },
             },
+            // Guided Discovery: genre-owned conversational content. Humor here
+            // stays on writing and revision — never on family, language,
+            // community, or anything a student lived through.
+            discovery: {
+                openingQuip: {
+                    en: 'Seventeen notebooks, four napkins, one voice memo. The draft can still be one thing.',
+                    es: 'Diecisiete libretas, cuatro servilletas y una nota de voz. El borrador todavía puede ser uno solo.',
+                },
+                concerns: [
+                    { id: 'belongs', moveId: 'memory-boundary',
+                      en: 'I don’t know what belongs here.', es: 'No sé qué cabe aquí.',
+                      replyEn: 'Honest place to start. One Move is built for exactly that: choosing a moment, and choosing where it stops.',
+                      replyEs: 'Buen punto de partida. Hay una Movida hecha justo para eso: elegir un momento y elegir dónde termina.' },
+                    { id: 'meaning', moveId: 'larger-force',
+                      en: 'I have the moment, not the meaning.', es: 'Tengo el momento, no el significado.',
+                      replyEn: 'That gap is the essay, not a problem with it. A Move helps you name the larger question the moment opens.',
+                      replyEs: 'Ese hueco es el ensayo, no un defecto. Una Movida te ayuda a nombrar la pregunta más amplia que abre el momento.' },
+                    { id: 'sound', moveId: 'voice-language',
+                      en: 'I’m worried it won’t sound like me.', es: 'Me preocupa que no suene a mí.',
+                      replyEn: 'Then we start there. One Move is about protecting language before anything gets revised.',
+                      replyEs: 'Entonces empezamos por ahí. Hay una Movida para proteger el idioma antes de revisar nada.' },
+                ],
+                moveNote: {
+                    en: 'The library counter — the afternoon my aunt answered before I did. Stop before the part about my grandmother.',
+                    es: 'El mostrador de la biblioteca — la tarde en que mi tía respondió antes que yo. Parar antes de la parte de mi abuela.',
+                },
+                voiceReason: {
+                    en: 'This is how it is actually said at home. I don’t want it smoothed out.',
+                    es: 'Así se dice de verdad en mi casa. No quiero que me lo suavicen.',
+                },
+                decisionRationale: {
+                    en: 'Taking the direction, keeping my own wording.',
+                    es: 'Tomo la dirección y conservo mis palabras.',
+                },
+            },
             sample: 'At the neighborhood library, I answered my aunt in English until she said, “aquí escuchamos primero.” I had treated translation as a quick exchange of words. Her phrase made me notice who was expected to adapt, whose knowledge counted, and why language access is also a question of power. This synthetic essay connects that chosen memory to a larger history of public institutions and multilingual communities without asking any student to disclose a private family story.',
             moves: {
                 discover: ['Choose a memory and a boundary', 'Connect memory to a larger force', 'Test experience with research and context', 'Protect language and voice'],
@@ -44,6 +79,40 @@
                 suggestion: { en: 'The shift in your understanding is the strongest part. Consider giving that change one more sentence of your own thinking.', es: 'El cambio en tu comprensión es la parte más fuerte. Considera darle a ese cambio una oración más de tu propio pensamiento.' },
                 before: { en: 'By Friday I understood that people wanted something else.', es: 'Para el viernes entendí que la gente quería otra cosa.' },
                 after: { en: 'By Friday I understood that people wanted to know what the form would change.', es: 'Para el viernes entendí que la gente quería saber qué cambiaría el formulario.' },
+            },
+            // Guided Discovery: gently resists the movie-trailer expectation.
+            // No admission-odds language, no invented institutional fit.
+            discovery: {
+                openingQuip: {
+                    en: 'Your life does not have to become a movie trailer. No slow motion required.',
+                    es: 'Tu vida no tiene que volverse un tráiler de película. No hace falta cámara lenta.',
+                },
+                concerns: [
+                    { id: 'which', moveId: 'disclosure',
+                      en: 'I don’t know which story to tell.', es: 'No sé qué historia contar.',
+                      replyEn: 'Common, and fixable. A Move helps you choose what you actually want to reveal — and what stays yours.',
+                      replyEs: 'Pasa mucho y tiene arreglo. Una Movida te ayuda a elegir qué quieres mostrar y qué se queda para ti.' },
+                    { id: 'point', moveId: 'connection',
+                      en: 'I have the story, not the point.', es: 'Tengo la historia, no la idea.',
+                      replyEn: 'The point usually hides in what changed for you. There’s a Move for finding it.',
+                      replyEs: 'La idea suele esconderse en lo que cambió para ti. Hay una Movida para encontrarla.' },
+                    { id: 'generic', moveId: 'language',
+                      en: 'I’m worried it’ll sound like everyone else.', es: 'Me preocupa sonar igual que todos.',
+                      replyEn: 'Then let’s protect the parts only you would write, before anything gets polished.',
+                      replyEs: 'Entonces protejamos lo que solo tú escribirías, antes de pulir nada.' },
+                ],
+                moveNote: {
+                    en: 'The signup-sheet week. Keep the part where I was wrong about what the problem was.',
+                    es: 'La semana de la hoja de registro. Conservar la parte en que me equivoqué sobre cuál era el problema.',
+                },
+                voiceReason: {
+                    en: 'It’s the plainest sentence in the essay and it’s the true one.',
+                    es: 'Es la oración más sencilla del ensayo y es la verdadera.',
+                },
+                decisionRationale: {
+                    en: 'Good direction, but I’ll say it my way.',
+                    es: 'Buena dirección, pero lo digo a mi manera.',
+                },
             },
             sample: 'The first week at the neighborhood learning center, I designed a color-coded signup sheet because I thought efficiency was the problem. By Friday, I understood that the real problem was trust. Families did not need a faster form; they needed someone to explain what the form would change. I began sitting beside each visitor, listening before writing. That shift—from solving the visible task to understanding the human need—now guides how I approach community technology and the questions I hope to study in college.',
             moves: {
@@ -65,6 +134,41 @@
                 before: { en: 'The seedlings under longer light grew more.', es: 'Las plántulas con luz más prolongada crecieron más.' },
                 after: { en: 'The seedlings under longer light grew 2.4 centimeters more on average.', es: 'Las plántulas con luz más prolongada crecieron 2.4 centímetros más en promedio.' },
             },
+            // Guided Discovery: humor distinguishes what was observed from what
+            // everyone hoped for. Council is not configured for this profile and
+            // the conversation says so plainly rather than hiding it.
+            discovery: {
+                openingQuip: {
+                    en: 'A lab report says what happened — not what everyone was hoping would happen.',
+                    es: 'Un informe de laboratorio dice lo que pasó, no lo que todos esperaban que pasara.',
+                },
+                concerns: [
+                    { id: 'start', moveId: 'question',
+                      en: 'I don’t know where to start writing it up.', es: 'No sé por dónde empezar a redactarlo.',
+                      replyEn: 'Start with the question and what you predicted. A Move keeps that pair in front of you.',
+                      replyEs: 'Empieza por la pregunta y lo que predijiste. Una Movida mantiene ese par a la vista.' },
+                    { id: 'mixing', moveId: 'observation',
+                      en: 'I keep mixing observation with interpretation.', es: 'Mezclo la observación con la interpretación.',
+                      replyEn: 'That separation is most of the grade in this genre. There’s a Move that does only that.',
+                      replyEs: 'Esa separación es buena parte de la nota en este género. Hay una Movida solo para eso.' },
+                    { id: 'connect', moveId: 'reasoning',
+                      en: 'I can’t connect my data to the claim.', es: 'No logro conectar mis datos con la afirmación.',
+                      replyEn: 'Then we work the link itself — evidence, then the reasoning that carries it.',
+                      replyEs: 'Entonces trabajamos el enlace: la evidencia y luego el razonamiento que la sostiene.' },
+                ],
+                moveNote: {
+                    en: '2.4 cm mean difference. One outlier seedling. Sample of twelve — say so plainly.',
+                    es: 'Diferencia media de 2.4 cm. Una plántula atípica. Muestra de doce — decirlo claramente.',
+                },
+                voiceReason: {
+                    en: 'I wrote the limitation myself and I want it kept.',
+                    es: 'La limitación la escribí yo y quiero conservarla.',
+                },
+                decisionRationale: {
+                    en: 'Adding the course concept, keeping my numbers as they are.',
+                    es: 'Agrego el concepto del curso y dejo mis números como están.',
+                },
+            },
             sample: 'The basil seedlings exposed to eight hours of light grew an average of 2.4 centimeters more than the seedlings exposed to four hours. This result supports the prediction that longer light exposure increases early stem growth under otherwise controlled conditions. The small sample size and one unusually tall seedling limit the strength of the conclusion. A second trial with more plants and randomized tray positions would test whether the pattern persists.',
             moves: {
                 discover: ['State the research question and prediction', 'Separate observation from interpretation', 'Connect the result to the evidence'],
@@ -84,6 +188,40 @@
                 suggestion: { en: 'The claim rests on concrete work. Consider adding what that work taught you, so the reader can follow the claim to the question.', es: 'La afirmación se apoya en trabajo concreto. Considera añadir qué te enseñó ese trabajo, para que el lector siga la afirmación hasta la pregunta.' },
                 before: { en: 'I worked on a survey project.', es: 'Trabajé en un proyecto de encuesta.' },
                 after: { en: 'I built the intake survey and coded the responses myself.', es: 'Construí la encuesta de admisión y codifiqué las respuestas yo mismo.' },
+            },
+            // Guided Discovery: contrasts concrete evidence with impressive
+            // adjectives. Never invents faculty, courses, or opportunities.
+            discovery: {
+                openingQuip: {
+                    en: '“Passionate, dedicated, driven.” A beautiful cloud with nothing to stand on.',
+                    es: '«Apasionado, dedicado, comprometido». Una nube preciosa sin dónde pararse.',
+                },
+                concerns: [
+                    { id: 'generic', moveId: 'trajectory',
+                      en: 'Everything I write sounds generic.', es: 'Todo lo que escribo suena genérico.',
+                      replyEn: 'Usually that means the trajectory is missing, not the talent. A Move traces it.',
+                      replyEs: 'Casi siempre falta la trayectoria, no el talento. Una Movida la traza.' },
+                    { id: 'claims', moveId: 'evidence',
+                      en: 'I have claims, not evidence.', es: 'Tengo afirmaciones, no evidencia.',
+                      replyEn: 'Then we go find the work you actually did. That’s what a committee can follow.',
+                      replyEs: 'Entonces buscamos el trabajo que de verdad hiciste. Eso es lo que un comité puede seguir.' },
+                    { id: 'fit', moveId: 'fit',
+                      en: 'I don’t know how to write about the program.', es: 'No sé cómo escribir sobre el programa.',
+                      replyEn: 'Carefully, and only from what you can verify. A Move keeps that honest.',
+                      replyEs: 'Con cuidado y solo con lo que puedas verificar. Una Movida lo mantiene honesto.' },
+                ],
+                moveNote: {
+                    en: 'Built the intake survey, coded 300 responses. The question started there, not in a seminar.',
+                    es: 'Construí la encuesta y codifiqué 300 respuestas. La pregunta empezó ahí, no en un seminario.',
+                },
+                voiceReason: {
+                    en: 'This names what I actually did. I don’t want it generalized.',
+                    es: 'Esto nombra lo que de verdad hice. No quiero que lo generalicen.',
+                },
+                decisionRationale: {
+                    en: 'Useful point — I’ll add the method, not the adjectives.',
+                    es: 'Buen punto: agrego el método, no los adjetivos.',
+                },
             },
             sample: 'My work on a public transit accessibility project showed me how technical decisions become public consequences. I entered the project focused on routing efficiency and left asking how disabled riders could shape the systems intended to serve them. Graduate study in human-centered computing would let me build the research methods needed to investigate that question with rigor. I hope to study participatory design, accessible infrastructure, and the ways public institutions can evaluate whether technology expands meaningful access.',
             moves: {
@@ -105,6 +243,40 @@
                 before: { en: 'Students have trouble using the library.', es: 'Los estudiantes tienen dificultades para usar la biblioteca.' },
                 after: { en: 'Students who work day shifts arrive when the doors are already closing.', es: 'Los estudiantes que trabajan de día llegan cuando las puertas ya se están cerrando.' },
             },
+            // Guided Discovery: neutral by design — inherits no admissions or
+            // autobiographical assumption.
+            discovery: {
+                openingQuip: {
+                    en: 'The blank page is being dramatic. We don’t have to join it.',
+                    es: 'La página en blanco se cree muy dramática. No tenemos que seguirle el juego.',
+                },
+                concerns: [
+                    { id: 'reader', moveId: 'purpose',
+                      en: 'I don’t know what the reader needs.', es: 'No sé qué necesita quien lee.',
+                      replyEn: 'Then that’s the first question, not a later one. A Move makes purpose and audience explicit.',
+                      replyEs: 'Entonces esa es la primera pregunta, no una posterior. Una Movida hace explícitos el propósito y el público.' },
+                    { id: 'organize', moveId: 'structure',
+                      en: 'I have ideas but can’t organize them.', es: 'Tengo ideas pero no logro ordenarlas.',
+                      replyEn: 'Very normal. A Move helps you sketch a sequence a reader can actually follow.',
+                      replyEs: 'Muy normal. Una Movida te ayuda a bosquejar una secuencia que se pueda seguir.' },
+                    { id: 'evidence', moveId: 'evidence',
+                      en: 'I’m not sure my evidence is enough.', es: 'No sé si mi evidencia alcanza.',
+                      replyEn: 'Let’s look at what would actually convince a careful reader.',
+                      replyEs: 'Veamos qué convencería de verdad a quien lee con atención.' },
+                ],
+                moveNote: {
+                    en: 'Audience: the committee that sets hours. They need the cost question answered before they will read further.',
+                    es: 'Público: el comité que fija los horarios. Necesitan la pregunta del costo resuelta antes de seguir leyendo.',
+                },
+                voiceReason: {
+                    en: 'Concrete, and it came from watching rather than guessing.',
+                    es: 'Es concreto y salió de observar, no de suponer.',
+                },
+                decisionRationale: {
+                    en: 'Fair point about evidence. Keeping my opening line.',
+                    es: 'Buen punto sobre la evidencia. Conservo mi primera línea.',
+                },
+            },
             sample: 'This synthetic draft begins with a clear purpose, develops one idea with concrete evidence, and leaves room for the writer to decide what should change next. The language is intentionally neutral so that no assignment inherits expectations from an unrelated genre.',
             moves: {
                 discover: ['Clarify the purpose and audience', 'Choose relevant evidence', 'Arrange ideas so the reader can follow'],
@@ -125,6 +297,41 @@
                 before: { en: 'The pantry was busy and confusing.', es: 'La despensa estaba ocupada y confusa.' },
                 after: { en: 'Explaining eligibility rules took as long as handing out food.', es: 'Explicar las reglas de elegibilidad tomaba tanto tiempo como entregar alimentos.' },
             },
+            // Guided Discovery: warmth stays on the writing and the notebook.
+            // Nothing here jokes about service, community conditions, or the
+            // people a student worked with, and nothing invents an experience.
+            discovery: {
+                openingQuip: {
+                    en: 'Your shift notes have been waiting patiently. Let’s give them somewhere to go.',
+                    es: 'Tus notas de turno llevan rato esperando. Vamos a darles a dónde ir.',
+                },
+                concerns: [
+                    { id: 'notes', moveId: 'imrdc-structure',
+                      en: 'I have notes, not a report.', es: 'Tengo notas, no un reporte.',
+                      replyEn: 'That’s the right raw material. A Move helps you give it the structure the report needs.',
+                      replyEs: 'Ese es el material correcto. Una Movida te ayuda a darle la estructura que el reporte necesita.' },
+                    { id: 'concept', moveId: 'community-course-bridge',
+                      en: 'I don’t know which course concept fits.', es: 'No sé qué concepto del curso encaja.',
+                      replyEn: 'Then we start from what you observed and work toward the concept, not the other way around.',
+                      replyEs: 'Entonces partimos de lo que observaste y avanzamos hacia el concepto, no al revés.' },
+                    { id: 'counts', moveId: 'evidence-data-plan',
+                      en: 'I’m not sure what counts as evidence.', es: 'No sé qué cuenta como evidencia.',
+                      replyEn: 'Your logged hours, your own notes, what you recorded at the time. A Move helps you plan it.',
+                      replyEs: 'Tus horas registradas, tus propias notas, lo que anotaste en el momento. Una Movida te ayuda a planearlo.' },
+                ],
+                moveNote: {
+                    en: 'Third week: explaining eligibility took as long as handing out food. Four shifts logged, journal after each.',
+                    es: 'Tercera semana: explicar la elegibilidad tomaba tanto como entregar alimentos. Cuatro turnos registrados, diario después de cada uno.',
+                },
+                voiceReason: {
+                    en: 'This is what I actually observed, not a summary of it.',
+                    es: 'Esto es lo que observé de verdad, no un resumen.',
+                },
+                decisionRationale: {
+                    en: 'Naming the concept, keeping my own description of the shift.',
+                    es: 'Nombro el concepto y conservo mi propia descripción del turno.',
+                },
+            },
             sample: 'During my ten hours at the neighborhood food pantry, I logged each shift and kept a short journal after every visit. By the third week, my notes showed a pattern: volunteers spent as much time explaining eligibility rules as they did handing out groceries. That observation connected directly to our course concept of structural barriers to access. This synthetic report draws on real logged hours and journal entries — no interview or statistic here was invented — to argue that confusion, not scarcity, was the persistent obstacle.',
             moves: {
                 discover: ['Name your community starting point', 'Connect the issue to a course concept', 'Plan your evidence and data', 'Structure the report (IMRDC)'],
@@ -144,6 +351,43 @@
                 suggestion: { en: 'You have noticed a real tension between sources. Consider stating your own interpretation of that tension before adding more sources.', es: 'Notaste una tensión real entre fuentes. Considera declarar tu propia interpretación de esa tensión antes de añadir más fuentes.' },
                 before: { en: 'My sources say different things.', es: 'Mis fuentes dicen cosas distintas.' },
                 after: { en: 'Put side by side, they disagree about what counts as a benefit.', es: 'Puestas lado a lado, no coinciden en qué cuenta como beneficio.' },
+            },
+            // Guided Discovery: the humor carries the hardest rule in this genre —
+            // no invented source, quotation, citation, page number, or finding.
+            discovery: {
+                openingQuip: {
+                    // "No matter how confident it looks" carries the real critical-AI
+                    // point. An earlier draft ("I have tested this") could be misread
+                    // as Tu Pana admitting it fabricates sources.
+                    en: 'A citation cannot summon a source that does not exist — no matter how confident the citation looks.',
+                    es: 'Una cita no puede invocar una fuente que no existe, por muy segura que se vea.',
+                },
+                concerns: [
+                    { id: 'big', moveId: 'focused-question',
+                      en: 'My topic is way too big.', es: 'Mi tema es demasiado amplio.',
+                      replyEn: 'Almost every topic is, at first. A Move narrows it into something arguable.',
+                      replyEs: 'Casi todos lo son al principio. Una Movida lo reduce a algo discutible.' },
+                    { id: 'argument', moveId: 'notes-patterns',
+                      en: 'I have sources, not an argument.', es: 'Tengo fuentes, no un argumento.',
+                      replyEn: 'The argument usually shows up where sources disagree. A Move helps you find that seam.',
+                      replyEs: 'El argumento suele aparecer donde las fuentes no coinciden. Una Movida te ayuda a encontrar esa costura.' },
+                    { id: 'quality', moveId: 'source-evaluation',
+                      en: 'I don’t know if my sources are good enough.', es: 'No sé si mis fuentes son suficientemente buenas.',
+                      replyEn: 'Then we evaluate them deliberately, one at a time, with your own judgment.',
+                      replyEs: 'Entonces las evaluamos con calma, una por una, con tu propio criterio.' },
+                ],
+                moveNote: {
+                    en: 'Two sources measure different things — diet vs. civic participation. They disagree on what “benefit” means.',
+                    es: 'Dos fuentes miden cosas distintas: dieta y participación cívica. No coinciden en qué significa «beneficio».',
+                },
+                voiceReason: {
+                    en: 'This is my reading of the tension, not either source’s.',
+                    es: 'Esta es mi lectura de la tensión, no la de ninguna fuente.',
+                },
+                decisionRationale: {
+                    en: 'I’ll state my interpretation first, then add sources.',
+                    es: 'Primero declaro mi interpretación y después agrego fuentes.',
+                },
             },
             sample: 'Community gardens are often described as solutions to food insecurity, but the sources I have gathered disagree about how much they actually help. One source measures diet change directly; another focuses on social connection and civic participation instead. Placed side by side, they suggest the benefit may be real but different from what garden advocates usually claim. This synthetic paragraph models how a research paragraph puts sources in conversation rather than summarizing them one at a time — no source named here is real.',
             moves: {

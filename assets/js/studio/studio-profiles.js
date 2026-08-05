@@ -382,10 +382,38 @@
     // Council configuration per profile, translated from assets/js/council.js
     // COUNCIL_PROFILES (lines 78-163). `enabled: false` states its reason plainly;
     // no profile ever falls back to another genre's roles.
+    // Role mandates ported from legacy COUNCIL_ROLES (council.js:41-66) with the
+    // genre roleMandate overlays (council.js:78-163), aligned by position with
+    // genres[id].moves.council display labels. Role identity in every record and
+    // prompt derives from these entries, never from generated text.
+    const COUNCIL_ROLE_MANDATES = {
+        structure: 'Assess overall movement, sequencing, paragraph roles, transitions, and the through-line. Ignore sentence-level style, evidence quality, and voice. Never rewrite and never provide a full alternative outline.',
+        evidence: 'Assess the quality, placement, specificity, and interpretation of evidence. Never invent, suggest, or imply sources, data, quotations, or facts.',
+        voice: 'Name where the voice works, where meaning genuinely blurs, and which passages must NOT be polished away. Never recommend standardizing, translating, or smoothing culturally situated phrasing.',
+    };
+    function councilRoles(genreId, overlays = {}) {
+        return ['structure', 'evidence', 'voice'].map(key => ({
+            key,
+            mandate: COUNCIL_ROLE_MANDATES[key] + (overlays[key] ? ` ${overlays[key]}` : ''),
+        }));
+    }
+
     const councilConfig = {
-        autobiographical: { enabled: true, synthesisOrder: ['structure', 'evidence', 'voice'], criticalKey: 'cultural' },
+        autobiographical: {
+            enabled: true, synthesisOrder: ['structure', 'evidence', 'voice'], criticalKey: 'cultural',
+            roles: councilRoles('autobiographical', {
+                structure: 'The audience is a mixed-genre autobiographical essay connecting chosen experience to a larger historical, social, cultural, or political force.',
+                evidence: 'Personal and community knowledge can function as evidence when connected to history and analysis; factual claims still need traceable support.',
+                voice: 'Cultural and linguistic variation is a resource; issue an explicit preservation warning when a likely recommendation would generify the text.',
+            }),
+        },
         admissions: {
             enabled: true, synthesisOrder: ['voice', 'structure', 'evidence'], criticalKey: 'cultural',
+            roles: councilRoles('admissions', {
+                structure: 'A personal statement moves from a lived moment toward reflection; it does not need five-paragraph form.',
+                evidence: 'Evidence is lived scenes and concrete actions, not credential lists.',
+                voice: 'The writer\'s own voice is the single most valuable element of this genre.',
+            }),
             prohibitions: [
                 'Never predict admission outcomes or competitiveness, or compare the writer with other applicants.',
                 'Never recommend adding achievements, experiences, or qualities the draft does not state.',
@@ -395,14 +423,23 @@
         stem: { enabled: false, criticalKey: 'accuracy' },
         sop: {
             enabled: true, synthesisOrder: ['evidence', 'structure', 'voice'], criticalKey: 'cultural',
+            roles: councilRoles('sop', {
+                structure: 'Assess trajectory without demanding chronology for its own sake.',
+                evidence: 'Preparation claims need named projects, methods, results, or sources the draft itself states.',
+                voice: 'Protect the applicant\'s voice against generic admissions-speak.',
+            }),
             prohibitions: [
                 'Never predict admission chances.',
                 'Never claim experience or preparation the draft does not state.',
             ],
         },
-        neutral: { enabled: true, synthesisOrder: ['structure', 'evidence', 'voice'], criticalKey: 'cultural' },
+        neutral: { enabled: true, synthesisOrder: ['structure', 'evidence', 'voice'], criticalKey: 'cultural', roles: councilRoles('neutral') },
         cap200: {
             enabled: true, synthesisOrder: ['evidence', 'structure', 'voice'], criticalKey: 'accuracy',
+            roles: councilRoles('cap200', {
+                evidence: 'Evidence means real logged hours, observations, journals, interviews, and surveys the draft reports.',
+                voice: 'Flag any framing that describes the community in deficit terms.',
+            }),
             prohibitions: [
                 'Never suggest inventing or embellishing service activities, hours, partners, or data.',
                 'Never recommend framing the community in deficit terms.',
@@ -410,6 +447,9 @@
         },
         research: {
             enabled: true, synthesisOrder: ['evidence', 'structure', 'voice'], criticalKey: 'accuracy',
+            roles: councilRoles('research', {
+                evidence: 'Claims must be traceable to the draft\'s own sources; student analysis must be distinguishable from summary.',
+            }),
             prohibitions: [
                 'Never invent sources, titles, authors, quotations, or citation details.',
             ],

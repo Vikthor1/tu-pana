@@ -533,3 +533,15 @@ body.focus-mode .draft-editor { min-height: calc(100dvh - 96px); }
 }
 .move-deeper { margin-top: 8px; }
 .assignment-notice { font-style: italic; }
+
+/* Council structured report */
+.council-summary { font-weight: 600; margin: 10px 0 4px; }
+.council-finding { border-top: 1px solid var(--line, rgba(0,0,0,0.12)); padding-top: 10px; margin-top: 10px; }
+.council-finding-head { margin-bottom: 4px; }
+.corroborated-mark { color: var(--accent, #2f6f4f); font-weight: 700; }
+.tentative-chip { font-size: 0.82em; border: 1px solid currentColor; border-radius: 999px; padding: 1px 8px; opacity: 0.75; }
+.council-anchor { font-style: italic; overflow-wrap: anywhere; }
+.council-preserve, .council-disagreements { margin-top: 12px; }
+.council-preserve h4, .council-disagreements h4 { margin-bottom: 6px; }
+.council-partial-note, .council-dropped-note, .truncated-note { font-size: 0.9em; opacity: 0.85; }
+.voice-note { font-size: 0.92em; }

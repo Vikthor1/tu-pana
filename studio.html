@@ -14,8 +14,30 @@
     <div id="liveRegion" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
     <div id="assertiveRegion" class="sr-only" role="alert" aria-live="assertive" aria-atomic="true"></div>
     <div id="dialogRoot"></div>
+    <script>
+    // Provider resolution. Live Gemini activates ONLY on the bounded family
+    // preview host or by explicit ?provider=gemini; every other origin — tests,
+    // local development, unknown hosts — defaults to the deterministic mock, so
+    // live mode cannot activate accidentally in automation (which runs on
+    // 127.0.0.1, an origin the Worker additionally refuses). No credential lives
+    // here: the proxy Worker holds the provider key server-side.
+    (function () {
+        var params = new URLSearchParams(location.search);
+        var override = params.get('provider');
+        var onPreviewHost = location.hostname === 'tupana-preview.pages.dev'
+            || location.hostname.endsWith('.tupana-preview.pages.dev');
+        var provider = (override === 'gemini' || override === 'mock')
+            ? override
+            : (onPreviewHost ? 'gemini' : 'mock');
+        window.STUDIO_CONFIG = {
+            provider: provider,
+            proxyUrl: 'https://tupana-gemini-proxy.dr-torres-velez.workers.dev',
+        };
+    }());
+    </script>
     <script src="assets/js/studio/studio-profiles.js"></script>
     <script src="assets/js/studio/studio-provider.js"></script>
+    <script src="assets/js/studio/studio-council.js"></script>
     <script src="assets/js/studio/studio-import.js"></script>
     <script src="assets/js/studio/studio-ui.js"></script>
 </body>

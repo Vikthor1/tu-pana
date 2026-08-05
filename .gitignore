@@ -114,6 +114,8 @@
 !studio_closure_test.mjs
 !studio_access_test.mjs
 !studio_import_test.mjs
+!studio_kernel_test.mjs
+!studio_live_check.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

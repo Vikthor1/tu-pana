@@ -68,11 +68,11 @@ You must not write the student's work for them. Never produce full essays, draft
     }
 
     function buildCouncilReviewerPrompt(payload) {
-        return `${AUTHORSHIP_RULES}\n\n[COUNCIL REVIEWER]\n${genreHeader(payload)}\nYOUR ROLE — ${payload.roleLabel}\nMANDATE: ${payload.roleMandate || payload.roleLabel}\n${payload.prohibitions && payload.prohibitions.length ? `PROHIBITED IN THIS GENRE:\n${payload.prohibitions.map(rule => `- ${rule}`).join('\n')}\n` : ''}RULES:\n- At most 5 findings; reporting no findings is an acceptable answer.\n- Every finding MUST anchor to a verbatim quotation from the draft (3–40 words); non-verbatim anchors are discarded automatically.\n- Name a revision strategy, never replacement prose.\n- Warn explicitly when a likely recommendation would flatten culturally meaningful, dialectal, or code-meshed language.\n\n[STUDENT DRAFT]\n${payload.text}\n[END STUDENT DRAFT]`;
+        return `${AUTHORSHIP_RULES}\n\n[COUNCIL REVIEWER]\n${genreHeader(payload)}\nYOUR ROLE — ${payload.roleLabel}\nMANDATE: ${payload.roleMandate || payload.roleLabel}\n${payload.prohibitions && payload.prohibitions.length ? `PROHIBITED IN THIS GENRE:\n${payload.prohibitions.map(rule => `- ${rule}`).join('\n')}\n` : ''}RULES:\n- At most 5 findings; reporting no findings is an acceptable answer (\"noFindings\": true).\n- Every finding MUST include \"evidenceQuote\": an exact verbatim quotation from the draft, 3–40 words, copied in whatever language the student wrote. Non-verbatim anchors are discarded automatically by validation code.\n- \"revisionMove\" names a strategy the student can carry out — never replacement prose.\n- Use \"confidence\": \"low\" whenever a competent reader could reasonably disagree.\n- Add \"voiceNote\" when a likely recommendation would flatten culturally meaningful, dialectal, or code-meshed language.\n- Write student-facing fields in the interface language named above.\n\nRespond with ONLY this strict JSON, no code fences, no commentary:\n{\"noFindings\": false, \"findings\": [{\"claim\": \"<=60 words\", \"evidenceQuote\": \"verbatim 3-40 words\", \"severity\": \"priority|secondary\", \"confidence\": \"high|low\", \"why\": \"<=40 words\", \"revisionMove\": \"<=40 words\", \"voiceNote\": \"optional\"}], \"preserve\": [{\"quote\": \"verbatim\", \"why\": \"<=40 words\"}]}\n\n[STUDENT DRAFT]\n${payload.text}\n[END STUDENT DRAFT]`;
     }
 
     function buildCouncilSynthesisPrompt(payload) {
-        return `[COUNCIL SYNTHESIS]\n${genreHeader(payload)}\nWork only from the reviewer findings provided below. Every output item must cite its source findings.\nSynthesis order for tie-breaking only: ${(payload.synthesisOrder || []).join(' > ')}.\nDisagreements must NOT be resolved: state each position fairly as a question only the writer can answer.\nNo praise, scores, or predictions.\n\nREVIEWER FINDINGS:\n${payload.findingsJson}`;
+        return `[COUNCIL SYNTHESIS]\n${genreHeader(payload)}\nWork ONLY from the validated reviewer findings provided below. Every output item must cite real source finding ids in \"sourceIds\"; unknown ids are discarded by validation code and corroboration is recomputed by code, never trusted from you.\nSynthesis order for tie-breaking only: ${(payload.synthesisOrder || []).join(' > ')}.\nDisagreements must NOT be resolved: state each position fairly as a question only the writer can answer.\nNo praise, scores, or predictions. Caps: 3 priorities, 4 secondary, 3 preserve, 2 disagreements.\n\nRespond with ONLY this strict JSON, no code fences, no commentary:\n{\"summary\": \"<=60 words\", \"priorities\": [{\"claim\": \"...\", \"revisionMove\": \"...\", \"why\": \"...\", \"sourceIds\": [\"structure-1\"]}], \"secondary\": [...same shape...], \"preserve\": [{\"why\": \"...\", \"sourceIds\": [\"voice-p1\"]}], \"disagreements\": [{\"question\": \"...\", \"positions\": [{\"roleKey\": \"...\", \"view\": \"...\"}], \"sourceIds\": [...]}]}\n\nREVIEWER FINDINGS (validated):\n${payload.findingsJson}`;
     }
 
     // ── Error copy (translated from legacy getGeminiErrorMessage) ─────────────
@@ -102,12 +102,20 @@ You must not write the student's work for them. Never produce full essays, draft
             es: 'El texto es demasiado largo para una sola solicitud. Elige la sección en la que quieres trabajar primero.',
             en: 'The text is too large for one request. Choose the section you want to work on first.',
         },
+        timeout: {
+            es: 'La solicitud tardó demasiado y se detuvo. Tu borrador no cambió; puedes intentarlo de nuevo.',
+            en: 'The request took too long and was stopped. Your draft is unchanged; you can try again.',
+        },
+        bad_request: {
+            es: 'El servicio de IA no pudo aceptar esta solicitud. Nada se guardó; puedes seguir escribiendo sin IA.',
+            en: 'The AI service could not accept this request. Nothing was saved; you can keep writing without AI.',
+        },
         auth_error: {
             es: 'El servicio de IA no está configurado. Puedes continuar todo el proceso de escritura sin IA.',
             en: 'The AI service is not configured. You can continue the entire writing process without AI.',
         },
     };
-    const RETRYABLE = new Set(['rate_limited', 'service_unavailable', 'upstream_error', 'network_error']);
+    const RETRYABLE = new Set(['rate_limited', 'service_unavailable', 'upstream_error', 'network_error', 'timeout']);
 
     function errorMessage(category, lang) {
         const entry = ERROR_COPY[category] || ERROR_COPY.upstream_error;
@@ -120,6 +128,50 @@ You must not write the student's work for them. Never produce full essays, draft
 
     function mockFailCategory() {
         try { return new URLSearchParams(location.search).get('mockfail') || null; } catch { return null; }
+    }
+
+    // Adversarial Council fixtures for validation testing: ?mockcouncil=
+    // malformed | missingfields | badanchor | partial | allfail | synthfail | emptysynth
+    function mockCouncilFixture() {
+        try { return new URLSearchParams(location.search).get('mockcouncil') || null; } catch { return null; }
+    }
+
+    function mockReviewerJson(payload) {
+        const fixture = mockCouncilFixture();
+        if (fixture === 'malformed') return 'I looked at the draft and here are my thoughts, unstructured.';
+        if (fixture === 'missingfields') return JSON.stringify({ findings: [{ claim: 'A claim with no anchor at all.' }] });
+        if (fixture === 'badanchor') return JSON.stringify({ findings: [{ claim: 'A claim resting on an invented quotation.', evidenceQuote: 'this exact wording appears nowhere in the submitted draft', severity: 'priority', confidence: 'high', why: 'Invented.', revisionMove: 'None.' }] });
+        const draft = String(payload.draft || '');
+        const words = draft.trim().split(/\s+/).filter(Boolean);
+        const quote = words.slice(0, Math.min(8, words.length)).join(' ');
+        const laterQuote = words.length > 18 ? words.slice(10, 18).join(' ') : quote;
+        const role = payload.roleKey || 'structure';
+        const finding = {
+            claim: `${payload.roleLabel}: consider how this section carries the ${payload.genreName} purpose for its reader.`,
+            evidenceQuote: quote,
+            severity: role === 'evidence' ? 'secondary' : 'priority',
+            confidence: role === 'evidence' ? 'low' : 'high',
+            why: 'Deterministic mock reasoning grounded in the consented text.',
+            revisionMove: 'Name the connection in your own words before expanding it.',
+        };
+        if (role === 'voice') finding.voiceNote = 'If any phrase here is culturally meaningful, keep its exact wording.';
+        return JSON.stringify({ noFindings: false, findings: [finding], preserve: [{ quote: laterQuote, why: 'This wording is doing distinct work; keep it.' }] });
+    }
+
+    function mockSynthesisJson(payload) {
+        const fixture = mockCouncilFixture();
+        if (fixture === 'synthfail') return 'The council mostly agrees, in prose.';
+        if (fixture === 'emptysynth') return JSON.stringify({ summary: 'Empty.', priorities: [], secondary: [], preserve: [], disagreements: [] });
+        const findings = (payload.validated && payload.validated.findings) || [];
+        const preserve = (payload.validated && payload.validated.preserve) || [];
+        const priorities = findings.slice(0, 2).map(finding => ({ claim: finding.claim, revisionMove: finding.revisionMove, why: finding.why, sourceIds: [finding.id] }));
+        const secondary = findings.slice(2, 3).map(finding => ({ claim: finding.claim, revisionMove: finding.revisionMove, sourceIds: [finding.id] }));
+        const preserveOut = preserve.slice(0, 2).map(item => ({ why: item.why, sourceIds: [item.id] }));
+        const roles = [...new Set(findings.map(finding => finding.roleKey))];
+        const disagreements = roles.length >= 2 && findings.length >= 2
+            ? [{ question: 'Should the opening move faster, or does its current pace do necessary work? Only the writer can decide.', positions: [{ roleKey: findings[0].roleKey, view: 'The opening earns its length.' }, { roleKey: findings[1].roleKey, view: 'The opening delays the purpose.' }], sourceIds: [findings[0].id, findings[1].id] }]
+            : [];
+        return JSON.stringify({ summary: `Deterministic mock synthesis for ${payload.genreName}.`, priorities, secondary, preserve: preserveOut, disagreements });
     }
 
     function createMockProvider() {
@@ -135,11 +187,16 @@ You must not write the student's work for them. Never produce full essays, draft
                             return;
                         }
                         const genreLabel = payload.genreName;
+                        const fixture = mockCouncilFixture();
                         let text;
                         if (requestKind === 'council_reviewer') {
-                            text = payload.roleSuggestion;
+                            if ((fixture === 'partial' && payload.roleKey === 'evidence') || fixture === 'allfail') {
+                                reject({ category: 'upstream_error', message: errorMessage('upstream_error', lang), retryable: false });
+                                return;
+                            }
+                            text = mockReviewerJson(payload);
                         } else if (requestKind === 'council_synthesis') {
-                            text = payload.synthesisText || '';
+                            text = mockSynthesisJson(payload);
                         } else if (lang !== 'en') {
                             text = `Fortaleza: el pasaje establece una dirección clara para ${genreLabel}. Pregunta de revisión: ¿qué evidencia específica ayudaría al lector a seguir esta idea? No reescribí ninguna oración.`;
                         } else {
@@ -175,12 +232,16 @@ You must not write the student's work for them. Never produce full essays, draft
                 let lastError = null;
                 for (let attempt = 0; attempt <= 2; attempt++) {
                     if (attempt) await new Promise(resolveDelay => window.setTimeout(resolveDelay, attempt === 1 ? 1500 : 4000));
+                    const controller = new AbortController();
+                    const timeoutId = window.setTimeout(() => controller.abort(), 45000);
                     try {
                         const response = await fetch(proxyUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ prompt, stageId: stageId || null, requestKind }),
+                            signal: controller.signal,
                         });
+                        window.clearTimeout(timeoutId);
                         if (!response.ok) {
                             const category = statusToCategory(response.status);
                             lastError = { category, message: errorMessage(category, lang), retryable: RETRYABLE.has(category) };
@@ -190,8 +251,10 @@ You must not write the student's work for them. Never produce full essays, draft
                         const data = await response.json();
                         return { text: data.text || '', truncated: Boolean(data.truncated), usage: data.usage || { requests: 1 } };
                     } catch (error) {
+                        window.clearTimeout(timeoutId);
                         if (error && error.category) { lastError = error; if (!error.retryable) break; continue; }
-                        lastError = { category: 'network_error', message: errorMessage('network_error', lang), retryable: true };
+                        const category = error && error.name === 'AbortError' ? 'timeout' : 'network_error';
+                        lastError = { category, message: errorMessage(category, lang), retryable: true };
                     }
                 }
                 throw lastError || { category: 'network_error', message: errorMessage('network_error', lang), retryable: false };

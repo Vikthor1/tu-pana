@@ -222,6 +222,17 @@ You must not write the student's work for them. Never produce full essays, draft
         return 'upstream_error';
     }
 
+    // Legacy request contract (ai-provider.js selectGeminiModel): these request
+    // kinds are served by gemini-2.5-flash, and the deployed Worker applies its
+    // per-kind output ceilings only when the model accompanies the kind.
+    const GEMINI_MODEL_BY_KIND = {
+        passage_analysis: 'gemini-2.5-flash',
+        full_draft_review: 'gemini-2.5-flash',
+        capstone_review: 'gemini-2.5-flash',
+        council_reviewer: 'gemini-2.5-flash',
+        council_synthesis: 'gemini-2.5-flash',
+    };
+
     function createGeminiProvider(config) {
         const proxyUrl = config?.proxyUrl;
         return {
@@ -238,7 +249,7 @@ You must not write the student's work for them. Never produce full essays, draft
                         const response = await fetch(proxyUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ prompt, stageId: stageId || null, requestKind }),
+                            body: JSON.stringify({ prompt, stageId: stageId || null, requestKind, model: GEMINI_MODEL_BY_KIND[requestKind] }),
                             signal: controller.signal,
                         });
                         window.clearTimeout(timeoutId);

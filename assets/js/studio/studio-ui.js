@@ -1158,6 +1158,20 @@
         });
         ['click', 'pointerup', 'keyup', 'touchend'].forEach(type => editor.addEventListener(type, () => { editorCaret = editor.selectionStart; }, { passive: true }));
         ['select'].forEach(type => editor.addEventListener(type, () => setTimeout(() => captureSelection(editor), 0), { passive: true }));
+        // iOS Safari does not reliably fire `select` on a textarea when the
+        // student selects by touch and drags the native handles — which is how
+        // selection is made on a phone. `selectionchange` is the event that does
+        // fire there, so the Passage Tray depends on it rather than on `select`
+        // alone. Desktop keeps both paths; they converge on the same capture.
+        ['pointerup', 'touchend', 'keyup'].forEach(type => editor.addEventListener(type, () => scheduleSelectionCapture(editor), { passive: true }));
+    }
+
+    // A touch drag emits selectionchange continuously; capture settles shortly
+    // after the student stops moving, so the tray is not rebuilt mid-gesture.
+    let selectionCaptureTimer = null;
+    function scheduleSelectionCapture(editor) {
+        clearTimeout(selectionCaptureTimer);
+        selectionCaptureTimer = setTimeout(() => captureSelection(editor), 180);
     }
 
     function bindEditSurfaces() {
@@ -1197,10 +1211,57 @@
         const beforeBreak = editor.value.lastIndexOf('\n', start - 1) + 1;
         const afterBreakRaw = editor.value.indexOf('\n', end);
         const afterBreak = afterBreakRaw === -1 ? editor.value.length : afterBreakRaw;
+        // Nothing changes if the same selection is re-reported: a touch drag
+        // emits many events, and rebuilding the tray each time would fight the
+        // student's finger.
+        if (captured?.hasSelection && captured.text === text && captured.start === start && captured.end === end) return;
         editorCaret = end;
-        captured = { text, paragraph: editor.value.slice(beforeBreak, afterBreak), full: editor.value, start, end, hasSelection: true, capturedAt: new Date().toISOString() };
+        captured = {
+            text,
+            paragraph: editor.value.slice(beforeBreak, afterBreak),
+            full: editor.value,
+            start, end,
+            hasSelection: true,
+            capturedAt: new Date().toISOString(),
+            // Provenance for stale validation: a capture belongs to one draft
+            // state and one writing project, and may never outlive either.
+            signature: draftSignature(editor.value),
+            genre: state.genre,
+        };
         updatePassageBar();
         announce(`${t('captured')}: ${text.slice(0, 80)}`);
+    }
+
+    // A captured passage may be protected or sent only while it is still the
+    // student's current writing, in this project. Anything else asks them to
+    // select again rather than acting on text that has moved on.
+    function validateCapture() {
+        if (!captured?.hasSelection) return { ok: false, reason: 'none' };
+        const text = String(captured.text || '');
+        if (!text.trim()) return { ok: false, reason: 'empty' };
+        if (captured.genre && captured.genre !== state.genre) return { ok: false, reason: 'genre' };
+        const draft = getDraft();
+        // Exact position first; then anywhere in the draft, since ordinary
+        // editing elsewhere shifts offsets without changing the passage.
+        if (draft.slice(captured.start, captured.end) === text) return { ok: true };
+        if (draft.includes(text)) return { ok: true, moved: true };
+        return { ok: false, reason: 'stale' };
+    }
+
+    function captureInvalid(reason) {
+        const message = reason === 'genre'
+            ? uiText('That passage belonged to a different writing project. Select the wording again in this draft.',
+                'Ese pasaje era de otro proyecto de escritura. Selecciona de nuevo en este borrador.')
+            : reason === 'empty'
+                ? uiText('Nothing is selected. Select the exact wording in your draft first.',
+                    'No hay nada seleccionado. Selecciona primero la redacción exacta en tu borrador.')
+                : uiText('Your draft changed, so that exact wording is no longer there. Select it again.',
+                    'Tu borrador cambió y esa redacción exacta ya no está. Selecciónala de nuevo.');
+        captured = null;
+        updatePassageBar();
+        assertive.textContent = message;
+        announce(message);
+        document.getElementById('draftEditor')?.focus({ preventScroll: true });
     }
 
     function renderPassageBar() {
@@ -1215,12 +1276,17 @@
 
     function openPassageMoves() {
         if (concept !== 'integrated' || !captured?.hasSelection) return;
+        const passageCheck = validateCapture();
+        if (!passageCheck.ok) { captureInvalid(passageCheck.reason); return; }
         const quote = captured.text;
         openDialog(uiText('Use a Move with this passage', 'Usa una Movida con este pasaje'), genreLabel(), `<blockquote>${escapeHtml(quote)}</blockquote><p>${escapeHtml(uiText('Choose an optional genre-aware question or action. A note exists only if you write and save one.', 'Elige una pregunta o acción opcional apropiada al género. Solo existe una nota si escribes y guardas una.'))}</p><div class="choice-stack passage-move-choices">${integratedMoves().map((move, index) => `<button class="radio-card" data-action="passage-move" data-move="${index}"><span><strong>${escapeHtml(integratedMoveNudge(move))}</strong><br><small>${escapeHtml(integratedMoveLabel(move))}</small></span></button>`).join('')}</div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
     }
 
     function protectCapturedPhrase() {
-        if (!captured?.text?.trim() || concept !== 'integrated') return;
+        if (concept !== 'integrated') return;
+        // Exact wording only, and only if it is still this draft's wording.
+        const check = validateCapture();
+        if (!check.ok) { captureInvalid(check.reason); return; }
         const normalized = captured.text.trim();
         if (!voiceEntries().some(item => item.text === normalized)) {
             const entry = { id: `voice-${Date.now()}`, text: normalized, protectedAt: new Date().toISOString(), genre: state.genre, studentAuthored: true, reason: '' };
@@ -2465,7 +2531,13 @@
         else if (action === 'phase') { state.phase = Number(target.dataset.phase); saveState(); renderApp(); }
         else if (action === 'mark-current') { state.currentArtifact = `step-${state.step}`; saveState(); renderApp(); }
         else if (action === 'coach') openCoachDialog();
-        else if (action === 'passage-review') openScopeDialog('coach', t('coach'), state.lang !== 'en' ? 'La selección ya está capturada aunque iOS la cierre.' : 'The selection is already captured even if iOS collapses it.');
+        else if (action === 'passage-review') {
+            // The captured passage must still be this draft's wording before it
+            // can reach the consent step; scope is never silently widened.
+            const check = validateCapture();
+            if (!check.ok) captureInvalid(check.reason);
+            else openScopeDialog('coach', t('coach'), state.lang !== 'en' ? 'La selección ya está capturada aunque iOS la cierre.' : 'The selection is already captured even if iOS collapses it.');
+        }
         else if (action === 'protect-phrase') protectCapturedPhrase();
         else if (action === 'clear-passage') { captured = null; updatePassageBar(); document.getElementById('draftEditor')?.focus(); }
         else if (action === 'clear-move-context') { dialogRoot.querySelectorAll('input[name="moveContext"]').forEach(input => { input.checked = false; }); announce(uiText('General passage help selected. No Move note will be included.', 'Ayuda general seleccionada. No se incluirá ninguna nota de Movida.')); }
@@ -2575,6 +2647,16 @@
             if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
             else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
         }
+    });
+
+    // The reliable iOS signal. `select` on a textarea is not dispatched for a
+    // touch selection made with the native handles, so on a physical iPhone the
+    // Passage Tray never appeared and sentence-level Your Voice was unreachable.
+    // selectionchange is document-level, so the editor is resolved each time.
+    document.addEventListener('selectionchange', () => {
+        const editor = document.getElementById('draftEditor');
+        if (!editor || document.activeElement !== editor) return;
+        scheduleSelectionCapture(editor);
     });
 
     window.visualViewport?.addEventListener('resize', updateVisualViewport);

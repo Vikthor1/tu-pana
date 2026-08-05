@@ -43,8 +43,8 @@
 
     const copy = {
         en: {
-            prototype: 'Migration candidate — local plane, mock AI only. Do not paste real coursework.',
-            saved: 'Saved on this device', saving: 'Saving locally…', saveFailed: 'Not saved. Keep this page open and export a safety copy.',
+            prototype: 'Practice preview — the coach is simulated on this device. Do not paste real coursework.',
+            saved: 'Saved on this device', saving: 'Saving…', saveFailed: 'Couldn’t save — keep this page open and export a backup from Settings.',
             compare: 'Compare concepts', settings: 'Settings', language: 'Language', genre: 'Writing project',
             whereDesk: 'Your Desk', whereJourney: 'Step {n} of 10', whereHybrid: 'Phase {n} of 4',
             doingDesk: 'Shape one current draft. Open a move only when it helps.',
@@ -54,7 +54,7 @@
             nextJourney: 'Next: {next}. Back and Continue never mark work complete.',
             nextHybrid: 'Next: {next}. Your draft carries forward unchanged.',
             currentDraft: 'Current draft', currentVersion: 'Marked current version', autosaved: 'Autosaved locally', words: '{n} words',
-            paste: 'Paste synthetic draft', useSample: 'Use synthetic sample', focus: 'Focus', exitFocus: 'Exit focus',
+            paste: 'Paste a draft', useSample: 'See a sample', focus: 'Focus', exitFocus: 'Exit focus',
             reviewCenter: 'Review Center', focusedReview: 'Focused review', council: 'The Council', coach: 'Ask Tu Pana',
             reflection: 'Process Reflection', finish: 'Finish', back: 'Back', continue: 'Continue',
             priorWork: 'Prior work', moves: 'Moves for this moment', workRail: 'Your work', evidence: 'Evidence so far',
@@ -62,7 +62,7 @@
             selectHint: 'Select words in the draft to ask about that exact passage.', captured: 'Passage captured', reviewPassage: 'Review passage', clear: 'Clear',
             sendCoach: 'Send to mock coach', sendReview: 'Request mock review', convene: 'Convene mock Council', revisit: 'Revisit report',
             selectedScope: 'Selected passage', paragraphScope: 'Current paragraph', fullScope: 'Full draft', exactPreview: 'Exact text preview',
-            consent: 'I choose to send this exact text to the mock AI in this local prototype.',
+            consent: 'I choose to send this exact text to the simulated coach on this device.',
             noNetwork: 'Mock AI only: nothing leaves this page and no network request is made.', cancel: 'Cancel',
             accept: 'Accept', adapt: 'Adapt', reject: 'Reject', later: 'Decide later', decisionRecorded: 'Decision recorded. You decide how to revise your own words.',
             reflectionWhy: 'The app brings factual evidence forward. It never writes your reasoning, feelings, or reflective claims.',
@@ -74,12 +74,12 @@
             preparePacket: 'Prepare final packet', studentReflection: 'Student reflection', instructorAppendix: 'Instructor evidence appendix',
             packetDraft: 'Draft included in packet', confirmDraft: 'I confirm that this exact draft is the version I intend to include.',
             createPacket: 'Create local packet', downloadPacket: 'Download packet', packetReady: 'Final packet is ready locally.',
-            settingsTitle: 'Prototype settings', storageNote: 'This concept uses one isolated local-storage record. It never reads R0 or family-preview work.',
-            focusDecision: 'Mobile Focus decision', danger: 'Danger Zone', export: 'Export safety copy', delete: 'Delete this concept’s prototype data',
-            deleteExplain: 'Only this concept’s synthetic prototype record will be removed. Other concepts and R0 keys are untouched.',
-            typeDelete: 'Type DELETE to enable deletion', deleteNow: 'Delete prototype data',
+            settingsTitle: 'Settings', storageNote: 'Your work is saved only in this browser, in one Writing Studio record. Tu Pana never reads other work saved on this device.',
+            focusDecision: 'Mobile Focus decision', danger: 'Danger Zone', export: 'Export safety copy', delete: 'Delete this Writing Studio’s saved data',
+            deleteExplain: 'Only the Writing Studio’s saved record in this browser will be removed. Other work saved on this device is untouched.',
+            typeDelete: 'Type DELETE to enable deletion', deleteNow: 'Delete saved data',
             startBlank: 'Start with a blank draft', replaceDraft: 'Replace draft with this synthetic text',
-            pasteWarning: 'Exploration boundary: use only synthetic or disposable participant-authored test text. Never paste real coursework.',
+            pasteWarning: 'Pasting replaces your current draft. The replaced text stays recoverable as an exact snapshot in your draft history.',
             phaseDiscover: 'Discover', phaseDraft: 'Draft', phaseStrengthen: 'Strengthen', phaseFinish: 'Finish',
             actStart: 'Start', actRevise: 'Revise', actFinish: 'Finish',
             currentMark: 'Current version', markCurrent: 'Mark as current', newer: 'Newer than marked version',
@@ -104,8 +104,8 @@
             councilUnavailable: 'Council is not configured for this genre. Use focused review or ask your instructor for disciplinary feedback.',
         },
         es: {
-            prototype: 'Candidato de migración — plano local, IA simulada. No pegues trabajo académico real.',
-            saved: 'Guardado en este dispositivo', saving: 'Guardando localmente…', saveFailed: 'No se guardó. Mantén esta página abierta y exporta una copia.',
+            prototype: 'Vista de práctica — el coach es simulado en este dispositivo. No pegues trabajo académico real.',
+            saved: 'Guardado en este dispositivo', saving: 'Guardando…', saveFailed: 'No se pudo guardar — mantén esta página abierta y exporta una copia desde Configuración.',
             compare: 'Comparar conceptos', settings: 'Configuración', language: 'Idioma', genre: 'Proyecto de escritura',
             whereDesk: 'Tu Escritorio', whereJourney: 'Paso {n} de 10', whereHybrid: 'Fase {n} de 4',
             doingDesk: 'Trabaja un solo borrador actual. Abre una movida solo cuando ayude.',
@@ -115,7 +115,7 @@
             nextJourney: 'Próximo: {next}. Atrás y Continuar nunca marcan trabajo como completo.',
             nextHybrid: 'Próximo: {next}. Tu borrador continúa sin cambios.',
             currentDraft: 'Borrador actual', currentVersion: 'Versión actual marcada', autosaved: 'Autoguardado local', words: '{n} palabras',
-            paste: 'Pegar borrador sintético', useSample: 'Usar ejemplo sintético', focus: 'Enfoque', exitFocus: 'Salir de enfoque',
+            paste: 'Pegar un borrador', useSample: 'Ver un ejemplo', focus: 'Enfoque', exitFocus: 'Salir de enfoque',
             reviewCenter: 'Centro de Revisión', focusedReview: 'Lectura enfocada', council: 'El Consejo', coach: 'Preguntar a Tu Pana',
             reflection: 'Reflexión de proceso', finish: 'Finalizar', back: 'Atrás', continue: 'Continuar',
             priorWork: 'Trabajo anterior', moves: 'Movidas para este momento', workRail: 'Tu trabajo', evidence: 'Evidencia hasta ahora',
@@ -123,7 +123,7 @@
             selectHint: 'Selecciona palabras del borrador para preguntar por ese pasaje exacto.', captured: 'Pasaje capturado', reviewPassage: 'Revisar pasaje', clear: 'Borrar selección',
             sendCoach: 'Enviar al coach simulado', sendReview: 'Pedir revisión simulada', convene: 'Convocar Consejo simulado', revisit: 'Revisitar informe',
             selectedScope: 'Pasaje seleccionado', paragraphScope: 'Párrafo actual', fullScope: 'Borrador completo', exactPreview: 'Vista previa del texto exacto',
-            consent: 'Elijo enviar este texto exacto a la IA simulada en este prototipo local.',
+            consent: 'Elijo enviar este texto exacto al coach simulado en este dispositivo.',
             noNetwork: 'Solo IA simulada: nada sale de esta página y no se hace ninguna solicitud de red.', cancel: 'Cancelar',
             accept: 'Aceptar', adapt: 'Adaptar', reject: 'Rechazar', later: 'Decidir después', decisionRecorded: 'Decisión guardada. Tú decides cómo revisar tus propias palabras.',
             reflectionWhy: 'La app trae evidencia factual. Nunca escribe tu razonamiento, sentimientos ni afirmaciones reflexivas.',
@@ -135,12 +135,12 @@
             preparePacket: 'Preparar paquete final', studentReflection: 'Reflexión estudiantil', instructorAppendix: 'Apéndice de evidencia para el instructor',
             packetDraft: 'Borrador incluido en el paquete', confirmDraft: 'Confirmo que este texto exacto es la versión que quiero incluir.',
             createPacket: 'Crear paquete local', downloadPacket: 'Descargar paquete', packetReady: 'El paquete final está listo localmente.',
-            settingsTitle: 'Configuración del prototipo', storageNote: 'Este concepto usa un solo registro local aislado. Nunca lee trabajo de R0 ni de la vista previa familiar.',
-            focusDecision: 'Decisión de Enfoque móvil', danger: 'Zona de peligro', export: 'Exportar copia de seguridad', delete: 'Borrar datos de este concepto',
-            deleteExplain: 'Solo se borrará el registro sintético de este concepto. Los otros conceptos y las claves R0 no cambian.',
+            settingsTitle: 'Configuración', storageNote: 'Tu trabajo se guarda solo en este navegador, en un registro del Writing Studio. Tu Pana nunca lee otro trabajo guardado en este dispositivo.',
+            focusDecision: 'Decisión de Enfoque móvil', danger: 'Zona de peligro', export: 'Exportar copia de seguridad', delete: 'Borrar los datos guardados del Writing Studio',
+            deleteExplain: 'Solo se borrará el registro guardado del Writing Studio en este navegador. El resto del trabajo guardado en este dispositivo no cambia.',
             typeDelete: 'Escribe DELETE para activar el borrado', deleteNow: 'Borrar datos del prototipo',
             startBlank: 'Comenzar con borrador vacío', replaceDraft: 'Reemplazar con este texto sintético',
-            pasteWarning: 'Límite de exploración: usa solo texto sintético o desechable creado para la prueba. Nunca pegues trabajo académico real.',
+            pasteWarning: 'Pegar reemplaza tu borrador actual. El texto reemplazado queda recuperable como una instantánea exacta en tu historial.',
             phaseDiscover: 'Descubrir', phaseDraft: 'Redactar', phaseStrengthen: 'Fortalecer', phaseFinish: 'Finalizar',
             actStart: 'Comenzar', actRevise: 'Revisar', actFinish: 'Finalizar',
             currentMark: 'Versión actual', markCurrent: 'Marcar como actual', newer: 'Más reciente que la versión marcada',
@@ -302,18 +302,29 @@
         state.savedAt = new Date().toISOString();
         try {
             localStorage.setItem(storageKey(concept), JSON.stringify(state));
-            document.querySelectorAll('[data-save-state]').forEach(el => { el.textContent = t('saved'); });
+            setSaveIndicator('saved');
             if (message) announce(message);
         } catch (error) {
-            document.querySelectorAll('[data-save-state]').forEach(el => { el.textContent = t('saveFailed'); });
+            setSaveIndicator('failed');
             assertive.textContent = t('saveFailed');
-            console.error('[Exploration] isolated prototype write failed', error);
+            console.error('[Studio] local save failed', error);
         }
+    }
+
+    // Save status marks pair with text so state is never conveyed by color alone.
+    const SAVE_MARKS = { saved: '✓', saving: '…', failed: '!' };
+    function setSaveIndicator(status) {
+        const text = status === 'saved' ? t('saved') : status === 'saving' ? t('saving') : t('saveFailed');
+        document.querySelectorAll('[data-save-state]').forEach(el => { el.textContent = text; });
+        document.querySelectorAll('[data-save-state-mark]').forEach(el => {
+            el.textContent = SAVE_MARKS[status];
+            el.dataset.saveStatus = status;
+        });
     }
 
     function scheduleSave() {
         clearTimeout(saveTimer);
-        document.querySelectorAll('[data-save-state]').forEach(el => { el.textContent = t('saving'); });
+        setSaveIndicator('saving');
         saveTimer = setTimeout(() => saveState(), 180);
     }
 
@@ -330,11 +341,22 @@
     };
     function currentGenre() { return genres[state.genre] || (concept === 'integrated' ? unknownGenre : genres.neutral); }
     function genreLabel() { return currentGenre().label[state.lang === 'en' ? 'en' : 'es']; }
+    // Rendered assignment names: full official name for menus and assistive
+    // technology, compact label for tight header/chip contexts. Stored record
+    // provenance keeps using .label and is untouched.
+    function genreFullName(genre = currentGenre()) {
+        const names = genre.fullName || genre.label;
+        return names[state.lang === 'en' ? 'en' : 'es'];
+    }
+    function genreHeaderLabel(genre = currentGenre()) {
+        const names = genre.headerLabel || genre.fullName || genre.label;
+        return names[state.lang === 'en' ? 'en' : 'es'];
+    }
     function storedGenreLabel(record) {
         if (state.lang === 'es' && record?.genreLabelEs) return record.genreLabelEs;
         if (record?.genreLabel) return record.genreLabel;
         if (record?.genre && genres[record.genre]) return genres[record.genre].label[state.lang === 'es' ? 'es' : 'en'];
-        return state.lang === 'es' ? 'Género no guardado · registro sintético anterior' : 'Genre not stored · earlier synthetic record';
+        return state.lang === 'es' ? 'Género no guardado · registro anterior' : 'Genre not stored · earlier record';
     }
     function spellcheckEnabled() { return state.nativeSpellcheck !== false; }
     // Bilingual helper for surfaces built after the copy dictionary. The finalist
@@ -384,7 +406,7 @@
     function genreOptionsMarkup() {
         const selectable = Object.entries(genres).filter(([id]) => concept === 'integrated' || id !== 'autobiographical');
         const invalid = !genres[state.genre] ? `<option value="" selected disabled>${escapeHtml(state.lang === 'en' ? 'Select a configured genre' : 'Elige un género configurado')}</option>` : '';
-        return `${invalid}${selectable.map(([id, genre]) => `<option value="${id}" ${id === state.genre ? 'selected' : ''}>${escapeHtml(genre.label[state.lang === 'en' ? 'en' : 'es'])}</option>`).join('')}`;
+        return `${invalid}${selectable.map(([id, genre]) => `<option value="${id}" ${id === state.genre ? 'selected' : ''}>${escapeHtml(genreFullName(genre))}</option>`).join('')}`;
     }
     function genreMoves(kind) {
         if (state.lang === 'en') return currentGenre().moves[kind];
@@ -518,20 +540,31 @@
         return { where, doing, next };
     }
 
+    // The original Tu Pana brand mark — the animated laptop-and-coffee writing
+    // companion — carried over verbatim from the legacy application's header
+    // (index.html .header-logo). Decorative here: the product title names the
+    // product; animation is disabled under prefers-reduced-motion in CSS.
+    function brandIconSvg() {
+        return `<span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg" focusable="false"><circle class="tp-av-bg" cx="120" cy="110" r="96"/><circle class="tp-av-glow" cx="120" cy="110" r="76"/><ellipse fill="rgba(49,86,66,0.14)" cx="130" cy="178" rx="94" ry="15"/><path class="tp-av-laptop" d="M49 51H158C164 51,169 56,169 62V139H38V62C38 56,43 51,49 51Z"/><rect class="tp-av-screen" x="52" y="65" width="103" height="61" rx="8"/><rect class="tp-av-screen-inner" x="62" y="76" width="83" height="39" rx="6"/><path class="tp-av-line" d="M70 86 H130"/><path class="tp-av-line l2" d="M70 98 H122"/><path class="tp-av-line l3" d="M70 110 H111"/><rect class="tp-av-cursor" x="133" y="82" width="4" height="12" rx="1"/><path class="tp-av-base" d="M28 139H179L196 163C198 166,195 170,190 170H17C12 170,10 166,13 163Z"/><rect class="tp-av-trackpad" x="80" y="150" width="44" height="10" rx="4"/><rect class="tp-av-key" x="43" y="149" width="8" height="5" rx="2"/><rect class="tp-av-key" x="56" y="149" width="8" height="5" rx="2"/><rect class="tp-av-key" x="69" y="149" width="8" height="5" rx="2"/><rect class="tp-av-key" x="132" y="149" width="8" height="5" rx="2"/><rect class="tp-av-key" x="145" y="149" width="8" height="5" rx="2"/><rect class="tp-av-key" x="158" y="149" width="8" height="5" rx="2"/><path class="tp-av-spark" d="M181 45L185 54L194 58L185 62L181 71L177 62L168 58L177 54Z"/><ellipse class="tp-av-saucer" cx="211" cy="165" rx="30" ry="8"/><path class="tp-av-cup" d="M188 121H229L224 158C222 166,195 166,193 158Z"/><ellipse class="tp-av-coffee" cx="208.5" cy="122" rx="19" ry="5"/><path class="tp-av-handle" d="M229 132C243 132,243 153,227 153"/><path class="tp-av-steam" d="M199 108 C192 98,206 93,199 82"/><path class="tp-av-steam s2" d="M211 109 C204 98,218 92,211 80"/><path class="tp-av-steam s3" d="M223 108 C216 98,230 93,223 82"/></svg></span>`;
+    }
+
     function renderHeader() {
         const o = orientation();
         const appearanceControl = concept === 'integrated'
             ? `<button class="icon-button appearance-button" data-action="appearance-cycle" aria-label="${escapeHtml(uiText(`Appearance: ${appearanceName()}. Switch to ${appearanceName(nextAppearance())}.`, `Apariencia: ${appearanceName()}. Cambiar a ${appearanceName(nextAppearance())}.`))}" title="${escapeHtml(uiText(`Appearance: ${appearanceName()}`, `Apariencia: ${appearanceName()}`))}">◐</button><button class="icon-button" data-action="help" aria-label="${escapeHtml(uiText('Help', 'Ayuda'))}" title="${escapeHtml(uiText('Help', 'Ayuda'))}">?</button>`
             : '';
+        const genreKnown = Boolean(genres[state.genre]);
         return `${renderBanner()}
             <header class="prototype-header"><div class="prototype-header-inner">
-                <span class="brand-lockup"><span class="brand-mark" aria-hidden="true">TP</span><span class="brand-copy"><strong>Tu Pana Writing Studio</strong><small>${escapeHtml(conceptMeta[concept].name)}</small></span></span>
-                <div class="prototype-actions"><span class="save-state"><span class="save-state-dot" aria-hidden="true"></span><span data-save-state>${escapeHtml(t('saved'))}</span></span>
-                    <select class="header-select genre-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${genreOptionsMarkup()}</select>
+                <div class="brand-lockup">${brandIconSvg()}<div class="brand-copy">
+                    <strong class="product-title">Tu Pana Writing Studio</strong>
+                    <span class="genre-select-wrap"><span class="genre-select-face" aria-hidden="true">${escapeHtml(genreKnown ? genreHeaderLabel() : (state.lang === 'en' ? 'Choose a writing project' : 'Elige un proyecto'))}<span class="genre-select-caret">▾</span></span><select class="header-select genre-select" data-action="genre" aria-label="${escapeHtml(`${t('genre')}: ${genreKnown ? genreFullName() : ''}`)}">${genreOptionsMarkup()}</select></span>
+                </div></div>
+                <div class="prototype-actions"><span class="save-state" role="status"><span class="save-state-mark" data-save-state-mark aria-hidden="true">✓</span><span data-save-state>${escapeHtml(t('saved'))}</span></span>
                     <select class="header-select" data-action="language" aria-label="${escapeHtml(t('language'))}"><option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option><option value="es" ${state.lang === 'es' ? 'selected' : ''}>Español</option><option value="both" ${state.lang === 'both' ? 'selected' : ''}>Español + English</option></select>
                     ${appearanceControl}<button class="icon-button" data-action="settings" aria-label="${escapeHtml(t('settings'))}" title="${escapeHtml(t('settings'))}">⚙</button></div>
             </div></header>
-            <section class="orientation-bar" aria-label="Current location and next action"><div class="orientation-inner"><div class="orientation-copy"><span class="location-pill">${escapeHtml(o.where)}</span><div class="orientation-text"><strong>${escapeHtml(o.doing)}</strong><span>${escapeHtml(o.next)}</span></div>${concept === 'integrated' ? `<button class="mobile-project-chip" data-action="settings" aria-label="${escapeHtml(`${t('genre')}: ${genreLabel()}`)}"><span>${escapeHtml(t('genre'))}</span><strong>${escapeHtml(genreLabel())}</strong></button>` : ''}</div><div class="orientation-next"><small>${escapeHtml(t('currentDraft'))}</small><strong id="orientationDraftWords">${concept === 'notebook' && !state.draftDeclared ? escapeHtml(t('draftMissing')) : `${wordCount(getDraft())} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}`}</strong></div></div></section>`;
+            <section class="orientation-bar" aria-label="Current location and next action"><div class="orientation-inner"><div class="orientation-copy"><span class="location-pill">${escapeHtml(o.where)}</span><div class="orientation-text"><strong>${escapeHtml(o.doing)}</strong><span>${escapeHtml(o.next)}</span></div>${concept === 'integrated' ? `<button class="mobile-project-chip" data-action="settings" aria-label="${escapeHtml(`${t('genre')}: ${genres[state.genre] ? genreFullName() : state.genre}`)}"><span>${escapeHtml(t('genre'))}</span><strong>${escapeHtml(genres[state.genre] ? genreHeaderLabel() : genreLabel())}</strong></button>` : ''}</div><div class="orientation-next"><small>${escapeHtml(t('currentDraft'))}</small><strong id="orientationDraftWords">${concept === 'notebook' && !state.draftDeclared ? escapeHtml(t('draftMissing')) : `${wordCount(getDraft())} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}`}</strong></div></div></section>`;
     }
 
     function renderApp() {
@@ -1776,11 +1809,11 @@
                     : (state.lang === 'en' ? 'Metadata-only checkpoint' : 'Punto solo con metadatos');
                 const note = recoverable
                     ? (state.lang === 'en' ? 'Exact prior text is stored locally and viewable.' : 'El texto anterior exacto está guardado localmente y se puede ver.')
-                    : (state.lang === 'en' ? 'Earlier prototype record: text was not stored, so this is not a recoverable snapshot.' : 'Registro anterior del prototipo: no se guardó el texto, así que no es una instantánea recuperable.');
+                    : (state.lang === 'en' ? 'Earlier record: text was not stored, so this is not a recoverable snapshot.' : 'Registro anterior: no se guardó el texto, así que no es una instantánea recuperable.');
                 return `<article class="artifact-row version-row"><strong>${escapeHtml(title)} · ${version.words ?? 0} ${escapeHtml(state.lang === 'en' ? 'words' : 'palabras')}</strong><small>${escapeHtml(versionTimestamp(version))} · ${escapeHtml(version.reason || (state.lang === 'en' ? 'reason not stored' : 'motivo no guardado'))}</small><p>${escapeHtml(note)}</p><button class="text-button" data-action="view-snapshot" data-snapshot="${escapeHtml(version.id)}" data-return-tab="versions">${escapeHtml(recoverable ? (state.lang === 'en' ? 'Inspect exact text' : 'Inspeccionar texto exacto') : (state.lang === 'en' ? 'Inspect checkpoint facts' : 'Inspeccionar datos del punto'))}</button></article>`;
             }).join('')}</div>`
             : `<div class="empty-state">${escapeHtml(state.lang === 'en' ? 'No draft checkpoints yet. A recoverable snapshot is created before mock review, Council, replacement, reflection, or Finish.' : 'Todavía no hay puntos del borrador. Se crea una instantánea recuperable antes de revisión simulada, Consejo, reemplazo, reflexión o Finalizar.')}</div>`;
-        openDialog(state.lang === 'en' ? 'Draft history' : 'Historial del borrador', state.lang === 'en' ? 'Read-only local prototype history. Viewing never replaces the current draft.' : 'Historial local de solo lectura. Verlo nunca reemplaza el borrador actual.', body, `<button class="button ghost" data-action="close-dialog">${escapeHtml(state.lang === 'en' ? 'Return to draft' : 'Volver al borrador')}</button>`, { wide: true });
+        openDialog(state.lang === 'en' ? 'Draft history' : 'Historial del borrador', state.lang === 'en' ? 'Read-only local draft history. Viewing never replaces the current draft.' : 'Historial local del borrador, solo lectura. Verlo nunca reemplaza el borrador actual.', body, `<button class="button ghost" data-action="close-dialog">${escapeHtml(state.lang === 'en' ? 'Return to draft' : 'Volver al borrador')}</button>`, { wide: true });
     }
 
     function openSnapshotViewer(snapshotId, returnTab = 'versions') {
@@ -1793,7 +1826,7 @@
         const facts = `<dl class="snapshot-facts"><div><dt>${escapeHtml(state.lang === 'en' ? 'Recorded' : 'Registrado')}</dt><dd>${escapeHtml(versionTimestamp(version))}</dd></div><div><dt>${escapeHtml(state.lang === 'en' ? 'Reason' : 'Motivo')}</dt><dd>${escapeHtml(version.reason || (state.lang === 'en' ? 'Not stored in this earlier record' : 'No guardado en este registro anterior'))}</dd></div><div><dt>${escapeHtml(state.lang === 'en' ? 'Words' : 'Palabras')}</dt><dd>${version.words ?? 0}</dd></div><div><dt>${escapeHtml(t('genre'))}</dt><dd>${escapeHtml(storedGenreLabel(version))}</dd></div></dl>`;
         const content = recoverable
             ? `${facts}<p>${escapeHtml(state.lang === 'en' ? 'Read-only exact prior wording. Copying does not change the active draft.' : 'Texto anterior exacto de solo lectura. Copiar no cambia el borrador activo.')}</p><pre class="snapshot-text" id="snapshotText">${escapeHtml(version.text)}</pre>`
-            : `${facts}<p class="checkpoint-note">${escapeHtml(state.lang === 'en' ? 'Text was not stored in this earlier synthetic record. This checkpoint cannot be viewed or recovered and is not called a snapshot.' : 'El texto no se guardó en este registro sintético anterior. Este punto no se puede ver ni recuperar y no se llama instantánea.')}</p>`;
+            : `${facts}<p class="checkpoint-note">${escapeHtml(state.lang === 'en' ? 'Text was not stored in this earlier record. This checkpoint cannot be viewed or recovered and is not called a snapshot.' : 'El texto no se guardó en este registro anterior. Este punto no se puede ver ni recuperar y no se llama instantánea.')}</p>`;
         const backAction = returnTab === 'versions'
             ? `<button class="button ghost" data-action="version-history">${escapeHtml(state.lang === 'en' ? 'Back to draft history' : 'Volver al historial')}</button>`
             : returnTab === 'evidence'
@@ -2012,20 +2045,20 @@
         const draft = markedDraft();
         const ready = Boolean(draft.trim()) && reflectionComplete();
         const packetReady = Boolean(state.packetCreatedAt);
-        return `<section class="finish-page" aria-labelledby="finishTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(t('finish'))}</p><h2 id="finishTitle">${escapeHtml(t('preparePacket'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Guardar mantiene tu trabajo en progreso. Finalizar confirma una versión y arma un paquete local. Entregar ocurre fuera de este prototipo, según las instrucciones de tu instructor.' : 'Save keeps work in progress. Finish confirms one version and assembles a local packet. Submission happens outside this prototype, according to your instructor’s directions.')}</p></div>
+        return `<section class="finish-page" aria-labelledby="finishTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(t('finish'))}</p><h2 id="finishTitle">${escapeHtml(t('preparePacket'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Guardar mantiene tu trabajo en progreso. Finalizar confirma una versión y arma un paquete local. Entregar ocurre fuera del Writing Studio, según las instrucciones de tu instructor.' : 'Save keeps work in progress. Finish confirms one version and assembles a local packet. Submission happens outside the Writing Studio, according to your instructor’s directions.')}</p></div>
             ${renderFinishReflectionInvitation()}${concept === 'integrated' ? renderRevisionCycleEntry('finish') : ''}<div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('packetDraft'))}</h3><p>${wordCount(draft)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')} · ${escapeHtml(concept === 'journey' ? state.currentArtifact : t('currentDraft'))}</p><div class="packet-preview" id="finalDraftPreview">${escapeHtml(draft || (state.lang !== 'en' ? 'No hay borrador todavía.' : 'No draft yet.'))}</div><label class="consent-box" style="margin-top:12px"><input id="packetConfirm" type="checkbox" ${state.packetCreatedAt ? 'checked' : ''}><span>${escapeHtml(t('confirmDraft'))}</span></label></section>
             <section class="packet-section"><h3>${escapeHtml(state.lang !== 'en' ? 'Comprobación honesta' : 'Truthful readiness check')}</h3><ul class="check-list"><li class="${draft.trim() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Una versión exacta está identificada' : 'One exact version is identified')}</li><li class="${reflectionComplete() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Tres respuestas contienen texto' : 'Three student-authored responses contain text')}</li><li class="${concept === 'integrated' || state.councilRuns.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.councilRuns.length ? (state.lang !== 'en' ? 'No se solicitó Consejo—es opcional' : 'No Council requested—optional') : (state.lang !== 'en' ? 'La evidencia del Consejo está incluida si existe' : 'Council evidence is included when it exists'))}</li><li class="${concept === 'integrated' || state.decisions.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.decisions.length ? (state.lang !== 'en' ? 'No hubo decisiones de IA—la IA es opcional' : 'No AI decisions—AI is optional') : (state.lang !== 'en' ? 'Las decisiones sobre sugerencias están incluidas' : 'Suggestion decisions are included'))}</li></ul><p><strong>${escapeHtml(ready ? (state.lang !== 'en' ? 'Listo para crear el paquete local' : 'Ready to create the local packet') : (state.lang !== 'en' ? 'Todavía en progreso' : 'Still in progress'))}</strong></p><button class="button primary" data-action="create-packet" ${!ready ? 'disabled' : ''}>${escapeHtml(t('createPacket'))}</button></section></div>
             <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('studentReflection'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Solo contiene las palabras del estudiante.' : 'Contains only the student’s words.')}</p>${reflectionPrompts().map(([key, label], i) => state.reflections[key] ? `<h4>${i + 1}. ${escapeHtml(label)}</h4><p>${escapeHtml(state.reflections[key])}</p>` : '').join('') || `<p>${escapeHtml(state.lang !== 'en' ? 'Todavía no hay reflexión.' : 'No reflection yet.')}</p>`}</section>
             <section class="packet-section"><h3>${escapeHtml(t('instructorAppendix'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Evidencia factual del sistema, separada de la reflexión.' : 'Factual system evidence, separate from reflection.')}</p><ul class="check-list">${factualEvidence().map(item => `<li class="done">${escapeHtml(item)}</li>`).join('') || `<li>${escapeHtml(t('noPrior'))}</li>`}</ul></section></div>${renderGenreFinishChecklist()}
-            ${concept === 'notebook' || concept === 'integrated' ? `<section class="packet-section action-meanings"><h3>${escapeHtml(state.lang === 'en' ? 'Five different actions' : 'Cinco acciones distintas')}</h3><div class="artifact-list"><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Save' : 'Guardar')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Keeps exact work in this isolated browser.' : 'Mantiene el trabajo exacto en este navegador aislado.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('finish'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Confirms which draft and reflection belong in the packet.' : 'Confirma qué borrador y reflexión pertenecen al paquete.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('createPacket'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Assembles a local preview; it submits nothing.' : 'Arma una vista previa local; no entrega nada.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Backup' : 'Copia de seguridad')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Downloads this concept’s isolated synthetic state.' : 'Descarga el estado sintético aislado de este concepto.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'External Submit' : 'Entrega externa')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Happens outside Tu Pana under instructor directions.' : 'Ocurre fuera de Tu Pana según las instrucciones del instructor.')}</small></div></div><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button></section>` : ''}
+            ${concept === 'notebook' || concept === 'integrated' ? `<section class="packet-section action-meanings"><h3>${escapeHtml(state.lang === 'en' ? 'Five different actions' : 'Cinco acciones distintas')}</h3><div class="artifact-list"><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Save' : 'Guardar')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Keeps your exact work in this browser.' : 'Mantiene tu trabajo exacto en este navegador.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('finish'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Confirms which draft and reflection belong in the packet.' : 'Confirma qué borrador y reflexión pertenecen al paquete.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('createPacket'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Assembles a local preview; it submits nothing.' : 'Arma una vista previa local; no entrega nada.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Backup' : 'Copia de seguridad')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Downloads your saved Writing Studio work as one file on this device.' : 'Descarga tu trabajo guardado del Writing Studio como un archivo en este dispositivo.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'External Submit' : 'Entrega externa')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Happens outside Tu Pana under instructor directions.' : 'Ocurre fuera de Tu Pana según las instrucciones del instructor.')}</small></div></div><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button></section>` : ''}
             ${packetReady ? `<section class="packet-section"><h3>${escapeHtml(t('packetReady'))}</h3><button class="button primary" data-action="download-packet">${escapeHtml(t('downloadPacket'))}</button></section>` : ''}
             <footer class="editor-footer"><button class="button ghost" data-action="reflection">← ${escapeHtml(t('reflection'))}</button><button class="button secondary" data-action="return-write">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button></footer></section>`;
     }
 
     function packetText() {
         const lines = [
-            'TU PANA WRITING STUDIO — LOCAL EXPLORATION PACKET',
-            `Concept: ${conceptMeta[concept].name}`,
+            'TU PANA WRITING STUDIO — WRITING PACKET',
+            'Written with: Tu Pana Writing Studio',
             `Genre: ${currentGenre().label.en}`,
             `Created: ${new Date().toISOString()}`,
             '', 'CURRENT DRAFT', markedDraft(), '', 'STUDENT REFLECTION',
@@ -2063,13 +2096,6 @@
         URL.revokeObjectURL(url);
     }
 
-    function focusDecisionText() {
-        if (concept === 'desk') return state.lang !== 'en' ? 'Sí. El Escritorio ofrece Enfoque en móvil porque una sola área de escritura sigue visible; Salir y la barra de pasaje permanecen dentro del viewport.' : 'Yes. The Desk offers mobile Focus because one writing surface stays visible; Exit and the passage bar remain inside the viewport.';
-        if (concept === 'integrated') return state.lang !== 'en' ? 'Sí. El Escritorio Integrado conserva Enfoque porque hay un solo borrador canónico. Salir y la bandeja de pasaje permanecen dentro del viewport; las notas vuelven al salir.' : 'Yes. Integrated Desk keeps Focus because there is one canonical draft. Exit and the Passage Tray remain inside the viewport; planning notes return when Focus closes.';
-        if (concept === 'journey') return state.lang !== 'en' ? 'No en móvil. Ocultar los diez pasos debilitaría orientación y verdad sobre versiones; el editor móvil ya recibe prioridad.' : 'No on mobile. Hiding ten steps would weaken orientation and version truth; the mobile editor already gets priority.';
-        if (concept === 'hybrid') return state.lang !== 'en' ? 'No hay modo Enfoque separado. El híbrido reduce el recorrido a cuatro fases y trata el espacio móvil normal como la vista enfocada.' : 'No separate Focus mode. The hybrid reduces the journey to four phases and treats its normal mobile workspace as the focused view.';
-        return state.lang !== 'en' ? 'No hay modo Enfoque separado. En móvil, el borrador recibe prioridad y Cuaderno queda como pestaña estable de una acción; no se comprime la vista dividida de escritorio.' : 'No separate Focus mode. On mobile, the draft gets priority and Notebook remains a stable one-action tab; the desktop split view is not compressed.';
-    }
 
     function openVoiceNote(index) {
         const entry = voiceEntries()[index];
@@ -2144,7 +2170,7 @@
 
     function safeInstructorSummary() {
         return [
-            `Tu Pana Writing Studio · local exploration`,
+            `Tu Pana Writing Studio`,
             `${uiText('Writing project', 'Proyecto de escritura')}: ${genreLabel()}`,
             `${uiText('Draft word count', 'Conteo de palabras del borrador')}: ${wordCount(getDraft())}`,
             `${uiText('Saved feedback reports', 'Informes de retroalimentación guardados')}: ${state.reviews.length + state.councilRuns.length}`,
@@ -2153,14 +2179,14 @@
     }
 
     function openHelp() {
-        openDialog(uiText('Help', 'Ayuda'), uiText('Local prototype help', 'Ayuda del prototipo local'), `<p>${escapeHtml(uiText('Choose a safe route. Reports and feedback stay local in this prototype.', 'Elige una ruta segura. Los reportes y comentarios permanecen locales en este prototipo.'))}</p><div class="choice-stack"><button class="radio-card" data-action="help-report"><span>${escapeHtml(uiText('Report a problem', 'Reportar un problema'))}</span></button><button class="radio-card" data-action="help-feedback"><span>${escapeHtml(uiText('Share feedback', 'Compartir comentarios'))}</span></button></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+        openDialog(uiText('Help', 'Ayuda'), uiText('Tu Pana Writing Studio', 'Tu Pana Writing Studio'), `<p>${escapeHtml(uiText('Choose a safe route. Reports and feedback stay on this device.', 'Elige una ruta segura. Los reportes y comentarios permanecen en este dispositivo.'))}</p><div class="choice-stack"><button class="radio-card" data-action="help-report"><span>${escapeHtml(uiText('Report a problem', 'Reportar un problema'))}</span></button><button class="radio-card" data-action="help-feedback"><span>${escapeHtml(uiText('Share feedback', 'Compartir comentarios'))}</span></button></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
     }
 
     function openHelpReport(category = 'problem') {
         const categories = category === 'feedback'
             ? [['feedback', uiText('I have feedback', 'Tengo comentarios')]]
             : [['broken', uiText('Something did not work', 'Algo no funcionó')], ['confused', uiText('I’m confused', 'Estoy confundido/a')]];
-        openDialog(category === 'feedback' ? uiText('Share feedback', 'Compartir comentarios') : uiText('Report a problem', 'Reportar un problema'), uiText('Preview what would be shared', 'Vista previa de lo que se compartiría'), `<div class="field"><label for="reportCategory">${escapeHtml(uiText('Category', 'Categoría'))}</label><select id="reportCategory">${categories.map(([value, label]) => `<option value="${value}">${escapeHtml(label)}</option>`).join('')}</select></div><div class="field"><label for="reportDescription">${escapeHtml(uiText('What happened? (optional)', '¿Qué pasó? (opcional)'))}</label><textarea id="reportDescription" data-protect-dirty spellcheck="${spellcheckEnabled()}" maxlength="1000"></textarea></div><label class="check-line"><input type="checkbox" id="reportTechContext"> <span>${escapeHtml(uiText('Include safe technical context: prototype version, writing-project identifier, and browser/device category.', 'Incluye contexto técnico seguro: versión del prototipo, identificador del proyecto y categoría de navegador/dispositivo.'))}</span></label><p>${escapeHtml(uiText('Never included: your draft, notes, Your Voice entries, AI payloads, reports, reflection, identity, history, or precise location. This prototype does not send reports.', 'Nunca se incluye: tu borrador, notas, entradas de Tu voz, cargas de IA, informes, reflexión, identidad, historial o ubicación precisa. Este prototipo no envía reportes.'))}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="preview-local-report" data-kind="${category}">${escapeHtml(uiText('Preview local report', 'Vista previa del reporte local'))}</button>`);
+        openDialog(category === 'feedback' ? uiText('Share feedback', 'Compartir comentarios') : uiText('Report a problem', 'Reportar un problema'), uiText('Preview what would be shared', 'Vista previa de lo que se compartiría'), `<div class="field"><label for="reportCategory">${escapeHtml(uiText('Category', 'Categoría'))}</label><select id="reportCategory">${categories.map(([value, label]) => `<option value="${value}">${escapeHtml(label)}</option>`).join('')}</select></div><div class="field"><label for="reportDescription">${escapeHtml(uiText('What happened? (optional)', '¿Qué pasó? (opcional)'))}</label><textarea id="reportDescription" data-protect-dirty spellcheck="${spellcheckEnabled()}" maxlength="1000"></textarea></div><label class="check-line"><input type="checkbox" id="reportTechContext"> <span>${escapeHtml(uiText('Include safe technical context: app version, writing-project identifier, and browser/device category.', 'Incluye contexto técnico seguro: versión de la aplicación, identificador del proyecto y categoría de navegador/dispositivo.'))}</span></label><p>${escapeHtml(uiText('Never included: your draft, notes, Your Voice entries, AI payloads, reports, reflection, identity, history, or precise location. The Writing Studio does not send this report anywhere.', 'Nunca se incluye: tu borrador, notas, entradas de Tu voz, cargas de IA, informes, reflexión, identidad, historial o ubicación precisa. El Writing Studio no envía este reporte a ningún lugar.'))}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="preview-local-report" data-kind="${category}">${escapeHtml(uiText('Preview local report', 'Vista previa del reporte local'))}</button>`);
     }
 
     function previewLocalReport(kind) {
@@ -2168,13 +2194,13 @@
         const description = document.getElementById('reportDescription')?.value || '';
         const includeTech = document.getElementById('reportTechContext')?.checked;
         const report = { category, description, sent: false };
-        if (includeTech) report.technicalContext = { prototype: 'writing-studio-ux-2026-08', genre: state.genre, deviceCategory: window.matchMedia('(max-width: 640px)').matches ? 'mobile-sized browser' : 'desktop-sized browser' };
+        if (includeTech) report.technicalContext = { appVersion: 'writing-studio-2026-08', genre: state.genre, deviceCategory: window.matchMedia('(max-width: 640px)').matches ? 'mobile-sized browser' : 'desktop-sized browser' };
         openDialog(uiText('Local report preview', 'Vista previa del reporte local'), uiText('Nothing is sent', 'No se envía nada'), `<pre class="safe-summary">${escapeHtml(JSON.stringify(report, null, 2))}</pre><p>${escapeHtml(uiText('This is a local preview only. Tu Pana has not sent any information.', 'Esta es solo una vista previa local. Tu Pana no ha enviado información.'))}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="return-write">${escapeHtml(uiText('Return to draft', 'Volver al borrador'))}</button>`);
     }
 
     function openSettings() {
         const integratedSettings = concept === 'integrated' ? `<section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing project' : 'Proyecto de escritura')}</h3><p>${escapeHtml(state.lang === 'en' ? 'An assignment link can set this writing project automatically; this control also lets you choose it yourself.' : 'Un enlace de tarea puede definir este proyecto de escritura automáticamente; este control también te deja elegirlo.')}</p>${state.assignmentNotice ? `<p class="assignment-notice">${escapeHtml(state.lang === 'en' ? state.assignmentNotice.en : state.assignmentNotice.es)}</p>` : ''}<label class="field" for="settingsGenre"><span>${escapeHtml(t('genre'))}</span><select id="settingsGenre" class="settings-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${genreOptionsMarkup()}</select></label></section><section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing utilities' : 'Utilidades de escritura')}</h3><label class="check-line"><input type="checkbox" data-action="native-spellcheck" ${spellcheckEnabled() ? 'checked' : ''}> <span>${escapeHtml(state.lang === 'en' ? 'Native spelling suggestions' : 'Sugerencias ortográficas nativas')}</span></label><p>${escapeHtml(state.lang === 'en' ? 'Spelling suggestions come from your browser or device. Tu Pana does not send your writing for this feature.' : 'Las sugerencias ortográficas provienen de tu navegador o dispositivo. Tu Pana no envía tu escritura para esta función.')}</p></section><section class="packet-section settings-section"><h3>${escapeHtml(uiText('Appearance', 'Apariencia'))}</h3><p>${escapeHtml(uiText('Choose a local visual-comfort preference. It does not affect your writing or evidence.', 'Elige una preferencia local de comodidad visual. No afecta tu escritura ni la evidencia.'))}</p><div class="choice-stack appearance-choices">${[['system', uiText('System default', 'Predeterminado del sistema')], ['light', uiText('Paper / Light', 'Papel / Claro')], ['dark', uiText('Dark', 'Oscuro')]].map(([value, label]) => `<button class="radio-card ${state.appearance === value ? 'selected' : ''}" data-action="appearance-choice" data-appearance="${value}" aria-pressed="${state.appearance === value}"><span>${escapeHtml(label)}</span></button>`).join('')}</div></section><section class="packet-section settings-section"><h3>${escapeHtml(uiText('Legacy Writing Studio work', 'Trabajo del Writing Studio anterior'))}</h3><p>${escapeHtml(uiText('If this browser holds work from the earlier ten-step Writing Studio, you can preview exactly what an import would bring over. Nothing is imported, changed, or deleted without this preview, and your legacy record stays untouched.', 'Si este navegador guarda trabajo del Writing Studio anterior de diez pasos, puedes previsualizar exactamente qué traería una importación. Nada se importa, cambia o borra sin esta previsualización, y tu registro anterior queda intacto.'))}</p><button class="button secondary" data-action="legacy-import">${escapeHtml(uiText('Preview legacy import', 'Previsualizar importación'))}</button>${state.legacyImport ? `<p class="assignment-notice">${escapeHtml(uiText(`Legacy import applied ${new Date(state.legacyImport.appliedAt).toLocaleDateString()}.`, `Importación aplicada ${new Date(state.legacyImport.appliedAt).toLocaleDateString()}.`))}</p><button class="button ghost" data-action="legacy-import-restore">${escapeHtml(uiText('Restore pre-import state', 'Restaurar estado previo a la importación'))}</button>` : ''}</section>` : '';
-        openDialog(t('settingsTitle'), conceptMeta[concept].name, `<p>${escapeHtml(t('storageNote'))}</p>${integratedSettings}<section class="packet-section"><h3>${escapeHtml(t('focusDecision'))}</h3><p>${escapeHtml(focusDecisionText())}</p></section><section class="danger-zone"><h3>${escapeHtml(t('danger'))}</h3><p>${escapeHtml(t('deleteExplain'))}</p><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button><div class="field" style="margin-top:15px"><label for="deleteConfirm">${escapeHtml(t('typeDelete'))}</label><input class="delete-confirm" id="deleteConfirm" type="text" autocomplete="off"></div><button class="button danger" data-action="delete-state" disabled>${escapeHtml(t('deleteNow'))}</button></section>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+        openDialog(t('settingsTitle'), conceptMeta[concept].name, `<p>${escapeHtml(t('storageNote'))}</p>${integratedSettings}<section class="danger-zone"><h3>${escapeHtml(t('danger'))}</h3><p>${escapeHtml(t('deleteExplain'))}</p><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button><div class="field" style="margin-top:15px"><label for="deleteConfirm">${escapeHtml(t('typeDelete'))}</label><input class="delete-confirm" id="deleteConfirm" type="text" autocomplete="off"></div><button class="button danger" data-action="delete-state" disabled>${escapeHtml(t('deleteNow'))}</button></section>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
     }
 
     function deletePrototypeState() {
@@ -2182,7 +2208,7 @@
         state = defaultState(concept);
         captured = null;
         closeDialog(true); renderApp();
-        announce(state.lang !== 'en' ? 'Datos sintéticos borrados.' : 'Synthetic prototype data deleted.');
+        announce(state.lang !== 'en' ? 'Datos guardados borrados de este dispositivo.' : 'Saved data deleted from this device.');
     }
 
     function openLegacyImportPreview() {
@@ -2324,8 +2350,8 @@
         else if (action === 'finish') { if (state.view === 'reflection') saveReflection(); if (concept === 'notebook' || concept === 'integrated') checkpointVersion('entered Finish'); setView('finish'); }
         else if (action === 'return-write') { if (dialogRoot.contains(target)) closeDialog(true); if (concept === 'notebook' && state.draftDeclared) state.place = 'draft'; setView('write'); }
         else if (action === 'create-packet') createPacket();
-        else if (action === 'download-packet') downloadText(packetText(), `tupana-${concept}-synthetic-packet.txt`);
-        else if (action === 'export-state') downloadText(JSON.stringify({ window: WINDOW_ID, concept, exportedAt: new Date().toISOString(), state }, null, 2), `tupana-${concept}-prototype-backup.json`, 'application/json');
+        else if (action === 'download-packet') downloadText(packetText(), 'tupana-writing-packet.txt');
+        else if (action === 'export-state') downloadText(JSON.stringify({ app: 'tupana-writing-studio', exportedAt: new Date().toISOString(), state }, null, 2), 'tupana-writing-studio-backup.json', 'application/json');
         else if (action === 'delete-state') deletePrototypeState();
     }
 

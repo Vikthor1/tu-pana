@@ -172,10 +172,12 @@ mobile.on('request', request => { if (!request.url().startsWith('http://127.0.0.
 await mobile.goto(BASE);
 await mobile.evaluate(key => localStorage.removeItem(key), KEY);
 await mobile.reload();
-check('mobile identifies the current writing project in a 44px orientation control', await mobile.locator('.mobile-project-chip').isVisible() && /Mixed-genre autobiographical essay/.test(await mobile.locator('.mobile-project-chip').textContent()) && (await mobile.locator('.mobile-project-chip').boundingBox()).height >= 44);
+// Adapted for the branding pass: the chip shows the compact header label while the
+// full official assignment name is exposed to assistive technology via aria-label.
+check('mobile identifies the current writing project in a 44px orientation control', await mobile.locator('.mobile-project-chip').isVisible() && /Autobiographical Essay/.test(await mobile.locator('.mobile-project-chip').textContent()) && /Mixed-Genre Autobiographical Essay/.test(await mobile.locator('.mobile-project-chip').getAttribute('aria-label')) && (await mobile.locator('.mobile-project-chip').boundingBox()).height >= 44);
 await mobile.locator('.mobile-project-chip').click();
 await mobile.locator('#settingsGenre').selectOption('stem');
-check('mobile can switch to STEM and cultural invitation disappears', /STEM lab report/.test(await mobile.locator('.mobile-project-chip').textContent()) && await mobile.locator('.knowledge-onboarding').count() === 0);
+check('mobile can switch to STEM and cultural invitation disappears', /STEM Lab Report/.test(await mobile.locator('.mobile-project-chip').textContent()) && await mobile.locator('.knowledge-onboarding').count() === 0);
 check('mobile STEM displays disciplinary Moves with zero autobiography leakage', /Question and prediction/.test(await mobile.locator('.integrated-support').textContent()) && !/Choose a memory|family disclosure|cultural performance/i.test(await mobile.locator('.integrated-support').textContent()));
 await mobile.addInitScript(key => {
     if (sessionStorage.getItem('unknown-injected')) return;
@@ -188,7 +190,7 @@ await mobile.reload();
 check('unknown-genre stop exposes a direct mobile-safe recovery action', await mobile.locator('[data-action="settings"]').filter({ hasText: 'Choose writing project' }).isVisible());
 await mobile.locator('[data-action="settings"]').filter({ hasText: 'Choose writing project' }).click();
 await mobile.locator('#settingsGenre').selectOption('neutral');
-check('unknown-genre recovery reaches neutral General Writing without fallback', /General writing/.test(await mobile.locator('.mobile-project-chip').textContent()) && /Clarify purpose and audience/.test(await mobile.locator('.integrated-support').textContent()) && await mobile.locator('.knowledge-onboarding').count() === 0);
+check('unknown-genre recovery reaches neutral General Writing without fallback', /General Writing/.test(await mobile.locator('.mobile-project-chip').textContent()) && /Clarify purpose and audience/.test(await mobile.locator('.integrated-support').textContent()) && await mobile.locator('.knowledge-onboarding').count() === 0);
 check('mobile correction introduces no horizontal overflow', await mobile.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth));
 const smallTargets = await mobile.locator('button:visible, select:visible, a.switch-link:visible').evaluateAll(elements => elements.map(el => ({ name: el.getAttribute('aria-label') || el.textContent.trim(), box: el.getBoundingClientRect() })).filter(item => item.box.width < 44 || item.box.height < 44));
 check('mobile correction introduces no sub-44px interactive target', smallTargets.length === 0, JSON.stringify(smallTargets.slice(0, 4)));

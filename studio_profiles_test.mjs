@@ -87,7 +87,8 @@ check('unknown assignment inherits no autobiographical Moves', !text.includes('C
 check('unknown assignment inherits no General Writing guidance', !text.includes('Clarify purpose and audience'));
 check('recovery reaches the writing-project selection', await page.locator('[data-action="settings"]').count() > 0);
 await page.locator('.genre-config-error [data-action="settings"], [data-action="settings"]').first().click();
-check('selection lists General Writing as an explicit choice', (await bodyText()).includes('General writing project'));
+// Adapted for the branding pass: selectors now show the official full assignment name.
+check('selection lists General Writing as an explicit choice', (await bodyText()).includes('General Writing Project'));
 
 console.log('\nProfile memory and explicit switching');
 await fresh(`${ORIGIN}/studio.html?assignment=graduate-sop`);

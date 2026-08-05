@@ -116,6 +116,7 @@
 !studio_import_test.mjs
 !studio_kernel_test.mjs
 !studio_live_check.mjs
+!studio_branding_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

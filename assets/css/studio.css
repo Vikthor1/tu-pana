@@ -99,8 +99,7 @@ p { line-height: 1.55; }
 .prototype-shell { min-height: 100vh; min-height: 100dvh; }
 .prototype-header { position: sticky; z-index: 35; top: 0; border-bottom: 1px solid var(--line); background: rgba(251,250,246,.96); backdrop-filter: blur(14px); }
 .prototype-header-inner { display: grid; grid-template-columns: auto minmax(220px, 1fr) auto; gap: 18px; align-items: center; width: min(1480px, calc(100% - 28px)); min-height: 72px; margin: 0 auto; }
-.brand-lockup { display: flex; gap: 11px; align-items: center; }
-.brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px; background: var(--jade); color: white; font-family: Georgia, serif; font-weight: 800; }
+/* (brand lockup + icon rules live in the brand-identity block below) */
 .brand-copy strong, .brand-copy small { display: block; }
 .brand-copy small { color: var(--muted); }
 .concept-switcher { display: flex; min-width: 0; justify-content: center; align-items: center; gap: 5px; }
@@ -109,7 +108,7 @@ p { line-height: 1.55; }
 .prototype-actions { display: flex; gap: 7px; align-items: center; }
 .header-select { min-height: 44px; max-width: 180px; padding: 7px 34px 7px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); }
 .save-state { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: .83rem; white-space: nowrap; }
-.save-state-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--jade); }
+/* save-state mark rules live in the brand-identity block below */
 
 .orientation-bar { border-bottom: 1px solid var(--line); background: var(--surface); }
 .orientation-inner { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; width: min(1480px, calc(100% - 28px)); min-height: 76px; margin: 0 auto; padding: 10px 0; }
@@ -434,7 +433,7 @@ body.focus-mode .draft-editor { min-height: calc(100dvh - 96px); }
     .concept-card.finalist-card { grid-column: auto; }
     .task-grid { grid-template-columns: 1fr; }
     .prototype-header-inner { min-height: 64px; }
-    .brand-copy small, .save-state, .header-select.genre-select { display: none; }
+    .save-state, .genre-select-wrap { display: none; }
     .orientation-inner { grid-template-columns: 1fr; gap: 5px; }
     [data-concept="integrated"] .orientation-copy { display: grid; grid-template-columns: auto minmax(0, 1fr); }
     .mobile-project-chip { display: inline-flex; grid-column: 1 / -1; min-width: 0; max-width: 100%; min-height: 44px; align-items: center; gap: 6px; justify-self: start; padding: 5px 9px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); color: var(--ink); text-align: left; }
@@ -468,7 +467,8 @@ body.focus-mode .draft-editor { min-height: calc(100dvh - 96px); }
     .prototype-actions { min-width: 0; gap: 4px; }
     .prototype-actions .header-select:not(.genre-select) { min-width: 0; max-width: 160px; flex: 1 1 0; }
     .prototype-actions .settings-label { display: none; }
-    .brand-mark { width: 38px; height: 38px; }
+    .brand-icon { width: 44px; height: 37px; }
+    .product-title { font-size: 0.98rem; white-space: normal; }
     .brand-copy { display: none; }
     .concept-switcher .switch-link { padding: 7px 9px; font-size: .77rem; }
     .orientation-bar { position: sticky; z-index: 30; top: 112px; }
@@ -545,3 +545,67 @@ body.focus-mode .draft-editor { min-height: calc(100dvh - 96px); }
 .council-preserve h4, .council-disagreements h4 { margin-bottom: 6px; }
 .council-partial-note, .council-dropped-note, .truncated-note { font-size: 0.9em; opacity: 0.85; }
 .voice-note { font-size: 0.92em; }
+
+/* ── Tu Pana brand identity (original laptop-and-coffee companion, ported
+      verbatim from the legacy application's header logo) ── */
+.brand-lockup { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.brand-icon { width: 52px; height: 44px; flex-shrink: 0; display: block; }
+.brand-icon svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.brand-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.product-title { font-family: Georgia, 'Times New Roman', serif; font-size: 1.06rem; line-height: 1.2; letter-spacing: 0.01em; white-space: nowrap; }
+.tp-av-bg      { fill: #f4dfbd; opacity: 0.82; }
+.tp-av-glow    { fill: #f0c783; opacity: 0.18; transform-origin: 120px 110px; animation: tpAvGlow 4.2s ease-in-out infinite; }
+.tp-av-laptop  { fill: #5f8a65; stroke: #315642; stroke-width: 4; stroke-linejoin: round; }
+.tp-av-screen  { fill: #fffaf0; stroke: #315642; stroke-width: 3.5; stroke-linejoin: round; }
+.tp-av-screen-inner { fill: #f7ecd8; opacity: 0.68; }
+.tp-av-base    { fill: #e8ddc8; stroke: #315642; stroke-width: 3.5; stroke-linejoin: round; }
+.tp-av-trackpad { fill: #fffaf0; stroke: rgba(49,86,66,0.5); stroke-width: 2; }
+.tp-av-key     { fill: rgba(49,86,66,0.38); }
+.tp-av-line    { fill: none; stroke: #c68642; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 76; stroke-dashoffset: 76; animation: tpAvLine 4.8s ease-in-out infinite; }
+.tp-av-line.l2 { stroke-dasharray: 62; stroke-dashoffset: 62; animation-delay: 0.42s; }
+.tp-av-line.l3 { stroke-dasharray: 48; stroke-dashoffset: 48; animation-delay: 0.84s; }
+.tp-av-cursor  { fill: #315642; animation: tpAvCursor 1s steps(1,end) infinite; }
+.tp-av-spark   { fill: #d79638; opacity: 0.78; transform-origin: center; animation: tpAvSpark 2.8s ease-in-out infinite; }
+.tp-av-cup     { fill: #fff7ea; stroke: #315642; stroke-width: 3.5; stroke-linejoin: round; }
+.tp-av-coffee  { fill: #6b4329; opacity: 0.9; }
+.tp-av-handle  { fill: none; stroke: #315642; stroke-width: 3.5; stroke-linecap: round; }
+.tp-av-saucer  { fill: #eadfce; stroke: #315642; stroke-width: 3; }
+.tp-av-steam   { fill: none; stroke: #8a6b4d; stroke-width: 3.2; stroke-linecap: round; opacity: 0.62; animation: tpAvSteam 3.4s ease-in-out infinite; }
+.tp-av-steam.s2 { animation-delay: 0.45s; }
+.tp-av-steam.s3 { animation-delay: 0.9s; }
+@keyframes tpAvGlow { 0%,100% { transform: scale(0.96); opacity: 0.14; } 50% { transform: scale(1.05); opacity: 0.28; } }
+@keyframes tpAvLine { 0%,18% { stroke-dashoffset: 76; } 45%,78% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 76; } }
+@keyframes tpAvCursor { 0%,48% { opacity: 1; } 49%,100% { opacity: 0; } }
+@keyframes tpAvSteam { 0% { transform: translateY(8px) scale(0.92); opacity: 0; } 35% { opacity: 0.55; } 70% { opacity: 0.4; } 100% { transform: translateY(-14px) scale(1.08); opacity: 0; } }
+@keyframes tpAvSpark { 0%,100% { transform: scale(0.9) rotate(0deg); opacity: 0.4; } 50% { transform: scale(1.12) rotate(8deg); opacity: 0.9; } }
+@media (prefers-reduced-motion: reduce) {
+    .tp-av-glow, .tp-av-line, .tp-av-cursor, .tp-av-steam, .tp-av-spark { animation: none; }
+}
+
+/* Genre selector: compact face when closed; the real select stays fully
+   accessible (keyboard + AT read the full official assignment names). */
+.genre-select-wrap { position: relative; display: inline-flex; align-items: center; min-height: 28px; max-width: 100%; }
+.genre-select-face { display: inline-flex; align-items: center; gap: 6px; font-size: 0.86rem; color: var(--muted); border: 1px solid var(--line, rgba(0,0,0,0.16)); border-radius: 8px; padding: 3px 10px; max-width: 100%; overflow-wrap: anywhere; }
+.genre-select-caret { font-size: 0.7rem; opacity: 0.7; }
+.genre-select-wrap .genre-select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.genre-select-wrap:focus-within .genre-select-face { outline: 2px solid var(--jade, #315642); outline-offset: 2px; }
+
+/* Save status: quiet, mark + text (never color alone) */
+.save-state-mark { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; border: 1px solid currentColor; font-size: 0.68rem; line-height: 1; }
+.save-state-mark[data-save-status="failed"] { font-weight: 700; }
+
+/* Header controls never compress below their touch targets */
+.prototype-actions .icon-button, .prototype-actions .header-select { flex-shrink: 0; }
+.brand-lockup { flex: 1 1 auto; }
+.prototype-actions { flex-shrink: 0; }
+
+/* Mobile header: identity row wraps cleanly; the genre pill and save pill yield
+   to the orientation chip and the editor's own save line (this block re-asserts
+   the small-screen rules after the brand-identity block above). */
+@media (max-width: 820px) {
+    .prototype-header-inner { grid-template-columns: 1fr; row-gap: 4px; padding: 8px 0; min-height: 0; }
+    .prototype-actions { justify-content: flex-start; }
+    .genre-select-wrap, .save-state { display: none; }
+    .brand-lockup { min-width: 0; }
+    .product-title { white-space: normal; overflow-wrap: anywhere; }
+}

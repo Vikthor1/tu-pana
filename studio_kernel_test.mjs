@@ -176,7 +176,8 @@ await page.evaluate(() => {
 });
 await convene();
 await page.waitForTimeout(900);
-const saveFailedShown = await page.evaluate(() => document.body.textContent.includes('Not saved') || document.body.textContent.includes('No se guardó'));
+// Branding pass: failure copy is now “Couldn't save” / “No se pudo guardar”.
+const saveFailedShown = await page.evaluate(() => document.body.textContent.includes('Couldn’t save') || document.body.textContent.includes('No se pudo guardar'));
 check('quota failure surfaces the saveFailed truth instead of false success', saveFailedShown);
 await page.evaluate(() => window.__restoreSetItem());
 

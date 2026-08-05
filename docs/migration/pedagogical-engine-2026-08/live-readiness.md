@@ -50,3 +50,79 @@ cancel/stale-response token; duplicate-submission token guard; consented-text/ge
 submit time (previously read at completion); passage-scope focused reviews mislabeled as
 full-draft; truncation notice not surfaced; no client timeout; **Council structured-safety kernel
 absent (mock plain strings; no schema/anchor/caps/corroboration validation)** — Phase 3.
+
+## Phase 2 — live provider connection (implemented)
+
+Provider resolution lives inline in `studio.html` (no secret; the Worker holds the key):
+live Gemini activates only on `tupana-preview.pages.dev` hosts or by explicit
+`?provider=gemini`; every other origin defaults to the deterministic mock. Automation runs on
+`127.0.0.1` — an origin the deployed Worker additionally refuses — so live cannot activate
+accidentally in tests. Hardening delivered: consent-time capture of genre/draft/signature/snapshot
+(mid-flight edits and genre switches never rewrite records); dialog close cancels in-flight
+requests (stale responses persist nothing; metadata-only `cancelled` events); duplicate-submit
+blocked; passage-scope focused reviews carry a truthful scoped contract; truncation renders a
+visible note; 45s per-attempt timeout; bounded retry (2×, retryable categories only; permanent
+categories never retried); usage metadata-only; provider-aware truthful labeling (banner, consent,
+transmission facts, buttons) and record-derived card provenance (`Tu Pana AI` vs `Mock`).
+**Deployed-Worker contract finding:** per-kind output ceilings engage only when the legacy
+`model` parameter accompanies the request kind (probes: promptless/OK-probe → default 400-token
+cap, truncated; with `model: gemini-2.5-flash` → untruncated). The adapter now sends the legacy
+`selectGeminiModel` mapping. The Worker itself was not modified.
+
+## Phase 3 — Council safety kernel (implemented: `assets/js/studio/studio-council.js`)
+
+Ported from legacy `council.js`: strict JSON schemas (reviewer + synthesis); verbatim-anchor
+validation against the consented draft with smart-quote/whitespace/case normalization; role
+identity from the requested role record only; caps (5 findings/role, 3 priorities, 4 secondary,
+3 preserve, 2 disagreements, 40-word quotes); corroboration recomputed in code; low-confidence
+propagation; disagreements preserved as writer-owned questions; phantom `sourceIds` discarded;
+partial reports truthful (≥2 valid reviewers, missing perspective named); synthesis validated
+with one content retry, else nothing saved; empty-findings shortcut skips synthesis and records
+the actual call count; dropped-anchor counts disclosed in the report card. Role mandates ported
+into `councilConfig` per genre.
+
+## Phase 4 — bounded live validation (2026-08-04, synthetic writing only)
+
+**Call ledger: 25 of the 30-call ceiling** (13 round 1 + 2 diagnostic probes + 10 round 2).
+Estimated spend from usage counters: **≈ US$0.05–0.10** against the US$2.00 ceiling.
+No raw payloads retained; response texts reviewed transiently.
+
+| Case | Kind | Lang | Outcome | Latency | Validation |
+|---|---|---|---|---|---|
+| Autobiographical passage | passage_analysis | es | OK | 0.8–1.0s | grounded, 1 question, no rewrite, Spanish |
+| Admissions passage + Voice constraints | passage_analysis | en | OK | 0.8s | Voice entries sent as constraints; concise |
+| STEM passage | passage_analysis | en | OK | 0.7s | disciplinary (units), zero cultural leakage |
+| SOP full draft | full_draft_review | en | OK | 2.4–3.3s | 4 sections complete, untruncated, anchored, no rewrite |
+| Research full draft | full_draft_review | es | OK | 2.3s | Spanish response, sources-in-conversation framing |
+| General Writing full draft | full_draft_review | both | OK | 2.4s | Spanish-primary response in both mode (noted) |
+| Autobiography Council | council ×4 | en | **complete** | 6.4s | kernel-validated; 4 findings, 3 priorities, 0 dropped; PRESERVE protects "aquí escuchamos primero" + "porque esa frase carga la historia" with reasons |
+| CAP 200 Council | council ×4 | es | **complete** | 6.2s | fully Spanish; 6 findings; evidence roles cite logged-hours/diario; no deficit framing; 0 dropped |
+| Unknown assignment | none | — | stops, zero AI reachable | — | — |
+| STEM Council | none | — | stated-unavailable, zero calls | — | — |
+
+Pedagogical evaluation of live responses: correct genre identity in every case; no
+autobiographical or cultural leakage into SOP/STEM/research/General; no trauma pressure in
+admissions; no invented personal history or sources; no reflection written for the student; no
+replacement prose (strategies + questions only); quotations anchored (kernel-guaranteed);
+concrete and prioritized; multilingual phrases actively preserved; no grading/readiness/
+improvement claims; clear bounded next actions. Observations: live Councils produced no
+disagreements in these runs (disagreement is preserved when present, never manufactured); the EN
+Council's PRESERVE repeated one quote from two roles (cosmetic; within the 3-item cap);
+both-mode responses are Spanish-primary by design of the language signal.
+
+Round-1 findings this pass fixed before sign-off: default-cap truncation via the missing model
+parameter (above) — the kernel correctly refused to persist the truncated Council JSON in the
+meantime, which is exactly the designed failure behavior.
+
+## Phase 5 — failure and adversarial results
+
+`studio_kernel_test.mjs` 38/38: kernel units (anchors incl. smart quotes, caps, role identity,
+phantom-source discard, corroboration recomputation, low-confidence propagation, single-role
+non-corroboration); end-to-end fixtures — malformed (abort, nothing saved), missing fields
+(dropped, truthful empty report), invented quotation (discarded, never rendered, disclosure note),
+partial reviewer failure (truthful partial report naming the missing perspective), total failure
+(abort + boundary), synthesis failure after one retry (all-or-nothing, nothing saved), cancel
+before response (no record, no snapshot, metadata event), mid-flight edit (record keeps consented
+text; live draft keeps the edit), duplicate submit blocked, timeout and origin-forbidden copy
+(do-not-retry), simulated storage quota failure (saveFailed truth, no false success). Response
+arriving after genre switch is covered by consent-time capture (records store consented genre).

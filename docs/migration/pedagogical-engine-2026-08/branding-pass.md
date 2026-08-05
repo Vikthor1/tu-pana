@@ -89,3 +89,37 @@ header coherence; light/dark/system; 390×844 icon/title/chip/44px/height; keybo
 visible focus; 200% reflow. Screenshots reviewed by eye (desktop paper EN, desktop dark ES,
 desktop both-mode longest label, mobile paper + dark before/after the overlap fix, saving,
 save-failure, Settings full names). Full battery results recorded in the final report.
+
+## Battery, deployment, and handoff (completed)
+
+- **Full battery after the pass: 56 suites, zero failures** (~1,802 checks — all legacy, finalist,
+  R0, studio, kernel, and branding suites).
+- **Checkpoint:** `4506f2a` on `migrate/pedagogical-engine-2026-08` (local only; no push/merge).
+- **Deployment:** `b058711e` to Cloudflare Pages project `tupana-preview` (21 user-facing files).
+  Byte identity verified sha256-exact against the deployment URL; the canonical
+  `tupana-preview.pages.dev` alias was observed converging behind edge cache and polled to
+  confirmation. **Rollback targets preserved:** `ac390d62` (live-AI checkpoint `91b9424` surface)
+  and `f90ad8be` (pre-studio `1462aea` surface).
+- **Post-deploy smoke (13/13, zero AI calls):** brand icon, single title, live provider
+  resolution + truthful banner, save status, SOP routing with compact face + full option names,
+  dark switch, coach and Council reachable behind gated consent (0 Worker POSTs), son's
+  `start-here` route intact, mobile header clean at 390×844.
+- **Untouched:** production Pages (`main` `0f66e46`), the Worker (zero requests this pass), R0,
+  exploration, VC-OS (`e32034a`), AI contracts and provider configuration (only surrounding
+  labels changed; consent/validation code untouched by diff scope: `studio-ui.js` header/copy,
+  `studio-profiles.js` name fields, `studio.css`, `studio.html` meta).
+
+## Founder visual-polish test script (~5 minutes)
+
+1. Open `https://tupana-preview.pages.dev/studio.html`. Does the header read as one product —
+   the laptop-and-coffee companion, one title, your current writing project beneath it? Does the
+   steam animation feel warm but ignorable? (If your device is set to reduce motion, it should be
+   still.)
+2. Watch the right side while typing: `Saving…` then `✓ Saved on this device`. Does it stay quiet?
+3. Open the writing-project menu — full assignment names? Pick each; does the compact pill under
+   the title stay unambiguous (especially Statement of Purpose and Service-Learning Report)?
+4. Switch Español and Español + English; then Paper, Dark, System in Settings. Coherent everywhere?
+5. On your phone: title readable, controls on their own row, the Writing project chip clear, no
+   sideways scrolling.
+6. Skim Settings, Help, Finish, and the paste dialog: any word that sounds like a lab instead of
+   a product?

@@ -46,7 +46,7 @@
 
     const copy = {
         en: {
-            prototype: 'Practice preview — the coach is simulated on this device. Do not paste real coursework.',
+            prototype: 'Practice preview — the coach is simulated on this device. Your writing stays here.',
             saved: 'Saved on this device', saving: 'Saving…', saveFailed: 'Couldn’t save — keep this page open and export a backup from Settings.',
             compare: 'Compare concepts', settings: 'Settings', language: 'Language', genre: 'Writing project',
             whereDesk: 'Your Desk', whereJourney: 'Step {n} of 10', whereHybrid: 'Phase {n} of 4',
@@ -57,7 +57,7 @@
             nextJourney: 'Next: {next}. Back and Continue never mark work complete.',
             nextHybrid: 'Next: {next}. Your draft carries forward unchanged.',
             currentDraft: 'Current draft', currentVersion: 'Marked current version', autosaved: 'Autosaved locally', words: '{n} words',
-            paste: 'Paste a draft', useSample: 'See a sample', focus: 'Focus', exitFocus: 'Exit focus',
+            paste: 'Paste a draft', focus: 'Focus', exitFocus: 'Exit focus',
             reviewCenter: 'Review Center', focusedReview: 'Focused review', council: 'The Council', coach: 'Ask Tu Pana',
             reflection: 'Process Reflection', finish: 'Finish', back: 'Back', continue: 'Continue',
             priorWork: 'Prior work', moves: 'Moves for this moment', workRail: 'Your work', evidence: 'Evidence so far',
@@ -81,8 +81,8 @@
             focusDecision: 'Mobile Focus decision', danger: 'Danger Zone', export: 'Export safety copy', delete: 'Delete this Writing Studio’s saved data',
             deleteExplain: 'Only the Writing Studio’s saved record in this browser will be removed. Other work saved on this device is untouched.',
             typeDelete: 'Type DELETE to enable deletion', deleteNow: 'Delete saved data',
-            startBlank: 'Start with a blank draft', replaceDraft: 'Replace draft with this synthetic text',
-            pasteWarning: 'Pasting replaces your current draft. The replaced text stays recoverable as an exact snapshot in your draft history.',
+            startBlank: 'Start with a blank draft', replaceDraft: 'Replace draft with this text',
+            pasteWarning: 'Paste your own writing here. It replaces your current draft, and the replaced text stays recoverable as an exact snapshot in your draft history.',
             phaseDiscover: 'Discover', phaseDraft: 'Draft', phaseStrengthen: 'Strengthen', phaseFinish: 'Finish',
             actStart: 'Start', actRevise: 'Revise', actFinish: 'Finish',
             currentMark: 'Current version', markCurrent: 'Mark as current', newer: 'Newer than marked version',
@@ -94,7 +94,7 @@
             draftMissing: 'Doesn’t exist yet—you will write it.', writeDraft: 'Write my draft',
             authorshipBoundary: 'Your notebook stays beside you as reference. Your draft starts empty and only you type or paste its prose.',
             notebookCoach: 'Ask about this notebook card', notebookCoachBoundary: 'The mock coach may discuss ideas already in this card and ask questions. It will not generate draft prose or transfer text into the draft.',
-            pasteNotebook: 'Paste synthetic notebook material', saveCard: 'Save notebook card', nextCard: 'Continue to: {name}',
+            pasteNotebook: 'Paste notebook material', saveCard: 'Save notebook card', nextCard: 'Continue to: {name}',
             notebookReference: 'Notebook reference', draftToolsLocked: 'Draft review unlocks after you create your draft.',
             createdEmpty: 'Canonical draft created empty. Notebook text was not transferred.',
             versions: 'Versions', draftSnapshot: 'Dated draft snapshot', directDraft: 'Begin drafting now',
@@ -107,7 +107,7 @@
             councilUnavailable: 'Council is not configured for this genre. Use focused review or ask your instructor for disciplinary feedback.',
         },
         es: {
-            prototype: 'Vista de práctica — el coach es simulado en este dispositivo. No pegues trabajo académico real.',
+            prototype: 'Vista de práctica — el coach es simulado en este dispositivo. Tu escritura permanece aquí.',
             saved: 'Guardado en este dispositivo', saving: 'Guardando…', saveFailed: 'No se pudo guardar — mantén esta página abierta y exporta una copia desde Configuración.',
             compare: 'Comparar conceptos', settings: 'Configuración', language: 'Idioma', genre: 'Proyecto de escritura',
             whereDesk: 'Tu Escritorio', whereJourney: 'Paso {n} de 10', whereHybrid: 'Fase {n} de 4',
@@ -118,7 +118,7 @@
             nextJourney: 'Próximo: {next}. Atrás y Continuar nunca marcan trabajo como completo.',
             nextHybrid: 'Próximo: {next}. Tu borrador continúa sin cambios.',
             currentDraft: 'Borrador actual', currentVersion: 'Versión actual marcada', autosaved: 'Autoguardado local', words: '{n} palabras',
-            paste: 'Pegar un borrador', useSample: 'Ver un ejemplo', focus: 'Enfoque', exitFocus: 'Salir de enfoque',
+            paste: 'Pegar un borrador', focus: 'Enfoque', exitFocus: 'Salir de enfoque',
             reviewCenter: 'Centro de Revisión', focusedReview: 'Lectura enfocada', council: 'El Consejo', coach: 'Preguntar a Tu Pana',
             reflection: 'Reflexión de proceso', finish: 'Finalizar', back: 'Atrás', continue: 'Continuar',
             priorWork: 'Trabajo anterior', moves: 'Movidas para este momento', workRail: 'Tu trabajo', evidence: 'Evidencia hasta ahora',
@@ -142,8 +142,8 @@
             focusDecision: 'Decisión de Enfoque móvil', danger: 'Zona de peligro', export: 'Exportar copia de seguridad', delete: 'Borrar los datos guardados del Writing Studio',
             deleteExplain: 'Solo se borrará el registro guardado del Writing Studio en este navegador. El resto del trabajo guardado en este dispositivo no cambia.',
             typeDelete: 'Escribe DELETE para activar el borrado', deleteNow: 'Borrar datos del prototipo',
-            startBlank: 'Comenzar con borrador vacío', replaceDraft: 'Reemplazar con este texto sintético',
-            pasteWarning: 'Pegar reemplaza tu borrador actual. El texto reemplazado queda recuperable como una instantánea exacta en tu historial.',
+            startBlank: 'Comenzar con borrador vacío', replaceDraft: 'Reemplazar el borrador con este texto',
+            pasteWarning: 'Pega aquí tu propia escritura. Reemplaza tu borrador actual, y el texto reemplazado queda recuperable como una instantánea exacta en tu historial.',
             phaseDiscover: 'Descubrir', phaseDraft: 'Redactar', phaseStrengthen: 'Fortalecer', phaseFinish: 'Finalizar',
             actStart: 'Comenzar', actRevise: 'Revisar', actFinish: 'Finalizar',
             currentMark: 'Versión actual', markCurrent: 'Marcar como actual', newer: 'Más reciente que la versión marcada',
@@ -155,7 +155,7 @@
             draftMissing: 'Todavía no existe—tú lo escribirás.', writeDraft: 'Escribir mi borrador',
             authorshipBoundary: 'Tu cuaderno queda a tu lado como referencia. El borrador comienza vacío y solo tú escribes o pegas su prosa.',
             notebookCoach: 'Preguntar sobre esta tarjeta', notebookCoachBoundary: 'El coach simulado puede conversar sobre ideas que ya están en esta tarjeta y hacer preguntas. No generará prosa del borrador ni transferirá texto.',
-            pasteNotebook: 'Pegar material sintético en el cuaderno', saveCard: 'Guardar tarjeta', nextCard: 'Continuar a: {name}',
+            pasteNotebook: 'Pegar material en el cuaderno', saveCard: 'Guardar tarjeta', nextCard: 'Continuar a: {name}',
             notebookReference: 'Referencia del cuaderno', draftToolsLocked: 'La revisión del borrador se activa después de crear tu borrador.',
             createdEmpty: 'Borrador canónico creado vacío. No se transfirió texto del cuaderno.',
             versions: 'Versiones', draftSnapshot: 'Instantánea fechada del borrador', directDraft: 'Comenzar a redactar ahora',
@@ -337,7 +337,7 @@
     function shortDate(iso) { return new Intl.DateTimeFormat(state?.lang === 'es' ? 'es' : 'en', { hour: 'numeric', minute: '2-digit' }).format(new Date(iso)); }
     const unknownGenre = {
         label: { en: 'Genre selection required', es: 'Se requiere elegir un género' },
-        sample: '', moves: { discover: [], review: [], council: [] },
+        moves: { discover: [], review: [], council: [] },
     };
     function currentGenre() { return genres[state.genre] || (concept === 'integrated' ? unknownGenre : genres.neutral); }
     function genreLabel() { return currentGenre().label[state.lang === 'en' ? 'en' : 'es']; }
@@ -752,7 +752,7 @@
             const hasEvidence = Boolean(cardEntry && wordCount(cardEntry.text));
             return `<button class="step-button" data-action="notebook-card" data-card="${index}" ${state.activeNotebook === index ? 'aria-current="page"' : ''}><span class="step-number">${index + 1}</span><span class="step-label"><strong>${escapeHtml(notebookCardLabel(card))}</strong><small ${state.activeNotebook === index ? 'id="activeNotebookCardStatus"' : ''}>${hasEvidence ? `${wordCount(cardEntry.text)} ${escapeHtml(state.lang === 'en' ? 'words' : 'palabras')}` : escapeHtml(state.lang === 'en' ? 'Suggested · skippable' : 'Sugerida · opcional')}</small></span><span class="done-mark" ${state.activeNotebook === index ? 'id="activeNotebookEvidence"' : ''} aria-label="${hasEvidence ? 'has evidence' : 'no evidence'}">${hasEvidence ? '✓' : '○'}</span></button>`;
         }).join('')}</nav></aside>
-        <section class="panel notebook-card-panel" aria-labelledby="notebookCardTitle"><div class="editor-topline"><div class="draft-identity"><strong id="notebookCardTitle">${escapeHtml(notebookCardLabel(active))}</strong><span>${escapeHtml(notebookCardPrompt(active))}</span></div><div class="editor-actions"><button class="button ghost" data-action="paste-notebook">${escapeHtml(t('pasteNotebook'))}</button><button class="button secondary" data-action="notebook-sample">${escapeHtml(t('useSample'))}</button></div></div><div class="editor-wrap"><textarea id="notebookEditor" class="draft-editor notebook-editor" spellcheck="${spellcheckEnabled()}" aria-label="${escapeHtml(`${t('notebook')}: ${notebookCardLabel(active)}`)}" placeholder="${escapeHtml(state.lang === 'en' ? 'Think here in notes, fragments, questions, or an outline…' : 'Piensa aquí con notas, fragmentos, preguntas o un esquema…')}">${escapeHtml(entry.text)}</textarea><div class="editor-meta"><span id="notebookWordCount">${escapeHtml(t('words', { n: wordCount(entry.text) }))}</span><span class="autosave-message" data-save-state role="status" aria-live="polite" aria-atomic="true">${escapeHtml(entry.updatedAt ? `${t('notebookSaved')} · ${shortDate(entry.updatedAt)}` : t('autosaved'))}</span></div></div><p class="editor-privacy">${instruction('notebookCoachBoundary')} ${escapeHtml(t('noNetwork'))}</p><footer class="editor-footer"><div class="footer-group"><button class="button ghost" data-action="notebook-back" ${state.activeNotebook === 0 ? 'disabled' : ''}>← ${escapeHtml(t('back'))}</button><button class="button primary" data-action="notebook-next">${escapeHtml(state.activeNotebook < cards.length - 1 ? t('nextCard', { name: notebookCardLabel(cards[state.activeNotebook + 1]) }) : t('writeDraft'))} →</button></div><div class="footer-group"><button class="button secondary" data-action="notebook-coach">${escapeHtml(t('notebookCoach'))}</button></div></footer>${coachRuns.length ? `<div class="panel-body notebook-coach-history"><span class="mock-label">Mock coach · ${escapeHtml(notebookCardLabel(active))}</span><p>${escapeHtml(coachRuns.at(-1).response)}</p></div>` : ''}</section>
+        <section class="panel notebook-card-panel" aria-labelledby="notebookCardTitle"><div class="editor-topline"><div class="draft-identity"><strong id="notebookCardTitle">${escapeHtml(notebookCardLabel(active))}</strong><span>${escapeHtml(notebookCardPrompt(active))}</span></div><div class="editor-actions"><button class="button ghost" data-action="paste-notebook">${escapeHtml(t('pasteNotebook'))}</button></div></div><div class="editor-wrap"><textarea id="notebookEditor" class="draft-editor notebook-editor" spellcheck="${spellcheckEnabled()}" aria-label="${escapeHtml(`${t('notebook')}: ${notebookCardLabel(active)}`)}" placeholder="${escapeHtml(state.lang === 'en' ? 'Think here in notes, fragments, questions, or an outline…' : 'Piensa aquí con notas, fragmentos, preguntas o un esquema…')}">${escapeHtml(entry.text)}</textarea><div class="editor-meta"><span id="notebookWordCount">${escapeHtml(t('words', { n: wordCount(entry.text) }))}</span><span class="autosave-message" data-save-state role="status" aria-live="polite" aria-atomic="true">${escapeHtml(entry.updatedAt ? `${t('notebookSaved')} · ${shortDate(entry.updatedAt)}` : t('autosaved'))}</span></div></div><p class="editor-privacy">${instruction('notebookCoachBoundary')} ${escapeHtml(t('noNetwork'))}</p><footer class="editor-footer"><div class="footer-group"><button class="button ghost" data-action="notebook-back" ${state.activeNotebook === 0 ? 'disabled' : ''}>← ${escapeHtml(t('back'))}</button><button class="button primary" data-action="notebook-next">${escapeHtml(state.activeNotebook < cards.length - 1 ? t('nextCard', { name: notebookCardLabel(cards[state.activeNotebook + 1]) }) : t('writeDraft'))} →</button></div><div class="footer-group"><button class="button secondary" data-action="notebook-coach">${escapeHtml(t('notebookCoach'))}</button></div></footer>${coachRuns.length ? `<div class="panel-body notebook-coach-history"><span class="mock-label">Mock coach · ${escapeHtml(notebookCardLabel(active))}</span><p>${escapeHtml(coachRuns.at(-1).response)}</p></div>` : ''}</section>
         <aside class="support-stack"><section class="panel authorship-card"><div class="panel-body"><span class="panel-kicker">${escapeHtml(state.lang === 'en' ? 'Two kinds of work' : 'Dos tipos de trabajo')}</span><h2>${escapeHtml(t('writeDraft'))}</h2><p>${instruction('authorshipBoundary')}</p><button class="button primary" data-action="create-draft">${escapeHtml(state.draftDeclared ? t('draft') : t('writeDraft'))}</button><p class="boundary-note">${escapeHtml(t('cardsSuggested'))}</p></div></section>${renderNotebookEvidencePanel()}</aside></div>`;
     }
 
@@ -967,7 +967,7 @@
     function renderEditor() {
         const isCurrent = concept !== 'journey' || state.currentArtifact === `step-${state.step}`;
         const focusAvailable = concept === 'desk' || concept === 'journey' || concept === 'integrated';
-        return `<section class="panel editor-panel" aria-labelledby="draftTitle"><div class="editor-topline"><div class="draft-identity"><strong id="draftTitle">${escapeHtml(concept === 'journey' ? stepData(state.step - 1)[0] : t('currentDraft'))}</strong><span>${escapeHtml(isCurrent ? t('currentVersion') : t('priorWork'))}${concept === 'journey' ? ` · ${escapeHtml(t('whereJourney', { n: state.step }))}` : ''}</span></div><div class="editor-actions">${concept === 'integrated' ? renderEditControls() : ''}<button class="button ghost" data-action="paste">${escapeHtml(t('paste'))}</button>${!getDraft() ? `<button class="button secondary" data-action="sample">${escapeHtml(t('useSample'))}</button>` : ''}${focusAvailable ? `<button class="button ghost focus-btn" data-action="focus">${escapeHtml(t('focus'))}</button>` : ''}</div></div>
+        return `<section class="panel editor-panel" aria-labelledby="draftTitle"><div class="editor-topline"><div class="draft-identity"><strong id="draftTitle">${escapeHtml(concept === 'journey' ? stepData(state.step - 1)[0] : t('currentDraft'))}</strong><span>${escapeHtml(isCurrent ? t('currentVersion') : t('priorWork'))}${concept === 'journey' ? ` · ${escapeHtml(t('whereJourney', { n: state.step }))}` : ''}</span></div><div class="editor-actions">${concept === 'integrated' ? renderEditControls() : ''}<button class="button ghost" data-action="paste">${escapeHtml(t('paste'))}</button>${focusAvailable ? `<button class="button ghost focus-btn" data-action="focus">${escapeHtml(t('focus'))}</button>` : ''}</div></div>
             <div class="editor-wrap"><textarea id="draftEditor" class="draft-editor" spellcheck="${spellcheckEnabled()}" aria-label="${escapeHtml(t('currentDraft'))}" placeholder="${escapeHtml(state.lang !== 'en' ? 'Comienza con tus propias palabras…' : 'Start with your own words…')}">${escapeHtml(getDraft())}</textarea><div class="editor-meta"><span id="wordCount">${escapeHtml(t('words', { n: wordCount(getDraft()) }))}</span><span class="autosave-message" data-save-state role="status" aria-live="polite" aria-atomic="true">${escapeHtml(t('autosaved'))}</span></div></div>
             <p class="editor-privacy">${instruction('selectHint')} ${escapeHtml(liveProviderActive() ? uiText('Nothing is ever sent without your explicit consent and an exact preview.', 'Nada se envía nunca sin tu consentimiento explícito y una vista previa exacta.') : t('noNetwork'))}</p>
             ${concept === 'integrated' && window.StudioTour?.shouldOfferWelcome(tourContext()) ? window.StudioTour.welcomeCardHtml(tourContext()) : ''}
@@ -1384,55 +1384,17 @@
         dirtyField?.focus();
     }
 
+    // The paste dialog opens EMPTY. It exists so a writer can bring in their own
+    // draft from elsewhere — never to seed the canonical draft with sample text.
+    // The exact preview mirrors what the writer actually typed or pasted, so the
+    // preview keeps meaning what it says everywhere else in the Studio.
     function openPasteDialog() {
-        const sample = currentGenre().sample;
-        openDialog(t('paste'), t('pasteWarning'), `<div class="field"><label for="pasteDraft">${escapeHtml(t('currentDraft'))}</label><textarea id="pasteDraft" data-protect-dirty spellcheck="${spellcheckEnabled()}">${escapeHtml(sample)}</textarea></div><p class="exact-preview" id="pastePreview">${escapeHtml(sample)}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="replace-draft">${escapeHtml(t('replaceDraft'))}</button>`);
-    }
-
-    function useSample() {
-        if (getDraft()) checkpointVersion('before sample replacement');
-        setDraft(currentGenre().sample);
-        if (concept === 'journey') state.currentArtifact = `step-${state.step}`;
-        saveState(); renderApp();
-        announce(t('saved'));
-    }
-
-    function notebookSample(card) {
-        const examples = {
-            admissions: {
-                anecdote: 'Synthetic note: A student realizes during a neighborhood workshop that listening matters more than making the fastest form.',
-                connection: 'Synthetic note: The moment changes the student’s definition of useful technology—from efficient to accountable.',
-                'central-idea': 'Synthetic note: Responsible design begins by listening to the people who will live with the result.',
-                context: 'Synthetic context to verify: community learning centers often help families navigate unfamiliar enrollment systems.',
-                outline: 'Possible order only: concrete workshop moment → mistaken assumption → listening → changed direction → future questions.',
-            },
-            stem: {
-                context: 'Synthetic note: Compare basil seedling growth under four and eight hours of light while other conditions stay controlled.',
-                hypothesis: 'Synthetic hypothesis: seedlings receiving eight hours of light will show greater mean stem growth.',
-                methods: 'Synthetic plan: equal soil, water, seed type, and measurement schedule; randomize tray position.',
-                data: 'Synthetic data note: the eight-hour group averaged 2.4 cm more growth; one unusually tall seedling may affect the mean.',
-                analysis: 'Synthetic plan: compare group means, report sample size, and discuss the outlier and need for a second trial.',
-            },
-            sop: {
-                program: 'Synthetic note: identify a human-centered computing program with participatory-design faculty and public-sector partnerships.',
-                trajectory: 'Synthetic note: transit accessibility work shifted the student from routing efficiency toward participatory design.',
-                evidence: 'Synthetic evidence: accessibility audit, community interviews, and an undergraduate research methods course.',
-                fit: 'Synthetic note: connect questions about public technology to specific faculty methods without prestige claims.',
-                outline: 'Possible order only: research problem → prior preparation → future questions → specific program fit → contribution.',
-            },
-            neutral: {
-                purpose: 'Synthetic note: help a reader understand one evidence-based position and its practical consequence.',
-                audience: 'Synthetic note: the audience knows the topic but needs the evidence and terms explained clearly.',
-                evidence: 'Synthetic note: collect two observations, one credible source, and one counterexample.',
-                structure: 'Possible order only: context → claim → evidence → complication → conclusion.',
-            },
-        };
-        return examples[state.genre]?.[card.id] || `Synthetic planning note for ${card.en}.`;
+        openDialog(t('paste'), t('pasteWarning'), `<div class="field"><label for="pasteDraft">${escapeHtml(t('currentDraft'))}</label><textarea id="pasteDraft" data-protect-dirty spellcheck="${spellcheckEnabled()}" placeholder="${escapeHtml(state.lang !== 'en' ? 'Pega aquí tu propio borrador…' : 'Paste your own draft here…')}"></textarea></div><p class="exact-preview" id="pastePreview"></p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="replace-draft">${escapeHtml(t('replaceDraft'))}</button>`);
     }
 
     function openPasteNotebookDialog() {
         const card = activeNotebookCard();
-        const current = state.notebookEntries[notebookEntryKey(card)]?.text || notebookSample(card);
+        const current = state.notebookEntries[notebookEntryKey(card)]?.text || '';
         openDialog(t('pasteNotebook'), t('pasteWarning'), `<div class="field"><label for="pasteNotebookText">${escapeHtml(`${t('notebook')}: ${notebookCardLabel(card)}`)}</label><textarea id="pasteNotebookText" data-protect-dirty spellcheck="${spellcheckEnabled()}">${escapeHtml(current)}</textarea></div><p>${escapeHtml(t('authorshipBoundary'))}</p><div class="exact-preview" id="pasteNotebookPreview">${escapeHtml(current)}</div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-notebook-paste">${escapeHtml(t('saveCard'))}</button>`);
     }
 
@@ -1440,12 +1402,6 @@
         const card = activeNotebookCard();
         state.notebookEntries[notebookEntryKey(card)] = { text: document.getElementById('pasteNotebookText')?.value || '', updatedAt: new Date().toISOString(), provenance: 'student-imported-synthetic' };
         saveState(t('notebookSaved')); closeDialog(true); renderApp();
-    }
-
-    function useNotebookSample() {
-        const card = activeNotebookCard();
-        state.notebookEntries[notebookEntryKey(card)] = { text: notebookSample(card), updatedAt: new Date().toISOString(), provenance: 'synthetic-sample' };
-        saveState(t('notebookSaved')); renderApp();
     }
 
     function createCanonicalDraft() {
@@ -2515,11 +2471,9 @@
         else if (action === 'notebook-next') { if (state.activeNotebook < notebookCards().length - 1) { state.activeNotebook += 1; saveState(); renderApp(); } else createCanonicalDraft(); }
         else if (action === 'paste-notebook') openPasteNotebookDialog();
         else if (action === 'save-notebook-paste') saveNotebookPaste();
-        else if (action === 'notebook-sample') useNotebookSample();
         else if (action === 'notebook-coach') openNotebookCoachDialog();
         else if (action === 'submit-notebook-coach') submitNotebookCoach(target);
         else if (action === 'paste') openPasteDialog();
-        else if (action === 'sample') useSample();
         else if (action === 'replace-draft') { const value = document.getElementById('pasteDraft')?.value || ''; checkpointVersion('before draft replacement'); setDraft(value); saveState(); closeDialog(true); renderApp(); }
         else if (action === 'activate-move') openMoveDialog(Number(target.dataset.move));
         else if (action === 'save-move') { const key = `move-${target.dataset.move}`; state.artifacts[key] = { text: document.getElementById('moveNote')?.value || '', updatedAt: new Date().toISOString(), label: genreMoves('discover')[Number(target.dataset.move)] }; saveState(); closeDialog(true); renderApp(); }

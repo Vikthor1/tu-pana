@@ -60,7 +60,6 @@
                     es: 'Tomo la dirección y conservo mis palabras.',
                 },
             },
-            sample: 'At the neighborhood library, I answered my aunt in English until she said, “aquí escuchamos primero.” I had treated translation as a quick exchange of words. Her phrase made me notice who was expected to adapt, whose knowledge counted, and why language access is also a question of power. This synthetic essay connects that chosen memory to a larger history of public institutions and multilingual communities without asking any student to disclose a private family story.',
             moves: {
                 discover: ['Choose a memory and a boundary', 'Connect memory to a larger force', 'Test experience with research and context', 'Protect language and voice'],
                 review: ['Personal-to-social connection', 'Evidence and historical grounding', 'Voice and translingual integrity'],
@@ -114,7 +113,6 @@
                     es: 'Buena dirección, pero lo digo a mi manera.',
                 },
             },
-            sample: 'The first week at the neighborhood learning center, I designed a color-coded signup sheet because I thought efficiency was the problem. By Friday, I understood that the real problem was trust. Families did not need a faster form; they needed someone to explain what the form would change. I began sitting beside each visitor, listening before writing. That shift—from solving the visible task to understanding the human need—now guides how I approach community technology and the questions I hope to study in college.',
             moves: {
                 discover: ['Choose one concrete turning point', 'Name what changed in your understanding', 'Connect the moment to what you will pursue'],
                 review: ['Purpose and personal insight', 'Structure and narrative movement', 'Voice and specificity'],
@@ -169,7 +167,6 @@
                     es: 'Agrego el concepto del curso y dejo mis números como están.',
                 },
             },
-            sample: 'The basil seedlings exposed to eight hours of light grew an average of 2.4 centimeters more than the seedlings exposed to four hours. This result supports the prediction that longer light exposure increases early stem growth under otherwise controlled conditions. The small sample size and one unusually tall seedling limit the strength of the conclusion. A second trial with more plants and randomized tray positions would test whether the pattern persists.',
             moves: {
                 discover: ['State the research question and prediction', 'Separate observation from interpretation', 'Connect the result to the evidence'],
                 review: ['Claim–evidence alignment', 'Methods and reproducibility', 'Limitations and precision'],
@@ -223,7 +220,6 @@
                     es: 'Buen punto: agrego el método, no los adjetivos.',
                 },
             },
-            sample: 'My work on a public transit accessibility project showed me how technical decisions become public consequences. I entered the project focused on routing efficiency and left asking how disabled riders could shape the systems intended to serve them. Graduate study in human-centered computing would let me build the research methods needed to investigate that question with rigor. I hope to study participatory design, accessible infrastructure, and the ways public institutions can evaluate whether technology expands meaningful access.',
             moves: {
                 discover: ['Name the problem you want to study', 'Connect prior preparation to future inquiry', 'Make program fit specific and evidence-based'],
                 review: ['Purpose and research trajectory', 'Preparation and evidence', 'Program fit and contribution'],
@@ -277,7 +273,6 @@
                     es: 'Buen punto sobre la evidencia. Conservo mi primera línea.',
                 },
             },
-            sample: 'This synthetic draft begins with a clear purpose, develops one idea with concrete evidence, and leaves room for the writer to decide what should change next. The language is intentionally neutral so that no assignment inherits expectations from an unrelated genre.',
             moves: {
                 discover: ['Clarify the purpose and audience', 'Choose relevant evidence', 'Arrange ideas so the reader can follow'],
                 review: ['Purpose and clarity', 'Structure and evidence', 'Voice and precision'],
@@ -332,7 +327,6 @@
                     es: 'Nombro el concepto y conservo mi propia descripción del turno.',
                 },
             },
-            sample: 'During my ten hours at the neighborhood food pantry, I logged each shift and kept a short journal after every visit. By the third week, my notes showed a pattern: volunteers spent as much time explaining eligibility rules as they did handing out groceries. That observation connected directly to our course concept of structural barriers to access. This synthetic report draws on real logged hours and journal entries — no interview or statistic here was invented — to argue that confusion, not scarcity, was the persistent obstacle.',
             moves: {
                 discover: ['Name your community starting point', 'Connect the issue to a course concept', 'Plan your evidence and data', 'Structure the report (IMRDC)'],
                 review: ['Evidence and real data grounding', 'IMRDC structure and course-concept connection', 'Voice and community dignity'],
@@ -389,7 +383,6 @@
                     es: 'Primero declaro mi interpretación y después agrego fuentes.',
                 },
             },
-            sample: 'Community gardens are often described as solutions to food insecurity, but the sources I have gathered disagree about how much they actually help. One source measures diet change directly; another focuses on social connection and civic participation instead. Placed side by side, they suggest the benefit may be real but different from what garden advocates usually claim. This synthetic paragraph models how a research paragraph puts sources in conversation rather than summarizing them one at a time — no source named here is real.',
             moves: {
                 discover: ['Turn your topic into a focused question', 'Plan your search and source types', 'Evaluate each source', 'Find patterns across your notes'],
                 review: ['Evidence and source traceability', 'Argument and structure', 'Voice and analytical clarity'],

@@ -122,6 +122,7 @@
 !studio_mobile_passage_test.mjs
 !studio_contrast_test.mjs
 !studio_authentic_work_test.mjs
+!studio_reading_response_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

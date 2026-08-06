@@ -516,6 +516,20 @@
         return councilConfig[genreId]?.enabled === true;
     }
 
+    // Additive genre guidance carried to the coach. Absent for profiles that
+    // declare none, in which case the prompt header omits the line entirely.
+    function genreCoachRules(genreId = state.genre) {
+        return (genres[genreId] || {}).coachRules || undefined;
+    }
+
+    // A profile may say in its own words why its Council is unavailable. Without
+    // one, the generic line stands.
+    function councilUnavailableText(genreId = state.genre) {
+        const reason = councilConfig[genreId]?.disabledReason;
+        if (!reason) return t('councilUnavailable');
+        return state.lang === 'en' ? reason.en : reason.es;
+    }
+
     function renderBanner() {
         const text = liveProviderActive()
             ? uiText('Family preview — the AI coach is live, used only with your explicit consent. Do not paste sensitive personal information.', 'Vista familiar — el coach de IA está en vivo y se usa solo con tu consentimiento explícito. No pegues información personal sensible.')
@@ -806,7 +820,16 @@
             const note = state.moveNotes[moveNoteKey(move)];
             const hasNote = Boolean(note && wordCount(note.text));
             return `<article class="move-card integrated-move"><strong>${escapeHtml(integratedMoveLabel(move))}</strong><span>${escapeHtml(integratedMoveNudge(move))}</span><details><summary>${escapeHtml(state.lang === 'en' ? 'Why this may help' : 'Por qué podría ayudar')}</summary><p>${escapeHtml(integratedMoveWhy(move))}</p>${integratedMoveDeeper(move) ? `<p class="move-deeper">${escapeHtml(integratedMoveDeeper(move))}</p>` : ''}</details>${integratedMoveExample(move)}<button class="text-button" data-action="integrated-move-note" data-move="${index}">${escapeHtml(hasNote ? t('editNote') : t('makeNote'))}${hasNote ? ` · ${wordCount(note.text)} ${escapeHtml(state.lang === 'en' ? 'words' : 'palabras')}` : ''}</button></article>`;
-        }).join('')}${renderPlanningNotesReference()}${renderYourVoiceReference()}${renderKnowledgeRevisit()}</div></section>`;
+        }).join('')}${renderGenreReferenceNotes()}${renderPlanningNotesReference()}${renderYourVoiceReference()}${renderKnowledgeRevisit()}</div></section>`;
+    }
+
+    // Quiet, closed-by-default reference material a genre may declare — length
+    // guidance, working boundaries. Reference only: never a gate, never a
+    // submission rule, never counted as evidence or progress.
+    function renderGenreReferenceNotes() {
+        const notes = currentGenre().referenceNotes;
+        if (!notes || !notes.length) return '';
+        return notes.map(note => `<details class="planning-reference genre-reference"><summary>${escapeHtml(state.lang === 'en' ? note.title.en : note.title.es)}</summary><p>${escapeHtml(state.lang === 'en' ? note.body.en : note.body.es)}</p></details>`).join('');
     }
 
     function renderPlanningNotesReference() {
@@ -992,7 +1015,7 @@
     function renderReviewPanel() {
         const reportCount = state.reviews.length + state.councilRuns.length;
         const councilAction = concept === 'integrated' && !councilEnabled()
-            ? `<div class="support-action unavailable"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(t('councilUnavailable'))}</span></div>`
+            ? `<div class="support-action unavailable"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(councilUnavailableText())}</span></div>`
             : concept === 'integrated' && state.councilRuns.length
                 ? `<button class="support-action" data-action="review-tab" data-tab="council"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(t('revisit'))}</span></button>`
                 : `<button class="support-action" data-action="council"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(state.councilRuns.length ? t('revisit') : t('convene'))}</span></button>`;
@@ -1589,9 +1612,13 @@
         const consentedDraft = getDraft();
         const providerLang = state.lang === 'en' ? 'en' : 'es';
         const requestKind = kind === 'focused' && scope === 'full' ? 'full_draft_review' : 'passage_analysis';
+        // Genre rules travel with every request as additive GENRE GUIDANCE. The
+        // prompt builders append them under a header stating plainly that they
+        // do not relax the authorship or passage-protocol rules above them.
+        const genreContext = genreCoachRules();
         const prompt = kind === 'focused' && scope === 'full'
-            ? StudioProvider.buildFullDraftPrompt({ genreName: genre.label.en, lang: providerLang, lensLabel: lens, lensInstruction: lens, purpose: 'genre-focused review', words: wordCount(text), text, voiceEntries: voiceEntriesIncluded })
-            : StudioProvider.buildPassagePrompt({ genreName: genre.label.en, lang: providerLang, scopeLabel: scope, text, question: kind === 'focused' ? `Focused review request — lens: ${lens}. Review only this consented ${scope === 'paragraph' ? 'paragraph' : 'passage'}; do not ask for the rest of the draft.` : lens, moveContext: moveContextIncluded, voiceEntries: voiceEntriesIncluded });
+            ? StudioProvider.buildFullDraftPrompt({ genreName: genre.label.en, genreContext, lang: providerLang, lensLabel: lens, lensInstruction: lens, purpose: 'genre-focused review', words: wordCount(text), text, voiceEntries: voiceEntriesIncluded })
+            : StudioProvider.buildPassagePrompt({ genreName: genre.label.en, genreContext, lang: providerLang, scopeLabel: scope, text, question: kind === 'focused' ? `Focused review request — lens: ${lens}. Review only this consented ${scope === 'paragraph' ? 'paragraph' : 'passage'}; do not ask for the rest of the draft.` : lens, moveContext: moveContextIncluded, voiceEntries: voiceEntriesIncluded });
         const token = { cancelled: false, settled: false };
         pendingProviderToken = token;
         provider.call({ requestKind, prompt, payload: { genreName: genre.label.en }, lang: providerLang }).then(result => {

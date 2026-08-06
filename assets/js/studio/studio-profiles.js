@@ -1026,6 +1026,416 @@
         },
     };
 
+    // ── Reading Response / Reading Reflection ────────────────────────────────
+    //
+    // ONE pedagogical family, TWO configurations. Everything pedagogical — the
+    // Moves, their deeper guidance, the source-integrity coach rules, the
+    // reference notes, the review lenses — is authored once below. The
+    // undergraduate and graduate configurations differ by DECLARED
+    // CONFIGURATION (which Moves are visible, how each is framed, expected
+    // length, lens wording), never by a second copy of the engine. Two Move ids
+    // are literally shared between the levels; the rest are level-declared.
+    //
+    // The graduate configuration is not an inflated undergraduate one: it adds
+    // counterinterpretation and disciplinary/methodological stakes as Moves of
+    // their own, and reframes the claim Move as taking an interpretive position
+    // rather than distinguishing response from summary.
+
+    // Source integrity for the whole family. This reaches the model on every
+    // request as additive GENRE GUIDANCE; it can never relax the authorship or
+    // passage-protocol rules it is appended to.
+    const READING_SOURCE_RULES = [
+        'This is a reading response: the student is responding to a text assigned to them.',
+        'Keep the assigned author\'s ideas and the student\'s own response distinct at every point; never blur them together or attribute one to the other.',
+        'You have NOT read the assigned text. You have only whatever the student included in this request.',
+        'Never invent, complete, correct, or supply a quotation, page number, line number, section reference, citation, bibliographic detail, publication fact, author biography, or claim about what the text says beyond what the student actually supplied.',
+        'Never state or imply that you have read the assigned text, verified a quotation against its source, or confirmed a citation.',
+        'When you have only a passage, notes, or partial context, say plainly which things cannot be checked from what you received, and ask for what you would need.',
+        'Preserve the student\'s quoted material exactly as they wrote it; never silently normalize, translate, or tidy a quotation.',
+        'Help with paraphrase by naming what an accurate paraphrase must do and by asking what the student understood — never by producing a paraphrase for them, and never by rewording source language so that copied wording passes as the student\'s own.',
+        'Never ask the student to paste or upload an entire copyrighted reading.',
+        'Summary is not automatically an error: brief context can be necessary for analysis. Distinguish unnecessary retelling from the context the student\'s argument actually needs.',
+        'Multilingual, culturally situated, community, and lived-experience connections are legitimate analytical resources when the student chooses them. Never require them, and never treat their absence as a deficiency.',
+    ].join(' ');
+
+    // Shared Move authoring. Each entry holds the level-specific framing of one
+    // shared pedagogical function, so the function is defined once.
+    const READING_MOVES = {
+        'text-and-question': {
+            criticalKey: 'accuracy',
+            ug: {
+                en: 'Name the text and what you are answering',
+                es: 'Nombra el texto y a qué respondes',
+                nudgeEn: 'Name the reading, and the specific passage, idea, or assignment question you are actually responding to.',
+                nudgeEs: 'Nombra la lectura y el pasaje, la idea o la pregunta de la tarea a la que realmente respondes.',
+                whyEn: 'A reading response answers something specific. Naming it early keeps the piece from drifting into a summary of everything.',
+                whyEs: 'Una respuesta de lectura contesta algo específico. Nombrarlo temprano evita que el texto se vuelva un resumen de todo.',
+                promptEn: 'Title and author, the passage or idea I am responding to, and what the assignment asks…',
+                promptEs: 'Título y autor/a, el pasaje o la idea a la que respondo, y qué pide la tarea…',
+                deeperEn: 'Naming the text is not the same as summarizing it. Identify the reading, then narrow to the one passage, claim, or question you are answering — a response aimed at a specific thing is almost always stronger than one aimed at the whole reading. Only the context a reader genuinely needs belongs here; everything else is retelling. If the assignment asks a particular question, that question, not the reading as a whole, is what you are answering.',
+                deeperEs: 'Nombrar el texto no es resumirlo. Identifica la lectura y luego enfócate en el pasaje, la afirmación o la pregunta que estás contestando — una respuesta dirigida a algo específico casi siempre es más fuerte que una dirigida a toda la lectura. Aquí solo cabe el contexto que el lector realmente necesita; lo demás es recuento. Si la tarea hace una pregunta puntual, esa pregunta, y no la lectura entera, es lo que respondes.',
+            },
+            grad: {
+                en: 'Frame the text and the problem you are entering',
+                es: 'Enmarca el texto y el problema en el que entras',
+                nudgeEn: 'Name the text or texts, and the interpretive problem, tension, or question your response takes up.',
+                nudgeEs: 'Nombra el texto o los textos y el problema, la tensión o la pregunta interpretativa que retoma tu respuesta.',
+                whyEn: 'A seminar response enters an ongoing conversation. Framing the problem tells your reader which conversation this is.',
+                whyEs: 'Una respuesta de seminario entra en una conversación en curso. Enmarcar el problema le dice al lector de cuál conversación se trata.',
+                promptEn: 'The text or texts, the interpretive problem or tension, and the course conversation this enters…',
+                promptEs: 'El texto o los textos, el problema o la tensión interpretativa, y la conversación del curso en la que esto entra…',
+                deeperEn: 'At this level the framing does real analytical work: it establishes which problem is live, why it is a problem, and what is at stake in resolving it one way rather than another. Give only the context a disciplinary reader needs — they have likely read the text, so extended recapitulation costs you space you need for argument. If you are working across more than one text, say here what puts them in the same conversation.',
+                deeperEs: 'En este nivel el encuadre hace trabajo analítico real: establece qué problema está vivo, por qué es un problema, y qué está en juego al resolverlo de una manera u otra. Da solo el contexto que necesita un lector disciplinario — probablemente ya leyó el texto, así que recapitular en extenso te cuesta el espacio que necesitas para argumentar. Si trabajas con más de un texto, di aquí qué los pone en la misma conversación.',
+            },
+        },
+        'beyond-summary': {
+            criticalKey: 'thinking',
+            ug: {
+                en: 'Say what you think, not only what it says',
+                es: 'Di lo que piensas, no solo lo que dice',
+                nudgeEn: 'Write the claim only you can make: what you argue, notice, question, or evaluate about this text.',
+                nudgeEs: 'Escribe la afirmación que solo tú puedes hacer: qué argumentas, notas, cuestionas o evalúas sobre este texto.',
+                whyEn: 'Brief context helps a reader follow you. Your response is what you add to it — and that is the part being asked for.',
+                whyEs: 'Un poco de contexto ayuda al lector. Tu respuesta es lo que le agregas — y esa es la parte que te están pidiendo.',
+                promptEn: 'What I claim, notice, doubt, or evaluate about this text — and what a reader might have assumed instead…',
+                promptEs: 'Lo que afirmo, noto, dudo o evalúo sobre este texto — y lo que un lector podría haber supuesto en cambio…',
+                deeperEn: 'The test is simple: could someone write your sentence without having an opinion? If yes, it is still summary. A real response takes a position — you find something persuasive, unconvincing, incomplete, surprising, or true in a way the author did not emphasize. Disagreement is welcome and so is agreement, as long as it is reasoned. You do not have to like the text, and you do not have to have the final word on it.',
+                deeperEs: 'La prueba es sencilla: ¿alguien podría escribir tu oración sin tener una opinión? Si es así, todavía es resumen. Una respuesta real toma una posición — algo te parece convincente, poco convincente, incompleto, sorprendente o cierto de un modo que el autor no subrayó. El desacuerdo es bienvenido y el acuerdo también, siempre que esté razonado. No tienes que gustar del texto, ni tener la última palabra sobre él.',
+                exampleEn: [
+                    ['What the text says', 'The author’s point, in your own words, briefly'],
+                    ['What I think', 'Your interpretation, evaluation, or question'],
+                    ['Why it is not obvious', 'What a reader might have assumed instead'],
+                ],
+                exampleEs: [
+                    ['Lo que dice el texto', 'El punto del autor, en tus palabras, brevemente'],
+                    ['Lo que pienso', 'Tu interpretación, evaluación o pregunta'],
+                    ['Por qué no es obvio', 'Lo que un lector podría haber supuesto en cambio'],
+                ],
+            },
+        },
+        'interpretive-position': {
+            criticalKey: 'thinking',
+            grad: {
+                en: 'Stake an interpretive position',
+                es: 'Toma una posición interpretativa',
+                nudgeEn: 'State the reading you are advancing, and what theoretical or methodological commitments it rests on.',
+                nudgeEs: 'Declara la lectura que propones y en qué compromisos teóricos o metodológicos se apoya.',
+                whyEn: 'A position can be argued with. A reaction cannot, and a summary gives a reader nothing to take up.',
+                whyEs: 'Con una posición se puede discutir. Con una reacción no, y un resumen no le da al lector nada que retomar.',
+                promptEn: 'The reading I am advancing, the commitments behind it, and what it would mean if I am right…',
+                promptEs: 'La lectura que propongo, los compromisos detrás de ella, y qué significaría si tengo razón…',
+                deeperEn: 'Name the position and name where you are standing to hold it: a theoretical frame, a methodological preference, a disciplinary tradition, or a set of prior commitments about what counts as evidence. Making that standpoint explicit is not a weakness — it is what lets another reader locate, test, and argue with your reading rather than merely agreeing or not. Say what would follow if your reading is right, and be honest about what it cannot settle.',
+                deeperEs: 'Nombra la posición y nombra desde dónde la sostienes: un marco teórico, una preferencia metodológica, una tradición disciplinaria o un conjunto de compromisos previos sobre qué cuenta como evidencia. Explicitar ese punto de partida no es una debilidad — es lo que permite a otro lector ubicar, probar y discutir tu lectura en vez de solo estar o no de acuerdo. Di qué se seguiría si tu lectura es correcta, y sé honesto/a sobre lo que no puede zanjar.',
+                exampleEn: [
+                    ['Position', 'The reading you are advancing'],
+                    ['Standpoint', 'The theoretical or methodological commitments it rests on'],
+                    ['At stake', 'What follows if this reading holds'],
+                    ['Limit', 'What this reading cannot settle'],
+                ],
+                exampleEs: [
+                    ['Posición', 'La lectura que propones'],
+                    ['Punto de partida', 'Los compromisos teóricos o metodológicos que la sostienen'],
+                    ['Lo que está en juego', 'Qué se sigue si esta lectura se sostiene'],
+                    ['Límite', 'Lo que esta lectura no puede zanjar'],
+                ],
+            },
+        },
+        'passage-evidence': {
+            criticalKey: 'accuracy',
+            ug: {
+                en: 'Hold the passage exactly, then explain it',
+                es: 'Conserva el pasaje exacto y luego explícalo',
+                nudgeEn: 'Copy the quotation, paraphrase, example, or detail exactly as it appears — then say how it supports your response.',
+                nudgeEs: 'Copia la cita, la paráfrasis, el ejemplo o el detalle exactamente como aparece — y luego di cómo apoya tu respuesta.',
+                whyEn: 'Evidence has to be represented accurately before it can support anything. The explanation is yours to write; the text will not write it.',
+                whyEs: 'La evidencia debe representarse con exactitud antes de poder apoyar algo. La explicación te toca escribirla a ti; el texto no la escribe.',
+                promptEn: 'The exact quotation or detail, where it comes from, and how it supports my point…',
+                promptEs: 'La cita o el detalle exacto, de dónde viene, y cómo apoya mi punto…',
+                deeperEn: 'Copy quoted words exactly — changing them, even to make them fit your sentence, misrepresents the text. Record where each one came from in whatever form your assignment asks, and record it while you have the reading in front of you rather than reconstructing it later. Then do the part that is actually yours: quoting is not explaining, and a quotation dropped in without commentary leaves the reader to guess what you saw in it. Paraphrase means restating in your own sentence structure and vocabulary, not swapping a few words.',
+                deeperEs: 'Copia las palabras citadas exactamente — cambiarlas, aunque sea para que encajen en tu oración, tergiversa el texto. Anota de dónde viene cada una en el formato que pida tu tarea, y anótalo mientras tienes la lectura delante, no reconstruyéndolo después. Luego haz la parte que sí es tuya: citar no es explicar, y una cita puesta sin comentario deja al lector adivinando qué viste en ella. Parafrasear es reformular con tu propia estructura y vocabulario, no cambiar unas cuantas palabras.',
+                exampleEn: [
+                    ['Exact words', 'The quotation or detail, copied exactly as it appears'],
+                    ['Where it is from', 'Page, section, or paragraph — whatever your assignment asks'],
+                    ['What it shows', 'How it supports, complicates, or limits your response'],
+                ],
+                exampleEs: [
+                    ['Palabras exactas', 'La cita o el detalle, copiado tal como aparece'],
+                    ['De dónde viene', 'Página, sección o párrafo — lo que pida tu tarea'],
+                    ['Qué muestra', 'Cómo apoya, complica o limita tu respuesta'],
+                ],
+            },
+            grad: {
+                en: 'Represent the evidence precisely',
+                es: 'Representa la evidencia con precisión',
+                nudgeEn: 'Quote or paraphrase with precision, locate it, and show how it supports, complicates, or limits your reading.',
+                nudgeEs: 'Cita o parafrasea con precisión, ubícala, y muestra cómo apoya, complica o limita tu lectura.',
+                whyEn: 'At this level a misquotation is not a slip — it is an argument resting on something the text does not say.',
+                whyEs: 'En este nivel una cita mal hecha no es un desliz — es un argumento apoyado en algo que el texto no dice.',
+                promptEn: 'The exact passage, its location, and how it supports, complicates, or limits my reading…',
+                promptEs: 'El pasaje exacto, su ubicación, y cómo apoya, complica o limita mi lectura…',
+                deeperEn: 'Precision here is an argumentative obligation, not a formatting chore: the strength of your reading is bounded by how accurately you represent what you are reading. Attend to what the passage does in its own context before recruiting it for yours — a line that supports you when isolated may not once its surrounding qualifications are restored. Say explicitly when your evidence complicates or limits your position rather than only when it supports it; that is a mark of a serious reading, not a concession.',
+                deeperEs: 'La precisión aquí es una obligación argumentativa, no un trámite de formato: la fuerza de tu lectura está limitada por la exactitud con que representas lo que lees. Atiende a lo que hace el pasaje en su propio contexto antes de reclutarlo para el tuyo — una línea que te apoya aislada puede dejar de hacerlo cuando se restituyen sus matices. Di explícitamente cuándo tu evidencia complica o limita tu posición, no solo cuándo la apoya; eso es señal de una lectura seria, no una concesión.',
+                exampleEn: [
+                    ['Exact words', 'The passage, copied exactly as it appears'],
+                    ['Location', 'Page, section, or paragraph, in the form your field expects'],
+                    ['In its own context', 'What the passage is doing where it appears'],
+                    ['In your argument', 'How it supports, complicates, or limits your reading'],
+                ],
+                exampleEs: [
+                    ['Palabras exactas', 'El pasaje, copiado tal como aparece'],
+                    ['Ubicación', 'Página, sección o párrafo, en la forma que espera tu campo'],
+                    ['En su propio contexto', 'Qué hace el pasaje donde aparece'],
+                    ['En tu argumento', 'Cómo apoya, complica o limita tu lectura'],
+                ],
+            },
+        },
+        'counterinterpretation': {
+            criticalKey: 'thinking',
+            grad: {
+                en: 'Take the strongest competing reading seriously',
+                es: 'Toma en serio la lectura rival más fuerte',
+                nudgeEn: 'State the best reading that competes with yours, and say what it would take to decide between them.',
+                nudgeEs: 'Formula la mejor lectura que compite con la tuya y di qué haría falta para decidir entre ambas.',
+                whyEn: 'A response that has met its strongest objection is more convincing than one that has not met any.',
+                whyEs: 'Una respuesta que enfrentó su objeción más fuerte convence más que una que no enfrentó ninguna.',
+                promptEn: 'The competing reading at its strongest, what supports it, and what would decide between us…',
+                promptEs: 'La lectura rival en su versión más fuerte, qué la apoya, y qué decidiría entre las dos…',
+                deeperEn: 'Build the competing reading at its strongest, not at its most convenient — a version its own advocate would recognize. Then be specific about the disagreement: is it about what the text says, what it implies, what counts as evidence, or which question is worth asking? Naming the kind of disagreement usually matters more than declaring a winner, and it is entirely legitimate to conclude that the evidence available does not yet decide it.',
+                deeperEs: 'Construye la lectura rival en su versión más fuerte, no en la más conveniente — una versión que su propio defensor reconocería. Luego sé específico/a sobre el desacuerdo: ¿es sobre lo que el texto dice, lo que implica, qué cuenta como evidencia, o cuál pregunta vale la pena hacer? Nombrar el tipo de desacuerdo suele importar más que declarar un ganador, y es del todo legítimo concluir que la evidencia disponible todavía no lo decide.',
+            },
+        },
+        'why-it-matters': {
+            criticalKey: 'thinking',
+            ug: {
+                en: 'Say why it matters, and what is still open',
+                es: 'Di por qué importa y qué queda abierto',
+                nudgeEn: 'Connect your response to the assignment, the course conversation, another text, or what you already know — and name what is still unresolved.',
+                nudgeEs: 'Conecta tu respuesta con la tarea, la conversación del curso, otro texto o lo que ya sabes — y nombra qué queda sin resolver.',
+                whyEn: 'Ending on an implication or a real question is stronger than restating the claim you already made.',
+                whyEs: 'Terminar con una implicación o una pregunta real es más fuerte que repetir la afirmación que ya hiciste.',
+                promptEn: 'What follows from this, what it connects to, and the question I still have…',
+                promptEs: 'Qué se sigue de esto, con qué se conecta, y la pregunta que todavía tengo…',
+                deeperEn: 'A connection counts when it is genuine — to the assignment, the course conversation, another reading, a disciplinary question, community knowledge, or your own experience. Reach for whichever of those actually applies, and skip the ones that do not; a forced connection reads as filler. Ending with an honest open question is not an admission that you failed to finish. It shows a reader where your thinking currently stops, which is more useful than a conclusion that pretends to close something the response did not close.',
+                deeperEs: 'Una conexión cuenta cuando es genuina — con la tarea, la conversación del curso, otra lectura, una pregunta disciplinaria, el conocimiento comunitario o tu propia experiencia. Usa la que de verdad aplique y deja fuera las que no; una conexión forzada se lee como relleno. Terminar con una pregunta abierta y honesta no es admitir que no terminaste. Le muestra al lector dónde se detiene tu pensamiento ahora, lo cual es más útil que una conclusión que finge cerrar algo que la respuesta no cerró.',
+            },
+        },
+        'disciplinary-stakes': {
+            criticalKey: 'cultural',
+            grad: {
+                en: 'Name the disciplinary and methodological stakes',
+                es: 'Nombra lo que está en juego disciplinaria y metodológicamente',
+                nudgeEn: 'Say what your reading implies for the field\'s questions, methods, or the course conversation — and what remains open.',
+                nudgeEs: 'Di qué implica tu lectura para las preguntas, los métodos o la conversación del curso — y qué queda abierto.',
+                whyEn: 'A graduate response earns its length by mattering to something beyond the single text.',
+                whyEs: 'Una respuesta de posgrado justifica su extensión al importar más allá del texto único.',
+                promptEn: 'What this implies for the field\'s methods or questions, what it connects to, and what remains open…',
+                promptEs: 'Qué implica esto para los métodos o las preguntas del campo, con qué se conecta, y qué queda abierto…',
+                deeperEn: 'Stakes can be methodological (this reading would change how we study something), theoretical (it puts pressure on a concept the field relies on), or conversational (it revises how two texts have been read together). Community, multilingual, and practitioner knowledge are legitimate here when they genuinely bear on the question — treat them as knowledge, not as anecdote, and never as a required gesture. Close with what your reading leaves open, stated precisely enough that someone could take it up.',
+                deeperEs: 'Lo que está en juego puede ser metodológico (esta lectura cambiaría cómo estudiamos algo), teórico (presiona un concepto del que depende el campo) o conversacional (revisa cómo se han leído juntos dos textos). El conocimiento comunitario, multilingüe y de la práctica es legítimo aquí cuando de verdad incide en la pregunta — trátalo como conocimiento, no como anécdota, y nunca como un gesto obligatorio. Cierra con lo que tu lectura deja abierto, formulado con la precisión suficiente para que alguien pueda retomarlo.',
+            },
+        },
+    };
+
+    // The two declared configurations.
+    const READING_LEVELS = {
+        readingUg: {
+            level: 'ug',
+            moveIds: ['text-and-question', 'beyond-summary', 'passage-evidence', 'why-it-matters'],
+            label: { en: 'Reading response', es: 'Respuesta de lectura' },
+            fullName: { en: 'Undergraduate Reading Response', es: 'Respuesta de lectura (licenciatura)' },
+            headerLabel: { en: 'Reading Response', es: 'Respuesta de lectura' },
+            lengthEn: 'Assignments in this family often ask for roughly 250–500 words — but your instructor’s directions govern. If they ask for something different, follow them.',
+            lengthEs: 'Las tareas de este tipo suelen pedir aproximadamente 250–500 palabras — pero las indicaciones de tu instructor/a mandan. Si piden otra cosa, sigue eso.',
+            levelRulesEn: 'This is an undergraduate short reading response; typical guidance is roughly 250 to 500 words, though the instructor\'s directions govern and may differ. Help the student tell apart what the text says, what they claim about it, which passage or detail supports that claim, and why it matters. Keep the analytical demand appropriate to a novice college writer without lowering it.',
+            reviewEn: ['Response beyond summary', 'Evidence accuracy and explanation', 'Clarity and your own voice'],
+            reviewEs: ['Respuesta más allá del resumen', 'Exactitud de la evidencia y explicación', 'Claridad y voz propia'],
+            lensKeys: ['thinking', 'accuracy', 'voice'],
+            stuckEn: 'Copy one sentence from the reading that you reacted to — agreement, confusion, or disagreement — and write what you thought when you read it.',
+            stuckEs: 'Copia una oración de la lectura ante la que reaccionaste — acuerdo, confusión o desacuerdo — y escribe qué pensaste al leerla.',
+            reflect4En: 'What did this text confirm, complicate, or change about your own thinking?',
+            reflect4Es: '¿Qué confirmó, complicó o cambió este texto en tu manera de pensar?',
+            tourExample: {
+                moveId: 'beyond-summary',
+                excerptEn: 'The author says access improved after the policy. My own campus got the same policy and the line at the office got longer, which makes me doubt that access and availability are the same thing.',
+                excerptEs: 'El autor dice que el acceso mejoró tras la política. En mi propio campus aplicaron la misma política y la fila en la oficina se hizo más larga, lo que me hace dudar de que acceso y disponibilidad sean lo mismo.',
+                phraseEn: 'access and availability are the same thing',
+                phraseEs: 'acceso y disponibilidad sean lo mismo',
+                suggestionEn: 'You have moved past summary into a real doubt. Consider naming the exact sentence in the reading that your doubt is answering, so a reader can follow you back to the text.',
+                suggestionEs: 'Ya pasaste del resumen a una duda real. Considera nombrar la oración exacta de la lectura a la que responde tu duda, para que el lector pueda seguirte de vuelta al texto.',
+                beforeEn: 'The author talks about access.',
+                beforeEs: 'El autor habla del acceso.',
+                afterEn: 'The author says access improved after the policy.',
+                afterEs: 'El autor dice que el acceso mejoró tras la política.',
+            },
+            discovery: {
+                openingQuip: {
+                    en: 'You read the thing. Now the blank page would like to know what you thought about it.',
+                    es: 'Ya leíste el texto. Ahora la página en blanco quiere saber qué pensaste.',
+                },
+                concerns: [
+                    { id: 'summary', moveId: 'beyond-summary',
+                      en: 'I just end up summarizing it.', es: 'Termino resumiéndolo y ya.',
+                      replyEn: 'Very common, and fixable. One Move is built around the line between what the text says and what you think about it.',
+                      replyEs: 'Muy común, y tiene arreglo. Hay una Movida hecha sobre la línea entre lo que dice el texto y lo que tú piensas de él.' },
+                    { id: 'quote', moveId: 'passage-evidence',
+                      en: 'I’m not sure how to use quotations.', es: 'No sé bien cómo usar las citas.',
+                      replyEn: 'Then we start there: copy it exactly, say where it came from, and then write the part the quotation cannot write for you.',
+                      replyEs: 'Empezamos por ahí: cópiala exacta, di de dónde viene, y luego escribe la parte que la cita no puede escribir por ti.' },
+                    { id: 'opinion', moveId: 'text-and-question',
+                      en: 'I don’t know if my opinion counts.', es: 'No sé si mi opinión cuenta.',
+                      replyEn: 'It counts when it answers something specific in the reading. A Move helps you name exactly what you are answering.',
+                      replyEs: 'Cuenta cuando responde a algo específico de la lectura. Una Movida te ayuda a nombrar exactamente a qué respondes.' },
+                ],
+                moveNote: {
+                    en: 'The author says access improved. My campus got the same policy and the line got longer — that is the thing I actually want to argue about.',
+                    es: 'El autor dice que el acceso mejoró. En mi campus aplicaron la misma política y la fila se alargó — eso es lo que de verdad quiero discutir.',
+                },
+                voiceReason: {
+                    en: 'This is how I would say it out loud, and I want it to stay that way.',
+                    es: 'Así lo diría en voz alta y quiero que se quede así.',
+                },
+                decisionRationale: {
+                    en: 'Taking the point about naming the sentence, keeping my own wording.',
+                    es: 'Acepto lo de nombrar la oración y conservo mis propias palabras.',
+                },
+            },
+        },
+        readingGrad: {
+            level: 'grad',
+            moveIds: ['text-and-question', 'interpretive-position', 'passage-evidence', 'counterinterpretation', 'disciplinary-stakes'],
+            label: { en: 'Extended reading response', es: 'Respuesta de lectura extendida' },
+            fullName: { en: 'Graduate Extended Reading Response', es: 'Respuesta de lectura extendida (posgrado)' },
+            headerLabel: { en: 'Seminar Response', es: 'Respuesta de seminario' },
+            lengthEn: 'Assignments in this family often ask for roughly 1,000–1,700 words, about two pages, or whatever your instructor defines — their directions govern.',
+            lengthEs: 'Las tareas de este tipo suelen pedir aproximadamente 1,000–1,700 palabras, unas dos páginas, o lo que defina tu instructor/a — sus indicaciones mandan.',
+            levelRulesEn: 'This is a graduate extended reading response, typically about 1,000 to 1,700 words or as the instructor defines. Expect and support genuine analytical complexity: synthesis across ideas or texts, theoretical positioning, counterinterpretation, methodological reflection, disciplinary implications, and connection to broader course questions. Do not treat it as a longer undergraduate response, and do not coach it toward summary-plus-reaction.',
+            reviewEn: ['Interpretive position and stakes', 'Textual precision and evidence', 'Synthesis, counterinterpretation, and disciplinary voice'],
+            reviewEs: ['Posición interpretativa y lo que está en juego', 'Precisión textual y evidencia', 'Síntesis, contralectura y voz disciplinaria'],
+            lensKeys: ['thinking', 'accuracy', 'voice'],
+            stuckEn: 'Name one claim in the text you are not ready to accept, and copy the passage that makes you hesitate.',
+            stuckEs: 'Nombra una afirmación del texto que no estás listo/a para aceptar, y copia el pasaje que te hace dudar.',
+            reflect4En: 'What theoretical or disciplinary commitments shaped how you read this text, and what would a differently situated reader notice?',
+            reflect4Es: '¿Qué compromisos teóricos o disciplinarios dieron forma a tu lectura de este texto, y qué notaría alguien situado/a de otra manera?',
+            tourExample: {
+                moveId: 'interpretive-position',
+                excerptEn: 'Read alongside the earlier chapter, the argument depends on treating participation as an outcome rather than a process. That move is what makes the conclusion available, and it is also what I want to contest.',
+                excerptEs: 'Leído junto al capítulo anterior, el argumento depende de tratar la participación como resultado y no como proceso. Ese movimiento es lo que hace disponible la conclusión, y es también lo que quiero disputar.',
+                phraseEn: 'as an outcome rather than a process',
+                phraseEs: 'como resultado y no como proceso',
+                suggestionEn: 'The position is stated and located in the text. Consider naming what would count as evidence against it, so a reader can see where the argument could fail.',
+                suggestionEs: 'La posición está declarada y ubicada en el texto. Considera nombrar qué contaría como evidencia en contra, para que el lector vea dónde podría fallar el argumento.',
+                beforeEn: 'The argument has a problem with participation.',
+                beforeEs: 'El argumento tiene un problema con la participación.',
+                afterEn: 'The argument depends on treating participation as an outcome rather than a process.',
+                afterEs: 'El argumento depende de tratar la participación como resultado y no como proceso.',
+            },
+            discovery: {
+                openingQuip: {
+                    en: 'Summarizing is the warm-up. The seminar wants the argument you would actually defend.',
+                    es: 'Resumir es el calentamiento. El seminario quiere el argumento que de verdad defenderías.',
+                },
+                concerns: [
+                    { id: 'position', moveId: 'interpretive-position',
+                      en: 'I have reactions, not a position.', es: 'Tengo reacciones, no una posición.',
+                      replyEn: 'That is the gap this genre lives in. A Move turns the reaction into a reading someone could argue with.',
+                      replyEs: 'Ese es justo el hueco donde vive este género. Una Movida convierte la reacción en una lectura con la que alguien podría discutir.' },
+                    { id: 'objection', moveId: 'counterinterpretation',
+                      en: 'I can’t tell if my reading holds up.', es: 'No sé si mi lectura se sostiene.',
+                      replyEn: 'Then we test it against its strongest rival — that is a Move of its own here, not an afterthought.',
+                      replyEs: 'Entonces la probamos contra su rival más fuerte — aquí eso es una Movida propia, no un añadido final.' },
+                    { id: 'stakes', moveId: 'disciplinary-stakes',
+                      en: 'Why does this matter beyond the text?', es: '¿Por qué importa esto más allá del texto?',
+                      replyEn: 'Good question to ask early. A Move is about exactly that: methods, concepts, and the conversation this enters.',
+                      replyEs: 'Buena pregunta para hacerse temprano. Hay una Movida sobre justo eso: métodos, conceptos y la conversación en la que esto entra.' },
+                ],
+                moveNote: {
+                    en: 'The argument treats participation as an outcome, not a process. Read against the earlier chapter, that is what makes the conclusion available — and contestable.',
+                    es: 'El argumento trata la participación como resultado, no como proceso. Leído contra el capítulo anterior, eso es lo que hace disponible la conclusión — y disputable.',
+                },
+                voiceReason: {
+                    en: 'This phrasing carries the distinction my whole reading depends on.',
+                    es: 'Esta formulación lleva la distinción de la que depende toda mi lectura.',
+                },
+                decisionRationale: {
+                    en: 'Adding what would count against me, in my own terms.',
+                    es: 'Agrego qué contaría en mi contra, en mis propios términos.',
+                },
+            },
+        },
+    };
+
+    // Build both configurations from the shared authoring above.
+    Object.entries(READING_LEVELS).forEach(([profileId, config]) => {
+        const level = config.level;
+        const moves = config.moveIds.map(moveId => {
+            const shared = READING_MOVES[moveId];
+            const framing = shared[level];
+            if (!framing) throw new Error(`Reading Response: Move "${moveId}" has no ${level} framing`);
+            const move = { id: moveId, criticalKey: shared.criticalKey, en: framing.en, es: framing.es,
+                nudgeEn: framing.nudgeEn, nudgeEs: framing.nudgeEs, whyEn: framing.whyEn, whyEs: framing.whyEs,
+                promptEn: framing.promptEn, promptEs: framing.promptEs };
+            if (framing.exampleEn) { move.exampleEn = framing.exampleEn; move.exampleEs = framing.exampleEs; }
+            return move;
+        });
+
+        genres[profileId] = {
+            label: config.label, fullName: config.fullName, headerLabel: config.headerLabel,
+            tourExample: {
+                moveId: config.tourExample.moveId,
+                excerpt: { en: config.tourExample.excerptEn, es: config.tourExample.excerptEs },
+                phrase: { en: config.tourExample.phraseEn, es: config.tourExample.phraseEs },
+                suggestion: { en: config.tourExample.suggestionEn, es: config.tourExample.suggestionEs },
+                before: { en: config.tourExample.beforeEn, es: config.tourExample.beforeEs },
+                after: { en: config.tourExample.afterEn, es: config.tourExample.afterEs },
+            },
+            discovery: config.discovery,
+            // Additive GENRE GUIDANCE carried to the coach on every request.
+            coachRules: `${READING_SOURCE_RULES} ${config.levelRulesEn}`,
+            // Quiet reference material in the Moves rail — never a submission rule.
+            referenceNotes: [
+                { title: { en: 'How long should this be?', es: '¿De qué extensión debe ser?' },
+                  body: { en: config.lengthEn, es: config.lengthEs } },
+                { title: { en: 'Working with the reading', es: 'Trabajar con la lectura' },
+                  body: {
+                      en: 'Tu Pana has not read your assigned text. It only ever sees what you choose to send, and it will say so rather than guess. It will never supply a quotation, page number, or citation for you, and it cannot confirm that a quotation matches the source — that check is yours to make against the reading itself.',
+                      es: 'Tu Pana no ha leído tu texto asignado. Solo ve lo que tú decides enviar, y lo dirá en vez de adivinar. Nunca te dará una cita, un número de página ni una referencia, y no puede confirmar que una cita coincida con la fuente — esa comprobación te toca hacerla contra la lectura misma.' } },
+            ],
+            moves: {
+                discover: moves.map(move => move.en),
+                review: config.reviewEn,
+                council: [],
+            },
+        };
+        genreMovesEs[profileId] = {
+            discover: moves.map(move => move.es),
+            review: config.reviewEs,
+            council: [],
+        };
+        integratedMoveProfiles[profileId] = moves;
+        moveDeeper[profileId] = Object.fromEntries(config.moveIds.map(moveId => {
+            const framing = READING_MOVES[moveId][level];
+            return [moveId, { en: framing.deeperEn, es: framing.deeperEs }];
+        }));
+        lensCriticalKeys[profileId] = config.lensKeys;
+        coachCriticalKeys[profileId] = 'accuracy';
+        reflectionPrompt4[profileId] = { en: config.reflect4En, es: config.reflect4Es };
+        stuckStarters[profileId] = { en: config.stuckEn, es: config.stuckEs };
+        // DECISION: the Reading Response Council stays DISABLED. No bounded,
+        // separately coherent Council configuration exists for this family, and
+        // inventing reviewer roles for it would mean either relabelling general
+        // writing roles or shipping a source-integrity surface that has never
+        // been proven safe. Focused review and Ask Tu Pana are fully operational
+        // here and carry the same source rules.
+        councilConfig[profileId] = {
+            enabled: false,
+            criticalKey: 'accuracy',
+            disabledReason: {
+                en: 'The Council is not available for reading responses yet. A Council reads a developed draft through several perspectives at once, and the perspectives for responding to someone else’s text have not been built or checked for safety. Focused review and Ask Tu Pana work fully here.',
+                es: 'El Consejo todavía no está disponible para respuestas de lectura. Un Consejo lee un borrador desarrollado desde varias perspectivas a la vez, y las perspectivas para responder al texto de otra persona no se han construido ni verificado. La lectura enfocada y Preguntar a Tu Pana funcionan completamente aquí.',
+            },
+        };
+    });
+
     // Assignment-id resolution. Legacy links keep working; every alias maps to an
     // explicit profile. Unknown ids return null (the interface stops loudly).
     const ASSIGNMENT_ALIASES = {
@@ -1043,6 +1453,18 @@
             },
         },
         'general-writing': { profileId: 'neutral' },
+        // Reading Response: the level is pedagogically load-bearing, so every
+        // link states it. A bare `reading-response` or `reading-reflection` is
+        // deliberately NOT mapped: it would have to guess a level, and guessing
+        // wrong hands a graduate seminar writer a novice scaffold, or the
+        // reverse. Unmapped ids reach the configuration-required stop, which
+        // offers recovery to the selection screen where both are listed.
+        'reading-response-undergraduate': { profileId: 'readingUg' },
+        'reading-reflection-undergraduate': { profileId: 'readingUg' },
+        'reading-response-graduate': { profileId: 'readingGrad' },
+        'reading-reflection-graduate': { profileId: 'readingGrad' },
+        'readingUg': { profileId: 'readingUg' },
+        'readingGrad': { profileId: 'readingGrad' },
         'autobiographical': { profileId: 'autobiographical' },
         'admissions': { profileId: 'admissions' },
         'sop': { profileId: 'sop' },

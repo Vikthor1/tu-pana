@@ -67,7 +67,9 @@ const expected = {
     'mixed-genre-autobiographical-essay': ['Autobiographical Essay', 'Mixed-Genre Autobiographical Essay'],
     'college-personal-statement': ['College Essay', 'College Personal Statement'],
     'graduate-sop': ['Statement of Purpose', 'Graduate Statement of Purpose'],
-    'cap200-bronx-beautiful-service-learning': ['Service-Learning Report', 'CAP 200 Service-Learning Report'],
+    // SHIPPED-CONTRACT UPDATE (2026-08-06): the course number is gone from
+    // every rendered name. Compact and full now coincide for this genre.
+    'cap200-bronx-beautiful-service-learning': ['Service-Learning Report', 'Service-Learning Report'],
     'research-paper': ['Research Paper', 'Research Paper'],
     'stem-lab-report': ['STEM Lab Report', 'STEM Laboratory Report'],
     'general-writing': ['General Writing', 'General Writing Project'],
@@ -143,7 +145,10 @@ for (const appearance of ['light', 'dark', 'system']) {
 }
 await fresh({ viewport: { width: 390, height: 844 }, query: '?assignment=cap200-bronx-beautiful-service-learning' });
 check('mobile: icon + title readable, no horizontal overflow', await page.locator('.brand-icon svg').isVisible() && await page.locator('.product-title').isVisible() && await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth));
-check('mobile: full genre meaning via chip (compact text, full aria)', (await page.locator('.mobile-project-chip').textContent()).includes('Service-Learning Report') && (await page.locator('.mobile-project-chip').getAttribute('aria-label')).includes('CAP 200 Service-Learning Report'));
+check('mobile: full genre meaning via chip (compact text, full aria)', (await page.locator('.mobile-project-chip').textContent()).includes('Service-Learning Report') && (await page.locator('.mobile-project-chip').getAttribute('aria-label')).includes('Service-Learning Report'));
+check('mobile: the chip carries no course number in text or accessible name',
+    !/CAP\s*-?\s*200/i.test(await page.locator('.mobile-project-chip').textContent())
+    && !/CAP\s*-?\s*200/i.test(await page.locator('.mobile-project-chip').getAttribute('aria-label')));
 const smallTargets = await page.locator('button:visible, select:visible').evaluateAll(els => els.map(el => el.getBoundingClientRect()).filter(box => (box.width && box.width < 44) || (box.height && box.height < 44)));
 check('mobile: all targets at least 44px', smallTargets.length === 0, JSON.stringify(smallTargets.slice(0, 2)));
 const headerHeight = await page.locator('.prototype-header').evaluate(el => el.getBoundingClientRect().height);

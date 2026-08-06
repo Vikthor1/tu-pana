@@ -45,7 +45,13 @@ async function convene() {
 console.log('\nGenre-configured roles');
 let record = await fresh('cap200-bronx-beautiful-service-learning').then(convene);
 check('CAP 200 Council uses service-learning roles', record.councilRuns[0].roles.join('|').includes('Service-learning evidence reviewer'));
-check('CAP 200 run stores its own genre provenance', record.councilRuns[0].genre === 'cap200' && record.councilRuns[0].genreLabel.includes('CAP 200'));
+// SHIPPED-CONTRACT UPDATE (2026-08-06): a run still snapshots its own genre
+// provenance; the label it snapshots is now the course-number-free one. The
+// internal profile key is deliberately unchanged, so stored work still resolves.
+check('the service-learning run stores its own genre provenance',
+    record.councilRuns[0].genre === 'cap200' && /service-learning/i.test(record.councilRuns[0].genreLabel));
+check('a newly stored run carries no course number in its label',
+    !/CAP\s*-?\s*200/i.test(record.councilRuns[0].genreLabel), record.councilRuns[0].genreLabel);
 
 record = await fresh('research-paper').then(convene);
 check('research Council uses source-evidence roles, not autobiography', record.councilRuns[0].roles.join('|').includes('Source-evidence reviewer') && !record.councilRuns[0].roles.join('|').includes('cultural-integrity'));

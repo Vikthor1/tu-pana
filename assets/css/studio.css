@@ -650,6 +650,25 @@ body.focus-mode .draft-editor { min-height: calc(100dvh - 96px); }
 html[data-appearance="dark"] .tour-welcome { background: rgba(244, 223, 189, 0.09); }
 @media (prefers-color-scheme: dark) { html[data-appearance="system"] .tour-welcome { background: rgba(244, 223, 189, 0.09); } }
 
+/* ── First-run welcome (a surface, never a gate) ── */
+.first-run { display: flex; justify-content: center; padding: 18px 0 8px; }
+.first-run-card {
+    max-width: 46ch; width: 100%; text-align: center;
+    padding: 26px 24px;
+    border: 1px solid var(--line, rgba(0,0,0,0.14)); border-radius: 16px;
+    background: var(--surface-raised, var(--surface));
+}
+.first-run-mark { display: flex; justify-content: center; margin-bottom: 10px; }
+.first-run-mark svg { width: 84px; height: auto; }
+.first-run-card h2 { margin: 0 0 6px; }
+.first-run-project {
+    margin: 0 0 12px; color: var(--muted);
+    font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.first-run-lead { margin: 0 0 18px; }
+.first-run-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.first-run-note { color: var(--muted); font-size: 0.88rem; margin: 16px 0 0; }
+
 .tour-en { display: block; color: var(--muted); font-size: 0.88em; margin-top: 3px; }
 .tour-en.inline { display: inline; margin: 0 0 0 6px; }
 .tour-excerpt { font-family: Georgia, 'Times New Roman', serif; line-height: 1.6; overflow-wrap: anywhere; }
@@ -784,6 +803,10 @@ html[data-appearance="dark"] .gd-preview { background: rgba(255,255,255,0.04); }
 @media (max-width: 640px) {
     .tour-welcome { flex-direction: column; align-items: stretch; }
     .tour-welcome-actions .button { width: 100%; }
+    .first-run { padding: 10px 0 4px; }
+    .first-run-card { padding: 20px 16px; }
+    .first-run-actions { flex-direction: column; }
+    .first-run-actions .button { width: 100%; }
     .tour-nav { margin-left: 0; width: 100%; }
     .tour-nav .button { flex: 1 1 auto; }
     .gd-bubble { max-width: 100%; }

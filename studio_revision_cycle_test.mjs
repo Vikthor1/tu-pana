@@ -19,7 +19,10 @@ const errors = [];
 page.on('request', request => { if (!request.url().startsWith('http://127.0.0.1:3001/')) external.push(request.url()); });
 page.on('pageerror', error => errors.push(String(error)));
 await page.goto(BASE);
-await page.evaluate(key => { localStorage.removeItem(key); localStorage.setItem('tupana_draft', 'R0 REVISION-CYCLE SENTINEL'); }, KEY);
+// Desk suites: onboarding is answered so the Studio opens on the Desk. The
+// first-run welcome that precedes it for a genuinely new writer has its own
+// suite (studio_onboarding_test.mjs) and is covered there.
+await page.evaluate(key => { localStorage.removeItem(key); localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' })); localStorage.setItem('tupana_draft', 'R0 REVISION-CYCLE SENTINEL'); }, KEY);
 await page.reload();
 
 console.log('\nReview copy truth and optional paths');
@@ -95,7 +98,7 @@ await page.close();
 console.log('\nMobile comparison and calmness');
 const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 await mobile.goto(BASE);
-await mobile.evaluate(key => localStorage.removeItem(key), KEY);
+await mobile.evaluate(key => { localStorage.removeItem(key); localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' })); }, KEY);
 await mobile.reload();
 await mobile.locator('#draftEditor').fill('Mobile review copy: aquí escuchamos primero.');
 await mobile.locator('[data-action="review-center"]').first().click();

@@ -737,7 +737,15 @@
 
     function renderWorkspace() {
         if (concept === 'desk') return renderDeskWorkspace();
-        if (concept === 'integrated') return genres[state.genre] ? renderIntegratedWorkspace() : renderGenreConfigurationError();
+        if (concept === 'integrated') {
+            if (!genres[state.genre]) return renderGenreConfigurationError();
+            // A genuinely new, empty workspace meets Guided Discovery's welcome
+            // before the Desk's full choice architecture. The genre and language
+            // already resolved above it are untouched, so skipping lands on the
+            // correct Desk for the link the writer arrived through.
+            if (window.StudioTour?.shouldOfferFirstRun(tourContext())) return window.StudioTour.firstRunHtml(tourContext());
+            return renderIntegratedWorkspace();
+        }
         if (concept === 'journey') return renderJourneyWorkspace();
         if (concept === 'hybrid') return renderHybridWorkspace();
         return renderNotebookWorkspace();

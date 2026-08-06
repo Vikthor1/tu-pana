@@ -23,6 +23,10 @@ await page.goto(BASE);
 await page.evaluate(key => {
     localStorage.setItem('tupana_draft', 'R0 CORRECTION SENTINEL');
     localStorage.removeItem(key);
+    // Desk suites: onboarding is answered so the Studio opens on the Desk. The
+    // first-run welcome that precedes it for a genuinely new writer has its own
+    // suite (studio_onboarding_test.mjs) and is covered there.
+    localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' }));
 }, KEY);
 await page.reload();
 
@@ -174,7 +178,7 @@ const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, is
 const mobileExternal = [];
 mobile.on('request', request => { if (!request.url().startsWith('http://127.0.0.1:3001/')) mobileExternal.push(request.url()); });
 await mobile.goto(BASE);
-await mobile.evaluate(key => localStorage.removeItem(key), KEY);
+await mobile.evaluate(key => { localStorage.removeItem(key); localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' })); }, KEY);
 await mobile.reload();
 // Adapted for the branding pass: the chip shows the compact header label while the
 // full official assignment name is exposed to assistive technology via aria-label.
@@ -206,7 +210,7 @@ await mobile.close();
 // its notebook-editor spellcheck check is dropped. Studio student surfaces are covered below.)
 const surfaces = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 await surfaces.goto(BASE);
-await surfaces.evaluate(key => localStorage.removeItem(key), KEY);
+await surfaces.evaluate(key => { localStorage.removeItem(key); localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' })); }, KEY);
 await surfaces.reload();
 await surfaces.locator('[data-action="reflection"]').first().click();
 check('Process Reflection uses native spellcheck by default', await surfaces.locator('#reflectionForm textarea').evaluateAll(fields => fields.every(field => field.spellcheck)));

@@ -24,7 +24,10 @@ async function fresh(query = '', viewport = { width: 1440, height: 960 }) {
     page.on('request', request => { if (!request.url().startsWith(ORIGIN)) external.push(request.url()); });
     page.on('pageerror', error => errors.push(String(error)));
     await page.goto(BASE);
-    await page.evaluate(key => localStorage.removeItem(key), KEY);
+    // Desk suites: onboarding is answered so the Studio opens on the Desk.
+    // The first-run welcome that precedes it for a genuinely new writer has
+    // its own suite (studio_onboarding_test.mjs) and is covered there.
+    await page.evaluate(key => { localStorage.removeItem(key); localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' })); }, KEY);
     await page.goto(`${BASE}${query}`);
 }
 

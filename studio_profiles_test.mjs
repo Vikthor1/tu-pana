@@ -23,6 +23,10 @@ async function fresh(url) {
     await page.goto(`${ORIGIN}/studio.html`);
     await page.evaluate(key => {
         localStorage.removeItem(key);
+        // Desk suites: onboarding is answered so the Studio opens on the Desk.
+        // The first-run welcome that precedes it for a genuinely new writer has
+        // its own suite (studio_onboarding_test.mjs) and is covered there.
+        localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' }));
         localStorage.setItem('tupana_draft', 'R0 PROFILES SENTINEL');
         localStorage.setItem('tupana_assignment_id', 'college-personal-statement');
     }, KEY);

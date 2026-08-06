@@ -51,7 +51,10 @@ const record = () => page.evaluate(key => localStorage.getItem(key), KEY);
 // Normalising it keeps this suite pointed at conversation effects.
 const recordSansTimestamp = async () => (await record() || '').replace(/"savedAt":"[^"]*"/, '"savedAt":"—"');
 const tourPrefs = () => page.evaluate(key => JSON.parse(localStorage.getItem(key) || 'null'), TOUR_KEY);
-const startFromCard = () => page.locator('.tour-welcome [data-action="tour-start"]').click();
+// SHIPPED-CONTRACT UPDATE (2026-08-05): a genuinely new writer now meets the
+// first-run welcome surface; an existing writer meets the quiet card. Either
+// opens the same conversation.
+const startFromCard = () => page.locator('.first-run [data-action="tour-start"], .tour-welcome [data-action="tour-start"]').first().click();
 const chapter = () => page.locator('.gd-chapter').textContent();
 const REPLIES = '.gd-choice:not(.gd-continue)';
 const choiceLabels = () => page.locator(REPLIES).allTextContents();
@@ -115,21 +118,19 @@ check('every step offers tappable replies or an ending', true);
 
 console.log('\n3. Entry condition, Not now, and no repeat prompt');
 await fresh();
-check('welcome card appears for a fresh writing project', await page.locator('.tour-welcome').isVisible());
-check('card is non-modal and does not block the editor', await page.locator('[role="dialog"]').count() === 0 && await page.locator('#draftEditor').isEnabled());
-check('card sits below the editor, not over it', await page.evaluate(() => {
-    const card = document.querySelector('.tour-welcome').getBoundingClientRect();
-    const editor = document.querySelector('#draftEditor').getBoundingClientRect();
-    return card.top >= editor.bottom - 1;
-}));
-const beforeDismiss = await record();
+check('the first-run welcome is the entry surface for a fresh writing project', await page.locator('.first-run').isVisible());
+check('the welcome is not a modal and blocks nothing',
+    await page.locator('[role="dialog"]').count() === 0 && await page.locator('#dialogRoot .overlay').count() === 0);
+check('it offers Guided Discovery first and the Desk immediately',
+    await page.locator('.first-run [data-action="tour-start"]').count() === 1
+    && await page.locator('.first-run [data-action="tour-dismiss"]').count() === 1);
 await page.locator('[data-action="tour-dismiss"]').click();
 await page.waitForTimeout(200);
-check('Not now dismisses immediately', await page.locator('.tour-welcome').count() === 0);
-check('Not now leaves the empty draft and record untouched', await page.locator('#draftEditor').inputValue() === '' && await record() === beforeDismiss);
+check('going straight to the Desk dismisses immediately', await page.locator('.first-run').count() === 0 && await page.locator('#draftEditor').count() === 1);
+check('going straight to the Desk leaves an empty draft', await page.locator('#draftEditor').inputValue() === '');
 check('dismissal is remembered locally with no student data', await tourPrefs().then(p => Boolean(p.dismissedAt) && !JSON.stringify(p).includes('draft')));
 await page.reload();
-check('dismissal is not re-prompted after reload', await page.locator('.tour-welcome').count() === 0);
+check('dismissal is not re-prompted after reload', await page.locator('.first-run, .tour-welcome').count() === 0);
 
 console.log('\n4. Replay from Help; existing and imported work suppress the prompt');
 await page.locator('[data-action="help"]').click();
@@ -138,21 +139,30 @@ await page.locator('.dialog [data-action="tour-start"]').click();
 check('Help replay opens the conversation', await page.locator('.gd-conversation').count() === 1);
 await page.keyboard.press('Escape');
 await page.waitForTimeout(200);
-check('closing the replay does not resurface the welcome card', await page.locator('.tour-welcome').count() === 0);
+check('closing the replay does not resurface any invitation', await page.locator('.first-run, .tour-welcome').count() === 0);
+// A workspace that predates the onboarding flag: real work present, no answer
+// recorded. Reached by dismissing, writing, then removing only the preference.
 await fresh();
+await page.locator('[data-action="tour-dismiss"]').click();
+await page.waitForTimeout(200);
 await page.locator('#draftEditor').fill('A returning writer already has words here.');
 await page.waitForTimeout(300);
+await page.evaluate(key => localStorage.removeItem(key), TOUR_KEY);
 await page.reload();
-check('existing writing suppresses the welcome card', await page.locator('.tour-welcome').count() === 0);
+check('existing writing is never interrupted by the first-run surface', await page.locator('.first-run').count() === 0);
+check('existing writing receives the quiet invitation instead', await page.locator('.tour-welcome').count() === 1);
 await fresh();
-await page.addInitScript(key => {
-    const saved = JSON.parse(localStorage.getItem(key) || '{}');
+await page.addInitScript(keys => {
+    const saved = JSON.parse(localStorage.getItem(keys[0]) || '{}');
     saved.legacyImport = { appliedAt: new Date().toISOString(), facts: [], notImported: [], records: {} };
     saved.versions = [{ id: 'v1', signature: '10:x', words: 10, createdAt: null, reason: 'imported from legacy', text: 'imported work' }];
-    localStorage.setItem(key, JSON.stringify(saved));
-}, KEY);
-await page.reload();
-check('imported work suppresses the welcome card', await page.locator('.tour-welcome').count() === 0);
+    localStorage.setItem(keys[0], JSON.stringify(saved));
+    localStorage.removeItem(keys[1]);
+}, [KEY, TOUR_KEY]);
+await page.goto(`${ORIGIN}/studio.html`);
+await page.waitForTimeout(200);
+check('imported work is never interrupted by the first-run surface', await page.locator('.first-run').count() === 0);
+check('imported work receives the quiet invitation instead', await page.locator('.tour-welcome').count() === 1);
 check('it stays reachable from Help after import', await (async () => {
     await page.locator('[data-action="help"]').click();
     return await page.locator('.dialog [data-action="tour-start"]').count() === 1;
@@ -366,7 +376,7 @@ check('stem: the Council is now offered rather than declared unconfigured',
 
 console.log('\n11. Unknown assignments inherit nothing');
 await fresh({ query: '?assignment=an-assignment-nobody-configured' });
-check('no welcome card for an unconfigured assignment', await page.locator('.tour-welcome').count() === 0);
+check('no invitation of any kind for an unconfigured assignment', await page.locator('.first-run, .tour-welcome').count() === 0);
 await page.locator('[data-action="help"]').click();
 await page.locator('.dialog [data-action="tour-start"]').click();
 await page.waitForTimeout(200);
@@ -425,7 +435,7 @@ await page.locator('[data-action="tour-explore"]').click();
 await page.waitForTimeout(250);
 check('exiting closes the conversation and returns the desk', await page.locator('.gd-conversation').count() === 0 && await page.locator('#draftEditor').count() === 1);
 await page.reload();
-check('a completed conversation does not auto-prompt again', await page.locator('.tour-welcome').count() === 0);
+check('a completed conversation does not auto-prompt again', await page.locator('.first-run, .tour-welcome').count() === 0);
 
 console.log('\n14. Accessibility');
 await fresh();
@@ -548,13 +558,22 @@ const countWords = () => page.evaluate(() => {
     }
     return n;
 });
-const withCard = await countWords();
-check('first-viewport density with the invitation present is the established 205 or fewer', withCard <= 205, String(withCard));
+const welcomeWords = await countWords();
+// Measured the same way as the Desk (whole first viewport, so shared chrome and
+// the project selector's option labels are counted in both), the welcome must
+// stay comfortably below the Desk's established 205-word budget.
+check('the first-run welcome is calmer than the Desk it precedes', welcomeWords <= 150, String(welcomeWords));
 await page.evaluate(() => document.querySelector('[data-action="tour-dismiss"]').click());
 await page.waitForTimeout(250);
 await page.evaluate(() => scrollTo(0, 0));
 await page.waitForTimeout(150);
-check('dismissal returns the identical density', await countWords() === withCard);
+const deskWords = await countWords();
+check('the Desk reached by skipping keeps the established 205 or fewer', deskWords <= 205, String(deskWords));
+await page.reload();
+await page.waitForTimeout(250);
+await page.evaluate(() => scrollTo(0, 0));
+await page.waitForTimeout(150);
+check('a returning visit renders the identical Desk density', await countWords() === deskWords);
 check('the three primary destinations are unchanged',
     (await page.locator('.phase-strip .phase-tab').allTextContents()).length === 3);
 check('no fourth destination was added', await page.locator('.phase-strip button').count() === 3);

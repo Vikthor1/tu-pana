@@ -40,7 +40,10 @@ async function fresh(query = '', viewport = { width: 1440, height: 960 }) {
     page.on('request', request => { if (!request.url().startsWith(ORIGIN)) external.push(request.url()); });
     page.on('pageerror', error => errors.push(String(error)));
     await page.goto(BASE);
-    await page.evaluate(key => localStorage.removeItem(key), KEY);
+    // Desk suites: onboarding is answered so the Studio opens on the Desk.
+    // The first-run welcome that precedes it for a genuinely new writer has
+    // its own suite (studio_onboarding_test.mjs) and is covered there.
+    await page.evaluate(key => { localStorage.removeItem(key); localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' })); }, KEY);
     await page.goto(`${BASE}${query}`);
 }
 
@@ -229,7 +232,11 @@ for (const lang of ['en', 'es', 'both']) {
 console.log('\nGuided Discovery: the one allowed demonstration surface');
 await fresh('?assignment=stem-lab-report');
 const before = await page.evaluate(key => localStorage.getItem(key), KEY);
-await page.locator('[data-action="tour-start"]').first().click();
+// Onboarding is already answered in this suite's fresh state, so the
+// conversation is opened from Help — its permanent route.
+await page.locator('[data-action="help"]').first().click();
+await page.waitForTimeout(200);
+await page.locator('.dialog [data-action="tour-start"]').click();
 await page.waitForTimeout(600);
 // The conversation arrives in beats and pauses at gates, so walk it the way the
 // pacing contract intends: clear any continuation control, then tap one reply.

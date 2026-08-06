@@ -41,10 +41,17 @@ async function open(options = {}) {
     page.on('request', request => { if (!request.url().startsWith(`${ORIGIN}/`)) external.push(request.url()); });
     page.on('pageerror', error => errors.push(String(error)));
     await page.goto(`${ORIGIN}/studio.html`);
-    await page.evaluate(() => localStorage.clear());
+    // Desk suites: onboarding is answered so the Studio opens on the Desk.
+    // The first-run welcome that precedes it for a genuinely new writer has
+    // its own suite (studio_onboarding_test.mjs) and is covered there.
+    await page.evaluate(() => { localStorage.clear(); localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' })); });
     await page.goto(`${ORIGIN}/studio.html${options.query || ''}`);
     if (options.lang) await page.locator('.prototype-actions [data-action="language"]').selectOption(options.lang);
-    await page.locator('.tour-welcome [data-action="tour-start"]').click();
+    // Onboarding is answered in this suite's fresh state; Help is the permanent
+    // route into the same conversation.
+    await page.locator('[data-action="help"]').first().click();
+    await page.waitForTimeout(160);
+    await page.locator('.dialog [data-action="tour-start"]').click();
     await page.waitForTimeout(options.motion === 'no-preference' ? 2400 : 200);
     return page;
 }

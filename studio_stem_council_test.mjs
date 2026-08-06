@@ -43,7 +43,10 @@ async function fresh(query = '', viewport = { width: 1440, height: 960 }) {
     page.on('request', request => { if (!request.url().startsWith(ORIGIN)) external.push(request.url()); });
     page.on('pageerror', error => errors.push(String(error)));
     await page.goto(BASE);
-    await page.evaluate(key => localStorage.removeItem(key), KEY);
+    // Desk suites: onboarding is answered so the Studio opens on the Desk.
+    // The first-run welcome that precedes it for a genuinely new writer has
+    // its own suite (studio_onboarding_test.mjs) and is covered there.
+    await page.evaluate(key => { localStorage.removeItem(key); localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' })); }, KEY);
     await page.goto(`${BASE}${query}`);
 }
 const stored = () => page.evaluate(key => JSON.parse(localStorage.getItem(key) || 'null'), KEY);
@@ -362,11 +365,19 @@ for (const assignment of STEM_LINKS) {
         const g = window.StudioProfiles.genres[window.__genreId || ''] || null;
         return g;
     });
-    check(`${assignment}: the conversation has genre-owned content to draw on`,
-        await page.locator('[data-action="tour-start"]').count() === 1);
+    await page.locator('[data-action="help"]').first().click();
+    await page.waitForTimeout(160);
+    check(`${assignment}: the conversation is reachable and has genre-owned content`,
+        await page.locator('.dialog [data-action="tour-start"]').count() === 1);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(160);
 }
 await fresh(`?assignment=${ARGUE}`);
-await page.locator('[data-action="tour-start"]').first().click();
+// Onboarding is already answered in this suite's fresh state, so the
+// conversation is opened from Help — its permanent route.
+await page.locator('[data-action="help"]').first().click();
+await page.waitForTimeout(200);
+await page.locator('.dialog [data-action="tour-start"]').click();
 // The conversation arrives in paced beats; walk any gate before reading it.
 for (let i = 0; i < 8; i++) {
     await page.waitForTimeout(220);

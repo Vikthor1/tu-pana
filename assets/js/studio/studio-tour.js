@@ -136,11 +136,19 @@
         return { ...rest, turns: demo.turns.slice(), seen: { ...demo.seen } };
     }
 
+    // Leaving the conversation must never drop a keyboard user on <body>. The
+    // control that opened it is the right place to land — except for the
+    // first-run welcome, which no longer exists once the tour has started, so
+    // the writing surface it handed over to takes the focus instead.
     function restoreOriginFocus(origin) {
-        if (origin !== 'help') return;
         requestAnimationFrame(() => {
             if (document.activeElement && document.activeElement !== document.body) return;
-            document.querySelector('[data-action="help"]')?.focus();
+            if (origin === 'help') { document.querySelector('[data-action="help"]')?.focus(); return; }
+            if (origin === 'welcome') {
+                const editor = document.getElementById('draftEditor');
+                if (editor) { editor.focus({ preventScroll: true }); return; }
+                document.querySelector('[data-action="help"]')?.focus();
+            }
         });
     }
 
@@ -621,9 +629,51 @@
             'Tus palabras conservadas están ahí, exactamente como las escribiste, sin inferir nada sobre lo que significan.');
     }
 
-    // ── Welcome card (non-modal, empty state only) ───────────────────────────
-    function shouldOfferWelcome(ctx) {
+    // ── First contact ────────────────────────────────────────────────────────
+    //
+    // Two different people arrive at an unanswered onboarding state, and they
+    // must not be treated the same way.
+    //
+    // A genuinely NEW writer — a configured project, an empty workspace, no
+    // answer recorded — meets a calm welcome before the Desk's full choice
+    // architecture, offering Guided Discovery first and the Desk immediately.
+    // It is a surface, not a gate: no modal, nothing blocked, and the secondary
+    // action goes straight to work.
+    //
+    // An EXISTING writer whose workspace predates this flag gets no such thing.
+    // Their draft, notes, evidence, versions, or imported work are already
+    // there, and interrupting them merely because a preference key is missing
+    // would be indefensible. They get the quiet, dismissible invitation instead.
+    //
+    // Onboarding state is INTERFACE PREFERENCE. It lives in its own key beside
+    // the Studio record, never inside it, and is never process evidence or
+    // student work.
+    function shouldOfferFirstRun(ctx) {
         return Boolean(ctx.genre()) && !ctx.hasWork() && !welcomeAnswered() && !active();
+    }
+    function shouldOfferWelcome(ctx) {
+        return Boolean(ctx.genre()) && ctx.hasWork() && !welcomeAnswered() && !active();
+    }
+
+    function firstRunHtml(ctx) {
+        const text = makeText(ctx);
+        return `<section class="first-run" aria-labelledby="firstRunTitle">
+            <div class="first-run-card">
+                <div class="first-run-mark" aria-hidden="true">${ctx.avatar ? ctx.avatar() : ''}</div>
+                <h2 id="firstRunTitle">${text('Welcome to your Writing Studio', 'Bienvenido/a a tu Writing Studio')}</h2>
+                <p class="first-run-project">${ctx.escape(ctx.genreLabel())}</p>
+                <p class="first-run-lead">${text(
+                    'This is where your writing lives — one draft, with help beside it when you want it. Tu Pana can show you around first, or you can start writing right now.',
+                    'Aquí vive tu escritura — un solo borrador, con ayuda al lado cuando la quieras. Tu Pana puede mostrarte el lugar primero, o puedes empezar a escribir ahora mismo.')}</p>
+                <div class="first-run-actions">
+                    <button class="button primary" data-action="tour-start">${label(ctx, 'Show me around', 'Muéstrame el lugar')}</button>
+                    <button class="button secondary" data-action="tour-dismiss">${label(ctx, 'Go straight to my Desk', 'Ir directo a mi Escritorio')}</button>
+                </div>
+                <p class="first-run-note">${text(
+                    'A short conversation, no typing, and you can leave at any point. It uses examples, never your writing. You can start it again whenever you like from Help.',
+                    'Una conversación corta, sin escribir nada, y puedes salir en cualquier momento. Usa ejemplos, nunca tu escritura. Puedes volver a empezarla cuando quieras desde Ayuda.')}</p>
+            </div>
+        </section>`;
     }
 
     function welcomeCardHtml(ctx) {
@@ -644,8 +694,14 @@
 
     // ── Runtime ──────────────────────────────────────────────────────────────
     function start(ctx) {
-        resetDemo(document.querySelector('.tour-welcome') ? 'welcome' : 'help');
+        const fromWelcome = Boolean(document.querySelector('.tour-welcome') || document.querySelector('.first-run'));
+        resetDemo(fromWelcome ? 'welcome' : 'help');
         writePrefs({ startedAt: new Date().toISOString() });
+        // Starting IS the answer, so the surface underneath the conversation
+        // becomes the Desk immediately. Without this the first-run welcome stays
+        // rendered behind the dialog and is what the writer lands back on when
+        // they leave — which would read as the tour having refused to let go.
+        if (fromWelcome) ctx.rerender();
         const text = makeText(ctx);
         if (!ctx.genre() || !genreData(ctx)) {
             // Unconfigured assignment: never borrow another genre's material.
@@ -1235,6 +1291,7 @@
     window.StudioTour = {
         TOUR_KEY, TOUR_VERSION,
         readPrefs, welcomeAnswered, shouldOfferWelcome, welcomeCardHtml,
+        shouldOfferFirstRun, firstRunHtml,
         start, handleAction, notifyDialogClosed, notifyEnvironmentChanged, isActive: active,
     };
 }());

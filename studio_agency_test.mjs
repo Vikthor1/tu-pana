@@ -19,7 +19,10 @@ const errors = [];
 page.on('request', request => { if (!request.url().startsWith('http://127.0.0.1:3001/')) external.push(request.url()); });
 page.on('pageerror', error => errors.push(String(error)));
 await page.goto(BASE);
-await page.evaluate(key => { localStorage.removeItem(key); localStorage.setItem('tupana_draft', 'R0 AGENCY SENTINEL'); }, KEY);
+// Desk suites: onboarding is answered so the Studio opens on the Desk. The
+// first-run welcome that precedes it for a genuinely new writer has its own
+// suite (studio_onboarding_test.mjs) and is covered there.
+await page.evaluate(key => { localStorage.removeItem(key); localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' })); localStorage.setItem('tupana_draft', 'R0 AGENCY SENTINEL'); }, KEY);
 await page.reload();
 
 console.log('\nIn-session editing stays separate from evidence');
@@ -125,7 +128,7 @@ await page.close();
 console.log('\nMobile utility reflow');
 const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 await mobile.goto(BASE);
-await mobile.evaluate(key => localStorage.removeItem(key), KEY);
+await mobile.evaluate(key => { localStorage.removeItem(key); localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' })); }, KEY);
 await mobile.reload();
 check('mobile keeps compact appearance and Help controls at 44px without horizontal overflow', await mobile.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth) && await mobile.locator('[data-action="appearance-cycle"]').evaluate(el => el.getBoundingClientRect().height >= 44) && await mobile.locator('[data-action="help"]').evaluate(el => el.getBoundingClientRect().height >= 44));
 await mobile.close();

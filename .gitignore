@@ -127,6 +127,16 @@
 !studio_onboarding_test.mjs
 !studio_genre_menu_test.mjs
 
+# ── Allow the reproducible test toolchain (E1) ────────────
+# Non-secret harness only: dependency manifest, lockfile, the local mock server,
+# the deterministic runner, and the runtime pin. Dependencies themselves
+# (node_modules/) and every secret file stay ignored below.
+!/package.json
+!/package-lock.json
+!/test-server.js
+!/run_test_suite.mjs
+!/.nvmrc
+
 # ── Allow project documentation ──────────────────────────
 !docs/
 !docs/**
@@ -151,8 +161,6 @@
 .dev.vars
 .dev.vars.*
 node_modules/
-package.json
-package-lock.json
 *.backup
 *.backup.*
 *.pre-alignment
@@ -172,7 +180,6 @@ stage-revision-plan.md
 stress-test-guide.md
 stress-test-report.md
 stress-test-runner.js
-test-server.js
 alignment-implementation.md
 manual-test-checklist.md
 .claude/

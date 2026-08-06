@@ -130,7 +130,7 @@ async function fullDraftCase(assignment, lang) {
 }
 
 async function councilCase(assignment, lang) {
-    guardCeiling(8); // 4 calls + retry headroom
+    guardCeiling(SCOPE === 'fall' ? 4 : 8); // true cost 4; wider headroom outside the bounded pass
     await fresh(assignment, lang);
     const draft = DRAFTS[assignment.includes('scientific-argument') ? 'stemArgument' : assignment.includes('cap') ? 'cap200' : 'autobiographical'];
     await page.locator('#draftEditor').fill(draft);
@@ -160,9 +160,11 @@ async function councilCase(assignment, lang) {
 //   1 call  reading-response passage coaching (source-integrity rules, EN)
 //   1 call  reading-response full-draft review (graduate configuration, ES)
 //   4 calls STEM Council (3 reviewers + 1 synthesis) — newly operational
+// 5 planned calls against a ceiling of 6: one call is deliberately reserved,
+// because the Gemini adapter retries retryable categories transparently and a
+// prior pass overran its bound by exactly that margin.
 const FALL_CASES = [
     () => passageCase('reading-response-undergraduate', 'en'),
-    () => fullDraftCase('reading-response-graduate', 'es'),
     () => councilCase('stem-scientific-argument', 'en'),
 ];
 const DEFAULT_CASES = [

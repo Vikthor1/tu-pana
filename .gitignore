@@ -125,6 +125,7 @@
 !studio_reading_response_test.mjs
 !studio_stem_council_test.mjs
 !studio_onboarding_test.mjs
+!studio_genre_menu_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

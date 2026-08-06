@@ -204,6 +204,8 @@ p { line-height: 1.55; }
 .coach-entry strong, .coach-entry span { display: block; }
 .coach-entry span { margin-top: 3px; color: #345c4d; font-size: .82rem; }
 .editor-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; border-top: 1px solid var(--line); }
+.stuck-inline { color: var(--muted); border-color: var(--line); }
+.stuck-inline:hover { color: var(--ink); }
 .footer-group { display: flex; gap: 8px; }
 
 .support-stack { display: grid; gap: 14px; }
@@ -245,7 +247,6 @@ p { line-height: 1.55; }
 .support-action { display: flex; width: 100%; justify-content: space-between; align-items: center; padding: 11px 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); text-align: left; }
 .support-action:last-child { border-bottom: 0; }
 .support-action span { color: var(--muted); font-size: .82rem; }
-.stuck-action strong::before { content: "↗ "; color: var(--jade); }
 .evidence-count { display: inline-flex; min-width: 25px; height: 25px; align-items: center; justify-content: center; border-radius: 999px; background: var(--surface-soft); font-size: .76rem; }
 .feedback-choice-guide { margin-bottom: 16px; padding: 0 12px 12px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-soft); }
 .feedback-choice-guide > summary { display: flex; min-height: 44px; align-items: center; cursor: pointer; font-weight: 800; }
@@ -650,24 +651,50 @@ body.focus-mode .draft-editor { min-height: calc(100dvh - 96px); }
 html[data-appearance="dark"] .tour-welcome { background: rgba(244, 223, 189, 0.09); }
 @media (prefers-color-scheme: dark) { html[data-appearance="system"] .tour-welcome { background: rgba(244, 223, 189, 0.09); } }
 
-/* ── First-run welcome (a surface, never a gate) ── */
-.first-run { display: flex; justify-content: center; padding: 18px 0 8px; }
+/* ── First-run welcome (a surface, never a gate) ──
+   Every dimension here is content-driven. Nothing carries a fixed height, so
+   long Spanish or stacked bilingual text lengthens the card instead of
+   overflowing it. The brand mark gets a reserved block of its own: the artwork
+   is drawn on a 260×220 canvas, and the header's `.brand-icon` box is only
+   52×44, so sizing the inner <svg> alone made it paint outside its container
+   and over the heading. The container is sized here, and the mark is the only
+   thing allowed in that row. */
+.first-run { display: flex; justify-content: center; padding: clamp(10px, 2.5vw, 26px) 0 12px; }
 .first-run-card {
-    max-width: 46ch; width: 100%; text-align: center;
-    padding: 26px 24px;
-    border: 1px solid var(--line, rgba(0,0,0,0.14)); border-radius: 16px;
+    display: flex; flex-direction: column; align-items: center;
+    max-width: 40rem; width: 100%; min-width: 0; text-align: center;
+    padding: clamp(20px, 4vw, 34px) clamp(18px, 4vw, 30px);
+    border: 1px solid var(--line, rgba(0,0,0,0.14)); border-radius: 18px;
     background: var(--surface-raised, var(--surface));
 }
-.first-run-mark { display: flex; justify-content: center; margin-bottom: 10px; }
-.first-run-mark svg { width: 84px; height: auto; }
-.first-run-card h2 { margin: 0 0 6px; }
-.first-run-project {
-    margin: 0 0 12px; color: var(--muted);
-    font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase;
+/* The mark's protected area. Nothing else occupies this row. */
+.first-run-mark {
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; margin: 0 0 clamp(10px, 2vw, 16px);
 }
-.first-run-lead { margin: 0 0 18px; }
-.first-run-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.first-run-note { color: var(--muted); font-size: 0.88rem; margin: 16px 0 0; }
+.first-run-card .brand-icon {
+    width: clamp(92px, 20vw, 128px);
+    height: auto;
+    aspect-ratio: 260 / 220;
+    flex-shrink: 0;
+}
+.first-run-card .brand-icon svg { width: 100%; height: 100%; display: block; }
+.first-run-card h2 { margin: 0 0 6px; max-width: 100%; overflow-wrap: anywhere; }
+.first-run-project {
+    margin: 0 0 clamp(10px, 2vw, 14px); color: var(--muted);
+    font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase;
+    max-width: 100%; overflow-wrap: anywhere;
+}
+.first-run-lead { margin: 0 0 clamp(16px, 3vw, 22px); max-width: 34rem; overflow-wrap: anywhere; }
+.first-run-actions {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+    width: 100%; max-width: 30rem;
+}
+.first-run-actions .button { flex: 0 1 auto; min-height: 44px; }
+.first-run-note {
+    color: var(--muted); font-size: 0.88rem;
+    margin: clamp(14px, 2.5vw, 20px) 0 0; max-width: 34rem; overflow-wrap: anywhere;
+}
 
 .tour-en { display: block; color: var(--muted); font-size: 0.88em; margin-top: 3px; }
 .tour-en.inline { display: inline; margin: 0 0 0 6px; }
@@ -803,10 +830,9 @@ html[data-appearance="dark"] .gd-preview { background: rgba(255,255,255,0.04); }
 @media (max-width: 640px) {
     .tour-welcome { flex-direction: column; align-items: stretch; }
     .tour-welcome-actions .button { width: 100%; }
-    .first-run { padding: 10px 0 4px; }
-    .first-run-card { padding: 20px 16px; }
-    .first-run-actions { flex-direction: column; }
-    .first-run-actions .button { width: 100%; }
+    .first-run { padding: 8px 0 4px; }
+    .first-run-actions { flex-direction: column; align-items: stretch; }
+    .first-run-actions .button { width: 100%; flex: 0 0 auto; }
     .tour-nav { margin-left: 0; width: 100%; }
     .tour-nav .button { flex: 1 1 auto; }
     .gd-bubble { max-width: 100%; }

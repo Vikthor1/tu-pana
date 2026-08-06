@@ -75,12 +75,15 @@ check('research profile shows research Moves, not autobiography', !text.includes
 
 await fresh(`${ORIGIN}/studio.html?assignment=cap200-bronx-beautiful-service-learning`);
 text = await bodyText();
-check('CAP 200 service-learning link loads the service-learning profile', text.includes('CAP 200'));
+check('the service-learning link loads the service-learning profile',
+    /Service-learning report|Service-Learning Report/.test(text) && text.includes('Name your community starting point'));
+check('the service-learning desk shows no course number', !/CAP\s*-?\s*200/i.test(text));
 check('CAP 200 has zero autobiographical leakage', !text.includes('memory and a boundary'));
 
 await fresh(`${ORIGIN}/studio.html?assignment=cap-200-first-draft`);
 text = await bodyText();
-check('legacy cap-200-first-draft alias maps to the service-learning profile', text.includes('CAP 200'));
+check('legacy cap-200-first-draft alias maps to the service-learning profile',
+    /Service-learning report|Service-Learning Report/.test(text) && text.includes('Name your community starting point'));
 const notice = await page.evaluate(key => JSON.parse(localStorage.getItem(key) || '{}').assignmentNotice, KEY);
 check('legacy CAP 200 alias records an explicit notice', Boolean(notice && notice.en && notice.en.includes('service-learning')));
 

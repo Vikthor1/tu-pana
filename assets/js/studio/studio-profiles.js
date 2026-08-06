@@ -284,9 +284,16 @@
             },
         },
         cap200: {
-            label: { en: 'CAP 200 service-learning report', es: 'Reporte de aprendizaje-servicio CAP 200' },
-            // Rendered names (label above stays untouched for stored record provenance):
-            fullName: { en: 'CAP 200 Service-Learning Report', es: 'Reporte de aprendizaje-servicio CAP 200' },
+            // Presentation only. The course number is gone from every rendered
+            // name: this genre is service-learning writing, not one course's
+            // assignment. The profile key (`cap200`), every route id, the
+            // persistence schema, and the genre value stored in saved records
+            // are all unchanged, so existing links and stored work keep working.
+            // Records that already snapshotted the old label keep showing it —
+            // `storedGenreLabel` prefers the record's own copy — which is
+            // truthful provenance, not stale data.
+            label: { en: 'Service-learning report', es: 'Reporte de aprendizaje-servicio' },
+            fullName: { en: 'Service-Learning Report', es: 'Reporte de aprendizaje-servicio' },
             headerLabel: { en: 'Service-Learning Report', es: 'Aprendizaje-servicio' },
             tourExample: {
                 moveId: 'community-course-bridge',

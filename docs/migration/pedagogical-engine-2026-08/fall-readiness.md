@@ -294,3 +294,107 @@ refuses to store — not what the model says.
 Acceptance to date remains **one founder, one device, one browser**. VoiceOver and other assistive
 technology, other iOS devices and versions, Android, other browsers, and representative-student
 testing have not occurred.
+
+---
+
+## Founder-review corrections (2026-08-06)
+
+Founder review of checkpoint `a51aaff` returned three bounded corrections. Founder PASS had not
+been issued. No live AI calls were needed or made for this pass.
+
+### 1. The first-use welcome card
+
+**Root cause.** The brand mark ships wrapped in `<span class="brand-icon">`, which the header sizes
+to **52×44**. The welcome card sized only the inner `<svg>` (to 84px), so the artwork rendered
+**larger than its own container** and, because `.brand-icon` reserves just 44px of vertical space,
+painted roughly 27px past the bottom of its row — directly over the heading. That is exactly the
+reported "icon is partially covered by the explanatory text".
+
+**Reproduced before fixing:** measuring icon/heading/copy/button rectangles against the pre-fix CSS
+gives **30 failures across 5 viewports × 3 languages**, with `iconOverH2: true` at every width. After
+the fix: **99/99**.
+
+**What changed** (CSS only, `assets/css/studio.css`):
+
+- The card is a flex column with **no fixed heights** anywhere; long Spanish and stacked bilingual
+  text lengthen it instead of overflowing.
+- `.first-run-card .brand-icon` is sized directly — `clamp(92px, 20vw, 128px)` with
+  `aspect-ratio: 260/220` matching the artwork canvas — so the mark can never exceed its container.
+- `.first-run-mark` is a full-width row that holds **only** the mark.
+- Spacing uses `clamp()` throughout; copy blocks carry `max-width` and `overflow-wrap: anywhere`.
+- Actions stack full-width at ≤640px and keep a 44px target.
+- Hierarchy unchanged: mark → project name → concise orientation → primary Guided Discovery →
+  secondary Go straight to my Desk → the quiet "restart from Help" note.
+- The brand animation is untouched, and the existing global reduced-motion rule still stops it.
+
+First-run logic, skip behaviour, persistence, existing-writer protection, genre routing, and Help
+access are all unchanged.
+
+### 2. "I'm stuck" moved beneath the editor
+
+Moved out of the Review Center rail into the editor footer, between Continue and Review Center in
+**DOM, reading, and keyboard order** (`back → continue → stuck → review-center`). The buried entry
+is removed, not duplicated: exactly one control exists.
+
+Continue stays the only primary. "I'm stuck" is a `ghost` button in muted ink — calm optional
+support, never an error or warning — carrying the accessible name "I'm stuck — get one small next
+step" / "Estoy atascado/a — recibe un pequeño próximo paso". Support content, state behaviour,
+evidence rules, and the canonical draft are untouched.
+
+Verified present and correctly routed on **all eleven genre profiles**, including both Reading
+Responses and all three bounded STEM profiles: **86/86**.
+
+### 3. Course number removed from the service-learning label
+
+`label` and `fullName` for the `cap200` profile drop the course number in both languages;
+`headerLabel` was already clean.
+
+| | Before | After |
+|---|---|---|
+| EN label | CAP 200 service-learning report | Service-learning report |
+| EN fullName | CAP 200 Service-Learning Report | Service-Learning Report |
+| ES label / fullName | Reporte de aprendizaje-servicio CAP 200 | Reporte de aprendizaje-servicio |
+
+**Presentation only.** The profile key `cap200`, every route id
+(`cap200-bronx-beautiful-service-learning`, `cap-200-first-draft`, `cap200`), the persistence
+schema, and the genre value written into saved records are all unchanged. Records that already
+snapshotted the old label keep showing it, because `storedGenreLabel` prefers the record's own
+copy — truthful provenance, not stale data, and not a migration.
+
+A sweep of desk, selector, project chip, Review Center, Settings, Help, I'm stuck, Reflection,
+Finish, Evidence, expanded Moves, Guided Discovery, and all `aria-label`/`title` attributes, in
+English, Spanish, and bilingual mode, finds **no course number remaining** (31/31). The generated
+final packet's `Genre:` field now reads "Service-learning report".
+
+**One student-facing occurrence deliberately kept, reported rather than silently changed:** the
+legacy-link notice, *"This CAP 200 link now opens the full service-learning writing project."* This
+is a routing notice, not a genre label and not pedagogy. It is shown **only** to someone who arrived
+through the retired `cap-200-first-draft` link, and naming that link is what makes the notice
+intelligible to them. It hardcodes nothing for anyone else. Say the word and it becomes "This
+assignment link now opens…".
+
+**No course-specific pedagogy needed generalizing.** The service-learning Moves, deeper guidance,
+Council roles, and prohibitions reference CBOs, logged hours, course concepts, and IMRDC structure —
+service-learning pedagogy, not one course's requirements. No course number appears in any of them.
+
+### Genre-menu findings
+
+The expanded menu is correct and was left expanded. **11 visible options, 11 profiles, zero
+duplicates** — every option label unique, every option mapping to a distinct profile, no label
+empty or equal to a bare profile key. All five intentional fine-grained configurations verified
+present under their own names, each with its own Move set, its own review lenses, and the correct
+Council availability (all three STEM enabled; both Reading Responses deliberately not).
+
+### Shipped-contract updates
+
+`studio_profiles_test` asserted the service-learning profile had loaded by checking that the body
+text contained "CAP 200" — the exact string being removed. Both assertions now check the profile's
+real identity (its service-learning name plus its own first Move), and one adds a positive
+assertion that no course number appears.
+
+### Verification
+
+`studio_genre_menu_test.mjs` (new, 111 checks) covers menu integrity, the fine-grained profiles,
+fail-closed generic routes, backward compatibility of links and stored records, the label sweep in
+three language modes, "I'm stuck" placement across all eleven profiles, and welcome-card geometry
+across three viewports × three languages plus text enlargement and reduced motion.

@@ -387,10 +387,21 @@ Council availability (all three STEM enabled; both Reading Responses deliberatel
 
 ### Shipped-contract updates
 
-`studio_profiles_test` asserted the service-learning profile had loaded by checking that the body
-text contained "CAP 200" — the exact string being removed. Both assertions now check the profile's
-real identity (its service-learning name plus its own first Move), and one adds a positive
-assertion that no course number appears.
+Seven assertions across three suites depended on the removed course number, all of the same class —
+they used "CAP 200" as a proxy for something else:
+
+- `studio_profiles_test` (2) asserted the service-learning profile had *loaded* by checking the body
+  text contained "CAP 200". They now check the profile's real identity — its service-learning name
+  plus its own first Move — and one adds a positive assertion that no course number appears.
+- `studio_branding_test` (4) hardcoded "CAP 200 Service-Learning Report" as the expected full
+  official name in the compact-face table, the open selector, the Settings selector, and the mobile
+  chip's accessible name. Compact and full now coincide for this genre. A positive check was added:
+  the chip carries no course number in either its text or its accessible name.
+- `studio_council_test` (1) required a stored Council run's `genreLabel` to contain the course
+  number. It now asserts the run still snapshots its own genre provenance under the unchanged
+  internal key `cap200`, plus a positive check that a newly stored label carries no course number.
+
+None was a behavioural regression; each was an expectation pinned to the string being removed.
 
 ### Verification
 

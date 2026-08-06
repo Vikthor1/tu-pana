@@ -14,7 +14,10 @@ if (process.env.STUDIO_LIVE !== '1') {
 
 const ORIGIN = 'http://localhost:3001';
 const KEY = 'tupana-studio:v1';
-const CALL_CEILING = 30;
+// Scope and ceiling are declared by the caller. The fall-readiness pass runs
+// STUDIO_LIVE_SCOPE=fall with a ceiling of 6.
+const SCOPE = process.env.STUDIO_LIVE_SCOPE || 'default';
+const CALL_CEILING = Number(process.env.STUDIO_LIVE_CEILING || (SCOPE === 'fall' ? 6 : 30));
 let callsUsed = 0;
 const results = [];
 const browser = await chromium.launch({ headless: true });
@@ -26,6 +29,9 @@ const DRAFTS = {
     research: 'Los huertos comunitarios se describen a menudo como soluciones a la inseguridad alimentaria, pero mis fuentes sintéticas no coinciden en cuánto ayudan realmente. Una fuente mide cambios en la dieta; otra estudia la participación cívica. Puestas en conversación, sugieren que el beneficio es real pero distinto del que se suele afirmar. Este párrafo sintético modela cómo un trabajo de investigación pone las fuentes en diálogo en vez de resumirlas una por una.',
     neutral: 'This synthetic piece argues that the campus library should extend evening hours during exam weeks. It opens with the observed line outside the building at closing time, offers one usage statistic the writer collected, and addresses the cost objection directly. The conclusion asks the reader to weigh a modest expense against a measurable benefit for students who work day shifts.',
     cap200: 'Durante mis diez horas en la despensa de alimentos del vecindario, registré cada turno y escribí un diario breve después de cada visita. Para la tercera semana, mis notas mostraban un patrón: los voluntarios pasaban tanto tiempo explicando reglas de elegibilidad como entregando alimentos. Esa observación se conecta con el concepto del curso de barreras estructurales al acceso. Este reporte sintético usa solo horas registradas y notas reales del diario.',
+    readingUg: 'In the assigned chapter the author claims that access improved after the policy took effect. On my own campus the same policy arrived and the line at the financial aid office got longer, which makes me doubt that access and availability mean the same thing here. The chapter treats them as interchangeable, and that is the assumption this synthetic response wants to question. The author writes that "participation rose sharply," but I only have this one line from the handout and not the surrounding pages.',
+    readingGrad: 'Read alongside the earlier chapter, the argument depends on treating participation as an outcome rather than a process. That move is what makes the concluding claim available, and it is also what this synthetic response contests. If participation is a process, the evidence assembled here measures its residue rather than its occurrence, and the methodological consequence is that the study cannot distinguish sustained involvement from a single documented encounter. A competing reading would hold that the distinction collapses at the scale the study works in.',
+    stemArgument: 'The warmer tank produced visibly more algae over the three-week period, which supports temperature as the driver of growth in this synthetic setup. Light reaching the two tanks was never measured, so an unequal light source could produce the same result. Distinguishing the two would require a light meter reading at both tank positions across the period, which this setup did not include. The mean difference was 2.4 cm of surface coverage across twelve observations.',
     stem: 'The basil seedlings exposed to eight hours of light grew an average of 2.4 centimeters more than the seedlings exposed to four hours. This result supports the prediction that longer light exposure increases early stem growth under otherwise controlled conditions. The small sample size and one unusually tall seedling limit the strength of the conclusion. A second synthetic trial with more plants would test whether the pattern persists.',
 };
 
@@ -35,7 +41,12 @@ async function fresh(assignment, lang = 'en') {
     page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
     page.setDefaultTimeout(15000);
     await page.goto(`${ORIGIN}/studio.html?provider=gemini${assignment ? `&assignment=${assignment}` : ''}`);
-    await page.evaluate(key => localStorage.removeItem(key), KEY);
+    // Onboarding answered: this harness exercises the Desk's AI surfaces, not
+    // the first-run welcome (which makes no provider call of any kind).
+    await page.evaluate(key => {
+        localStorage.removeItem(key);
+        localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' }));
+    }, KEY);
     await page.reload();
     if (lang !== 'en') await page.locator('.prototype-actions [data-action="language"]').selectOption(lang);
 }
@@ -51,7 +62,7 @@ function guardCeiling(planned) {
 async function passageCase(assignment, lang, useVoice = false) {
     guardCeiling(2); // 1 call + possible 1 retry
     await fresh(assignment, lang);
-    const draft = DRAFTS[assignment.includes('cap') ? 'cap200' : assignment.includes('research') ? 'research' : assignment.includes('sop') ? 'sop' : assignment.includes('statement') ? 'admissions' : assignment.includes('stem') ? 'stem' : assignment.includes('autobiographical') ? 'autobiographical' : 'neutral'];
+    const draft = DRAFTS[assignment.includes('reading-response-under') ? 'readingUg' : assignment.includes('reading-response-grad') ? 'readingGrad' : assignment.includes('cap') ? 'cap200' : assignment.includes('research') ? 'research' : assignment.includes('sop') ? 'sop' : assignment.includes('statement') ? 'admissions' : assignment.includes('stem') ? 'stem' : assignment.includes('autobiographical') ? 'autobiographical' : 'neutral'];
     await page.locator('#draftEditor').fill(draft);
     await page.waitForTimeout(240);
     if (useVoice) {
@@ -97,7 +108,7 @@ async function passageCase(assignment, lang, useVoice = false) {
 async function fullDraftCase(assignment, lang) {
     guardCeiling(2);
     await fresh(assignment, lang);
-    const draft = DRAFTS[assignment.includes('research') ? 'research' : assignment.includes('sop') ? 'sop' : 'neutral'];
+    const draft = DRAFTS[assignment.includes('reading-response-grad') ? 'readingGrad' : assignment.includes('reading-response-under') ? 'readingUg' : assignment.includes('research') ? 'research' : assignment.includes('sop') ? 'sop' : 'neutral'];
     await page.locator('#draftEditor').fill(draft);
     await page.waitForTimeout(240);
     await page.locator('[data-action="focused-review"]').click();
@@ -121,7 +132,7 @@ async function fullDraftCase(assignment, lang) {
 async function councilCase(assignment, lang) {
     guardCeiling(8); // 4 calls + retry headroom
     await fresh(assignment, lang);
-    const draft = DRAFTS[assignment.includes('cap') ? 'cap200' : 'autobiographical'];
+    const draft = DRAFTS[assignment.includes('scientific-argument') ? 'stemArgument' : assignment.includes('cap') ? 'cap200' : 'autobiographical'];
     await page.locator('#draftEditor').fill(draft);
     await page.waitForTimeout(240);
     await page.locator('[data-action="council"]').first().click();
@@ -144,12 +155,23 @@ async function councilCase(assignment, lang) {
 
 // Rerun subset after the model-parameter fix (first round used 15 calls incl.
 // 2 diagnostic probes; passage + zero-call cases already validated).
-const cases = [
+// FALL-READINESS SCOPE — exactly 6 declared calls, the minimum that exercises
+// the two genuinely new model-facing surfaces:
+//   1 call  reading-response passage coaching (source-integrity rules, EN)
+//   1 call  reading-response full-draft review (graduate configuration, ES)
+//   4 calls STEM Council (3 reviewers + 1 synthesis) — newly operational
+const FALL_CASES = [
+    () => passageCase('reading-response-undergraduate', 'en'),
+    () => fullDraftCase('reading-response-graduate', 'es'),
+    () => councilCase('stem-scientific-argument', 'en'),
+];
+const DEFAULT_CASES = [
     () => passageCase('college-personal-statement', 'en', true),
     () => fullDraftCase('graduate-sop', 'en'),
     () => councilCase('mixed-genre-autobiographical-essay', 'en'),
     () => councilCase('cap200-bronx-beautiful-service-learning', 'es'),
 ];
+const cases = SCOPE === 'fall' ? FALL_CASES : DEFAULT_CASES;
 try {
     for (const run of cases) {
         try { await run(); } catch (caseError) {
@@ -162,10 +184,13 @@ try {
     await fresh('totally-unknown-live-check');
     const unknownStops = await page.evaluate(() => document.body.textContent.includes('not configured') || document.body.textContent.includes('no está configurado'));
     results.push({ case: 'unknown-assignment', kind: 'none', outcome: unknownStops ? 'stops-no-ai' : 'FAIL' });
-    await fresh('stem-lab-report');
-    await page.locator('#draftEditor').fill(DRAFTS.stem);
-    const stemBlocked = (await page.locator('.integrated-support').textContent()).includes('Council is not configured');
-    results.push({ case: 'stem-council-unavailable', kind: 'none', outcome: stemBlocked ? 'stated-unavailable-no-call' : 'FAIL' });
+    await fresh('reading-response-undergraduate');
+    await page.locator('#draftEditor').fill(DRAFTS.readingUg);
+    const readingBlocked = (await page.locator('.integrated-support').textContent()).includes('not available for reading responses');
+    results.push({ case: 'reading-council-unavailable', kind: 'none', outcome: readingBlocked ? 'stated-unavailable-no-call' : 'FAIL' });
+    await fresh('stem');
+    const ambiguousStops = await page.evaluate(() => /CONFIGURATION REQUIRED/i.test(document.body.textContent));
+    results.push({ case: 'ambiguous-stem-link', kind: 'none', outcome: ambiguousStops ? 'fails-closed-no-call' : 'FAIL' });
 } catch (error) {
     console.log('STOPPED:', String(error));
 }

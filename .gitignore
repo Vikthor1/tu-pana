@@ -123,6 +123,7 @@
 !studio_contrast_test.mjs
 !studio_authentic_work_test.mjs
 !studio_reading_response_test.mjs
+!studio_stem_council_test.mjs
 
 # ── Allow project documentation ──────────────────────────
 !docs/

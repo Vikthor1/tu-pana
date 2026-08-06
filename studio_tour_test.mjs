@@ -347,13 +347,22 @@ for (let i = 0; i < 10; i++) if (!(await tap(0))) break;
 const researchAll = await page.locator('.gd-conversation').textContent();
 check('research: no invented citation, author, year, DOI, or page number',
     !/\(\s*\d{4}\s*\)|doi:|et al\.|pp?\.\s*\d+/i.test(researchAll));
+// SHIPPED-CONTRACT UPDATE (2026-08-05): STEM now has a purpose-built, operational
+// Council, so it is no longer the unavailable case. Reading Response is — its
+// Council is deliberately not built — and the same truthfulness contract is
+// asserted against it here.
+await fresh({ query: '?assignment=reading-response-undergraduate' });
+await startFromCard();
+await tap(1); await tap(2);
+check('reading response: Council unavailability is stated truthfully, not hidden',
+    /not configured for this kind of writing/i.test(await page.locator('.gd-conversation').textContent()));
+check('reading response: the real Review Center preview shows the same unavailability',
+    /not available for reading responses/i.test(await page.locator('figure[data-preview="review"]').textContent()));
 await fresh({ query: '?assignment=stem-lab-report' });
 await startFromCard();
 await tap(1); await tap(2);
-check('stem: Council unavailability is stated truthfully, not hidden',
-    /not configured for this kind of writing/i.test(await page.locator('.gd-conversation').textContent()));
-check('stem: the real Review Center preview shows the same unavailability',
-    /not configured for this genre/i.test(await page.locator('figure[data-preview="review"]').textContent()));
+check('stem: the Council is now offered rather than declared unconfigured',
+    !/not configured for this kind of writing/i.test(await page.locator('.gd-conversation').textContent()));
 
 console.log('\n11. Unknown assignments inherit nothing');
 await fresh({ query: '?assignment=an-assignment-nobody-configured' });

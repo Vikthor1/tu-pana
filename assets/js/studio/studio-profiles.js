@@ -170,7 +170,11 @@
             moves: {
                 discover: ['State the research question and prediction', 'Separate observation from interpretation', 'Connect the result to the evidence'],
                 review: ['Claim–evidence alignment', 'Methods and reproducibility', 'Limitations and precision'],
-                council: ['Lab instructor', 'Methods reviewer', 'Scientific clarity editor'],
+                // Role labels come from STEM_COUNCIL_ROLES below. The former
+                // labels ("Lab instructor", "Scientific clarity editor") named an
+                // authority that could confirm scientific correctness — which
+                // this system cannot do and must never imply.
+                council: [],
             },
         },
         sop: {
@@ -405,7 +409,7 @@
         stem: {
             discover: ['Declara la pregunta y la predicción', 'Separa observación de interpretación', 'Conecta el resultado con la evidencia'],
             review: ['Alineación de afirmación y evidencia', 'Métodos y reproducibilidad', 'Limitaciones y precisión'],
-            council: ['Instructor de laboratorio', 'Revisor de métodos', 'Editor de claridad científica'],
+            council: [],
         },
         sop: {
             discover: ['Nombra el problema que quieres estudiar', 'Conecta tu preparación con la investigación futura', 'Haz que el encaje con el programa sea específico'],
@@ -592,13 +596,13 @@
                 exampleEn: [
                     ['Claim', 'What the result may show'],
                     ['Data', 'The exact observation or measurement that supports it'],
-                    ['Reasoning', 'The verified scientific concept connecting data and claim'],
+                    ['Reasoning', 'The course concept that explains why the data supports the claim'],
                     ['Limitation', 'What the evidence cannot establish'],
                 ],
                 exampleEs: [
                     ['Afirmación', 'Lo que el resultado podría mostrar'],
                     ['Datos', 'La observación o medición exacta que la respalda'],
-                    ['Razonamiento', 'El concepto científico verificado que conecta datos y afirmación'],
+                    ['Razonamiento', 'El concepto del curso que explica por qué los datos respaldan la afirmación'],
                     ['Limitación', 'Lo que la evidencia no puede establecer'],
                 ],
             },
@@ -1026,6 +1030,320 @@
         },
     };
 
+    // ── STEM: bounded profiles and a purpose-built Council ───────────────────
+    //
+    // AUDIT (2026-08-05). The migrated `stem` profile inherited the legacy
+    // "STEM Lab Report & Scientific Explanation" layer (genre-template.js:676-807,
+    // read-only at R0) but was labelled for the lab report alone, so one profile
+    // was silently covering two different disciplinary genres — and the shared
+    // link `?assignment=stem` resolved to it without asking which. Its Council
+    // was `enabled: false` with no roles at all, and the display labels it
+    // carried ("Lab instructor", "Scientific clarity editor") named an authority
+    // that can confirm scientific correctness. Nothing in any STEM request told
+    // the model what it must not verify, because the `genreContext` seam the
+    // prompt builders accept was never populated by anything.
+    //
+    // Resolution: three bounded profiles, one shared safety contract, one
+    // purpose-built Council. A "research summary" profile is deliberately NOT
+    // added — it would overlap the existing Research Paper profile and no
+    // current product need calls for it.
+
+    const STEM_NO_VERIFICATION = [
+        'This is scientific and technical writing. Support the WRITING; you cannot and must not adjudicate the science.',
+        'Never state or imply that you have verified scientific correctness, checked a calculation, recomputed a value, confirmed a measurement, validated an experimental design, or checked an external source.',
+        'Never invent or supply data, results, measurements, units, equations, methods, controls, sources of error, citations, or disciplinary facts the draft does not contain.',
+        'Never alter, recompute, round, convert, or "correct" a quantity, unit, equation, symbol, or technical term in the student\'s draft. Preserve them exactly as written.',
+        'Distinguish INTERNAL CONSISTENCY — what the draft\'s own parts say about each other — from EXTERNAL FACTUAL VERIFICATION, which you cannot perform. Name which one you are doing whenever it could be unclear.',
+        'When the draft does not contain enough information to support an observation, say so plainly and ask one useful question instead of asserting a conclusion.',
+        'A claim may be scientifically questionable and you may still be unable to judge it. In that case, address only whether the draft shows how its own evidence supports it.',
+        'Never import expectations from humanities, admissions, autobiographical, or general personal writing. Do not ask for narrative arc, personal voice, or reflective disclosure that this genre does not call for.',
+        'Disciplinary terseness is not a style flaw. Do not flatten technical writing into general academic prose.',
+    ].join(' ');
+
+    // Purpose-built for scientific and technical writing. These are not the
+    // general structure/evidence/voice roles under new names: each mandate names
+    // what this reader examines AND what it is not entitled to conclude.
+    const STEM_COUNCIL_ROLES = [
+        {
+            key: 'reasoning',
+            label: { en: 'Reasoning and Evidence', es: 'Razonamiento y evidencia' },
+            // Student-facing description shown before consent. Each perspective
+            // says what it examines AND what it cannot judge, so three readers
+            // never look like three copies of the same generic offer.
+            blurb: { en: 'Asks whether your evidence actually reaches your claim. It cannot judge whether the science is right.', es: 'Pregunta si tu evidencia realmente alcanza tu afirmación. No puede juzgar si la ciencia es correcta.' },
+            mandate: 'Examine whether each claim is connected to evidence the student actually supplied, and where the reasoning between claim and evidence is missing, implied rather than stated, or carried further than the evidence reaches. You are NOT certifying that any claim is scientifically true, that any calculation is correct, or that any result is valid. Report only whether the draft shows a reader how its own evidence supports its own claim. Never supply data, a result, or a scientific fact the draft does not contain.',
+        },
+        {
+            key: 'audience',
+            label: { en: 'Disciplinary Clarity and Audience', es: 'Claridad disciplinaria y audiencia' },
+            blurb: { en: 'Asks what a reader in your course needs in order to follow the work, without flattening your technical language.', es: 'Pregunta qué necesita un lector de tu curso para seguir el trabajo, sin aplanar tu lenguaje técnico.' },
+            mandate: 'Examine terminology, causal explanation, organization, and what the intended disciplinary reader needs in order to follow the work. Distinguish genuine imprecision from ordinary disciplinary compression, and never recommend replacing a technical term the student chose with a general one. Ignore evidence quality and limitations; another reader has those. Never rewrite and never supply replacement wording.',
+        },
+        {
+            key: 'uncertainty',
+            label: { en: 'Methods, Uncertainty, and Limitations', es: 'Métodos, incertidumbre y limitaciones' },
+            blurb: { en: 'Asks whether the draft claims more than its own described methods can support.', es: 'Pregunta si el borrador afirma más de lo que sus propios métodos descritos pueden sostener.' },
+            mandate: 'Examine qualifiers, stated assumptions, procedural explanation, scope, uncertainty, and limitations: whether the draft claims more than its own described methods can support, and whether what the work cannot establish is stated anywhere. Never invent a method, control, source of error, or limitation the student did not describe, and never assert what the true result should have been.',
+        },
+    ];
+
+    const STEM_COUNCIL_PROHIBITIONS = [
+        'Never state or imply that you verified scientific correctness, a calculation, a measurement, an experimental design, or an external source.',
+        'Never invent or supply data, results, units, equations, methods, controls, citations, or disciplinary facts absent from the draft.',
+        'Never alter, recompute, or "correct" a quantity, unit, equation, or technical term the student wrote.',
+        'Never import humanities, admissions, or autobiographical expectations into scientific writing.',
+        'When evidence in the draft is insufficient, say so and ask a question rather than concluding.',
+    ];
+
+    const stemCouncil = () => ({
+        enabled: true,
+        synthesisOrder: ['reasoning', 'uncertainty', 'audience'],
+        criticalKey: 'accuracy',
+        roles: STEM_COUNCIL_ROLES.map(role => ({ key: role.key, mandate: role.mandate, blurb: role.blurb })),
+        prohibitions: STEM_COUNCIL_PROHIBITIONS.slice(),
+    });
+    const stemCouncilLabels = lang => STEM_COUNCIL_ROLES.map(role => role.label[lang]);
+
+    // The two additional bounded profiles. The lab report keeps its existing,
+    // already-verified Moves; these two are the genres it was silently covering.
+    const STEM_PROFILES = {
+        stemExplanation: {
+            label: { en: 'Scientific explanation', es: 'Explicación científica' },
+            fullName: { en: 'Technical or Scientific Explanation', es: 'Explicación técnica o científica' },
+            headerLabel: { en: 'Scientific Explanation', es: 'Explicación científica' },
+            levelRules: 'The assignment is a technical or scientific EXPLANATION: the student explains why or how a phenomenon occurs, using the Claim–Evidence–Reasoning pattern. The work is explanatory rather than persuasive; there is no opponent to defeat. Support the student in making the causal mechanism explicit and in defining what a reader needs in order to follow it.',
+            moves: [
+                { id: 'phenomenon', criticalKey: 'accuracy',
+                  en: 'Name the phenomenon and the question', es: 'Nombra el fenómeno y la pregunta',
+                  nudgeEn: 'State what happened or what is observed, and the why-or-how question your explanation answers.',
+                  nudgeEs: 'Declara qué ocurrió o qué se observa, y la pregunta de por qué o cómo que responde tu explicación.',
+                  whyEn: 'An explanation needs a specific question. Without one it becomes a description of the topic.',
+                  whyEs: 'Una explicación necesita una pregunta específica. Sin ella se vuelve una descripción del tema.',
+                  promptEn: 'The observed phenomenon, and the why-or-how question I am answering…',
+                  promptEs: 'El fenómeno observado y la pregunta de por qué o cómo que estoy respondiendo…',
+                  deeperEn: 'Separate the phenomenon from the explanation of it: the phenomenon is what anyone could observe, the explanation is the mechanism you are proposing. A question that begins "why" or "how" keeps you in explanatory territory; a question that begins "what" usually produces description instead. Name the scope too — which conditions your explanation covers, and which it does not.',
+                  deeperEs: 'Separa el fenómeno de su explicación: el fenómeno es lo que cualquiera podría observar, la explicación es el mecanismo que propones. Una pregunta que empieza con «por qué» o «cómo» te mantiene en terreno explicativo; una que empieza con «qué» suele producir descripción. Nombra también el alcance: qué condiciones cubre tu explicación y cuáles no.' },
+                { id: 'claim-evidence', criticalKey: 'accuracy',
+                  en: 'State the claim and the evidence it rests on', es: 'Declara la afirmación y la evidencia que la sostiene',
+                  nudgeEn: 'Write the claim as one sentence, then list the specific observations, measurements, or data that support it.',
+                  nudgeEs: 'Escribe la afirmación en una oración y luego enumera las observaciones, mediciones o datos específicos que la respaldan.',
+                  whyEn: 'A claim a reader can locate is what makes the rest of the explanation checkable.',
+                  whyEs: 'Una afirmación que el lector puede ubicar es lo que hace comprobable el resto de la explicación.',
+                  promptEn: 'My claim in one sentence, and the exact evidence behind it…',
+                  promptEs: 'Mi afirmación en una oración y la evidencia exacta que la respalda…',
+                  deeperEn: 'Evidence here means what you or your source actually recorded — a measurement, an observation, a documented result — not a general statement that something is known. Keep quantities, units, and conditions exactly as recorded; an explanation built on a tidied number is not an explanation of what happened. If a piece of evidence is missing, note the gap rather than filling it.',
+                  deeperEs: 'La evidencia aquí es lo que tú o tu fuente registraron realmente — una medición, una observación, un resultado documentado — no una afirmación general de que algo se sabe. Conserva cantidades, unidades y condiciones tal como se registraron; una explicación construida sobre un número «arreglado» no explica lo que pasó. Si falta una evidencia, anota el vacío en vez de llenarlo.',
+                  exampleEn: [
+                      ['Claim', 'The mechanism you are proposing, in one sentence'],
+                      ['Evidence', 'The specific observations or measurements recorded'],
+                      ['Conditions', 'What was held constant, and what varied'],
+                  ],
+                  exampleEs: [
+                      ['Afirmación', 'El mecanismo que propones, en una oración'],
+                      ['Evidencia', 'Las observaciones o mediciones específicas registradas'],
+                      ['Condiciones', 'Qué se mantuvo constante y qué varió'],
+                  ] },
+                { id: 'reasoning-link', criticalKey: 'thinking',
+                  en: 'Explain the reasoning that connects them', es: 'Explica el razonamiento que los conecta',
+                  nudgeEn: 'Name the scientific principle or course concept that makes this evidence support this claim.',
+                  nudgeEs: 'Nombra el principio científico o concepto del curso que hace que esta evidencia respalde esta afirmación.',
+                  whyEn: 'Reasoning is the part readers most often leave out, and the part that makes an explanation an explanation.',
+                  whyEs: 'El razonamiento es lo que más se omite y lo que convierte una explicación en explicación.',
+                  promptEn: 'The principle or concept, and how it links my evidence to my claim…',
+                  promptEs: 'El principio o concepto, y cómo enlaza mi evidencia con mi afirmación…',
+                  deeperEn: 'Write the link as a chain a reader can follow one step at a time: because this principle holds, this evidence means this, which is why the claim follows. If you cannot name the principle, that is useful information — it usually means the connection is still an assumption rather than an explanation. A confident tone is not reasoning, and neither is restating the evidence in different words.',
+                  deeperEs: 'Escribe el enlace como una cadena que el lector pueda seguir paso a paso: dado que este principio se cumple, esta evidencia significa esto, y por eso se sigue la afirmación. Si no puedes nombrar el principio, eso es información útil — suele significar que la conexión sigue siendo un supuesto y no una explicación. Un tono seguro no es razonamiento, y repetir la evidencia con otras palabras tampoco.' },
+                { id: 'audience-terms', criticalKey: 'specificity',
+                  en: 'Define what your reader needs to follow it', es: 'Define lo que tu lector necesita para seguirla',
+                  nudgeEn: 'Name the terms, units, or background a reader in this course needs — and define them where they first appear.',
+                  nudgeEs: 'Nombra los términos, unidades o antecedentes que necesita un lector de este curso — y defínelos donde aparecen por primera vez.',
+                  whyEn: 'Precision is for the reader. A term that is exact but undefined does not explain anything.',
+                  whyEs: 'La precisión es para el lector. Un término exacto pero sin definir no explica nada.',
+                  promptEn: 'Terms to define, units to state, and background my reader will need…',
+                  promptEs: 'Términos por definir, unidades por declarar y antecedentes que necesitará mi lector…',
+                  deeperEn: 'Decide who the reader is first — a classmate, an instructor, a general reader — because that decides what may be assumed. Technical vocabulary is not decoration and should not be replaced with vaguer everyday words; the fix for an unfamiliar term is a definition, not a substitution. Units and conditions belong beside every quantity, since a number without them cannot be interpreted.',
+                  deeperEs: 'Decide primero quién es el lector — un compañero, un instructor, un lector general — porque eso decide qué se puede dar por supuesto. El vocabulario técnico no es decoración y no debe reemplazarse por palabras cotidianas más vagas; lo que arregla un término desconocido es una definición, no un sustituto. Las unidades y condiciones acompañan a cada cantidad, ya que un número sin ellas no se puede interpretar.' },
+            ],
+            review: { en: ['Claim, evidence, and reasoning', 'Mechanism and causal clarity', 'Terminology and reader needs'], es: ['Afirmación, evidencia y razonamiento', 'Mecanismo y claridad causal', 'Terminología y necesidades del lector'] },
+            lensKeys: ['accuracy', 'thinking', 'specificity'],
+            stuck: { en: 'Write the one sentence that says what you think is causing this, even if you are not sure yet.', es: 'Escribe la oración que dice qué crees que está causando esto, aunque todavía no estés seguro/a.' },
+            reflect4: { en: 'What disciplinary knowledge, data, or observations shaped this explanation?', es: '¿Qué conocimiento disciplinario, datos u observaciones dieron forma a esta explicación?' },
+            tourExample: {
+                moveId: 'reasoning-link',
+                excerpt: { en: 'The metal strip bent toward the copper side each time it was heated. Copper expands more than steel at the same temperature, which is why the strip curves toward the side that grows faster.', es: 'La tira metálica se dobló hacia el lado del cobre cada vez que se calentó. El cobre se expande más que el acero a la misma temperatura, y por eso la tira se curva hacia el lado que crece más rápido.' },
+                phrase: { en: 'which is why the strip curves toward the side that grows faster', es: 'y por eso la tira se curva hacia el lado que crece más rápido' },
+                suggestion: { en: 'The principle and the observation are both here. Consider stating the link as one step a reader can follow, so the reasoning is visible rather than assumed.', es: 'El principio y la observación están aquí. Considera declarar el enlace como un paso que el lector pueda seguir, para que el razonamiento se vea en vez de suponerse.' },
+                before: { en: 'The strip bent when heated.', es: 'La tira se dobló al calentarse.' },
+                after: { en: 'The metal strip bent toward the copper side each time it was heated.', es: 'La tira metálica se dobló hacia el lado del cobre cada vez que se calentó.' },
+            },
+            discovery: {
+                openingQuip: { en: 'An explanation answers why. A description just tells the reader the thing exists, which they had guessed.', es: 'Una explicación responde por qué. Una descripción solo le dice al lector que la cosa existe, cosa que ya sospechaba.' },
+                concerns: [
+                    { id: 'describe', moveId: 'phenomenon',
+                      en: 'I think I’m describing, not explaining.', es: 'Creo que estoy describiendo, no explicando.',
+                      replyEn: 'Useful thing to notice. A Move turns the topic into a why-or-how question, which is where explanation starts.',
+                      replyEs: 'Buena cosa de notar. Una Movida convierte el tema en una pregunta de por qué o cómo, que es donde empieza la explicación.' },
+                    { id: 'link', moveId: 'reasoning-link',
+                      en: 'I have the data but the “why” is missing.', es: 'Tengo los datos pero falta el «por qué».',
+                      replyEn: 'That missing piece has a name — reasoning — and a Move built just for it.',
+                      replyEs: 'Esa pieza que falta tiene nombre — razonamiento — y una Movida hecha solo para eso.' },
+                    { id: 'terms', moveId: 'audience-terms',
+                      en: 'I don’t know how much to define.', es: 'No sé cuánto debo definir.',
+                      replyEn: 'Then we start from who is reading it. A Move works out what may be assumed and what must be said.',
+                      replyEs: 'Entonces partimos de quién lo lee. Una Movida resuelve qué se puede suponer y qué hay que decir.' },
+                ],
+                moveNote: { en: 'Copper expands more than steel at the same temperature — that is the principle the whole explanation rests on.', es: 'El cobre se expande más que el acero a la misma temperatura — ese es el principio en que se apoya toda la explicación.' },
+                voiceReason: { en: 'I want the mechanism in my own words, not a textbook sentence.', es: 'Quiero el mecanismo en mis propias palabras, no una oración de libro de texto.' },
+                decisionRationale: { en: 'Making the link explicit, keeping my own phrasing.', es: 'Hago explícito el enlace y conservo mi propia formulación.' },
+            },
+        },
+        stemArgument: {
+            label: { en: 'Scientific argument', es: 'Argumento científico' },
+            fullName: { en: 'Evidence-Based Scientific Argument', es: 'Argumento científico basado en evidencia' },
+            headerLabel: { en: 'Scientific Argument', es: 'Argumento científico' },
+            levelRules: 'The assignment is an EVIDENCE-BASED SCIENTIFIC ARGUMENT: the student argues for one claim over competing ones using evidence and reasoning, and addresses at least one alternative explanation. Unlike an explanation, a live disagreement is expected. Support the student in choosing evidence that could actually discriminate between claims, and in stating what their evidence cannot settle.',
+            moves: [
+                { id: 'question-claim', criticalKey: 'thinking',
+                  en: 'Turn the question into an arguable claim', es: 'Convierte la pregunta en una afirmación discutible',
+                  nudgeEn: 'State a claim a reasonable person could disagree with, given the evidence available.',
+                  nudgeEs: 'Formula una afirmación con la que una persona razonable podría estar en desacuerdo, dada la evidencia disponible.',
+                  whyEn: 'If no alternative is possible, there is nothing to argue and the evidence has no work to do.',
+                  whyEs: 'Si no hay alternativa posible, no hay nada que argumentar y la evidencia no tiene trabajo que hacer.',
+                  promptEn: 'My claim, and the alternative someone could reasonably hold instead…',
+                  promptEs: 'Mi afirmación y la alternativa que alguien podría sostener razonablemente…',
+                  deeperEn: 'Test the claim by asking what a competent person who disagrees would say. If nothing comes to mind, the claim is probably a statement of fact or a definition rather than an argument. Keep the claim within what your evidence could reach: a claim about all cases rarely survives evidence from one experiment, and narrowing it is a strengthening move, not a retreat.',
+                  deeperEs: 'Prueba la afirmación preguntando qué diría una persona competente que discrepa. Si no se te ocurre nada, probablemente sea un hecho o una definición y no un argumento. Mantén la afirmación dentro de lo que tu evidencia puede alcanzar: una afirmación sobre todos los casos rara vez sobrevive a la evidencia de un solo experimento, y acotarla la fortalece, no la debilita.' },
+                { id: 'evidence-selection', criticalKey: 'accuracy',
+                  en: 'Choose evidence that can actually decide it', es: 'Elige evidencia que de verdad pueda decidirlo',
+                  nudgeEn: 'Select the observations or data that would come out differently if your claim were wrong.',
+                  nudgeEs: 'Selecciona las observaciones o datos que saldrían distintos si tu afirmación fuera incorrecta.',
+                  whyEn: 'Evidence consistent with every possible claim cannot support any one of them.',
+                  whyEs: 'La evidencia compatible con toda afirmación posible no puede respaldar ninguna.',
+                  promptEn: 'The evidence I have, and what it would look like if I were wrong…',
+                  promptEs: 'La evidencia que tengo y cómo se vería si yo estuviera equivocado/a…',
+                  deeperEn: 'The strongest evidence is the kind that could have come out against you and did not. Record it exactly as measured, including the inconvenient parts — a discarded outlier is a decision that has to be stated, not a tidying step. Where your evidence comes from someone else\'s work, keep the source with it; where it is your own, keep the conditions with it.',
+                  deeperEs: 'La evidencia más fuerte es la que pudo haber salido en tu contra y no lo hizo. Regístrala exactamente como se midió, incluidas las partes incómodas — descartar un valor atípico es una decisión que hay que declarar, no un paso de limpieza. Cuando la evidencia viene del trabajo de otra persona, conserva la fuente junto a ella; cuando es tuya, conserva las condiciones.',
+                  exampleEn: [
+                      ['Claim', 'What you are arguing'],
+                      ['Evidence for', 'What supports it, exactly as recorded'],
+                      ['Would look different if', 'What you would expect to see if the claim were wrong'],
+                      ['Source or conditions', 'Where it came from, or how it was measured'],
+                  ],
+                  exampleEs: [
+                      ['Afirmación', 'Lo que argumentas'],
+                      ['Evidencia a favor', 'Lo que la respalda, tal como se registró'],
+                      ['Se vería distinto si', 'Lo que esperarías ver si la afirmación fuera incorrecta'],
+                      ['Fuente o condiciones', 'De dónde vino, o cómo se midió'],
+                  ] },
+                { id: 'reasoning-link', criticalKey: 'thinking',
+                  en: 'Explain the reasoning that connects them', es: 'Explica el razonamiento que los conecta',
+                  nudgeEn: 'Name the scientific principle or course concept that makes this evidence support this claim.',
+                  nudgeEs: 'Nombra el principio científico o concepto del curso que hace que esta evidencia respalde esta afirmación.',
+                  whyEn: 'Reasoning is what turns data next to a claim into data supporting a claim.',
+                  whyEs: 'El razonamiento es lo que convierte datos junto a una afirmación en datos que la respaldan.',
+                  promptEn: 'The principle or concept, and how it links my evidence to my claim…',
+                  promptEs: 'El principio o concepto, y cómo enlaza mi evidencia con mi afirmación…',
+                  deeperEn: 'In an argument the reasoning has to do more than connect: it has to explain why this evidence favours your claim over the alternative. Write it as a chain a reader can follow, and name the principle you are relying on. If the same reasoning would equally support the competing claim, it is not yet doing argumentative work.',
+                  deeperEs: 'En un argumento el razonamiento debe hacer más que conectar: debe explicar por qué esta evidencia favorece tu afirmación por encima de la alternativa. Escríbelo como una cadena que el lector pueda seguir y nombra el principio en que te apoyas. Si el mismo razonamiento respaldaría igual a la afirmación rival, todavía no está haciendo trabajo argumentativo.' },
+                { id: 'counterclaim-rebuttal', criticalKey: 'thinking',
+                  en: 'Address the strongest alternative', es: 'Atiende la alternativa más fuerte',
+                  nudgeEn: 'State the best competing explanation and say what evidence would distinguish it from yours.',
+                  nudgeEs: 'Formula la mejor explicación rival y di qué evidencia la distinguiría de la tuya.',
+                  whyEn: 'An argument that has met its strongest rival is far more convincing than one that names a weak one.',
+                  whyEs: 'Un argumento que enfrentó a su rival más fuerte convence mucho más que uno que nombra a uno débil.',
+                  promptEn: 'The strongest competing explanation, and what would tell them apart…',
+                  promptEs: 'La explicación rival más fuerte y qué las distinguiría…',
+                  deeperEn: 'Build the alternative at its strongest, in a form its own advocate would accept. Then be specific about what separates the two: often it is a measurement nobody has made yet, and saying so is a legitimate result. Rejecting an alternative because it is unfamiliar, or because your own is more convenient, is not a rebuttal.',
+                  deeperEs: 'Construye la alternativa en su versión más fuerte, en una forma que su propio defensor aceptaría. Luego sé específico/a sobre qué las separa: muchas veces es una medición que nadie ha hecho todavía, y decirlo es un resultado legítimo. Rechazar una alternativa porque es desconocida, o porque la tuya es más conveniente, no es una refutación.' },
+                { id: 'limits-uncertainty', criticalKey: 'accuracy',
+                  en: 'State what your evidence cannot establish', es: 'Declara lo que tu evidencia no puede establecer',
+                  nudgeEn: 'Name the scope, assumptions, and uncertainty your conclusion depends on.',
+                  nudgeEs: 'Nombra el alcance, los supuestos y la incertidumbre de los que depende tu conclusión.',
+                  whyEn: 'Stating a limit is how a scientific argument earns trust, not how it loses it.',
+                  whyEs: 'Declarar un límite es como un argumento científico gana confianza, no como la pierde.',
+                  promptEn: 'Scope, assumptions, sources of uncertainty, and what this cannot settle…',
+                  promptEs: 'Alcance, supuestos, fuentes de incertidumbre y lo que esto no puede zanjar…',
+                  deeperEn: 'Limitations are not an apology at the end; they define what your claim actually covers. Distinguish uncertainty in the measurement from uncertainty in the inference — a precise measurement can still support a shaky conclusion. Sample size, unexamined conditions, and assumptions you could not test all belong here, stated plainly enough that a reader could design the study that would settle it.',
+                  deeperEs: 'Las limitaciones no son una disculpa al final; definen qué cubre realmente tu afirmación. Distingue la incertidumbre de la medición de la incertidumbre de la inferencia — una medición precisa puede sostener igual una conclusión frágil. El tamaño de la muestra, las condiciones no examinadas y los supuestos que no pudiste probar van aquí, declarados con la claridad suficiente para que alguien pudiera diseñar el estudio que lo zanjaría.' },
+            ],
+            review: { en: ['Claim, evidence, and reasoning', 'Counterclaim and rebuttal', 'Scope, uncertainty, and limitations'], es: ['Afirmación, evidencia y razonamiento', 'Contraargumento y refutación', 'Alcance, incertidumbre y limitaciones'] },
+            lensKeys: ['accuracy', 'thinking', 'accuracy'],
+            stuck: { en: 'Write the claim you would defend if someone disagreed with you right now, in one sentence.', es: 'Escribe en una oración la afirmación que defenderías si alguien te contradijera ahora mismo.' },
+            reflect4: { en: 'What disciplinary knowledge, data, or observations shaped this argument — and what would change your mind?', es: '¿Qué conocimiento disciplinario, datos u observaciones dieron forma a este argumento — y qué te haría cambiar de opinión?' },
+            tourExample: {
+                moveId: 'counterclaim-rebuttal',
+                excerpt: { en: 'The warmer tank grew more algae, which supports temperature as the driver. Light reaching the two tanks was not measured, so an unequal light source could produce the same result.', es: 'El tanque más cálido produjo más algas, lo que respalda la temperatura como causa. La luz que llegaba a los dos tanques no se midió, así que una fuente de luz desigual podría producir el mismo resultado.' },
+                phrase: { en: 'an unequal light source could produce the same result', es: 'una fuente de luz desigual podría producir el mismo resultado' },
+                suggestion: { en: 'You named the competing explanation instead of hiding it. Consider naming the measurement that would tell the two apart, so the reader knows what would settle it.', es: 'Nombraste la explicación rival en vez de ocultarla. Considera nombrar la medición que distinguiría las dos, para que el lector sepa qué lo zanjaría.' },
+                before: { en: 'Something else might explain it.', es: 'Algo más podría explicarlo.' },
+                after: { en: 'Light reaching the two tanks was not measured.', es: 'La luz que llegaba a los dos tanques no se midió.' },
+            },
+            discovery: {
+                openingQuip: { en: 'Evidence that agrees with every possible answer has not helped you choose one.', es: 'La evidencia que concuerda con todas las respuestas posibles no te ayudó a elegir ninguna.' },
+                concerns: [
+                    { id: 'arguable', moveId: 'question-claim',
+                      en: 'I’m not sure my claim is arguable.', es: 'No sé si mi afirmación es discutible.',
+                      replyEn: 'Good instinct to check. A Move tests it against what someone who disagrees would say.',
+                      replyEs: 'Buen instinto revisarlo. Una Movida la prueba contra lo que diría alguien que discrepa.' },
+                    { id: 'which', moveId: 'evidence-selection',
+                      en: 'I don’t know which data to use.', es: 'No sé qué datos usar.',
+                      replyEn: 'Then we look for the data that would have come out differently if you were wrong.',
+                      replyEs: 'Entonces buscamos los datos que habrían salido distintos si estuvieras equivocado/a.' },
+                    { id: 'other', moveId: 'counterclaim-rebuttal',
+                      en: 'Something else might explain my result.', es: 'Algo más podría explicar mi resultado.',
+                      replyEn: 'Then say so — that is a Move here, not a weakness. We build the alternative and find what separates them.',
+                      replyEs: 'Entonces dilo — aquí eso es una Movida, no una debilidad. Construimos la alternativa y buscamos qué las separa.' },
+                ],
+                moveNote: { en: 'Light was never measured across the two tanks. That is the alternative explanation I have to deal with.', es: 'Nunca se midió la luz en los dos tanques. Esa es la explicación alternativa que tengo que atender.' },
+                voiceReason: { en: 'I want my own hedge kept — it says exactly how sure I am.', es: 'Quiero conservar mi propia matización — dice exactamente qué tan seguro/a estoy.' },
+                decisionRationale: { en: 'Naming the measurement that would decide it, in my words.', es: 'Nombro la medición que lo decidiría, con mis palabras.' },
+            },
+        },
+    };
+
+    Object.entries(STEM_PROFILES).forEach(([profileId, config]) => {
+        genres[profileId] = {
+            label: config.label, fullName: config.fullName, headerLabel: config.headerLabel,
+            tourExample: config.tourExample,
+            discovery: config.discovery,
+            coachRules: `${STEM_NO_VERIFICATION} ${config.levelRules}`,
+            moves: {
+                discover: config.moves.map(move => move.en),
+                review: config.review.en,
+                council: stemCouncilLabels('en'),
+            },
+        };
+        genreMovesEs[profileId] = {
+            discover: config.moves.map(move => move.es),
+            review: config.review.es,
+            council: stemCouncilLabels('es'),
+        };
+        integratedMoveProfiles[profileId] = config.moves.map(move => {
+            const entry = { id: move.id, criticalKey: move.criticalKey, en: move.en, es: move.es,
+                nudgeEn: move.nudgeEn, nudgeEs: move.nudgeEs, whyEn: move.whyEn, whyEs: move.whyEs,
+                promptEn: move.promptEn, promptEs: move.promptEs };
+            if (move.exampleEn) { entry.exampleEn = move.exampleEn; entry.exampleEs = move.exampleEs; }
+            return entry;
+        });
+        moveDeeper[profileId] = Object.fromEntries(config.moves.map(move => [move.id, { en: move.deeperEn, es: move.deeperEs }]));
+        lensCriticalKeys[profileId] = config.lensKeys;
+        coachCriticalKeys[profileId] = 'accuracy';
+        reflectionPrompt4[profileId] = config.reflect4;
+        stuckStarters[profileId] = config.stuck;
+        councilConfig[profileId] = stemCouncil();
+    });
+
+    // The lab report joins the same Council and the same safety contract; its
+    // own Moves are unchanged.
+    genres.stem.coachRules = `${STEM_NO_VERIFICATION} The assignment is a LAB OR METHODS REPORT: the student reports an investigation they carried out — question, method, observations, results, and what the results can and cannot show. Support the separation of observation from interpretation, and the honest reporting of outliers, uncertainty, and sources of error.`;
+    genres.stem.moves.council = stemCouncilLabels('en');
+    genreMovesEs.stem.council = stemCouncilLabels('es');
+    councilConfig.stem = stemCouncil();
+    stuckStarters.stem = {
+        en: 'Write one observation exactly as you recorded it, before saying what you think it means.',
+        es: 'Escribe una observación exactamente como la registraste, antes de decir qué crees que significa.',
+    };
+
     // ── Reading Response / Reading Reflection ────────────────────────────────
     //
     // ONE pedagogical family, TWO configurations. Everything pedagogical — the
@@ -1443,6 +1761,11 @@
         'college-personal-statement': { profileId: 'admissions' },
         'graduate-sop': { profileId: 'sop' },
         'stem-lab-report': { profileId: 'stem' },
+        'stem-methods-report': { profileId: 'stem' },
+        'stem-scientific-explanation': { profileId: 'stemExplanation' },
+        'scientific-explanation': { profileId: 'stemExplanation' },
+        'stem-scientific-argument': { profileId: 'stemArgument' },
+        'evidence-based-scientific-argument': { profileId: 'stemArgument' },
         'research-paper': { profileId: 'research' },
         'cap200-bronx-beautiful-service-learning': { profileId: 'cap200' },
         'cap-200-first-draft': {
@@ -1468,7 +1791,11 @@
         'autobiographical': { profileId: 'autobiographical' },
         'admissions': { profileId: 'admissions' },
         'sop': { profileId: 'sop' },
-        'stem': { profileId: 'stem' },
+        // A bare `stem` is deliberately NOT mapped. Three bounded STEM genres now
+        // exist, and an unqualified STEM link cannot say which one the student
+        // was assigned. Guessing would hand a lab-report scaffold to someone
+        // writing an argument. It fails closed to the configuration-required
+        // stop, which lists all three.
         'research': { profileId: 'research' },
         'cap200': { profileId: 'cap200' },
         'neutral': { profileId: 'neutral' },

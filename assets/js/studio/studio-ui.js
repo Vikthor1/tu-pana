@@ -1690,15 +1690,25 @@
             return;
         }
         if (concept === 'integrated' && !councilEnabled()) {
-            openDialog(t('council'), state.lang === 'en' ? 'Explicit profile boundary' : 'Límite explícito del perfil', `<p>${escapeHtml(t('councilUnavailable'))}</p><p>${escapeHtml(state.lang === 'en' ? 'No mock Council calls are represented. Your draft remains unchanged.' : 'No se representa ninguna llamada simulada del Consejo. Tu borrador no cambia.')}</p>`, `<button class="button primary" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+            openDialog(t('council'), state.lang === 'en' ? 'Explicit profile boundary' : 'Límite explícito del perfil', `<p>${escapeHtml(councilUnavailableText())}</p><p>${escapeHtml(state.lang === 'en' ? 'No mock Council calls are represented. Your draft remains unchanged.' : 'No se representa ninguna llamada simulada del Consejo. Tu borrador no cambia.')}</p>`, `<button class="button primary" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
             return;
         }
         if (state.councilRuns.length && !getDraft().trim()) return openReviewCenter('council');
         const draft = getDraft();
         if (!draft.trim()) return openCoachDialog();
         const roles = genreMoves('council');
+        const roleMeta = councilConfig[state.genre]?.roles || [];
         const councilFacts = concept === 'integrated' ? `<section class="transmission-facts"><dl><div><dt>${escapeHtml(t('purpose'))}</dt><dd>${escapeHtml(state.lang === 'en' ? 'Compare three genre-appropriate perspectives, then synthesize priorities.' : 'Comparar tres perspectivas apropiadas al género y sintetizar prioridades.')}</dd></div><div><dt>${escapeHtml(t('reviewer'))}</dt><dd>${escapeHtml(roles.join(' · '))}</dd></div><div><dt>${escapeHtml(t('calls'))}</dt><dd>${escapeHtml(state.lang === 'en' ? '3 reviewer calls + 1 synthesis' : '3 llamadas de revisión + 1 síntesis')}<br><small>${escapeHtml(liveProviderActive() ? uiText('The Council takes longer because it makes several live AI calls through the Tu Pana coach service.', 'El Consejo tarda más porque hace varias llamadas de IA en vivo mediante el servicio del coach de Tu Pana.') : uiText('The Council takes longer because it represents several separate readings.', 'El Consejo tarda más porque representa varias lecturas separadas.'))}</small></dd></div></dl><p><strong>${escapeHtml(t('decisionMaker'))}</strong></p></section>` : '';
-        openDialog(t('council'), state.lang !== 'en' ? 'Tres perspectivas configuradas para este género. Ninguna reemplaza tu decisión.' : 'Three genre-configured perspectives. None replaces your decision.', `${councilFacts}<div class="choice-stack">${roles.map(role => `<div class="radio-card"><span><strong>${escapeHtml(role)}</strong><br><small>${escapeHtml(state.lang !== 'en' ? 'Busca una fortaleza y una pregunta.' : 'Looks for one strength and one question.')}</small></span></div>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview">${escapeHtml(draft)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${escapeHtml(boundaryText())}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="run-council" disabled>${escapeHtml(conveneLabel())}</button>`);
+        openDialog(t('council'), state.lang !== 'en' ? 'Tres perspectivas configuradas para este género. Ninguna reemplaza tu decisión.' : 'Three genre-configured perspectives. None replaces your decision.', `${councilFacts}<div class="choice-stack">${roles.map((role, index) => {
+            // A profile may describe each perspective in its own words. Without
+            // one, the neutral line stands — three purpose-built readers must
+            // never be presented as three copies of the same generic offer.
+            const blurb = roleMeta[index]?.blurb;
+            const detail = blurb
+                ? (state.lang === 'en' ? blurb.en : blurb.es)
+                : (state.lang !== 'en' ? 'Busca una fortaleza y una pregunta.' : 'Looks for one strength and one question.');
+            return `<div class="radio-card"><span><strong>${escapeHtml(role)}</strong><br><small>${escapeHtml(detail)}</small></span></div>`;
+        }).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview">${escapeHtml(draft)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${escapeHtml(boundaryText())}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="run-council" disabled>${escapeHtml(conveneLabel())}</button>`);
     }
 
     function runCouncil(button) {
@@ -1725,7 +1735,7 @@
             const meta = roleMeta[index] || { key: 'structure' };
             return provider.call({
                 requestKind: 'council_reviewer',
-                prompt: StudioProvider.buildCouncilReviewerPrompt({ genreName: genre.label.en, lang: providerLang, roleLabel, roleMandate: meta.mandate || roleLabel, prohibitions: config.prohibitions || [], text: draftText }),
+                prompt: StudioProvider.buildCouncilReviewerPrompt({ genreName: genre.label.en, genreContext: genreCoachRules(consentedGenreId), lang: providerLang, roleLabel, roleMandate: meta.mandate || roleLabel, prohibitions: config.prohibitions || [], text: draftText }),
                 payload: { genreName: genre.label.en, roleKey: meta.key, roleLabel, draft: draftText },
                 lang: providerLang,
             }).then(result => {
@@ -1771,7 +1781,7 @@
             const preserveLite = allPreserve.map(({ id, roleKey, quote, why }) => ({ id, roleKey, quote, why }));
             const synthesisCall = () => provider.call({
                 requestKind: 'council_synthesis',
-                prompt: StudioProvider.buildCouncilSynthesisPrompt({ genreName: genre.label.en, lang: providerLang, synthesisOrder: config.synthesisOrder || [], findingsJson: JSON.stringify({ findings: findingsLite, preserve: preserveLite }) }),
+                prompt: StudioProvider.buildCouncilSynthesisPrompt({ genreName: genre.label.en, genreContext: genreCoachRules(consentedGenreId), lang: providerLang, synthesisOrder: config.synthesisOrder || [], findingsJson: JSON.stringify({ findings: findingsLite, preserve: preserveLite }) }),
                 payload: { genreName: genre.label.en, validated: { findings: allFindings, preserve: allPreserve } },
                 lang: providerLang,
             }).then(result => {
@@ -2662,7 +2672,12 @@
             state.assignmentId = raw.trim();
             state.assignmentNotice = resolved.notice || null;
         } else {
-            state.genre = raw.trim();
+            // The alias map is the ONLY route from a link to a profile. A raw id
+            // that happens to equal an internal profile key must not bypass it:
+            // that is how an ambiguous `?assignment=stem` reached the lab report
+            // even after the alias was withdrawn. Prefixing guarantees no
+            // registry hit, so the configuration-required stop always renders.
+            state.genre = `unconfigured:${raw.trim()}`;
             state.assignmentId = raw.trim();
             state.assignmentNotice = null;
         }

@@ -55,7 +55,9 @@ check('SOP has zero autobiographical or admissions leakage', !text.includes('mem
 await fresh(`${ORIGIN}/studio.html?assignment=stem-lab-report`);
 text = await bodyText();
 check('stem-lab-report link loads the STEM profile', text.includes('STEM lab report'));
-check('STEM Council is stated plainly as unavailable', text.includes('Council is not configured for this genre') || text.includes('El Consejo no está configurado'));
+// SHIPPED-CONTRACT UPDATE (2026-08-05): STEM now has a purpose-built Council.
+check('STEM offers its own Council rather than declaring it unconfigured',
+    !text.includes('Council is not configured for this genre') && !text.includes('El Consejo no está configurado'));
 check('STEM has zero autobiographical vocabulary', !text.includes('memory') && !text.includes('memoria') && !text.includes('anécdota'));
 
 await fresh(`${ORIGIN}/studio.html?assignment=mixed-genre-autobiographical-essay`);

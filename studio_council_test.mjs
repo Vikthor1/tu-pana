@@ -52,10 +52,17 @@ check('autobiographical Council keeps its canonical three reviewers', record.cou
 check('autobiographical Council pairs with the cultural critical question', record.councilRuns[0].criticalKey === 'cultural');
 
 console.log('\nAvailability truth');
-await fresh('stem-lab-report');
+// SHIPPED-CONTRACT UPDATE (2026-08-05): STEM's Council is now built and
+// operational, so the unavailable case is Reading Response, whose Council is
+// deliberately not built. Both halves of the truthfulness contract are asserted.
+await fresh('reading-response-undergraduate');
 const railText = await page.locator('.integrated-support').textContent();
-check('STEM rail states Council unavailability plainly', /Council is not configured for this genre|El Consejo no está configurado/.test(railText));
-check('STEM offers no convene action', await page.locator('.integrated-support [data-action="council"]').count() === 0);
+check('reading-response rail states Council unavailability plainly', /not available for reading responses|no está disponible para respuestas de lectura/.test(railText));
+check('reading response offers no convene action', await page.locator('.integrated-support [data-action="council"]').count() === 0);
+await fresh('stem-lab-report');
+const stemRail = await page.locator('.integrated-support').textContent();
+check('STEM no longer declares its Council unconfigured', !/Council is not configured for this genre/.test(stemRail));
+check('STEM offers a convene action', await page.locator('.integrated-support [data-action="council"]').count() === 1);
 
 console.log('\nProhibitions travel in built prompts (data-driven)');
 const prompts = await page.evaluate(() => ({

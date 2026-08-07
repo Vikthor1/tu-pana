@@ -340,6 +340,78 @@ for (const marker of SCAFFOLD) {
     check(`"${marker}" is not in the stored record`, !JSON.stringify(good).includes(marker));
 }
 
+// ── 12. PRODUCTION SAFETY BOUNDARY for the ?mockleak= fixture ────────────────
+// The fixture exists so the guard can be exercised without live calls. It must
+// be provably incapable of inducing simulated leaked output in the live
+// application. Three independent layers are asserted here, so this is evidence
+// rather than an assurance:
+//
+//   (1) STRUCTURAL — the fixture is read at exactly one site, inside the mock
+//       provider's call(). The Gemini adapter never references it, so there is
+//       no code path by which a query parameter can inject text into a live
+//       response.
+//   (2) BEHAVIOURAL — with the LIVE provider selected and ?mockleak= set, the
+//       fixture text never appears; the provider's own response is what is
+//       stored. (Exercised against a stubbed fetch: zero live calls.)
+//   (3) DEFENCE IN DEPTH — every fixture string is itself guard-rejected by
+//       construction, so even where the mock provider can be forced (the
+//       pre-existing ?provider=mock behaviour, same class as ?mockfail= and
+//       ?mockcouncil=), the text is discarded before display or storage. The
+//       fixture can only ever produce the calm fallback.
+console.log('\n12. ?mockleak= is inert on the live provider path');
+await fresh('?provider=gemini&mockleak=scaffolding');
+const structural = await page.evaluate(() => {
+    const source = window.StudioProvider.createGeminiProvider.toString();
+    return {
+        activeName: window.StudioProvider.active().name,
+        activeLive: window.StudioProvider.active().live === true,
+        geminiMentionsFixture: /mockLeak|MOCK_LEAK|mockleak/.test(source),
+    };
+});
+check('the live provider is the one selected', structural.activeName === 'gemini-proxy', structural.activeName);
+check('and it reports itself live', structural.activeLive);
+check('the Gemini adapter contains no reference to the fixture', structural.geminiMentionsFixture === false);
+
+// Behavioural: run the real live adapter end to end against a stubbed fetch, so
+// the wire contract is exercised with zero live calls.
+const CANNED = 'Strength: the opening gives the reader a place to stand. Revision question: what did you notice there that a reader could not?';
+await page.evaluate(canned => {
+    window.__fetchCalls = 0;
+    window.fetch = async () => {
+        window.__fetchCalls += 1;
+        return { ok: true, status: 200, json: async () => ({ text: canned, usage: { requests: 1 } }) };
+    };
+}, CANNED);
+await openAsk();
+await page.locator('#transmitConsent').check();
+await page.locator('[data-action="submit-mock"]').click();
+await page.locator('.review-card').first().waitFor();
+const liveish = await stored();
+const liveishBody = await page.evaluate(() => document.body.innerText);
+check('the live adapter actually issued the request', await page.evaluate(() => window.__fetchCalls) === 1);
+check('the stored response is the provider\'s, not the fixture', liveish.reviews[0]?.suggestion === CANNED);
+check('the record is marked as a live (non-mock) provider', liveish.reviews[0]?.mock === false);
+check('no fixture text reached storage',
+    !JSON.stringify(liveish).includes('ABSOLUTE AUTHORSHIP RULE') && !JSON.stringify(liveish).includes('Constraint Check'));
+check('no fixture text reached the screen',
+    !liveishBody.includes('ABSOLUTE AUTHORSHIP RULE') && !liveishBody.includes('Constraint Check'));
+check('no response_rejected event fired on the clean live path',
+    !(liveish.providerEvents || []).some(event => event.category === 'response_rejected'));
+
+// Defence in depth: the fixture strings are self-rejecting.
+const selfRejecting = await page.evaluate(() => {
+    const V = window.StudioProvider.validateCoachResponse;
+    const texts = {
+        scaffolding: 'Constraint Check — ABSOLUTE AUTHORSHIP RULE: no sentences, phrases, or outlines the student could copy. GENRE GUIDANCE (Personal Statement): not acting as admissions officer. Final Review against ALL Rules: passed.',
+        deliberation: 'Here\'s a thinking process that applies the rules and genre guidance to the student\'s request: first I consider what the writer needs, then I check each constraint in order, and then I answer.',
+        empty: '   ',
+    };
+    return Object.fromEntries(Object.entries(texts).map(([key, text]) => [key, V(text).ok]));
+});
+check('the scaffolding fixture is self-rejecting', selfRejecting.scaffolding === false);
+check('the deliberation fixture is self-rejecting', selfRejecting.deliberation === false);
+check('the empty fixture is self-rejecting', selfRejecting.empty === false);
+
 // ── 11. Isolation ────────────────────────────────────────────────────────────
 console.log('\n11. Isolation');
 check('no external requests were made', external.length === 0, external.slice(0, 3).join(', '));

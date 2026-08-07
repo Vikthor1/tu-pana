@@ -827,11 +827,7 @@
                 evidence: 'Evidence is lived scenes and concrete actions, not credential lists.',
                 voice: 'The writer\'s own voice is the single most valuable element of this genre.',
             }),
-            prohibitions: [
-                'Never predict admission outcomes or competitiveness, or compare the writer with other applicants.',
-                'Never recommend adding achievements, experiences, or qualities the draft does not state.',
-                'Never push the writer toward a prestige-coded or culturally narrow template.',
-            ],
+            // prohibitions assigned below from GENRE_SAFEGUARDS (B1 canonical source)
         },
         stem: { enabled: false, criticalKey: 'accuracy' },
         sop: {
@@ -841,10 +837,7 @@
                 evidence: 'Preparation claims need named projects, methods, results, or sources the draft itself states.',
                 voice: 'Protect the applicant\'s voice against generic admissions-speak.',
             }),
-            prohibitions: [
-                'Never predict admission chances.',
-                'Never claim experience or preparation the draft does not state.',
-            ],
+            // prohibitions assigned below from GENRE_SAFEGUARDS (B1 canonical source)
         },
         neutral: { enabled: true, synthesisOrder: ['structure', 'evidence', 'voice'], criticalKey: 'cultural', roles: councilRoles('neutral') },
         cap200: {
@@ -853,21 +846,80 @@
                 evidence: 'Evidence means real logged hours, observations, journals, interviews, and surveys the draft reports.',
                 voice: 'Flag any framing that describes the community in deficit terms.',
             }),
-            prohibitions: [
-                'Never suggest inventing or embellishing service activities, hours, partners, or data.',
-                'Never recommend framing the community in deficit terms.',
-            ],
+            // prohibitions assigned below from GENRE_SAFEGUARDS (B1 canonical source)
         },
         research: {
             enabled: true, synthesisOrder: ['evidence', 'structure', 'voice'], criticalKey: 'accuracy',
             roles: councilRoles('research', {
                 evidence: 'Claims must be traceable to the draft\'s own sources; student analysis must be distinguishable from summary.',
             }),
-            prohibitions: [
+            // prohibitions assigned below from GENRE_SAFEGUARDS (B1 canonical source)
+        },
+    };
+
+    // ── B1 + B3: one canonical source of profile safeguards ───────────────
+    // Before this block, four profiles (admissions, sop, cap200, research)
+    // declared their safeguards ONLY as councilConfig.prohibitions. That made
+    // them reachable on the Council path and nowhere else: Ask Tu Pana,
+    // passage review, focused review, and full-draft review carried no genre
+    // safeguard at all, because genreCoachRules() reads genres[id].coachRules
+    // and those profiles had none. The son's College Personal Statement route
+    // and the niece's Graduate Statement of Purpose route both land on those
+    // everyday coaching paths.
+    //
+    // Each set below is declared ONCE and composes BOTH carriers, so the two
+    // can never drift into conflicting sources of truth:
+    //   • genres[id].coachRules  — the universal carrier. Travels on all five
+    //                              request pathways as additive GENRE GUIDANCE.
+    //   • councilConfig[id].prohibitions — the Council carrier.
+    // buildCouncilReviewerPrompt() then filters any rule already carried
+    // verbatim in GENRE GUIDANCE, so the same prohibition is never TRANSMITTED
+    // twice in one prompt. Retained protection, no duplicate prompt text.
+    //
+    // B3 adds the outcome-prediction prohibitions to admissions and sop. The
+    // pre-existing sentences are preserved verbatim; nothing was reworded.
+    // B2 is NOT in this batch: `autobiographical` and `neutral` deliberately
+    // remain without coachRules and are still uncovered on every path.
+    const NO_OUTCOME_PREDICTION =
+        'Never predict or estimate whether the writer will be accepted, admitted, selected, funded, interviewed, waitlisted, deferred, or rejected, and never rate the draft\'s chances — not as a number, a probability, a percentage, a letter grade, a tier, a ranking, or a confident impression — and not even when the writer asks you directly. If the writer asks, say plainly that you cannot know, and return to what the draft itself does.';
+
+    const GENRE_SAFEGUARDS = {
+        admissions: {
+            intro: 'This is a college admissions personal statement. Support the WRITING; you are not an admissions officer and cannot evaluate this writer\'s chances.',
+            rules: [
+                'Never predict admission outcomes or competitiveness, or compare the writer with other applicants.',
+                NO_OUTCOME_PREDICTION,
+                'Never recommend adding achievements, experiences, or qualities the draft does not state.',
+                'Never push the writer toward a prestige-coded or culturally narrow template.',
+            ],
+        },
+        sop: {
+            intro: 'This is a graduate statement of purpose. Support the WRITING; you are not an admissions or selection committee and cannot evaluate this writer\'s chances.',
+            rules: [
+                'Never predict admission chances.',
+                NO_OUTCOME_PREDICTION,
+                'Never claim experience or preparation the draft does not state.',
+            ],
+        },
+        cap200: {
+            intro: 'This is a service-learning report grounded in real community work the student actually carried out.',
+            rules: [
+                'Never suggest inventing or embellishing service activities, hours, partners, or data.',
+                'Never recommend framing the community in deficit terms.',
+            ],
+        },
+        research: {
+            intro: 'This is a research paper whose claims depend on real, traceable sources.',
+            rules: [
                 'Never invent sources, titles, authors, quotations, or citation details.',
             ],
         },
     };
+
+    Object.entries(GENRE_SAFEGUARDS).forEach(([profileId, { intro, rules }]) => {
+        genres[profileId].coachRules = `${intro} ${rules.join(' ')}`;
+        councilConfig[profileId].prohibitions = rules.slice();
+    });
 
     // Contextual critical-question key per focused-review lens, aligned by index
     // with genres[id].moves.review. Replaces the finalist's fragile label-regex

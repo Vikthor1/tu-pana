@@ -126,6 +126,11 @@
 !studio_stem_council_test.mjs
 !studio_onboarding_test.mjs
 !studio_genre_menu_test.mjs
+# ── Allow Batch 1 sub-batch 1C regression tests ──────────
+# C1-core bilingual rendering boundary, A3 disclosure, B1/B3/B7 safeguard matrix.
+!studio_bilingual_render_test.mjs
+!studio_disclosure_test.mjs
+!studio_safeguard_matrix_test.mjs
 
 # ── Allow the reproducible test toolchain (E1) ────────────
 # Non-secret harness only: dependency manifest, lockfile, the local mock server,

@@ -298,6 +298,15 @@ p { line-height: 1.55; }
 .invitation-actions .text-button { max-width: 180px; text-align: left; }
 .move-context-offer { margin: 14px 0; padding: 12px; border: 1px solid var(--line); border-radius: 11px; }
 .move-context-offer > summary { min-height: 44px; padding: 10px 0; font-weight: 800; cursor: pointer; }
+/* A3 disclosure. Reuses the existing offer-block visual language so the
+   consent moment stays calm: the summary is the only thing on screen until
+   the student opens it. 44px summary matches the touch target above. */
+.a3-disclosure { margin: 12px 0 0; padding: 12px; border: 1px solid var(--line); border-radius: 11px; }
+.a3-disclosure > summary { min-height: 44px; padding: 10px 0; font-weight: 800; cursor: pointer; }
+.a3-disclosure-list { margin: 6px 0 0; padding-inline-start: 20px; display: grid; gap: 8px; font-size: .88rem; line-height: 1.5; }
+.a3-help { display: grid; gap: 16px; }
+.a3-help-section h3 { margin: 0 0 5px; font-size: .95rem; }
+.a3-help-section p { margin: 0; font-size: .9rem; line-height: 1.55; }
 .move-context-choice { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; }
 .move-context-preview { margin: 0; font-size: .82rem; white-space: pre-wrap; }
 .revision-copy-note, .voice-constraint-note { padding: 11px; border-left: 3px solid var(--blue); background: var(--blue-soft); color: var(--ink); font-size: .88rem; }

@@ -367,6 +367,69 @@
         if (state.lang === 'both' && en !== es) return `${es} · ${en}`;
         return es;
     }
+    // ── C1-core: context-safe bilingual rendering ─────────────────────────
+    // uiText() above stays the SAFE DEFAULT and is deliberately unchanged. It
+    // returns PLAIN TEXT, which is what every non-markup sink requires:
+    // aria-label and title attributes, placeholders, announce() live regions,
+    // clipboard writes, native confirm(), string comparisons, and any value
+    // that reaches a persisted record. In `Español + English` mode it returns
+    // one flat "es · en" string with no language attribution — correct for
+    // those sinks, but it is why a screen reader mispronounces the
+    // non-primary language when that same string is rendered as visible text.
+    //
+    // uiMarkup() is its markup-returning sibling, and the ONLY sanctioned way
+    // to emit an attributed bilingual string. It escapes each language
+    // separately and wraps them in correctly attributed <span lang> elements,
+    // mirroring the existing instruction() helper so this introduces no new
+    // pattern. Contract, in both directions:
+    //   • It RETURNS HTML. Interpolate it WITHOUT escapeHtml(), and only into
+    //     a confirmed markup sink. Never into an attribute, a live region, a
+    //     comparison, or anything persisted.
+    //   • Single-language modes emit escaped text with NO wrapper, so `en` and
+    //     `es` render byte-identically to escapeHtml(uiText(...)). Only the
+    //     bilingual mode gains markup; en/es meaning and behavior are
+    //     unchanged.
+    //   • The visual result in bilingual mode is the same "es · en" the
+    //     student already sees. The separator is aria-hidden so assistive
+    //     technology reads two clean language runs instead of a stray middot.
+    //
+    // COUNTING BASIS — reconciling the audit's "306 call sites" with a direct
+    // measurement of 143. Both are correct; they count different things in this
+    // file, and the discrepancy was a measurement artifact, not a change:
+    //   306 = raw occurrences of `uiText(`  (grep -o), of which
+    //     1 = this function's own declaration, leaving
+    //   305 = actual call sites, spread across
+    //   143 = lines matching `uiText(`      (grep -c, which counts LINES),
+    //         of which 142 carry calls and 1 is the declaration line.
+    // Many lines hold several calls — one holds 16 — which is the whole gap.
+    //
+    // Those 305 call sites classify by OUTPUT CONTEXT as:
+    //   154 escaped into an HTML template      ← convertible
+    //    98 returned from a helper / held as a value (announcements, clipboard,
+    //       native confirm(), comparisons, record fields)
+    //    19 openDialog() title or subtitle (set as text by openDialog)
+    //    14 announce() live regions
+    //    11 aria-label / accessible name
+    //     5 title attribute
+    //     4 raw text inside an HTML template
+    // The 98 + 14 + 11 + 5 = 128 non-markup sinks are exactly why uiText() must
+    // stay plain: a blind change would emit literal markup into every one.
+    //
+    // Migration of the remaining classified call sites is C1-migration and is
+    // deliberately NOT done here. A3's disclosure is this primitive's first and
+    // so far only production consumer.
+    function uiMarkup(en, es) {
+        if (state.lang === 'en') return escapeHtml(en);
+        if (state.lang === 'both' && en !== es) {
+            return `<span lang="es">${escapeHtml(es)}</span><span aria-hidden="true"> · </span><span lang="en">${escapeHtml(en)}</span>`;
+        }
+        return escapeHtml(es);
+    }
+    // Block form for multi-line disclosure copy: each paragraph is an
+    // independently attributed bilingual run. Same contract as uiMarkup().
+    function uiMarkupList(pairs, tag = 'li') {
+        return pairs.map(([en, es]) => `<${tag}>${uiMarkup(en, es)}</${tag}>`).join('');
+    }
     function voiceEntries() { return state.voiceEntries || []; }
     // Truthful provider-aware copy. Current-mode surfaces (consent, buttons,
     // banner) reflect the ACTIVE provider; saved cards reflect the RECORD's
@@ -377,10 +440,98 @@
             ? uiText('I choose to send this exact text to the Tu Pana AI coach.', 'Elijo enviar este texto exacto al coach de IA de Tu Pana.')
             : t('consent');
     }
-    function boundaryText() {
-        return liveProviderActive()
-            ? uiText('Sent only to the Tu Pana coach service to produce this one response, only after this consent. Tu Pana does not store your text on a server.', 'Se envía solo al servicio del coach de Tu Pana para producir esta única respuesta, y solo tras este consentimiento. Tu Pana no guarda tu texto en un servidor.')
-            : t('noNetwork');
+    // ── A3: truthful processor and data-treatment disclosure ──────────────
+    // Founder-approved wording, 2026-08-06. Every constraint below is binding
+    // and was ruled on explicitly; do not "tighten" this copy without a new
+    // founder ruling:
+    //   • Google Gemini is named regardless of which model serves the request.
+    //     Model versions are deliberately ABSENT — they age faster than the
+    //     disclosure and do not help a student decide whether to consent.
+    //   • NO zero-retention claim. The Google paragraph states the paid-terms
+    //     position and its limits in the same breath.
+    //   • NO geographic claim in either direction. Placement is Default and
+    //     Google's processing location is unaddressed; silence is the only
+    //     truthful option.
+    //   • Never implies the writing stays inside Tu Pana. The transit path
+    //     browser → Tu Pana's coach service → Google Gemini is named in every
+    //     tier.
+    //   • Live and mock are distinguished truthfully and separately.
+    //   • Gemini generates the COACHING FEEDBACK, never the student's writing.
+    // Spanish register: "el servicio de acompañamiento de Tu Pana"; the
+    // untranslated "coach" is deliberately absent from the Spanish disclosure.
+    // Evidence base: founder-performed A1 (Tier 1 · Prepay, paid branch) and
+    // A2 (Cloudflare logging/tracing/export disabled) console verifications.
+    // A2 is a CONFIGURATION-STATE fact with recorded re-check triggers, which
+    // is why the storage paragraph says what is configured, not what is
+    // eternally true.
+    const A3 = {
+        consentLine: {
+            live: [
+                'The writing shown above is sent only because you chose to send it. It travels from your browser through Tu Pana’s coach service to Google Gemini, which generates the coaching feedback. Tu Pana’s service is not designed to store or log your writing.',
+                'El texto que se muestra arriba se envía únicamente porque tú elegiste enviarlo. Viaja desde tu navegador, a través del servicio de acompañamiento de Tu Pana, hasta Google Gemini, que genera la orientación. El servicio de Tu Pana no está diseñado para guardar ni registrar el contenido de tu escritura.',
+            ],
+            mock: [
+                'Your writing is not sent for AI processing. No request is made to Tu Pana’s coach service or to an AI provider.',
+                'Tu escritura no se envía para ser procesada por IA. No se hace ninguna solicitud al servicio de acompañamiento de Tu Pana ni a un proveedor de IA.',
+            ],
+        },
+        summary: ['What happens to my writing?', '¿Qué pasa con mi escritura?'],
+        live: [
+            ['Your draft, notes, and saved work stay in this browser on this device. Tu Pana does not send your writing for AI processing while you type.',
+                'Tu borrador, tus notas y tu trabajo guardado permanecen en este navegador, en este dispositivo. Tu Pana no envía tu escritura para ser procesada por IA mientras escribes.'],
+            ['When you choose to send, the AI request includes the portion of your writing and any other content you explicitly chose to attach, all shown in the consent preview, plus the instructions Tu Pana needs to provide genre-specific coaching. No other part of your draft is included.',
+                'Cuando eliges enviar, la solicitud de IA incluye el fragmento de tu escritura y cualquier otro contenido que hayas decidido adjuntar, todo visible en la vista previa de consentimiento, además de las instrucciones que Tu Pana necesita para ofrecer orientación específica para ese género. Ninguna otra parte del borrador se incluye.'],
+            ['The request travels from your browser to Tu Pana’s coach service (a Cloudflare Worker), and from there to Google Gemini, which generates the coaching feedback.',
+                'La solicitud viaja desde tu navegador al servicio de acompañamiento de Tu Pana (un Worker de Cloudflare) y de ahí a Google Gemini, que genera la orientación.'],
+            ['Tu Pana’s service is not designed to store or log your writing. On Cloudflare, content logging, tracing, and export are disabled. Cloudflare still retains content-free aggregate operational metrics such as request counts, errors, and CPU time.',
+                'El servicio de Tu Pana no está diseñado para guardar ni registrar el contenido de tu escritura. En Cloudflare, el registro de contenido, el rastreo y la exportación están desactivados. Cloudflare conserva métricas operativas agregadas que no contienen la escritura, como la cantidad de solicitudes, los errores y el tiempo de CPU.'],
+            ['Under Tu Pana’s paid Gemini terms, Google does not use prompts or responses to improve its products. Google may temporarily log prompts and responses for abuse monitoring, and processes technical usage information needed to operate and maintain the service. This is not a zero-retention promise.',
+                'Bajo los términos del servicio de pago de Gemini de Tu Pana, Google no utiliza los textos enviados —los prompts— ni las respuestas para mejorar sus productos. Google puede registrarlos temporalmente para detectar usos indebidos. Google también procesa información técnica de uso necesaria para operar y mantener el servicio. Esto no es una promesa de retención cero.'],
+            ['You can complete the entire writing process without using AI at all.',
+                'Puedes completar todo el proceso de escritura sin usar IA.'],
+        ],
+        mock: [
+            ['This copy of the Studio is running the local practice coach, inside this page.',
+                'Esta copia del Studio usa una herramienta local de práctica que funciona dentro de esta página.'],
+            ['Your writing is not sent for AI processing. No request is made to Tu Pana’s coach service or to an AI provider.',
+                'Tu escritura no se envía para ser procesada por IA. No se hace ninguna solicitud al servicio de acompañamiento de Tu Pana ni a un proveedor de IA.'],
+            ['Your draft, notes, and saved work stay in this browser on this device.',
+                'Tu borrador, tus notas y tu trabajo guardado permanecen en este navegador, en este dispositivo.'],
+            ['When a copy of the Studio is connected to the live coach service, the writing you consent to send travels to Google Gemini, which generates the coaching feedback. This copy is not connected.',
+                'Cuando una copia del Studio está conectada al servicio de acompañamiento en vivo, la escritura que autorizas a enviar viaja hasta Google Gemini, que genera la orientación. Esta copia no está conectada.'],
+        ],
+        help: [
+            [['While you write', 'Mientras escribes'],
+                ['Everything you write in the Studio — draft, notebook, Your Voice entries, decisions, saved reviews — is stored by your browser on this device. Tu Pana has no account system and no server copy of your work. Tu Pana does not send your writing for AI processing while you type. Clearing this browser’s storage deletes the copy kept by this browser. That copy cannot be recovered unless you previously created a backup.',
+                    'Todo lo que escribes en el Studio — borrador, cuaderno, entradas de Tu voz, decisiones, revisiones guardadas — lo guarda tu navegador en este dispositivo. Tu Pana no tiene sistema de cuentas ni copia en un servidor. Tu Pana no envía tu escritura para ser procesada por IA mientras escribes. Al borrar el almacenamiento de este navegador, se elimina la copia guardada por este navegador. Esa copia no puede recuperarse a menos que hayas creado antes un respaldo.']],
+            [['When you ask for AI help', 'Cuando pides ayuda de IA'],
+                ['Nothing is sent for AI processing until you check the consent box, and you always see the exact writing first. The AI request includes the portion of your writing and any other content you explicitly chose to attach, all shown in the consent preview, plus the instructions Tu Pana needs to provide genre-specific coaching. No other part of your draft is included. It travels from your browser to Tu Pana’s coach service, which runs as a Cloudflare Worker, and from there to Google Gemini, which generates the coaching feedback.',
+                    'Nada se envía para ser procesado por IA hasta que marcas la casilla de consentimiento, y siempre ves antes el texto exacto. La solicitud de IA incluye el fragmento de tu escritura y cualquier otro contenido que hayas decidido adjuntar, todo visible en la vista previa de consentimiento, además de las instrucciones que Tu Pana necesita para ofrecer orientación específica para ese género. Ninguna otra parte del borrador se incluye. Viaja desde tu navegador al servicio de acompañamiento de Tu Pana, que funciona como un Worker de Cloudflare, y de ahí a Google Gemini, que genera la orientación.']],
+            [['Storage and logging', 'Almacenamiento y registros'],
+                ['Tu Pana’s coach service is not designed to store or log your writing. On Cloudflare, content logging, tracing, and export are disabled. Cloudflare still retains content-free aggregate operational metrics such as request counts, errors, and CPU time.',
+                    'El servicio de acompañamiento de Tu Pana no está diseñado para guardar ni registrar el contenido de tu escritura. En Cloudflare, el registro de contenido, el rastreo y la exportación están desactivados. Cloudflare conserva métricas operativas agregadas que no contienen la escritura, como la cantidad de solicitudes, los errores y el tiempo de CPU.']],
+            [['How Google handles the request', 'Cómo maneja Google la solicitud'],
+                ['Under Tu Pana’s paid Gemini terms, Google does not use prompts or responses to improve its products. Google may temporarily log prompts and responses for abuse monitoring. Google also processes technical usage information needed to operate and maintain the service. This is not a zero-retention promise.',
+                    'Bajo los términos del servicio de pago de Gemini de Tu Pana, Google no utiliza los textos enviados —los prompts— ni las respuestas para mejorar sus productos. Google puede registrarlos temporalmente para detectar usos indebidos. Google también procesa información técnica de uso necesaria para operar y mantener el servicio. Esto no es una promesa de retención cero.']],
+            [['What we do not claim', 'Lo que no afirmamos'],
+                ['We do not claim that requests are processed in a particular country or region. The statements above describe Tu Pana’s code and current configuration. Google and Cloudflare may also perform their own platform processing under their applicable terms.',
+                    'No afirmamos que las solicitudes se procesen en un país o una región determinados. Las explicaciones anteriores describen el código y la configuración actual de Tu Pana. Google y Cloudflare también pueden realizar sus propios procesos de plataforma conforme a los términos aplicables.']],
+            [['What you control', 'Lo que tú controlas'],
+                ['You can use the entire Studio without AI — write, revise, reflect, and finish without sending anything for AI processing. When you do send, you choose the exact words, and you decide whether to accept, adapt, or reject anything the coach says.',
+                    'Puedes usar todo el Studio sin IA: escribir, revisar, reflexionar y terminar sin enviar nada para ser procesado por IA. Cuando envías, tú eliges las palabras exactas y tú decides si aceptas, adaptas o rechazas lo que sugiera el servicio de acompañamiento.']],
+        ],
+    };
+    function a3ConsentPair() { return liveProviderActive() ? A3.consentLine.live : A3.consentLine.mock; }
+    // The first production consumer of the C1-core primitive. MARKUP SINK ONLY:
+    // interpolate without escapeHtml(). A plain-text form is deliberately not
+    // kept here — nothing needs one, and `uiText(...a3ConsentPair())` is the
+    // one-line answer if an announcement or record ever does.
+    function boundaryMarkup() { return uiMarkup(...a3ConsentPair()); }
+    // Tier 2: the expandable "What happens to my writing?" disclosure shown at
+    // the consent moment. Opt-in, so the consent line itself stays short.
+    function a3DisclosureMarkup() {
+        const rows = liveProviderActive() ? A3.live : A3.mock;
+        return `<details class="a3-disclosure"><summary>${uiMarkup(...A3.summary)}</summary><ul class="a3-disclosure-list">${uiMarkupList(rows)}</ul></details>`;
     }
     function sendCoachLabel() { return liveProviderActive() ? uiText('Send to Tu Pana coach', 'Enviar al coach de Tu Pana') : t('sendCoach'); }
     function sendReviewLabel() { return liveProviderActive() ? uiText('Request review', 'Pedir revisión') : t('sendReview'); }
@@ -1548,7 +1699,7 @@
         const defaultScope = scopes[0]?.[0] || 'full';
         const facts = concept === 'integrated' ? renderIntegratedTransmissionFacts(kind) : '';
         const scopeHint = captured?.hasSelection ? '' : `<p class="scope-hint">${escapeHtml(state.lang === 'en' ? 'No passage is selected. Select words in the draft to add a passage option.' : 'No hay un pasaje seleccionado. Selecciona palabras del borrador para añadir esa opción.')}</p>`;
-        openDialog(title, subtitle, `${facts}${scopeHint}<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(scopeText(defaultScope))}</div></div>${kind === 'focused' ? renderLensChoices() : ''}${renderMoveContextOffer()}${renderVoiceConstraintOffer()}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${escapeHtml(boundaryText())}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? sendReviewLabel() : sendCoachLabel())}</button>`);
+        openDialog(title, subtitle, `${facts}${scopeHint}<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(scopeText(defaultScope))}</div></div>${kind === 'focused' ? renderLensChoices() : ''}${renderMoveContextOffer()}${renderVoiceConstraintOffer()}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${boundaryMarkup()}</span></label>${a3DisclosureMarkup()}`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? sendReviewLabel() : sendCoachLabel())}</button>`);
     }
 
     function renderMoveContextOffer() {
@@ -1619,10 +1770,22 @@
         const consentedDraft = getDraft();
         const providerLang = state.lang === 'en' ? 'en' : 'es';
         const requestKind = kind === 'focused' && scope === 'full' ? 'full_draft_review' : 'passage_analysis';
-        // Genre rules travel with every request as additive GENRE GUIDANCE. The
-        // prompt builders append them under a header stating plainly that they
-        // do not relax the authorship or passage-protocol rules above them.
-        const genreContext = genreCoachRules();
+        // B7 — accurate coverage statement. The previous comment here claimed
+        // "genre rules travel with every request", which was never true: this
+        // carries genres[id].coachRules, and a profile that declares none sends
+        // no GENRE GUIDANCE line at all. After B1 nine of the eleven profiles
+        // declare coachRules and are carried on every pathway. TWO ARE NOT:
+        // `autobiographical` and `neutral` (General Writing) still declare no
+        // coachRules and therefore still transmit NO genre safeguard on any
+        // path. Authoring theirs is B2, which requires its own founder review
+        // and is not in this batch. Do not restate this as "every genre is
+        // protected" until B2 ships.
+        //
+        // What IS universal, on every pathway and every profile, is
+        // AUTHORSHIP_RULES; passage and full-draft paths add
+        // PASSAGE_READING_PROTOCOL. Genre rules are strictly additive beneath
+        // them, under a header saying so.
+        const genreContext = genreCoachRules(consentedGenreId);
         const prompt = kind === 'focused' && scope === 'full'
             ? StudioProvider.buildFullDraftPrompt({ genreName: genre.label.en, genreContext, lang: providerLang, lensLabel: lens, lensInstruction: lens, purpose: 'genre-focused review', words: wordCount(text), text, voiceEntries: voiceEntriesIncluded })
             : StudioProvider.buildPassagePrompt({ genreName: genre.label.en, genreContext, lang: providerLang, scopeLabel: scope, text, question: kind === 'focused' ? `Focused review request — lens: ${lens}. Review only this consented ${scope === 'paragraph' ? 'paragraph' : 'passage'}; do not ask for the rest of the draft.` : lens, moveContext: moveContextIncluded, voiceEntries: voiceEntriesIncluded });
@@ -1715,7 +1878,7 @@
                 ? (state.lang === 'en' ? blurb.en : blurb.es)
                 : (state.lang !== 'en' ? 'Busca una fortaleza y una pregunta.' : 'Looks for one strength and one question.');
             return `<div class="radio-card"><span><strong>${escapeHtml(role)}</strong><br><small>${escapeHtml(detail)}</small></span></div>`;
-        }).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview">${escapeHtml(draft)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${escapeHtml(boundaryText())}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="run-council" disabled>${escapeHtml(conveneLabel())}</button>`);
+        }).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview">${escapeHtml(draft)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${boundaryMarkup()}</span></label>${a3DisclosureMarkup()}`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="run-council" disabled>${escapeHtml(conveneLabel())}</button>`);
     }
 
     function runCouncil(button) {
@@ -2384,7 +2547,17 @@
     }
 
     function openHelp() {
-        openDialog(uiText('Help', 'Ayuda'), uiText('Tu Pana Writing Studio', 'Tu Pana Writing Studio'), `<p>${escapeHtml(uiText('Choose a safe route. Reports and feedback stay on this device.', 'Elige una ruta segura. Los reportes y comentarios permanecen en este dispositivo.'))}</p><div class="choice-stack"><button class="radio-card" data-action="tour-start"><span><strong>${escapeHtml(uiText('Let Tu Pana show you around', 'Deja que Tu Pana te muestre el lugar'))}</strong><br><small>${escapeHtml(uiText('A short conversation, no typing. Uses sample material, never your writing.', 'Una conversación corta, sin escribir nada. Usa material de muestra, nunca tu escritura.'))}</small></span></button><button class="radio-card" data-action="help-report"><span>${escapeHtml(uiText('Report a problem', 'Reportar un problema'))}</span></button><button class="radio-card" data-action="help-feedback"><span>${escapeHtml(uiText('Share feedback', 'Compartir comentarios'))}</span></button></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+        openDialog(uiText('Help', 'Ayuda'), uiText('Tu Pana Writing Studio', 'Tu Pana Writing Studio'), `<p>${escapeHtml(uiText('Choose a safe route. Reports and feedback stay on this device.', 'Elige una ruta segura. Los reportes y comentarios permanecen en este dispositivo.'))}</p><div class="choice-stack"><button class="radio-card" data-action="tour-start"><span><strong>${escapeHtml(uiText('Let Tu Pana show you around', 'Deja que Tu Pana te muestre el lugar'))}</strong><br><small>${escapeHtml(uiText('A short conversation, no typing. Uses sample material, never your writing.', 'Una conversación corta, sin escribir nada. Usa material de muestra, nunca tu escritura.'))}</small></span></button><button class="radio-card" data-action="help-disclosure"><span>${uiMarkup(...A3.summary)}</span></button><button class="radio-card" data-action="help-report"><span>${escapeHtml(uiText('Report a problem', 'Reportar un problema'))}</span></button><button class="radio-card" data-action="help-feedback"><span>${escapeHtml(uiText('Share feedback', 'Compartir comentarios'))}</span></button></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+    }
+
+    // A3 tier 3: the fuller Help explanation. Same context-safe primitive as
+    // the consent surfaces — no second bilingual pattern.
+    function openDataDisclosure() {
+        const body = A3.help.map(([heading, copy]) =>
+            `<section class="a3-help-section"><h3>${uiMarkup(...heading)}</h3><p>${uiMarkup(...copy)}</p></section>`).join('');
+        openDialog(uiText(...A3.summary), uiText('Tu Pana Writing Studio', 'Tu Pana Writing Studio'),
+            `<div class="a3-help">${body}</div>`,
+            `<button class="button ghost" data-action="close-dialog">${escapeHtml(uiText('Close', 'Cerrar'))}</button>`);
     }
 
     function openHelpReport(category = 'problem') {
@@ -2468,6 +2641,7 @@
         else if (action === 'appearance-cycle') setAppearance(nextAppearance());
         else if (action === 'appearance-choice') { setAppearance(target.dataset.appearance); openSettings(); }
         else if (action === 'help') openHelp();
+        else if (action === 'help-disclosure') openDataDisclosure();
         else if (action === 'help-report') openHelpReport('problem');
         else if (action === 'help-feedback') openHelpReport('feedback');
         else if (action === 'preview-local-report') previewLocalReport(target.dataset.kind);

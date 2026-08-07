@@ -1774,12 +1774,13 @@
         // "genre rules travel with every request", which was never true: this
         // carries genres[id].coachRules, and a profile that declares none sends
         // no GENRE GUIDANCE line at all. After B1 nine of the eleven profiles
-        // declare coachRules and are carried on every pathway. TWO ARE NOT:
-        // `autobiographical` and `neutral` (General Writing) still declare no
-        // coachRules and therefore still transmit NO genre safeguard on any
-        // path. Authoring theirs is B2, which requires its own founder review
-        // and is not in this batch. Do not restate this as "every genre is
-        // protected" until B2 ships.
+        // declared coachRules; `autobiographical` and `neutral` (General
+        // Writing) did not, and transmitted no genre safeguard on any path.
+        // B2 (founder-approved 2026-08-06) authored both, so ELEVEN of eleven
+        // profiles now declare coachRules and are carried on all five
+        // student-reachable pathways. That is a statement about COVERAGE — a
+        // genre-appropriate safeguard set is transmitted on every path — and
+        // not a claim that any student outcome is guaranteed.
         //
         // What IS universal, on every pathway and every profile, is
         // AUTHORSHIP_RULES; passage and full-draft paths add

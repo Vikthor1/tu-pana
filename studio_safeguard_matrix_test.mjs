@@ -1,7 +1,13 @@
-// B1 + B3 + B7 — the profile-safeguard matrix.
+// B1 + B2 + B3 + B7 — the profile-safeguard matrix.
 //
 // B1: one canonical source of profile safeguards, reaching every applicable AI
 //     pathway rather than only the Council.
+// B2: autobiographical and General Writing (`neutral`) safeguards, authored and
+//     approved by the founder 2026-08-06, declared through that SAME canonical
+//     source. Coverage is now ELEVEN of eleven profiles across all five
+//     student-reachable pathways. B2 also introduces the only genuinely
+//     Council-format-specific rule in the product (autobiographical), carried
+//     as an ADDITIVE Council rule — appended, never duplicated.
 // B3: admissions and Graduate SOP prohibitions against predicting acceptance,
 //     admission, selection, or any other outcome, on everyday coaching paths
 //     as well as Council.
@@ -19,10 +25,9 @@
 //     asserted as such — not deleted, not counted as a live path, and not
 //     invented into one.
 //
-// ELEVEN distinct profiles are a founder-accepted product property. B2 is NOT
-// in this batch: `autobiographical` and `neutral` still carry no safeguards,
-// and that gap is asserted explicitly so no future run can mistake silence for
-// coverage.
+// ELEVEN distinct profiles are a founder-accepted product property. One generic
+// rule set for all eleven is explicitly rejected, so every profile is asserted
+// to carry ITS OWN marker and NO other profile's — in both directions.
 //
 // Zero live AI calls: prompts are constructed from the loaded modules.
 // Requires this worktree at http://127.0.0.1:3001.
@@ -50,6 +55,8 @@ await page.goto(`${ORIGIN}/studio.html?provider=mock`);
 // The three STEM configurations deliberately share a preamble, so their markers
 // are the assignment-specific tails that actually distinguish them.
 const MARKERS = {
+    autobiographical: 'Pain is not the source of good autobiographical writing',
+    neutral: 'no genre profile is active for this draft',
     admissions: 'prestige-coded or culturally narrow template',
     sop: 'Never claim experience or preparation the draft does not state',
     cap200: 'service activities, hours, partners, or data',
@@ -60,8 +67,10 @@ const MARKERS = {
     readingUg: 'undergraduate short reading response',
     readingGrad: 'graduate extended reading response',
 };
-// B2 gap — deliberately uncovered in this batch.
-const UNCOVERED = ['autobiographical', 'neutral'];
+// Every profile is now covered. Kept as an explicit empty set so that a future
+// regression which drops a profile's safeguards has to change this line rather
+// than quietly reduce the count.
+const UNCOVERED = [];
 
 // The five student-reachable pathways, with the wire kind each one emits.
 const PATHWAYS = [
@@ -107,11 +116,19 @@ check('exactly eleven profiles', profileIds.length === 11, `${profileIds.length}
 const labels = await page.evaluate(() => Object.values(window.StudioProfiles.genres).map(g => g.label.en));
 check('all eleven labels are distinct', new Set(labels).size === 11, `${new Set(labels).size} distinct`);
 
-console.log('\n2. Every covered profile carries its safeguards on all five pathways');
-for (const [id, marker] of Object.entries(MARKERS)) {
-    const missing = PATHWAYS.filter(p => !matrix[id][p.key].includes(marker)).map(p => p.key);
+console.log('\n2. B2 — every one of the eleven profiles carries its safeguards on all five pathways');
+// Parameterized over the profiles the app actually loads, not over a hand-kept
+// list: a new profile that declares no safeguards fails here immediately.
+check('a distinguishing marker is registered for all eleven profiles',
+    profileIds.every(id => Object.hasOwn(MARKERS, id)) && Object.keys(MARKERS).length === profileIds.length,
+    `markers ${Object.keys(MARKERS).length} vs profiles ${profileIds.length}: ${profileIds.filter(id => !Object.hasOwn(MARKERS, id)).join(', ')}`);
+for (const id of profileIds) {
+    const missing = PATHWAYS.filter(p => !matrix[id][p.key].includes(MARKERS[id])).map(p => p.key);
     check(`${id}: safeguards reach all 5 pathways`, missing.length === 0, `missing on ${missing.join(', ')}`);
 }
+check('11/11 profiles × 5 pathways all carry a genre safeguard',
+    profileIds.length === 11
+    && profileIds.every(id => PATHWAYS.every(p => matrix[id][p.key].includes(MARKERS[id]))));
 
 console.log('\n3. B3 — no outcome prediction, on every pathway, for admissions and SOP');
 const B3 = 'Never predict or estimate whether the writer will be accepted, admitted, selected, funded, interviewed, waitlisted, deferred, or rejected';
@@ -138,15 +155,82 @@ for (const id of profileIds) {
     check(`${id}: carries no other profile's safeguards`, foreign.length === 0, `leaked: ${foreign.join(', ')}`);
 }
 
-console.log('\n5. B2 gap is real and asserted, not silently claimed as covered');
-for (const id of UNCOVERED) {
-    check(`${id}: still declares no coachRules (B2, not in this batch)`,
-        await page.evaluate(key => !window.StudioProfiles.genres[key].coachRules, id));
-    check(`${id}: therefore emits no GENRE GUIDANCE on any pathway`,
-        PATHWAYS.every(p => !matrix[id][p.key].includes('GENRE GUIDANCE')));
+console.log('\n5. B2 — the two profiles that were uncovered after B1 are now covered');
+check('no profile remains on the uncovered list', UNCOVERED.length === 0, UNCOVERED.join(', '));
+check('all eleven profiles declare coachRules',
+    await page.evaluate(() => Object.values(window.StudioProfiles.genres).filter(g => g.coachRules).length) === 11);
+for (const id of ['autobiographical', 'neutral']) {
+    check(`${id}: declares coachRules through the canonical source`,
+        await page.evaluate(key => Boolean(window.StudioProfiles.genres[key].coachRules), id));
+    check(`${id}: emits GENRE GUIDANCE on every pathway`,
+        PATHWAYS.every(p => matrix[id][p.key].includes('GENRE GUIDANCE')));
 }
-check('exactly nine of eleven profiles are covered after B1',
-    await page.evaluate(() => Object.values(window.StudioProfiles.genres).filter(g => g.coachRules).length) === 9);
+
+// The specific harms the founder authorized these texts to prevent. Asserted by
+// their exact transmitted sentences, on all five pathways, so a reword cannot
+// silently drop one.
+const B2_AUTOBIOGRAPHICAL = [
+    ['no invented lived experience', 'Never invent, complete, intensify, dramatize, or supply any part of the writer\'s life'],
+    ['no inference of unstated identity, status, or diagnosis', 'Never infer or name what the writer did not say'],
+    ['no disclosure pressure for a stronger essay', 'Never encourage disclosure in order to strengthen the writing'],
+    ['trauma is not the price of authenticity', 'Pain is not the source of good autobiographical writing'],
+    ['the writer keeps authority over meaning', 'The writer retains authority over what happened and what the experience means to them'],
+    ['uncertainty is not converted into fact', 'Never convert "I think", "maybe", "I don\'t remember", or "someone told me" into settled fact'],
+    ['declining is an authorship decision, and a non-disclosing route exists', 'offer a route that does not require disclosure'],
+    ['translingual and cultural language is not flattened', 'are meaningful writing choices, not errors by default'],
+    ['craft is supported without manufacturing content', 'never by adding material of your own'],
+    ['no clinical screening, and no override of universal safety rules', 'not a counselor, evaluator, or clinical screener'],
+    ['voluntary lived-experience writing stays fully welcome', 'None of this places personal, cultural, community, family, political, or identity-related material off-limits'],
+];
+for (const [label, sentence] of B2_AUTOBIOGRAPHICAL) {
+    const missing = PATHWAYS.filter(p => !matrix.autobiographical[p.key].includes(sentence)).map(p => p.key);
+    check(`autobiographical: ${label} — all 5 pathways`, missing.length === 0, `missing on ${missing.join(', ')}`);
+}
+
+const B2_NEUTRAL = [
+    ['the assignment is acknowledged as unseen', 'You have not seen the assignment, the rubric, the syllabus, the course'],
+    ['no invented content, hypotheticals clearly labeled', 'A clearly labeled hypothetical example may be used to explain a writing principle'],
+    ['no invented requirements', 'Never invent a requirement.'],
+    ['names the missing context instead of guessing or stalling', 'Do not guess, and do not stall.'],
+    ['suggestion is distinguished from disciplinary requirement', 'Distinguish a writing suggestion you are offering from a requirement set by an instructor'],
+    ['no outcome prediction', 'Never predict or estimate an outcome'],
+    ['no assumptions imported from another Tu Pana genre', 'Never import another genre\'s expectations'],
+    ['meaning and voice preserved, writer decides on adaptation', 'let the writer decide'],
+    ['writer-reported context is attributed, never upgraded', 'Never upgrade what the writer reported into a fact you verified'],
+    ['still useful for drafting and revision, not a refusal layer', 'Not knowing the assignment is not a reason to be unhelpful'],
+];
+for (const [label, sentence] of B2_NEUTRAL) {
+    const missing = PATHWAYS.filter(p => !matrix.neutral[p.key].includes(sentence)).map(p => p.key);
+    check(`neutral: ${label} — all 5 pathways`, missing.length === 0, `missing on ${missing.join(', ')}`);
+}
+
+console.log('\n5b. B2 — the one genuinely Council-specific rule is additive, not duplicated');
+const COUNCIL_ONLY = 'COUNCIL-SPECIFIC: never frame a disagreement between reviewers as a question';
+check('autobiographical Council reviewer carries the Council-specific rule',
+    matrix.autobiographical.council_reviewer.includes(COUNCIL_ONLY));
+check('it is listed under PROHIBITED IN THIS GENRE, the additive Council carrier',
+    matrix.autobiographical.council_reviewer.includes('PROHIBITED IN THIS GENRE'));
+check('it never reaches the four single-coach pathways, which have no panel',
+    PATHWAYS.filter(p => p.key !== 'council_reviewer')
+        .every(p => !matrix.autobiographical[p.key].includes(COUNCIL_ONLY)));
+check('it is NOT in coachRules, so the de-duplication filter cannot remove it',
+    await page.evaluate(() => !window.StudioProfiles.genres.autobiographical.coachRules.includes('COUNCIL-SPECIFIC')));
+// Scoped to the PROHIBITED block itself: the generic RULES: section further
+// down uses the same bullet character, so a whole-prompt count would measure
+// the wrong thing.
+const autoProhibitedBlock = matrix.autobiographical.council_reviewer
+    .split('PROHIBITED IN THIS GENRE:\n')[1].split('\nRULES:')[0];
+const autoProhibitedBullets = (autoProhibitedBlock.match(/^- /gm) || []).length;
+check('autobiographical PROHIBITED block lists exactly one rule — the eleven shared rules are suppressed',
+    autoProhibitedBullets === 1, `${autoProhibitedBullets} listed`);
+check('and that one listed rule is the Council-specific one',
+    autoProhibitedBlock.includes(COUNCIL_ONLY));
+check('the canonical source declares 11 shared + 1 Council-only for autobiographical',
+    await page.evaluate(() => window.StudioProfiles.councilConfig.autobiographical.prohibitions.length) === 12);
+check('neutral has no Council-specific rule and no PROHIBITED block',
+    !matrix.neutral.council_reviewer.includes('PROHIBITED IN THIS GENRE'));
+check('neutral protection is still present on the Council path',
+    matrix.neutral.council_reviewer.includes(MARKERS.neutral));
 
 console.log('\n6. De-duplication — no prohibition is transmitted twice in one prompt');
 const dupes = await page.evaluate(() => {
@@ -193,6 +277,52 @@ check('PASSAGE_READING_PROTOCOL still rides the passage pathways',
 check('genre guidance is still marked additive, never relaxing the rules above it',
     profileIds.filter(id => !UNCOVERED.includes(id))
         .every(id => matrix[id].ask_tupana.includes('GENRE GUIDANCE (additive; it does NOT relax any rule above)')));
+
+console.log('\n8a. The nine pre-B2 safeguard sets and the two universal contracts, byte-for-byte');
+// SHA-256 of each text as it stood at 9dc2020 (the pre-B2 commit), verified
+// equal there before being recorded here. A single character changed anywhere
+// in these eleven texts fails this section — which is stricter than the prefix
+// checks below, and is the actual preservation guarantee B2 was required to
+// honor. AUTHORSHIP_RULES and PASSAGE_READING_PROTOCOL are extracted from a
+// real built prompt, not from source, so the assertion covers what is
+// transmitted rather than what is declared.
+const PRE_B2_SHA256 = {
+    admissions: 'a6ecc4e80f71d9f9edcc61dc2490ddf7b5ccb95051173c342a7c92c9afa7d857',
+    sop: '1e13a5c3dbe94743acdf1557fa6a7c98a75f3a492e0bc5528ff653e08a85b637',
+    cap200: '651ad12c42b49dadb7a479511ae800e7e638fecc7420cdab6f36f04c69bc2f1a',
+    research: '6657ba9ea5b48bed48f879666434a38a48f38975a1ae92e3597c159121b32981',
+    stem: 'd8b742999fc4f654e6a161416325b23f7641b7c341d1dab6b610cf5604f8f0d4',
+    stemExplanation: '2f0398b34c812ae2fa17f1e37c66e296cd6ef16206c0198e791b7ded729e13f7',
+    stemArgument: 'c73154f6f08bd0d96f448ed7f9df6d68d2a0c20b38f1c7b26e121a265ee18c37',
+    readingUg: 'a647759e53043d06cc87297b5b50526c38ce93deea1693b5d2c3bf6ea5656532',
+    readingGrad: '67110f053b05f3273c17419093db961b2fe155a617f895d3b5fc431368c3aea8',
+};
+const UNIVERSAL_SHA256 = {
+    AUTHORSHIP_RULES: 'e55d987d986bd4d389ec2b139f5bcb5d3dc9de1d79dc32564764c0d77babb9d8',
+    PASSAGE_READING_PROTOCOL: 'cdb922d17ca71fddd46245191f4fe71e0047d999ac2105de00e5f0cd8c1e9150',
+};
+const digests = await page.evaluate(async ids => {
+    const sha = async text => {
+        const buffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+        return [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+    };
+    const out = { nine: {}, universal: {} };
+    for (const id of ids) out.nine[id] = await sha(window.StudioProfiles.genres[id].coachRules);
+    const prompt = window.StudioProvider.buildPassagePrompt({
+        genreName: 'x', lang: 'en', scopeLabel: 'passage', text: 'T', question: 'Q',
+    });
+    out.universal.AUTHORSHIP_RULES = await sha(prompt.split('\n\n')[0]);
+    out.universal.PASSAGE_READING_PROTOCOL = await sha(
+        prompt.split('[END SELECTED TEXT]\n\n')[1].split('\n\nSTUDENT REQUEST:')[0]);
+    return out;
+}, Object.keys(PRE_B2_SHA256));
+for (const [id, expected] of Object.entries(PRE_B2_SHA256)) {
+    check(`${id}: safeguard text unchanged by B2 (sha256)`, digests.nine[id] === expected, digests.nine[id]);
+}
+for (const [name, expected] of Object.entries(UNIVERSAL_SHA256)) {
+    check(`${name}: transmitted byte-for-byte as before B2 (sha256)`,
+        digests.universal[name] === expected, digests.universal[name]);
+}
 
 console.log('\n8. STEM and Reading Response safeguards preserved byte-for-byte');
 const preserved = await page.evaluate(() => {
@@ -261,6 +391,42 @@ check('that real prompt carries the admissions safeguards', (sent[0] || '').incl
 check('that real prompt carries the B3 outcome-prediction prohibition', (sent[0] || '').includes(B3));
 check('that real prompt carries no other genre\'s safeguards',
     Object.entries(MARKERS).filter(([id]) => id !== 'admissions').every(([, m]) => !(sent[0] || '').includes(m)));
+
+console.log('\n10b. The same wiring check on a B2 profile — autobiographical, the highest-stakes route');
+await page.evaluate(() => {
+    localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' }));
+    localStorage.removeItem('tupana-studio:v1');
+});
+await page.goto(`${ORIGIN}/studio.html?assignment=mixed-genre-autobiographical-essay&provider=mock`);
+await page.evaluate(() => {
+    window.__sent = [];
+    const original = window.StudioProvider.buildPassagePrompt;
+    window.StudioProvider.buildPassagePrompt = payload => { const p = original(payload); window.__sent.push(p); return p; };
+});
+await page.locator('#draftEditor').fill('Mi tia said aqui escuchamos primero, and I did not understand it then.');
+await page.waitForTimeout(300);
+await page.locator('[data-action="focused-review"]').click();
+await page.waitForTimeout(250);
+await page.locator('input[name="reviewScope"][value="paragraph"]').check();
+await page.locator('#transmitConsent').check();
+await page.locator('[data-action="submit-mock"]').click();
+await page.waitForTimeout(800);
+const autoSent = await page.evaluate(() => window.__sent);
+check('the real autobiographical focused-review path built one prompt', autoSent.length === 1, `${autoSent.length}`);
+const autoPrompt = autoSent[0] || '';
+check('that real prompt carries the B2 autobiographical safeguards', autoPrompt.includes(MARKERS.autobiographical));
+check('that real prompt refuses invented lived experience',
+    autoPrompt.includes('Never invent, complete, intensify, dramatize, or supply any part of the writer\'s life'));
+check('that real prompt refuses disclosure pressure',
+    autoPrompt.includes('Never encourage disclosure in order to strengthen the writing'));
+check('that real prompt keeps universal AUTHORSHIP_RULES above the genre set',
+    autoPrompt.indexOf('ABSOLUTE AUTHORSHIP RULE') === 0
+    && autoPrompt.indexOf(MARKERS.autobiographical) > autoPrompt.indexOf('ABSOLUTE AUTHORSHIP RULE'));
+check('that real prompt still marks genre guidance as additive, not a replacement',
+    autoPrompt.includes('GENRE GUIDANCE (additive; it does NOT relax any rule above)'));
+check('that real prompt carries no other genre\'s safeguards',
+    Object.entries(MARKERS).filter(([id]) => id !== 'autobiographical').every(([, m]) => !autoPrompt.includes(m)));
+check('that real single-coach prompt carries no Council-specific rule', !autoPrompt.includes(COUNCIL_ONLY));
 
 console.log('\n11. Isolation');
 check('no external requests', external.length === 0, external.join(', '));

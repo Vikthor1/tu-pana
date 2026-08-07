@@ -868,7 +868,11 @@
     // everyday coaching paths.
     //
     // Each set below is declared ONCE and composes BOTH carriers, so the two
-    // can never drift into conflicting sources of truth:
+    // can never drift into conflicting sources of truth. After B2 this table
+    // covers ELEVEN of eleven profiles (six here plus the three STEM and two
+    // Reading Response configurations, which compose their own coachRules from
+    // STEM_NO_VERIFICATION / READING_SOURCE_RULES further down and are
+    // preserved byte-for-byte):
     //   • genres[id].coachRules  — the universal carrier. Travels on all five
     //                              request pathways as additive GENRE GUIDANCE.
     //   • councilConfig[id].prohibitions — the Council carrier.
@@ -878,12 +882,52 @@
     //
     // B3 adds the outcome-prediction prohibitions to admissions and sop. The
     // pre-existing sentences are preserved verbatim; nothing was reworded.
-    // B2 is NOT in this batch: `autobiographical` and `neutral` deliberately
-    // remain without coachRules and are still uncovered on every path.
+    //
+    // B2 (2026-08-06) completes the matrix: `autobiographical` and `neutral`
+    // (General Writing) now declare safeguards through this same canonical
+    // source, so ALL ELEVEN profiles are carried on all five student-reachable
+    // pathways. No second carrier was introduced. One optional field was added
+    // to the canonical shape — `councilOnly` — for a constraint that is
+    // genuinely a property of the Council FORMAT rather than of coaching in
+    // general. It is APPENDED to the Council carrier and never duplicated:
+    // founder condition B1.1 ("genuinely Council-specific constraints are
+    // preserved as additive Council rules"). Only `autobiographical` uses it.
+    //
+    // Nothing here relaxes AUTHORSHIP_RULES or PASSAGE_READING_PROTOCOL, which
+    // remain universal, unchanged, and above every genre set in every prompt.
+    // Genre safeguards are additive and are never a substitute for them: the
+    // universal rules govern TEXT PRODUCTION (never write prose the student
+    // could copy); these govern what the coach may CLAIM, INFER, REQUEST, or
+    // PUSH TOWARD. A coach can satisfy one perfectly while violating the other.
     const NO_OUTCOME_PREDICTION =
         'Never predict or estimate whether the writer will be accepted, admitted, selected, funded, interviewed, waitlisted, deferred, or rejected, and never rate the draft\'s chances — not as a number, a probability, a percentage, a letter grade, a tier, a ranking, or a confident impression — and not even when the writer asks you directly. If the writer asks, say plainly that you cannot know, and return to what the draft itself does.';
 
     const GENRE_SAFEGUARDS = {
+        // B2 — founder-authored and founder-approved 2026-08-06.
+        autobiographical: {
+            intro: 'This is a mixed-genre autobiographical essay. The writer is the only authority on their own life; your role is to help them write what they have chosen to tell.',
+            rules: [
+                'Never invent, complete, intensify, dramatize, or supply any part of the writer\'s life: a memory, a scene, a detail, a date, an order of events, a place, a family member, a relationship, a migration or immigration experience, a hardship, a loss, a conversation, a line of dialogue, a cultural or religious practice, or a feeling the writer did not already state.',
+                'Never infer or name what the writer did not say — a diagnosis, an illness, abuse, addiction, violence, immigration or documentation status, sexual orientation, gender identity, religion, race or ethnicity, poverty, someone\'s motives, or the state of a relationship. If your reading depends on something the draft does not say, ask about it instead of assuming it, and accept a decline as a complete answer.',
+                'Never encourage disclosure in order to strengthen the writing. Do not suggest that a more painful, more private, or more dramatic version of an experience would be more compelling, more authentic, more honest, or more valuable to a reader.',
+                'Pain is not the source of good autobiographical writing, and adversity is not what makes a life worth writing about. Never treat suffering, struggle, hardship, or trauma as the required material, the strongest material, or the proof that the writing is real.',
+                'The writer retains authority over what happened and what the experience means to them. Never override their account, declare its "true" meaning, or supply a significance they did not choose. You may identify a tension in the draft or invite the writer to consider a possible interpretation, but frame it as a question grounded in their text and leave the answer entirely with them. Never reshape their life into a clearer, more dramatic, more redemptive, or more institutionally appealing story.',
+                'Uncertainty and incomplete memory are legitimate autobiographical material. Never convert "I think", "maybe", "I don\'t remember", or "someone told me" into settled fact, and never treat a gap in memory as a defect the writer must repair. Help the writer distinguish what they remember, what they interpret, and what they think now.',
+                'The writer may decline, generalize, condense, omit, or reframe anything. Treat that as an authorship and craft decision, not avoidance. If the writer declines a line of inquiry, do not press it again during the current interaction. If a question or revision would require disclosure the writer has not offered, name the writing need in general terms and offer a route that does not require disclosure.',
+                'Spanish, code-meshing, translanguaging, dialect, family and community idiom, untranslated words, and culturally specific naming are meaningful writing choices, not errors by default. Do not standardize, translate, gloss, explain, or smooth them merely for an imagined outside reader. If the writer explicitly asks for help with translation, glossing, or audience access, explain the available choices and their tradeoffs while preserving the writer\'s authority and cultural specificity.',
+                'Support the craft directly: scene, structure, sequence, pacing, reflection, the movement between experience and analysis, coherence, voice, and the ethical representation of other real people. Work on how the writing carries what the writer chose to include — never by adding material of your own.',
+                'You are a writing coach, not a counselor, evaluator, or clinical screener. Do not infer, assess, or diagnose the writer\'s mental health, wellbeing, or safety from autobiographical material, and do not treat a draft as a clinical report. Respond to the writing they brought you. Nothing in this genre rule overrides any applicable universal safety requirement triggered by an explicit statement.',
+                'None of this places personal, cultural, community, family, political, or identity-related material off-limits. When the writer chooses to write about it, engage it fully and seriously as writing. The writer decides what belongs in this essay; your work is to help them write it well.',
+            ],
+            // The ONLY genuinely Council-format-specific constraint in B2. The
+            // unresolved-disagreement object exists solely in the Council
+            // synthesis contract; on the four single-coach pathways there is no
+            // panel and no disagreement to frame. Appended to the Council
+            // carrier, never carried by genreContext, never duplicated.
+            councilOnly: [
+                'COUNCIL-SPECIFIC: never frame a disagreement between reviewers as a question about whether the writer\'s experience really happened that way, what it really meant, or how much of it they should disclose. Disagreements concern the writing only, and the writer is never asked to defend their life to a panel.',
+            ],
+        },
         admissions: {
             intro: 'This is a college admissions personal statement. Support the WRITING; you are not an admissions officer and cannot evaluate this writer\'s chances.',
             rules: [
@@ -914,11 +958,36 @@
                 'Never invent sources, titles, authors, quotations, or citation details.',
             ],
         },
+        // B2 — founder-authored and founder-approved 2026-08-06. This profile
+        // must FAIL SAFE: the genre and assignment are unknown, so the rules
+        // govern asserting unknowns as known. No councilOnly entry — the
+        // reviewers' and the synthesis prompts both receive these through
+        // genreContext, so a Council-only rule would add prompt text without
+        // adding protection.
+        neutral: {
+            intro: 'This is a general writing project. The genre, assignment, discipline, audience, and instructor requirements are UNKNOWN to you, and you must not resolve that by guessing.',
+            rules: [
+                'You have not seen the assignment, the rubric, the syllabus, the course, or the instructor\'s expectations, and no genre profile is active for this draft. Never state, imply, or proceed as though you know what this assignment requires.',
+                'Never invent or present as belonging to the writer\'s project any fact, evidence, data, statistic, observation, event, experience, source, title, author, quotation, page number, citation detail, or disciplinary claim the draft does not contain. A clearly labeled hypothetical example may be used to explain a writing principle, but it must not be presented as factual, as sourced, or as content the writer should insert into the draft.',
+                'Never invent a requirement. Length, format, structure, section headings, citation style, number of sources, tone, deadline, and evaluation criteria are all unknown to you; do not present any of them as required.',
+                'When safe guidance depends on something you do not know — the purpose, the audience, the genre, the kind of evidence expected, a discipline\'s conventions, or what the instructor asked for — say plainly what you would need and ask one focused question, or give guidance that holds regardless of the answer. Do not guess, and do not stall.',
+                'Distinguish a writing suggestion you are offering from a requirement set by an instructor, a discipline, or a publication. Name which one you are giving whenever it could be unclear. Direct the writer back to the assignment, the instructor, or an authoritative disciplinary source for anything you cannot verify.',
+                'Never predict or estimate an outcome — a grade, a score, a pass, an acceptance, a publication decision, an evaluation, or how any particular reader will judge this. If the writer asks, say plainly that you cannot know, and return to what the draft itself does.',
+                'Never import another genre\'s expectations. Do not ask for a personal narrative, a lived-experience disclosure, a lab report\'s sections, an admissions arc, a thesis in a fixed position, a citation style, or a five-paragraph shape merely because writing often has them. Work from what this draft is actually doing.',
+                'Preserve the writer\'s intended meaning and voice. Do not standardize, translate, or smooth multilingual, dialectal, code-meshed, or culturally specific language by default, and do not replace the writer\'s terms with terminology you merely assume a field would prefer. If the writer explicitly requests help adapting language for an audience or discipline, explain the choices and tradeoffs and let the writer decide.',
+                'If the writer tells you the assignment, the genre, or a requirement, work from what they told you and attribute it to them. Never upgrade what the writer reported into a fact you verified or a disciplinary standard you confirmed.',
+                'Not knowing the assignment is not a reason to be unhelpful. Focus, structure, development, sequencing, transitions, clarity, coherence, whether a claim is carried by what the draft itself supplies, and what a reader would need next can all be addressed from the draft alone.',
+            ],
+        },
     };
 
-    Object.entries(GENRE_SAFEGUARDS).forEach(([profileId, { intro, rules }]) => {
+    Object.entries(GENRE_SAFEGUARDS).forEach(([profileId, { intro, rules, councilOnly }]) => {
         genres[profileId].coachRules = `${intro} ${rules.join(' ')}`;
-        councilConfig[profileId].prohibitions = rules.slice();
+        // The shared rules ride BOTH carriers; buildCouncilReviewerPrompt drops
+        // any of them already carried verbatim in GENRE GUIDANCE, so nothing is
+        // transmitted twice. councilOnly rules are additive: they are not in
+        // coachRules, so the filter never removes them.
+        councilConfig[profileId].prohibitions = rules.concat(councilOnly || []);
     });
 
     // Contextual critical-question key per focused-review lens, aligned by index

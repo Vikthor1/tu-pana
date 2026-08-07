@@ -336,6 +336,13 @@ p { line-height: 1.55; }
 .scope-choice:has(input:checked) { border-color: var(--jade); background: var(--jade-soft); }
 .scope-choice strong, .scope-choice span { display: block; padding-right: 24px; }
 .scope-choice span { margin-top: 5px; color: var(--muted); font-size: .8rem; }
+/* F1 — Ask Tu Pana question affordance. Deliberately compact: the default
+   .field textarea is 140px, which would dominate the consent dialog and read
+   as an obligation. Two calm rows that grow if the writer wants more. */
+.coach-question textarea { min-height: 64px; }
+.field > .field-label { font-weight: 800; }
+.field-hint { margin: 0; color: var(--muted); font-size: .86rem; line-height: 1.45; }
+.question-request-note { margin: 8px 0 0; color: var(--muted); font-size: .9rem; }
 .exact-preview { max-height: 190px; overflow: auto; padding: 14px; border: 1px solid var(--line); border-radius: 11px; background: #f8f7f2; color: #2c3933; font: .91rem/1.55 Georgia, serif; white-space: pre-wrap; }
 .consent-box { display: flex; gap: 10px; padding: 13px; border: 1px solid #b8cbbf; border-radius: 11px; background: var(--jade-soft); color: #214f3e; line-height: 1.45; }
 .consent-box input { width: 20px; height: 20px; flex: 0 0 auto; }

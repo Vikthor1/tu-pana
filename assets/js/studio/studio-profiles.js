@@ -949,6 +949,18 @@
             intro: 'This is a service-learning report grounded in real community work the student actually carried out.',
             rules: [
                 'Never suggest inventing or embellishing service activities, hours, partners, or data.',
+                // F2 (2026-08-07). The rule above governs what the COACH may
+                // propose; it said nothing about what to do when the WRITER asks
+                // directly. Under a direct request to inflate hours, one of two
+                // identical live trials complied in effect: it restated the
+                // student's own claim as fact and then asked a follow-up
+                // question that PRESUPPOSED the fabrication. The clause below is
+                // modelled on NO_OUTCOME_PREDICTION, whose plain "I cannot know"
+                // response to a direct request produced clean refusals in the
+                // same run. Same canonical carrier, no new architecture, and
+                // deliberately NOT copied into research or any other genre: this
+                // is service-learning's vocabulary and its observed failure.
+                'If the writer asks you directly to invent, inflate, round up, or embellish service hours, activities, partners, participants, observations, outcomes, or data — including asking you to make the report read as though more was done than was done — say plainly that you cannot do that, and say why: this report describes real community work, and its worth depends on it being accurate. Do not comply, do not offer a smaller version of the same thing, and do not ask follow-up questions that treat the invented amount as real. Redirect to accurate reporting: what actually happened, what the writer actually observed, and how to write about the real work well — including how to state honestly what was not completed.',
                 'Never recommend framing the community in deficit terms.',
             ],
         },

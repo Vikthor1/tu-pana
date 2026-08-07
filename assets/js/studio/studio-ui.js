@@ -1691,6 +1691,54 @@
         return { text: '', paragraph, full, hasSelection: false, capturedAt: new Date().toISOString() };
     }
 
+    // ── F1 — Ask Tu Pana carries a genuine request ────────────────────────
+    // Before this, the Ask Tu Pana pathway had NO question field anywhere in
+    // the Studio, and sent the literal string 'Student question' /
+    // 'Pregunta del estudiante' as the request. On a draft the writer had not
+    // annotated, the model therefore received text and no actual request. The
+    // 1D live run recorded three different failures from that one cause: the
+    // transmitted draft ignored, a coach asking a question the interface could
+    // not accept, and a recitation of the internal rule scaffolding.
+    //
+    // Two changes close it. The writer now has a real, optional question box;
+    // and when they leave it blank, an EXPLICIT BOUNDED DEFAULT REQUEST is
+    // sent under a label saying Tu Pana generated it. The default is a genuine
+    // instruction — one useful next move on the writing already transmitted —
+    // not a placeholder pretending to be a student question, and it tells the
+    // model in as many words not to ask for text it already has.
+    const COACH_DEFAULT_REQUEST = {
+        en: 'The writer did not type a specific question. The writing above is what they chose to send, and it is complete for this request — do not ask them to provide, paste, or resend it. Read it and offer one useful next move: name one thing the writing is already doing, and ask one focused revision question the writer can act on now.',
+        es: 'La persona que escribe no escribió una pregunta específica. El texto de arriba es lo que decidió enviar y está completo para esta solicitud — no le pidas que lo proporcione, lo pegue ni lo envíe de nuevo. Léelo y ofrece una movida útil: nombra algo que la escritura ya está haciendo y haz una pregunta de revisión enfocada que pueda aplicar ahora.',
+    };
+    // The provider language, mirroring submitMockReview: `both` mode sends es.
+    function providerLangCode() { return state.lang === 'en' ? 'en' : 'es'; }
+    function coachDefaultRequest() { return providerLangCode() === 'en' ? COACH_DEFAULT_REQUEST.en : COACH_DEFAULT_REQUEST.es; }
+    // The single source of truth for what the coach pathway transmits as its
+    // request. The consent preview and the actual send both read it, so the
+    // preview cannot drift from the payload.
+    function coachRequestText(typed) {
+        const question = String(typed ?? '').trim();
+        return question || coachDefaultRequest();
+    }
+    function coachQuestionValue() {
+        return String(dialogRoot.querySelector('#coachQuestion')?.value ?? '').trim();
+    }
+    function renderCoachQuestionField() {
+        return `<div class="field coach-question"><label for="coachQuestion">${escapeHtml(uiText('What would you like to ask about this writing?', '¿Qué te gustaría preguntar sobre esta escritura?'))}</label><textarea id="coachQuestion" rows="2" spellcheck="${spellcheckEnabled()}" aria-describedby="coachQuestionHint" placeholder="${escapeHtml(uiText('For example: is my main idea clear here?', 'Por ejemplo: ¿se entiende aquí mi idea principal?'))}"></textarea><p class="field-hint" id="coachQuestionHint">${escapeHtml(uiText('Optional. Leave it blank and Tu Pana is asked for one useful next move on the writing above. Either way, the exact request appears below before you send.', 'Opcional. Si lo dejas en blanco, se le pide a Tu Pana una movida útil sobre la escritura de arriba. En cualquier caso, la solicitud exacta aparece abajo antes de enviar.'))}</p></div>`;
+    }
+    // Requirement 3: the writer sees EVERYTHING being transmitted. The scope
+    // preview already shows the writing; this shows the request that travels
+    // with it, whether the writer wrote it or Tu Pana supplied the default.
+    function renderCoachRequestPreview() {
+        return `<div class="field"><span class="field-label" id="coachRequestPreviewLabel">${escapeHtml(uiText('Exact request sent with your writing', 'Solicitud exacta que se envía con tu escritura'))}</span><div class="exact-preview" id="coachRequestPreview" role="region" aria-labelledby="coachRequestPreviewLabel" tabindex="0">${escapeHtml(coachRequestText(''))}</div></div>`;
+    }
+    // Short, honest card title. A typed question titles its own card; a
+    // defaulted request is never labelled as though the writer asked it.
+    function coachReviewTitle(question) {
+        if (!question) return uiText('One useful next move', 'Una movida útil');
+        return question.length <= 90 ? question : `${question.slice(0, 89)}…`;
+    }
+
     function openScopeDialog(kind, title, subtitle) {
         const scopes = [];
         if (captured?.hasSelection && captured.text?.trim()) scopes.push(['selected', t('selectedScope'), captured.text]);
@@ -1699,7 +1747,7 @@
         const defaultScope = scopes[0]?.[0] || 'full';
         const facts = concept === 'integrated' ? renderIntegratedTransmissionFacts(kind) : '';
         const scopeHint = captured?.hasSelection ? '' : `<p class="scope-hint">${escapeHtml(state.lang === 'en' ? 'No passage is selected. Select words in the draft to add a passage option.' : 'No hay un pasaje seleccionado. Selecciona palabras del borrador para añadir esa opción.')}</p>`;
-        openDialog(title, subtitle, `${facts}${scopeHint}<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(scopeText(defaultScope))}</div></div>${kind === 'focused' ? renderLensChoices() : ''}${renderMoveContextOffer()}${renderVoiceConstraintOffer()}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${boundaryMarkup()}</span></label>${a3DisclosureMarkup()}`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? sendReviewLabel() : sendCoachLabel())}</button>`);
+        openDialog(title, subtitle, `${facts}${scopeHint}<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(scopeText(defaultScope))}</div></div>${kind === 'focused' ? renderLensChoices() : `${renderCoachQuestionField()}${renderCoachRequestPreview()}`}${renderMoveContextOffer()}${renderVoiceConstraintOffer()}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${boundaryMarkup()}</span></label>${a3DisclosureMarkup()}`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? sendReviewLabel() : sendCoachLabel())}</button>`);
     }
 
     function renderMoveContextOffer() {
@@ -1750,7 +1798,12 @@
         const text = scopeText(scope);
         if (!text) return;
         const lensInput = kind === 'focused' ? dialogRoot.querySelector('input[name="reviewLens"]:checked') : null;
-        const lens = lensInput ? lensInput.value : (state.lang !== 'en' ? 'Pregunta del estudiante' : 'Student question');
+        // F1 — the coach pathway now carries a real request. `askedQuestion` is
+        // the writer's own words (empty if they chose not to type one) and
+        // `coachRequest` is exactly what the consent preview showed.
+        const askedQuestion = kind === 'focused' ? '' : coachQuestionValue();
+        const coachRequest = kind === 'focused' ? '' : coachRequestText(askedQuestion);
+        const lens = lensInput ? lensInput.value : coachReviewTitle(askedQuestion);
         const lensIndex = lensInput ? Number(lensInput.dataset.lensIndex) : null;
         const voiceEntriesIncluded = dialogRoot.querySelector('#includeVoiceEntries')?.checked ? voiceEntries().map(item => ({ id: item.id, text: item.text })) : [];
         const moveIndex = Number(dialogRoot.querySelector('input[name="moveContext"]:checked')?.value);
@@ -1789,19 +1842,36 @@
         const genreContext = genreCoachRules(consentedGenreId);
         const prompt = kind === 'focused' && scope === 'full'
             ? StudioProvider.buildFullDraftPrompt({ genreName: genre.label.en, genreContext, lang: providerLang, lensLabel: lens, lensInstruction: lens, purpose: 'genre-focused review', words: wordCount(text), text, voiceEntries: voiceEntriesIncluded })
-            : StudioProvider.buildPassagePrompt({ genreName: genre.label.en, genreContext, lang: providerLang, scopeLabel: scope, text, question: kind === 'focused' ? `Focused review request — lens: ${lens}. Review only this consented ${scope === 'paragraph' ? 'paragraph' : 'passage'}; do not ask for the rest of the draft.` : lens, moveContext: moveContextIncluded, voiceEntries: voiceEntriesIncluded });
+            : StudioProvider.buildPassagePrompt({ genreName: genre.label.en, genreContext, lang: providerLang, scopeLabel: scope, text, question: kind === 'focused' ? `Focused review request — lens: ${lens}. Review only this consented ${scope === 'paragraph' ? 'paragraph' : 'passage'}; do not ask for the rest of the draft.` : coachRequest, requestLabel: kind !== 'focused' && !askedQuestion ? 'REQUEST GENERATED BY TU PANA (the writer did not type a question)' : undefined, moveContext: moveContextIncluded, voiceEntries: voiceEntriesIncluded });
         const token = { cancelled: false, settled: false };
         pendingProviderToken = token;
         provider.call({ requestKind, prompt, payload: { genreName: genre.label.en }, lang: providerLang }).then(result => {
             recordProviderUsage(requestKind, result.usage);
             if (token.cancelled) { recordProviderEvent(requestKind, { category: 'cancelled' }); return; }
+            // F1 — VALIDATE BEFORE STORE, the Council kernel's discipline applied
+            // to the four single-coach pathways. A response that recites this
+            // application's internal rule scaffolding, or narrates its own
+            // deliberation, never becomes visible text, never becomes a stored
+            // review, and never triggers a version snapshot. Usage is still
+            // counted above: the call really happened and really cost money.
+            // Only the REASON is recorded — verdict.marker is a fragment of the
+            // scaffolding itself, so persisting it would reintroduce the leak.
+            const verdict = StudioProvider.validateCoachResponse(result.text);
+            if (!verdict.ok) {
+                recordProviderEvent(requestKind, { category: 'response_rejected', reason: verdict.reason });
+                token.settled = true;
+                button.disabled = false;
+                button.textContent = restoreLabel;
+                renderProviderFailure({ category: 'response_rejected', message: StudioProvider.errorMessage('response_rejected', providerLang), retryable: false });
+                return;
+            }
             token.settled = true;
-            const suggestion = result.text;
+            const suggestion = verdict.text;
             const snapshotId = concept === 'notebook' || concept === 'integrated'
                 ? checkpointVersion(kind === 'focused' ? 'before focused review' : 'before coach feedback', consentedDraft)
                 : null;
             const criticalKey = concept === 'integrated' ? integratedCriticalKey(kind, lensIndex) : null;
-            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: !provider.live, provider: provider.name, requestKind, truncated: Boolean(result.truncated), purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? (provider.live ? 'Tu Pana genre-focused reviewer' : 'mock genre-focused reviewer') : (provider.live ? 'Tu Pana coach' : 'Tu Pana mock coach'), calls: 1, criticalKey, criticalPrompt: criticalKey ? criticalQuestion(criticalKey).en : null, criticalContext: criticalKey ? criticalRiskText(criticalKey) : null, draftSignature: draftSignature(consentedDraft), snapshotId, genre: consentedGenreId, genreLabel: genre.label.en, genreLabelEs: genre.label.es, voiceEntriesIncluded, moveContextIncluded });
+            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: !provider.live, provider: provider.name, requestKind, truncated: Boolean(result.truncated), purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? (provider.live ? 'Tu Pana genre-focused reviewer' : 'mock genre-focused reviewer') : (provider.live ? 'Tu Pana coach' : 'Tu Pana mock coach'), calls: 1, criticalKey, criticalPrompt: criticalKey ? criticalQuestion(criticalKey).en : null, criticalContext: criticalKey ? criticalRiskText(criticalKey) : null, draftSignature: draftSignature(consentedDraft), snapshotId, genre: consentedGenreId, genreLabel: genre.label.en, genreLabelEs: genre.label.es, voiceEntriesIncluded, moveContextIncluded, question: askedQuestion || null, requestDefaulted: kind !== 'focused' && !askedQuestion });
             saveState(); closeDialog(true); renderApp(); reviewTab = 'history'; openReviewCenter();
         }).catch(failure => {
             recordProviderEvent(requestKind, failure);
@@ -1845,7 +1915,13 @@
     function recordProviderEvent(requestKind, failure) {
         state.providerEvents ||= [];
         state.providerEvents = state.providerEvents.slice(-9);
-        state.providerEvents.push({ requestKind, category: failure?.category || 'unknown', at: new Date().toISOString() });
+        // `reason` is added ONLY when the caller supplies one (currently the F1
+        // response guard), so every pre-existing event keeps its exact shape.
+        // It carries a category name — 'scaffolding' | 'deliberation' | 'empty'
+        // — never any fragment of the rejected response.
+        const event = { requestKind, category: failure?.category || 'unknown', at: new Date().toISOString() };
+        if (failure?.reason) event.reason = failure.reason;
+        state.providerEvents.push(event);
         saveState();
     }
 
@@ -2149,9 +2225,18 @@
             ? uiText(`Your ${review.voiceEntriesIncluded.length} Your Voice entr${review.voiceEntriesIncluded.length === 1 ? 'y was' : 'ies were'} sent as explicit protection constraints. A model can still miss them — the protected wording remains yours to keep.`, `Tu${review.voiceEntriesIncluded.length === 1 ? '' : 's'} ${review.voiceEntriesIncluded.length} entrada${review.voiceEntriesIncluded.length === 1 ? '' : 's'} de Tu voz se enviaron como restricciones explícitas de protección. Un modelo aún puede ignorarlas — la redacción protegida sigue siendo tuya.`)
             : uiText(`You asked this local mock to consider ${review.voiceEntriesIncluded.length} Your Voice entr${review.voiceEntriesIncluded.length === 1 ? 'y' : 'ies'}. This records your request; it does not claim live-model enforcement.`, `Pediste que esta simulación local considere ${review.voiceEntriesIncluded.length} entrada${review.voiceEntriesIncluded.length === 1 ? '' : 's'} de Tu voz. Esto registra tu solicitud; no afirma una aplicación por un modelo en vivo.`))}</p>` : '';
         const moveRequest = review.moveContextIncluded ? `<p class="move-request-note"><strong>${escapeHtml(uiText('Optional Move framing used:', 'Orientación opcional de Movida utilizada:'))}</strong> ${escapeHtml(review.moveContextIncluded.moveLabel)} · ${escapeHtml(review.moveContextIncluded.noteText)}</p>` : '';
+        // F1 — the saved card says truthfully what was asked. A typed question
+        // is shown in the writer's own words; a defaulted request is named as
+        // Tu Pana's, never presented as though the writer asked it. Records
+        // written before F1 carry neither field and render nothing extra.
+        const questionRequest = review.type === 'coach'
+            ? (review.question
+                ? `<p class="question-request-note"><strong>${escapeHtml(uiText('You asked:', 'Preguntaste:'))}</strong> ${escapeHtml(review.question)}</p>`
+                : (review.requestDefaulted ? `<p class="question-request-note">${escapeHtml(uiText('You did not type a question, so Tu Pana was asked for one useful next move on this writing.', 'No escribiste una pregunta, así que se le pidió a Tu Pana una movida útil sobre esta escritura.'))}</p>` : ''))
+            : '';
         const liveRecord = review.mock === false;
         const truncatedNote = review.truncated ? `<p class="truncated-note">${escapeHtml(uiText('This response was cut off by a length limit; what appears here is everything that arrived.', 'Esta respuesta fue cortada por un límite de longitud; lo que aparece aquí es todo lo que llegó.'))}</p>` : '';
-        return `<article class="review-card"><span class="mock-label">${escapeHtml(liveRecord ? uiText('Tu Pana AI', 'IA de Tu Pana') : 'Mock AI')} · ${escapeHtml(storedGenreLabel(review))} · ${escapeHtml(review.scope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(review.calls ? `${review.calls} ${liveRecord ? (state.lang === 'en' ? 'AI call' : 'llamada de IA') : (state.lang === 'en' ? 'mock call' : 'llamada simulada')}` : (state.lang === 'en' ? 'call count not stored' : 'cantidad de llamadas no guardada'))}` : ''}</p>${renderSnapshotLink(review.snapshotId, 'history')}<blockquote>${escapeHtml(review.exactExcerpt)}</blockquote>${moveRequest}${voiceRequest}<p>${escapeHtml(review.suggestion)}</p>${truncatedNote}${concept === 'integrated' ? renderCriticalPrompt(review.criticalKey, review.genre) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}${concept === 'integrated' ? `<button class="text-button revision-focus-suggestion" data-action="revision-focus-suggestion" data-suggestion="${escapeHtml(review.suggestion)}">${escapeHtml(uiText('Pick one revision to try', 'Elige una revisión para probar'))}</button>` : ''}</article>`;
+        return `<article class="review-card"><span class="mock-label">${escapeHtml(liveRecord ? uiText('Tu Pana AI', 'IA de Tu Pana') : 'Mock AI')} · ${escapeHtml(storedGenreLabel(review))} · ${escapeHtml(review.scope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(review.calls ? `${review.calls} ${liveRecord ? (state.lang === 'en' ? 'AI call' : 'llamada de IA') : (state.lang === 'en' ? 'mock call' : 'llamada simulada')}` : (state.lang === 'en' ? 'call count not stored' : 'cantidad de llamadas no guardada'))}` : ''}</p>${renderSnapshotLink(review.snapshotId, 'history')}<blockquote>${escapeHtml(review.exactExcerpt)}</blockquote>${questionRequest}${moveRequest}${voiceRequest}<p>${escapeHtml(review.suggestion)}</p>${truncatedNote}${concept === 'integrated' ? renderCriticalPrompt(review.criticalKey, review.genre) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}${concept === 'integrated' ? `<button class="text-button revision-focus-suggestion" data-action="revision-focus-suggestion" data-suggestion="${escapeHtml(review.suggestion)}">${escapeHtml(uiText('Pick one revision to try', 'Elige una revisión para probar'))}</button>` : ''}</article>`;
     }
 
     function renderSnapshotLink(snapshotId, returnTab = reviewTab) {
@@ -2786,6 +2871,9 @@
             setActiveEditSurface(event.target);
             recordEditInput(event.target);
         }
+        // F1 — the consent preview tracks the question as it is typed, so what
+        // the writer reads is always what would be sent at that moment.
+        if (event.target.id === 'coachQuestion') { const preview = document.getElementById('coachRequestPreview'); if (preview) preview.textContent = coachRequestText(event.target.value); }
         if (event.target.id === 'pasteDraft') { const preview = document.getElementById('pastePreview'); if (preview) preview.textContent = event.target.value; }
         if (event.target.id === 'pasteNotebookText') { const preview = document.getElementById('pasteNotebookPreview'); if (preview) preview.textContent = event.target.value; }
         if (event.target.id === 'deleteConfirm') { const button = dialogRoot.querySelector('[data-action="delete-state"]'); if (button) button.disabled = event.target.value !== 'DELETE'; }

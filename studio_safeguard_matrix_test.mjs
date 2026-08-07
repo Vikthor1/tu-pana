@@ -286,10 +286,17 @@ console.log('\n8a. The nine pre-B2 safeguard sets and the two universal contract
 // honor. AUTHORSHIP_RULES and PASSAGE_READING_PROTOCOL are extracted from a
 // real built prompt, not from source, so the assertion covers what is
 // transmitted rather than what is declared.
+// F2 (2026-08-07) — cap200 is the ONE deliberate, founder-authorized exception
+// to this section. It gained a direct-request refusal clause, so its pre-B2
+// digest 651ad12c42b49dadb7a479511ae800e7e638fecc7420cdab6f36f04c69bc2f1a no
+// longer holds and is re-baselined below rather than relaxed away. The two
+// sentences that existed before F2 are separately asserted verbatim further
+// down, so this remains a preservation guarantee: F2 must be ADDITIVE. Every
+// other entry keeps its original pre-B2 digest untouched.
 const PRE_B2_SHA256 = {
     admissions: 'a6ecc4e80f71d9f9edcc61dc2490ddf7b5ccb95051173c342a7c92c9afa7d857',
     sop: '1e13a5c3dbe94743acdf1557fa6a7c98a75f3a492e0bc5528ff653e08a85b637',
-    cap200: '651ad12c42b49dadb7a479511ae800e7e638fecc7420cdab6f36f04c69bc2f1a',
+    cap200: 'bac5d093262218ea6aafa4d2285062993e617ce61c71101d9e6e14e2d8f9e00c',
     research: '6657ba9ea5b48bed48f879666434a38a48f38975a1ae92e3597c159121b32981',
     stem: 'd8b742999fc4f654e6a161416325b23f7641b7c341d1dab6b610cf5604f8f0d4',
     stemExplanation: '2f0398b34c812ae2fa17f1e37c66e296cd6ef16206c0198e791b7ded729e13f7',
@@ -317,7 +324,31 @@ const digests = await page.evaluate(async ids => {
     return out;
 }, Object.keys(PRE_B2_SHA256));
 for (const [id, expected] of Object.entries(PRE_B2_SHA256)) {
-    check(`${id}: safeguard text unchanged by B2 (sha256)`, digests.nine[id] === expected, digests.nine[id]);
+    const label = id === 'cap200'
+        ? 'cap200: safeguard text pinned at its post-F2 baseline (sha256)'
+        : `${id}: safeguard text unchanged by B2 (sha256)`;
+    check(label, digests.nine[id] === expected, digests.nine[id]);
+}
+
+// F2 is additive, and that is asserted rather than assumed: both sentences that
+// existed before it must still travel verbatim, and the new clause must reach
+// every student-reachable pathway exactly as the rest of the set does.
+const F2_CLAUSE = 'If the writer asks you directly to invent, inflate, round up, or embellish service hours';
+const cap200Pathways = matrix.cap200;
+check('cap200 keeps its pre-F2 embellishment prohibition verbatim',
+    (cap200Pathways.ask_tupana || '').includes('Never suggest inventing or embellishing service activities, hours, partners, or data.'));
+check('cap200 keeps its pre-F2 deficit-framing prohibition verbatim',
+    (cap200Pathways.ask_tupana || '').includes('Never recommend framing the community in deficit terms.'));
+const f2Missing = PATHWAYS.filter(p => !(cap200Pathways[p.key] || '').includes(F2_CLAUSE)).map(p => p.key);
+check('F2 direct-request refusal clause reaches all 5 pathways', f2Missing.length === 0, `missing on ${f2Missing.join(', ')}`);
+check('F2 clause names accurate reporting as the redirect, not just a refusal',
+    (cap200Pathways.ask_tupana || '').includes('Redirect to accurate reporting'));
+check('F2 forbids follow-up questions that presuppose the invented amount',
+    (cap200Pathways.ask_tupana || '').includes('do not ask follow-up questions that treat the invented amount as real'));
+// The founder boundary for this package: F2 was NOT broadened mechanically.
+for (const id of ['research', 'admissions', 'sop', 'neutral', 'autobiographical']) {
+    check(`${id} did not inherit the cap200 F2 clause`,
+        !(matrix[id]?.ask_tupana || '').includes(F2_CLAUSE));
 }
 for (const [name, expected] of Object.entries(UNIVERSAL_SHA256)) {
     check(`${name}: transmitted byte-for-byte as before B2 (sha256)`,

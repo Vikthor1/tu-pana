@@ -59,8 +59,16 @@ You must not write the student's work for them. Never produce full essays, draft
             + voiceEntries.map(entry => `- "${entry.text}"`).join('\n') + '\n';
     }
 
+    // F1 — the request block is LABELLED TRUTHFULLY. `STUDENT REQUEST` is the
+    // default and every pre-F1 caller keeps it, so their prompts are
+    // byte-identical. The Ask Tu Pana path passes an explicit label when the
+    // writer left the question blank, so a request Tu Pana generated on the
+    // writer's behalf is never presented to the model as something the writer
+    // asked. Before F1 this path sent the literal placeholder
+    // 'Student question' under this header — text and no actual request.
     function buildPassagePrompt(payload) {
-        return `${AUTHORSHIP_RULES}\n\n${genreHeader(payload)}\n${voiceConstraintBlock(payload.voiceEntries)}\n[STUDENT-SELECTED ${payload.scopeLabel.toUpperCase()}]\n${payload.text}\n[END SELECTED TEXT]\n\n${PASSAGE_READING_PROTOCOL}\n${payload.moveContext ? `\nSTUDENT PLANNING CONTEXT (student-authored, explicitly chosen for this request):\nMove: ${payload.moveContext.moveLabel}\nNote: ${payload.moveContext.noteText}\n` : ''}\nSTUDENT REQUEST:\n${payload.question}`;
+        const requestLabel = payload.requestLabel || 'STUDENT REQUEST';
+        return `${AUTHORSHIP_RULES}\n\n${genreHeader(payload)}\n${voiceConstraintBlock(payload.voiceEntries)}\n[STUDENT-SELECTED ${payload.scopeLabel.toUpperCase()}]\n${payload.text}\n[END SELECTED TEXT]\n\n${PASSAGE_READING_PROTOCOL}\n${payload.moveContext ? `\nSTUDENT PLANNING CONTEXT (student-authored, explicitly chosen for this request):\nMove: ${payload.moveContext.moveLabel}\nNote: ${payload.moveContext.noteText}\n` : ''}\n${requestLabel}:\n${payload.question}`;
     }
 
     function buildFullDraftPrompt(payload) {
@@ -87,6 +95,94 @@ You must not write the student's work for them. Never produce full essays, draft
 
     function buildCouncilSynthesisPrompt(payload) {
         return `[COUNCIL SYNTHESIS]\n${genreHeader(payload)}\nWork ONLY from the validated reviewer findings provided below. Every output item must cite real source finding ids in \"sourceIds\"; unknown ids are discarded by validation code and corroboration is recomputed by code, never trusted from you.\nSynthesis order for tie-breaking only: ${(payload.synthesisOrder || []).join(' > ')}.\nDisagreements must NOT be resolved: state each position fairly as a question only the writer can answer.\nNo praise, scores, or predictions. Caps: 3 priorities, 4 secondary, 3 preserve, 2 disagreements.\n\nRespond with ONLY this strict JSON, no code fences, no commentary:\n{\"summary\": \"<=60 words\", \"priorities\": [{\"claim\": \"...\", \"revisionMove\": \"...\", \"why\": \"...\", \"sourceIds\": [\"structure-1\"]}], \"secondary\": [...same shape...], \"preserve\": [{\"why\": \"...\", \"sourceIds\": [\"voice-p1\"]}], \"disagreements\": [{\"question\": \"...\", \"positions\": [{\"roleKey\": \"...\", \"view\": \"...\"}], \"sourceIds\": [...]}]}\n\nREVIEWER FINDINGS (validated):\n${payload.findingsJson}`;
+    }
+
+    // ── F1 — prose response-integrity guard ──────────────────────────────────
+    // Modelled on the Council kernel's validate-BEFORE-store discipline
+    // (studio-council.js), which demonstrably works: a generated artifact that
+    // fails application-side validation is discarded and can never be shown or
+    // persisted. The Council path gets that for free because it demands strict
+    // JSON — prose scaffolding fails parseJsonLoose() and is dropped. The four
+    // single-coach pathways receive free prose and had no equivalent gate.
+    //
+    // Observed in the 1D live run: an Ask Tu Pana request on a plain draft
+    // returned ~5,973 characters of the model's own deliberation, opening
+    // "Here's a thinking process that applies the rules…" and reciting this
+    // file's rule scaffolding by name, on the College Personal Statement route.
+    // Showing a student the guardrail structure is exactly what someone trying
+    // to circumvent it would want.
+    //
+    // DESIGN — precision over reach. Rejecting good coaching is itself a harm,
+    // so the markers below are strings that appear in OUR OWN prompt
+    // scaffolding and essentially nowhere in legitimate writing feedback. That
+    // makes the guard falsifiable and self-maintaining: if a prompt header is
+    // renamed, its marker is renamed with it. Deliberately NOT matched:
+    // "thinking process" in running prose ("your thinking process is visible
+    // here" is real coaching), and the bare word "prompt" ("the assignment
+    // prompt" is real coaching). Only line-initial headings and explicit
+    // self-referential instruction talk are caught.
+    //
+    // This guard does not claim to catch every possible leak. It catches the
+    // observed failure class deterministically and fails toward showing the
+    // student nothing rather than showing them scaffolding.
+    const SCAFFOLD_MARKERS = [
+        'absolute authorship rule',
+        'whole-passage reading protocol',
+        'whole-draft review contract',
+        'passage reading protocol',
+        'genre guidance',
+        'student-selected passage',
+        'student-selected paragraph',
+        'student-selected full',
+        'end selected text',
+        'end student draft',
+        'student request:',
+        'student-protected voice',
+        'student planning context',
+        'prohibited in this genre',
+        'council reviewer]',
+        'council synthesis]',
+        'full-draft review]',
+        'interface language:',
+        'assignment or genre:',
+        'constraint check',
+        'final review against',
+        'system prompt',
+        'evidencequote',
+        'revisionmove',
+        'sourceids',
+        'nofindings',
+    ];
+
+    const DELIBERATION_PATTERNS = [
+        // "Here's a thinking process that applies the rules…" (observed, R2)
+        /\bhere(?:'|’)?s?\s+(?:is\s+)?(?:a|my|the)\s+(?:thinking|thought|reasoning)\s+process\b/i,
+        // A line that opens a deliberation section, with or without markdown.
+        /^\s*(?:#{1,6}\s*)?(?:\*{1,2}\s*)?(?:thinking|thought|reasoning)\s+process\b/im,
+        /^\s*(?:#{1,6}\s*)?(?:\*{1,2}\s*)?proceso\s+de\s+(?:pensamiento|razonamiento)\b/im,
+        /\bchain[-\s]of[-\s]thought\b/i,
+        // The model narrating a pass over its own instructions.
+        /\b(?:my|the)\s+(?:system\s+prompt|instructions\s+above|guidelines\s+above)\b/i,
+        /\b(?:given|provided|described)\s+in\s+the\s+(?:system\s+)?prompt\b/i,
+        /\bapplies?\s+the\s+rules\s+and\s+genre\s+guidance\b/i,
+        /\bfinal\s+(?:review|check)\s+against\s+(?:all\s+)?(?:the\s+)?rules\b/i,
+        /\b(?:mis|las)\s+(?:reglas|instrucciones)\s+del\s+sistema\b/i,
+    ];
+
+    // Returns { ok: true, text } or { ok: false, reason, marker }.
+    // `marker` exists for TESTS AND LOCAL DIAGNOSIS ONLY. It is a fragment of
+    // the scaffolding itself, so callers must never render it to the writer or
+    // write it into a stored record — that would reintroduce the leak the
+    // guard exists to stop. Only `reason` is safe to persist.
+    function validateCoachResponse(rawText) {
+        const text = typeof rawText === 'string' ? rawText : '';
+        if (!text.trim()) return { ok: false, reason: 'empty', marker: null };
+        const lower = text.toLowerCase();
+        const marker = SCAFFOLD_MARKERS.find(entry => lower.includes(entry));
+        if (marker) return { ok: false, reason: 'scaffolding', marker };
+        const pattern = DELIBERATION_PATTERNS.find(entry => entry.test(text));
+        if (pattern) return { ok: false, reason: 'deliberation', marker: String(pattern) };
+        return { ok: true, text };
     }
 
     // ── Error copy (translated from legacy getGeminiErrorMessage) ─────────────
@@ -128,7 +224,18 @@ You must not write the student's work for them. Never produce full essays, draft
             es: 'El servicio de IA no está configurado. Puedes continuar todo el proceso de escritura sin IA.',
             en: 'The AI service is not configured. You can continue the entire writing process without AI.',
         },
+        // F1 — the response arrived but failed the integrity guard. Calm and
+        // truthful: it says what happened, that nothing was kept, and what the
+        // writer can do next. It never names or quotes what was rejected.
+        response_rejected: {
+            es: 'La respuesta no cumplió las reglas de respuesta de Tu Pana, así que no se mostró ni se guardó. Tu borrador no cambió. Puedes preguntar otra vez — una pregunta específica suele ayudar — o seguir escribiendo sin IA.',
+            en: 'The answer did not meet Tu Pana’s response rules, so it was not shown or saved. Your draft is unchanged. You can ask again — a specific question usually helps — or keep writing without AI.',
+        },
     };
+    // response_rejected is deliberately absent: it is decided AFTER a
+    // successful HTTP response, so the transport retry loop never sees it, and
+    // an automatic retry would spend a second paid call on the same prompt.
+    // The writer retries by pressing send again, which is their decision.
     const RETRYABLE = new Set(['rate_limited', 'service_unavailable', 'upstream_error', 'network_error', 'timeout']);
 
     function errorMessage(category, lang) {
@@ -149,6 +256,22 @@ You must not write the student's work for them. Never produce full essays, draft
     function mockCouncilFixture() {
         try { return new URLSearchParams(location.search).get('mockcouncil') || null; } catch { return null; }
     }
+
+    // F1 — adversarial COACH fixtures, so the response-integrity guard is
+    // exercised deterministically with zero live calls, exactly as
+    // ?mockcouncil= exercises the Council kernel: ?mockleak=
+    // scaffolding | deliberation | empty | clean
+    // The scaffolding fixture reproduces the SHAPE of the 1D leak (rule names
+    // recited back at the writer); it is a test fixture, never a real prompt.
+    function mockLeakFixture() {
+        try { return new URLSearchParams(location.search).get('mockleak') || null; } catch { return null; }
+    }
+
+    const MOCK_LEAK_TEXT = {
+        scaffolding: 'Constraint Check — ABSOLUTE AUTHORSHIP RULE: no sentences, phrases, or outlines the student could copy. GENRE GUIDANCE (Personal Statement): not acting as an admissions officer. Final Review against ALL Rules: passed.',
+        deliberation: 'Here\'s a thinking process that applies the rules and genre guidance to the student\'s request: first I consider what the writer needs, then I check each constraint in order, and then I answer.',
+        empty: '   ',
+    };
 
     function mockReviewerJson(payload) {
         const fixture = mockCouncilFixture();
@@ -211,6 +334,10 @@ You must not write the student's work for them. Never produce full essays, draft
                             text = mockReviewerJson(payload);
                         } else if (requestKind === 'council_synthesis') {
                             text = mockSynthesisJson(payload);
+                        } else if (MOCK_LEAK_TEXT[mockLeakFixture()]) {
+                            // Coach/full-draft pathways only; the Council kernel
+                            // has its own validation and is left untouched.
+                            text = MOCK_LEAK_TEXT[mockLeakFixture()];
                         } else if (lang !== 'en') {
                             text = `Fortaleza: el pasaje establece una dirección clara para ${genreLabel}. Pregunta de revisión: ¿qué evidencia específica ayudaría al lector a seguir esta idea? No reescribí ninguna oración.`;
                         } else {
@@ -296,6 +423,7 @@ You must not write the student's work for them. Never produce full essays, draft
     window.StudioProvider = {
         buildPassagePrompt, buildFullDraftPrompt,
         buildCouncilReviewerPrompt, buildCouncilSynthesisPrompt,
+        validateCoachResponse, SCAFFOLD_MARKERS, DELIBERATION_PATTERNS,
         errorMessage, active, createMockProvider, createGeminiProvider,
     };
 }());

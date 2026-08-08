@@ -56,7 +56,7 @@ const ROOT = dirname(fileURLToPath(import.meta.url));
 // Each group is one student-facing surface plus its verified static closure.
 // ─────────────────────────────────────────────────────────────────────────────
 export const PREVIEW_ARTIFACT = [
-    // ── Writing Studio (the canonical surface) ───────────────────────────────
+    // ── Writing Studio (the only application surface) ────────────────────────
     // studio.html declares exactly these seven dependencies and nothing more:
     // no fonts, no images, no audio, and no fetch to any repository path. Its
     // only outbound origin is the Gemini proxy Worker.
@@ -69,47 +69,55 @@ export const PREVIEW_ARTIFACT = [
     'assets/js/studio/studio-tour.js',
     'assets/js/studio/studio-ui.js',
 
-    // ── Legacy app: Tu Pana de Escritura (index.html) ────────────────────────
-    // Retained for CONTINUITY, not because the Studio needs it. Writing done on
-    // this origin lives in this origin's localStorage; unpublishing index.html
-    // would leave that work present but unreadable and unexportable. Retiring
-    // this surface is a separate decision needing its own authorization.
-    'index.html',
-    'assets/css/styles.css',
-    'assets/js/config.js',
-    'assets/js/data.js',
-    'assets/js/genre-template.js',
-    'assets/js/prompts.js',
-    'assets/js/ai-provider.js',
-    'assets/js/storage.js',
-    'assets/js/council.js',
-    'assets/js/ui.js',
-    'assets/js/app.js',
-
-    // ── Legacy onboarding audio ──────────────────────────────────────────────
-    // The seven paths hardcoded in assets/js/ui.js. Nothing interpolates into
-    // assets/audio, so this list is the complete set; assets/audio/en/ holds only
-    // a .gitkeep placeholder and no runtime file.
-    'assets/audio/es/01-landing-welcome.mp3',
-    'assets/audio/es/02-mani-intro.mp3',
-    'assets/audio/es/03-mani-freire.mp3',
-    'assets/audio/es/04-lab-step0.mp3',
-    'assets/audio/es/05-lab-step1.mp3',
-    'assets/audio/es/06-lab-step2.mp3',
-    'assets/audio/es/07-lab-step3.mp3',
-
-    // ── Legacy tutorial ──────────────────────────────────────────────────────
-    // Self-contained: inline CSS and inline JS, no external stylesheet, no font
-    // link, no external origin. Its only exit is index.html, above.
-    'start-here.html',
-
     // ── Not-found page ───────────────────────────────────────────────────────
     // Load-bearing for the boundary, not decoration. Without a 404.html,
     // Cloudflare Pages answers every unmatched path with index.html and HTTP 200,
     // so an excluded file is indistinguishable from a served one and "excluded"
     // cannot be demonstrated. Self-contained, so it can never itself 404.
+    //
+    // It now offers exactly one destination. It used to also link the legacy
+    // application; that link was removed with the surface, because the one page
+    // whose whole job is to be honest about absence must not point at something
+    // absent.
     '404.html',
+
+    // ── Root entry (deployment configuration, NOT a served path) ─────────────
+    // The tenth path, and the only one Cloudflare consumes rather than serves.
+    // With the legacy application retired there is no index.html, so `/` would
+    // otherwise answer 404 — an unacceptable front door. One rule, `/` matched
+    // exactly, 302 to the Studio. See the file itself for why 302 and why no
+    // retired legacy path is redirected.
+    '_redirects',
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// THE RETIREMENT — 2026-08-08, founder Decision R, step 1.
+//
+// The preview served the legacy application *Tu Pana de Escritura* alongside the
+// Studio, on a CONTINUITY assumption: unpublishing it would leave writing done on
+// this origin present in localStorage but unreadable. That assumption was
+// discharged by ruling — the pilots are complete, continuing access to the legacy
+// app is no longer a product requirement, and BOTH pilots ran on production
+// (vikthor1.github.io/tu-pana), not on this preview, which never served an
+// enrolled student. Retirement withdraws a served interface; it destroys no data.
+//
+// Nineteen legacy-only files left the artifact here, none of them a Studio
+// dependency (the closure above is re-derived from markup by the backstop suite):
+//
+//   index.html · start-here.html · assets/css/styles.css
+//   assets/js/{config,data,genre-template,prompts,ai-provider,storage,council,
+//              ui,app}.js                                              (9 files)
+//   assets/audio/es/0{1..7}-*.mp3                                      (7 files)
+//
+// They remain GIT-TRACKED. This list governs what Cloudflare serves, not what the
+// repository keeps, and roughly forty legacy regression suites still exercise
+// those files. Removing them from the repository is a different decision that
+// nothing here authorizes.
+//
+// studio_deploy_artifact_test.mjs pins all nineteen as excluded BY NAME and the
+// whole of assets/audio/** as excluded BY CLASS, so re-adding one is a red suite
+// rather than a quiet re-publication.
+// ─────────────────────────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Everything below is the builder CLI. It runs ONLY when this file is invoked

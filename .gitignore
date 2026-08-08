@@ -158,6 +158,10 @@
 # Served: without it Cloudflare Pages answers unmatched paths with index.html
 # and HTTP 200, which hides the difference between excluded and served.
 !404.html
+# Deployment configuration, consumed by Cloudflare and never served as a path.
+# Since the legacy application was retired from the preview artifact there is no
+# index.html, so this file is what makes / a direct entry to the Studio.
+!_redirects
 
 # ── Allow project documentation ──────────────────────────
 !docs/

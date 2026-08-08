@@ -1,0 +1,22 @@
+# Root entry — Tu Pana Writing Studio (bounded preview).
+#
+# This deployment serves no index.html. The legacy application was retired from
+# the preview artifact on 2026-08-08, and a bare 404 at / is not an acceptable
+# front door for a writer who typed the bare address. This rule makes / a calm,
+# direct entry to the Studio: one hop, no interstitial, no flash of content.
+#
+# 302, NOT 301. A permanent redirect is cached by browsers indefinitely and
+# would be effectively unrecallable from a student's device if the root entry
+# ever changes. The root-entry decision stays reversible.
+#
+# The rule matches / EXACTLY:
+#   - existing /studio.html?assignment=... links are untouched;
+#   - no retired legacy path is redirected. index.html and start-here.html must
+#     return a hard 404 — that 404 is what demonstrates they are retired, and a
+#     courtesy redirect would erase the evidence.
+#
+# Cloudflare Pages consumes this file as deployment configuration; it is not
+# served as a path. It is the tenth path in the artifact and the only one that
+# is not a served surface. studio_deploy_artifact_test.mjs pins both properties.
+
+/  /studio.html  302

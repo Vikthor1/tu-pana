@@ -73,36 +73,83 @@ artifact even by accident.
 ### The backstop
 
 `studio_deploy_artifact_test.mjs` re-derives the dependency closure from the markup
-of `studio.html`, `index.html`, and `start-here.html`, and from the audio literals
-in `assets/js/ui.js`, then fails if the allowlist does not cover it. **Add a
+of the served surfaces, then fails if the allowlist does not cover it. **Add a
 `<script src>` and forget the allowlist, and `npm test` goes red** — before the
 deploy, not as a 404 in front of a writer. It also pins the exclusions by class
 (no `*_test.mjs`, no `.md`, no `docs/**`, `server/**`, `prompts/**`, no dotfile, no
-lockfile, no `.map`, no env file), so a future convenience edit cannot quietly
-re-publish internals.
+lockfile, no `.map`, no env file, no `assets/audio/**`, no top-level
+`assets/js/*.js`), so a future convenience edit cannot quietly re-publish internals
+or the retired application.
 
-## What is served, and why
+## The artifact — 10 paths
 
-**Writing Studio — the canonical surface.** `studio.html` plus its seven declared
-dependencies. It has no fonts, no images, no audio, and makes no request to any
-repository path; its only outbound origin is the Gemini proxy Worker.
+Nine served, one consumed as configuration.
 
-**Legacy app (`index.html`) and tutorial (`start-here.html`).** Retained for
-**continuity**, not because the Studio needs them — the Studio links to neither and
-has its own tour. Writing done on this origin lives in *this origin's*
-`localStorage`. Unpublishing `index.html` would leave that work present but
-unreadable and unexportable, which is not an acceptable side effect of a
-deployment-integrity fix.
+| Path | Purpose |
+|---|---|
+| `studio.html` | The Writing Studio. The only application surface. |
+| `assets/css/studio.css` | Its stylesheet. Every `url()` is an inline `data:`; no `@import`. |
+| `assets/js/studio/studio-profiles.js` | Genre profiles — the eleven configurations. |
+| `assets/js/studio/studio-provider.js` | Provider seam. Its one outbound `fetch` is the Gemini proxy Worker. |
+| `assets/js/studio/studio-council.js` | Council safety kernel. |
+| `assets/js/studio/studio-import.js` | Legacy-record import (reads `localStorage`, not the network). |
+| `assets/js/studio/studio-tour.js` | Guided Discovery. |
+| `assets/js/studio/studio-ui.js` | The desk itself. |
+| `404.html` | Load-bearing boundary evidence — see below. |
+| `_redirects` | Root entry. **Configuration, not a served path.** |
 
-> **This is a continuity decision, not a ruling that the legacy surface stays
-> indefinitely.** Any retirement, migration, archival access path, or student
-> notice is a separate decision requiring its own bounded authorization.
+`studio.html` declares exactly the seven dependencies above and nothing more: no
+fonts, no images, no audio, no request to any repository path.
+
+## The legacy application was retired — 2026-08-08
+
+Founder Decision R, step 1. The preview previously served *Tu Pana de Escritura*
+(`index.html`) and its tutorial (`start-here.html`) alongside the Studio, on a
+**continuity** assumption: unpublishing them would leave writing done on this origin
+present in `localStorage` but unreadable.
+
+That assumption was discharged by ruling. The pilots are complete, continuing access
+to the legacy application is no longer a product requirement, and **both pilots ran
+on production** (`vikthor1.github.io/tu-pana`) — this preview was created as a
+household preview and never served an enrolled student. Retirement withdraws a
+served interface; it destroys no data.
+
+**Nineteen legacy-only files left the artifact**, none of them a Studio dependency:
+`index.html`, `start-here.html`, `assets/css/styles.css`, nine legacy
+`assets/js/*.js`, and seven `assets/audio/es/*.mp3`.
+
+> **They remain git-tracked.** This boundary governs what Cloudflare *serves*, not
+> what the repository *keeps* — roughly forty legacy regression suites still
+> exercise those files. Removing them from the repository is a different decision.
+> The backstop asserts both directions: excluded from the artifact, still tracked at
+> `HEAD`.
+
+**No export, migration, or recovery mechanism is part of this.** Any such window is
+a separate founder ruling and must not be built, offered, or described as planned.
+
+## The root entry
+
+With no `index.html`, `/` would answer 404 — not an acceptable front door. A single
+`_redirects` rule sends `/` to `/studio.html` with a **302**:
+
+- **302, not 301.** A permanent redirect is cached by browsers indefinitely and
+  would be effectively unrecallable from a device already holding it. The
+  root-entry decision stays reversible.
+- **The rule matches `/` exactly**, so existing `/studio.html?assignment=…` links
+  are untouched.
+- **No retired path is redirected.** `index.html` and `start-here.html` return a
+  hard 404, and that 404 is the evidence of retirement — a courtesy redirect would
+  erase it.
+
+Cloudflare consumes `_redirects` as deployment configuration; it is not retrievable
+as a path.
 
 **`404.html`.** Load-bearing, not decoration. Cloudflare Pages answers any unmatched
 path with `index.html` and **HTTP 200** unless a `404.html` exists — so without it an
 excluded file is byte-indistinguishable from a served one and the exclusion cannot be
 demonstrated at all. It is self-contained (inline CSS, no script, font, or image) so
-it can never itself 404.
+it can never itself 404. It now offers exactly one destination: the page whose whole
+job is honesty about absence must not itself link to something absent.
 
 > Verify exclusion by **content**, not by status code. A 200 here never meant the file
 > was still there; it meant Pages had fallen back. The first verification pass of this

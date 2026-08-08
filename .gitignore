@@ -148,6 +148,14 @@
 !/run_test_suite.mjs
 !/.nvmrc
 
+# ── Allow the preview deployment-artifact boundary ───────
+# NOTE: this file decides what git TRACKS. It does NOT decide what the preview
+# SERVES — scripts_build_preview_artifact.mjs holds that allowlist, and neither
+# of these two files is itself deployed. Adding a runtime file means editing
+# BOTH. See docs/releases/preview-deployment.md.
+!scripts_build_preview_artifact.mjs
+!studio_deploy_artifact_test.mjs
+
 # ── Allow project documentation ──────────────────────────
 !docs/
 !docs/**

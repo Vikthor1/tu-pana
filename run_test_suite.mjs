@@ -15,6 +15,11 @@
 //                                    STUDIO_LIVE=1, and is never part of this run.
 //   - scripts_build_nav_matrix.mjs — a documentation generator, not a suite; it
 //                                    writes docs/nav-audit-matrix.md.
+//   - scripts_build_preview_artifact.mjs
+//                                  — the preview deployment builder, not a suite;
+//                                    it writes a deployment artifact to a given
+//                                    out-dir. Its allowlist IS covered by a suite:
+//                                    studio_deploy_artifact_test.mjs.
 //
 // This run makes ZERO live AI calls. Every suite either mocks the provider at the
 // Playwright route layer, stubs globalThis.fetch, or asserts that no external
@@ -47,6 +52,7 @@ const CHECK_FAIL = /^[ \t]+❌/gm;
 const EXCLUDED = new Set([
     'studio_live_check.mjs',
     'scripts_build_nav_matrix.mjs',
+    'scripts_build_preview_artifact.mjs',
     'run_test_suite.mjs',
 ]);
 

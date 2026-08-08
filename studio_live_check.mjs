@@ -17,7 +17,7 @@ const KEY = 'tupana-studio:v1';
 // Scope and ceiling are declared by the caller. The fall-readiness pass runs
 // STUDIO_LIVE_SCOPE=fall with a ceiling of 6.
 const SCOPE = process.env.STUDIO_LIVE_SCOPE || 'default';
-const CALL_CEILING = Number(process.env.STUDIO_LIVE_CEILING || (SCOPE === 'fall' || SCOPE === 'reflect' ? 6 : 30));
+const CALL_CEILING = Number(process.env.STUDIO_LIVE_CEILING || (SCOPE === 'fall' || SCOPE === 'reflect' || SCOPE === 'structure' ? 6 : 30));
 let callsUsed = 0;
 const results = [];
 const browser = await chromium.launch({ headless: true });
@@ -163,12 +163,27 @@ async function councilCase(assignment, lang) {
 // without keeping the writer's text: the lens the model recommended, the
 // question it wrote, whether that question survived Tu Pana's validation, and
 // whether any transport label or scaffolding survived into the visible prose.
-const REFLECT_SENTINELS = ['<<TP-', 'TP-LENS', 'TP-QUESTION', 'TU PANA REFLECTION', 'cultural_knowledge'];
+const REFLECT_SENTINELS = ['<<TP-', 'TP-LENS', 'TP-QUESTION', 'TU PANA REFLECTION', 'cultural_knowledge',
+    // Refinement B — the three additional transport labels and the structure
+    // contract's own heading. None may survive into visible or stored text.
+    'TP-NOTICED', 'TP-GUIDE', 'TP-WHY', 'TU PANA FEEDBACK STRUCTURE'];
+
+// Genre-appropriate synthetic drafts. The earlier substring guess sent the
+// generic library-hours paragraph to service-learning and graduate-SOP cases,
+// which makes a live observation about genre-specific rationale worth less.
+const COACH_DRAFT_BY_ASSIGNMENT = {
+    'college-personal-statement': 'admissions',
+    'research-paper': 'research',
+    'graduate-sop': 'sop',
+    'cap200-bronx-beautiful-service-learning': 'cap200',
+    'reading-response-undergraduate': 'readingUg',
+    'mixed-genre-autobiographical-essay': 'autobiographical',
+};
 
 async function coachCase(assignment, lang, question, label) {
     guardCeiling(2); // 1 call + the adapter's possible transparent retry
     await fresh(assignment, lang);
-    const draft = DRAFTS[assignment.includes('statement') ? 'admissions' : assignment.includes('research') ? 'research' : 'neutral'];
+    const draft = DRAFTS[COACH_DRAFT_BY_ASSIGNMENT[assignment] || 'neutral'];
     await page.locator('#draftEditor').fill(draft);
     await page.waitForTimeout(240);
     await page.locator('[data-action="coach"]').first().click();
@@ -197,11 +212,31 @@ async function coachCase(assignment, lang, question, label) {
         reflectionQuestion: review?.criticalQuestionAsked || null,
         sentinelsLeaked: leaked, textLen: review?.suggestion?.length || 0,
         draftIntact: record.draft === draft,
+        // Refinement B — what can be judged about the SHAPE without keeping the
+        // writer's text: whether the structure arrived, how many questions, how
+        // long the observation is, whether every question is interrogative, and
+        // whether the collapsed rationale merely repeats the observation.
+        structured: Boolean(review?.structured),
+        structureReason: review?.structureReason || null,
+        whyReason: review?.whyReason || null,
+        residualDropped: review?.residualDropped ?? null,
+        observationWords: review?.structured ? review.structured.observation.split(/\s+/).filter(Boolean).length : null,
+        questionCount: review?.structured ? review.structured.questions.length : null,
+        allInterrogative: review?.structured ? review.structured.questions.every(entry => entry.trim().endsWith('?')) : null,
+        whyPresent: review?.structured ? Boolean(review.structured.why) : null,
+        whyRepeatsObservation: review?.structured?.why ? review.structured.why.includes(review.structured.observation) : null,
     });
     if (review) {
         console.log(`\n===== RESPONSE [coach ${label} ${assignment} ${lang}] (${latency}ms) =====`);
         console.log(`REQUEST SENT: ${requestPreview}`);
-        console.log(`FEEDBACK:\n${review.suggestion}`);
+        if (review.structured) {
+            console.log(`NOTICED (${review.structured.observation.split(/\s+/).filter(Boolean).length} words):\n${review.structured.observation}`);
+            console.log(`GUIDING QUESTIONS (${review.structured.questions.length}):`);
+            review.structured.questions.forEach((entry, index) => console.log(`  ${index + 1}. ${entry}`));
+            console.log(`WHY THIS MATTERS: ${review.structured.why || '(absent — reason: ' + (review.whyReason || 'n/a') + ')'}`);
+        } else {
+            console.log(`FEEDBACK (unstructured; reason=${review.structureReason}):\n${review.suggestion}`);
+        }
         console.log(`REFLECTION: lens=${review.criticalKey} source=${review.criticalSource}${review.reflectionReason ? ` reason=${review.reflectionReason}` : ''}`);
         console.log(`QUESTION: ${review.criticalQuestionAsked || '(governed fallback shown)'}\n`);
     } else {
@@ -247,7 +282,27 @@ const REFLECT_CASES = [
     () => coachCase('college-personal-statement', 'en', '', 'default-en'),
     () => coachCase('research-paper', 'es', '', 'default-es'),
 ];
-const cases = SCOPE === 'fall' ? FALL_CASES : SCOPE === 'reflect' ? REFLECT_CASES : DEFAULT_CASES;
+// STRUCTURE SCOPE — the bounded matrix for the response information hierarchy
+// package. 5 declared calls against a ceiling of 6; the sixth is reserved
+// because the Gemini adapter retries retryable categories transparently.
+//   1  EN, custom question inviting DIAGNOSIS and guiding questions
+//   2  EN, pre-populated bounded request (the writer typed nothing)
+//   3  ES, custom question — Spanish, second genre
+//   4  ES, custom question — Spanish, third genre (service-learning)
+//   5  EN, custom question — fourth genre (graduate SOP)
+// Four distinct genres, all on the standard coaching path.
+const STRUCTURE_CASES = [
+    () => coachCase('college-personal-statement', 'en',
+        'What is the weakest sentence in this paragraph, and why is it weaker than the others?', 'diagnosis-en'),
+    () => coachCase('college-personal-statement', 'en', '', 'default-en'),
+    () => coachCase('research-paper', 'es',
+        '¿Qué evidencia concreta le falta a este párrafo para que un lector pueda seguirlo?', 'custom-es'),
+    () => coachCase('cap200-bronx-beautiful-service-learning', 'es',
+        '¿Cómo conecto mejor lo que observé con el concepto del curso?', 'service-learning-es'),
+    () => coachCase('graduate-sop', 'en',
+        'Does this paragraph make my research question clear enough for an admissions committee?', 'sop-en'),
+];
+const cases = SCOPE === 'fall' ? FALL_CASES : SCOPE === 'reflect' ? REFLECT_CASES : SCOPE === 'structure' ? STRUCTURE_CASES : DEFAULT_CASES;
 try {
     for (const run of cases) {
         try { await run(); } catch (caseError) {
@@ -259,7 +314,7 @@ try {
     // Zero-call verifications. The reflect scope is deliberately narrow: these
     // check surfaces this package did not touch, and they were already
     // validated in the fall pass.
-    if (SCOPE === 'reflect') throw new Error('reflect scope complete');
+    if (SCOPE === 'reflect' || SCOPE === 'structure') throw new Error(`${SCOPE} scope complete`);
     await fresh('totally-unknown-live-check');
     const unknownStops = await page.evaluate(() => document.body.textContent.includes('not configured') || document.body.textContent.includes('no está configurado'));
     results.push({ case: 'unknown-assignment', kind: 'none', outcome: unknownStops ? 'stops-no-ai' : 'FAIL' });

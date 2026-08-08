@@ -93,6 +93,49 @@ The question MUST NEVER: imply your feedback is correct; encourage accepting it;
         thinking: 'thinking',
     };
 
+    // ── Feedback structure contract (Refinement B — information hierarchy) ───
+    // The problem this fixes: the feedback substance passed founder review, but
+    // it arrived as ONE paragraph carrying an observation, its rationale, and
+    // two or three questions at once. That is hard to scan — hardest for the
+    // tired, stressed, or attention-limited writer this studio exists for. The
+    // fix is hierarchy, not compression: the same depth, ordered so the primary
+    // revision focus and the available thinking moves are legible in seconds,
+    // with the fuller reasoning one deliberate tap away.
+    //
+    // DESIGN — the same discipline as the reflection contract above, and for
+    // the same reason. The model is the only party that has read its own
+    // answer, so it declares which part is the observation, which parts are the
+    // questions, and which part is the rationale. It declares nothing else. Tu
+    // Pana owns the permitted fields, the validation, the length and count
+    // limits, the parsing, the rendering, the persistence, the fallbacks, and
+    // the decision controls. No second provider call is made and no Worker
+    // change is required: the contract rides in the prompt this file already
+    // builds and the answer rides back in the response text it already
+    // receives.
+    //
+    // WHY SENTINELS AND NOT PROSE-SPLITTING. Deriving the structure by cutting
+    // prose at punctuation, or by hunting for question marks, is fragile in
+    // exactly the places this application lives: Spanish inverted marks,
+    // abbreviations, quoted student wording, and genres whose feedback
+    // legitimately contains rhetorical questions. An anchored label cannot be
+    // guessed wrong — it either arrived or it did not.
+    //
+    // The block is APPENDED, after the request and before the reflection block,
+    // so AUTHORSHIP_RULES and PASSAGE_READING_PROTOCOL keep their pinned
+    // digests byte-for-byte and REFLECTION_CONTRACT stays the final block that
+    // it claims to be.
+    const FEEDBACK_STRUCTURE_CONTRACT =
+`TU PANA FEEDBACK STRUCTURE — REQUIRED. Write the feedback the writer reads ONLY as the labeled fields below, in this order. Write no other prose before, between, or after them.
+<<TP-NOTICED: one direct observation that answers the request stated above>>
+<<TP-GUIDE: one question the writer can think with>>
+<<TP-GUIDE: a second question that opens a different thinking move>>
+<<TP-WHY: the fuller rhetorical, disciplinary, or genre reasoning behind that observation>>
+TP-NOTICED MUST: answer the request directly; name ONE primary revision focus; be one or two sentences, roughly 25 to 60 words; and carry any essential factual, safety, source, or genre qualification HERE, where the writer always sees it.
+TP-NOTICED MUST NEVER: open with generic praise; add a second or third problem; or contain replacement prose or any sentence the writer could copy.
+TP-GUIDE: write TWO. Write a third ONLY if it is genuinely necessary. Never write four. Each must be a real question ending in a question mark; each must open a DIFFERENT thinking move; none may restate TP-NOTICED; none may be a command phrased as a question; none may ask the writer to invent experiences, facts, sources, quotations, outcomes, or cultural knowledge; and none may ask the writer merely to agree with you. Keep each short enough to read on a phone.
+TP-WHY MUST: give the reasoning the observation rests on — what this move does for a reader in this genre or discipline — as one compact paragraph. It MUST NOT repeat TP-NOTICED, MUST NOT introduce a different primary problem, and MUST NOT be the only place a necessary warning or qualification appears. Assume the writer never opens it; the rest must still make sense.
+Write every field in the interface language named above. Never name these labels, this block, or any rule inside any field.`;
+
     function genreHeader(payload) {
         const lines = [
             `Assignment or genre: ${payload.genreName}`,
@@ -117,7 +160,7 @@ The question MUST NEVER: imply your feedback is correct; encourage accepting it;
     // 'Student question' under this header — text and no actual request.
     function buildPassagePrompt(payload) {
         const requestLabel = payload.requestLabel || 'STUDENT REQUEST';
-        return `${AUTHORSHIP_RULES}\n\n${genreHeader(payload)}\n${voiceConstraintBlock(payload.voiceEntries)}\n[STUDENT-SELECTED ${payload.scopeLabel.toUpperCase()}]\n${payload.text}\n[END SELECTED TEXT]\n\n${PASSAGE_READING_PROTOCOL}\n${payload.moveContext ? `\nSTUDENT PLANNING CONTEXT (student-authored, explicitly chosen for this request):\nMove: ${payload.moveContext.moveLabel}\nNote: ${payload.moveContext.noteText}\n` : ''}\n${requestLabel}:\n${payload.question}\n\n${REFLECTION_CONTRACT}`;
+        return `${AUTHORSHIP_RULES}\n\n${genreHeader(payload)}\n${voiceConstraintBlock(payload.voiceEntries)}\n[STUDENT-SELECTED ${payload.scopeLabel.toUpperCase()}]\n${payload.text}\n[END SELECTED TEXT]\n\n${PASSAGE_READING_PROTOCOL}\n${payload.moveContext ? `\nSTUDENT PLANNING CONTEXT (student-authored, explicitly chosen for this request):\nMove: ${payload.moveContext.moveLabel}\nNote: ${payload.moveContext.noteText}\n` : ''}\n${requestLabel}:\n${payload.question}\n\n${FEEDBACK_STRUCTURE_CONTRACT}\n\n${REFLECTION_CONTRACT}`;
     }
 
     function buildFullDraftPrompt(payload) {
@@ -209,6 +252,15 @@ The question MUST NEVER: imply your feedback is correct; encourage accepting it;
         'tu pana reflection',
         '<<tp-lens',
         '<<tp-question',
+        // Refinement B. Same argument as the two markers above: all five
+        // sentinels are stripped before this guard runs, so a well-formed
+        // response never reaches these. They exist so a response that recites
+        // the structure contract, or leaves a malformed sentinel behind in the
+        // visible text, fails closed like any other scaffolding recital.
+        'tu pana feedback structure',
+        '<<tp-noticed',
+        '<<tp-guide',
+        '<<tp-why',
     ];
 
     const DELIBERATION_PATTERNS = [
@@ -256,15 +308,30 @@ The question MUST NEVER: imply your feedback is correct; encourage accepting it;
     // keeps the LAST value of each — the block the contract says comes last.
     // Anything left over that still looks like a sentinel is caught by
     // SCAFFOLD_MARKERS above and fails the whole response closed.
-    const REFLECTION_SENTINEL = /<<\s*TP-(LENS|QUESTION)\s*:([\s\S]*?)>>/gi;
+    // Refinement B extends the SAME anchored parse rather than adding a second
+    // one. Five labels now ride in the response; all five are stripped from the
+    // prose before anything is judged, so no transport label can ever reach the
+    // writer whether or not the structure validates. LENS, QUESTION, NOTICED
+    // and WHY keep the LAST occurrence, the block the contract says comes last.
+    // GUIDE is the one repeatable field, so every occurrence is collected IN
+    // ORDER — that is how a fourth question becomes visible to validation
+    // instead of silently overwriting the third.
+    const REFLECTION_SENTINEL = /<<\s*TP-(LENS|QUESTION|NOTICED|GUIDE|WHY)\s*:([\s\S]*?)>>/gi;
 
     function splitCoachResponse(rawText) {
         const text = typeof rawText === 'string' ? rawText : '';
         let lensRaw = null;
         let questionRaw = null;
+        let noticedRaw = null;
+        let whyRaw = null;
+        const guideRaw = [];
         let prose = text.replace(REFLECTION_SENTINEL, (whole, field, value) => {
-            if (/^lens$/i.test(field)) lensRaw = value.trim();
-            else questionRaw = value.trim();
+            const name = field.toLowerCase();
+            if (name === 'lens') lensRaw = value.trim();
+            else if (name === 'question') questionRaw = value.trim();
+            else if (name === 'noticed') noticedRaw = value.trim();
+            else if (name === 'why') whyRaw = value.trim();
+            else guideRaw.push(value.trim());
             return '';
         }).replace(/[ \t]+$/gm, '');
         // A model may decorate the trailer — bold it, fence it, precede it with
@@ -273,7 +340,11 @@ The question MUST NEVER: imply your feedback is correct; encourage accepting it;
         // word character at all are dropped, so nothing the writer would read is
         // touched, and the result still passes through validateCoachResponse.
         prose = prose.replace(/(?:\n[^\w]*)+$/, '').replace(/\n{3,}/g, '\n\n').trim();
-        return { prose, lensRaw, questionRaw, hadTrailer: lensRaw !== null || questionRaw !== null };
+        return {
+            prose, lensRaw, questionRaw, noticedRaw, whyRaw, guideRaw,
+            hadTrailer: lensRaw !== null || questionRaw !== null,
+            hadStructure: noticedRaw !== null || whyRaw !== null || guideRaw.length > 0,
+        };
     }
 
     // Precision over reach, the same discipline as validateCoachResponse. Each
@@ -313,6 +384,99 @@ The question MUST NEVER: imply your feedback is correct; encourage accepting it;
         if (!validateCoachResponse(question).ok) return { ok: false, reason: 'unsafe' };
         if (REFLECTION_ENDORSEMENT.some(pattern => pattern.test(question))) return { ok: false, reason: 'endorsement' };
         return { ok: true, key, question };
+    }
+
+    // ── Refinement B — feedback structure: validate each part on its merits ──
+    // The same precision-over-reach discipline as validateCoachResponse and
+    // validateReflection: every rule below rejects a specific, nameable
+    // failure, and none is a taste judgement about wording, because rejecting
+    // good coaching is itself a harm.
+    //
+    // WHAT IS INDEPENDENT AND WHAT IS NOT, and why the line falls here:
+    //   observation + questions  — the visible feedback. If either is missing
+    //     or unusable there is no card to show, so the pair fails TOGETHER and
+    //     the caller falls back or fails closed. A half-card is not feedback.
+    //   why — genuinely optional. It is collapsed, the writer may never open
+    //     it, and the contract forbids it from carrying anything the writer
+    //     needs. So a malformed rationale is DROPPED and the valid observation
+    //     and questions are still shown, exactly as a malformed reflection
+    //     costs only the reflection.
+    //
+    // Length limits are ceilings, not style targets. The contract asks for
+    // roughly 25 to 60 words in the observation; validation rejects only what
+    // is unusable as a scannable observation, so a good 70-word answer is not
+    // thrown away over a word count.
+    const OBSERVATION_MIN_CHARS = 40;
+    const OBSERVATION_MAX_CHARS = 700;
+    const OBSERVATION_MAX_WORDS = 90;
+    const GUIDE_MIN_CHARS = 10;
+    const GUIDE_MAX_CHARS = 240;
+    const GUIDE_MAX_COUNT = 3;
+    const WHY_MIN_CHARS = 40;
+    const WHY_MAX_CHARS = 1200;
+
+    function normalizeField(value) {
+        return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
+    }
+    function wordCountOf(value) {
+        return value.split(/\s+/).filter(Boolean).length;
+    }
+
+    // Returns { ok: true, observation, questions, why, whyReason } or
+    // { ok: false, reason }. Every `reason` and `whyReason` is a category name
+    // only — safe to persist. The rejected text itself is never returned.
+    function validateFeedbackStructure(parsed) {
+        if (!parsed || !parsed.hadStructure) return { ok: false, reason: 'missing' };
+
+        const observation = normalizeField(parsed.noticedRaw);
+        if (!observation) return { ok: false, reason: 'observation-missing' };
+        if (observation.length < OBSERVATION_MIN_CHARS || observation.length > OBSERVATION_MAX_CHARS) return { ok: false, reason: 'observation-length' };
+        if (wordCountOf(observation) > OBSERVATION_MAX_WORDS) return { ok: false, reason: 'observation-length' };
+        if (/[<>]/.test(observation)) return { ok: false, reason: 'observation-markup' };
+        if (!validateCoachResponse(observation).ok) return { ok: false, reason: 'observation-unsafe' };
+
+        const rawQuestions = (parsed.guideRaw || []).map(normalizeField).filter(Boolean);
+        // A fourth question is REJECTED, not truncated. Silently dropping it
+        // would hide from every downstream reader that the model exceeded the
+        // contract, and would present a card built from a response that broke it.
+        if (!rawQuestions.length || rawQuestions.length > GUIDE_MAX_COUNT) return { ok: false, reason: 'question-count' };
+        for (const question of rawQuestions) {
+            if (question.length < GUIDE_MIN_CHARS || question.length > GUIDE_MAX_CHARS) return { ok: false, reason: 'question-length' };
+            // Interrogative form is the falsifiable half of "questions, not
+            // disguised commands". The contract carries the rest; validation
+            // does not guess at intent from wording.
+            if (!/\?\s*$/.test(question)) return { ok: false, reason: 'question-form' };
+            if (/[<>]/.test(question)) return { ok: false, reason: 'question-markup' };
+            if (REFLECTION_LONG_QUOTE.test(question)) return { ok: false, reason: 'question-quoted-prose' };
+            if (!validateCoachResponse(question).ok) return { ok: false, reason: 'question-unsafe' };
+        }
+        // Two questions that are the same question are one thinking move.
+        const distinct = new Set(rawQuestions.map(question => question.toLowerCase()));
+        if (distinct.size !== rawQuestions.length) return { ok: false, reason: 'question-duplicate' };
+
+        const whyText = normalizeField(parsed.whyRaw);
+        let why = null;
+        let whyReason = null;
+        if (!whyText) whyReason = 'missing';
+        else if (whyText.length < WHY_MIN_CHARS || whyText.length > WHY_MAX_CHARS) whyReason = 'length';
+        else if (/[<>]/.test(whyText)) whyReason = 'markup';
+        else if (!validateCoachResponse(whyText).ok) whyReason = 'unsafe';
+        else why = whyText;
+
+        return { ok: true, observation, questions: rawQuestions, why, whyReason };
+    }
+
+    // ONE canonical stored record. `suggestion` has always been the record's
+    // plain-text feedback, and every downstream consumer — decision records,
+    // the revision-focus surface, evidence, export — still reads it. For a
+    // structured record it is composed DETERMINISTICALLY from the fields above,
+    // in the order the card shows them. It is a rendering of the one answer,
+    // never a second answer: nothing is generated for it and no extra call is
+    // made.
+    function composeFeedbackText(structure) {
+        const parts = [structure.observation, structure.questions.map(question => `- ${question}`).join('\n')];
+        if (structure.why) parts.push(structure.why);
+        return parts.join('\n\n');
     }
 
     // ── Error copy (translated from legacy getGeminiErrorMessage) ─────────────
@@ -460,7 +624,54 @@ The question MUST NEVER: imply your feedback is correct; encourage accepting it;
         markup: '<<TP-LENS: thinking>>\n<<TP-QUESTION: Does <em>this</em> answer what you asked?>>',
     };
 
-    function mockCoachText(genreLabel, lang) {
+    // Refinement B — deterministic structure fixtures, the same idea again.
+    // ?mockstruct=
+    //   one | three            — the allowed question counts at their edges;
+    //   four                   — one question too many, which must be REJECTED
+    //                            rather than truncated;
+    //   nowhy | badwhy         — the optional rationale absent, then malformed:
+    //                            in both cases the card must still appear;
+    //   badobservation | badquestion | duplicate | leak — individual failures
+    //                            of the parts that are NOT optional;
+    //   legacy                 — no structure at all, the pre-contract shape.
+    // Every fixture keeps a valid reflection trailer, so a test can prove that
+    // the two contracts are independent of each other.
+    function mockStructFixture() {
+        try { return new URLSearchParams(location.search).get('mockstruct') || null; } catch { return null; }
+    }
+
+    const MOCK_STRUCT = {
+        en: {
+            noticed: 'The passage sets a clear direction, but the middle stays general: "the neighbors helped" names a category rather than a moment a reader can see.',
+            guides: ['What did you actually watch someone do on one of those mornings?', 'Which part of that moment would a reader need in order to believe the change you name at the end?', 'What would you lose if you cut the general sentence entirely?'],
+            why: 'In this genre a reader grants a claim when they can picture the evidence behind it. A category tells the reader what to conclude; a moment lets them conclude it themselves, which is why concrete instances carry more argumentative weight here than summary does.',
+        },
+        es: {
+            noticed: 'El pasaje marca una dirección clara, pero el centro se queda general: «los vecinos ayudaron» nombra una categoría y no un momento que el lector pueda ver.',
+            guides: ['¿Qué viste hacer a alguien en una de esas mañanas?', '¿Qué parte de ese momento necesitaría un lector para creer el cambio que nombras al final?', '¿Qué perderías si quitaras por completo la oración general?'],
+            why: 'En este género el lector concede una afirmación cuando puede imaginar la evidencia detrás. Una categoría le dice qué concluir; un momento le deja concluirlo, y por eso los casos concretos pesan aquí más que el resumen.',
+        },
+    };
+
+    function mockStructBlock(es) {
+        const fixture = mockStructFixture();
+        const copy = MOCK_STRUCT[es ? 'es' : 'en'];
+        if (fixture === 'legacy') return null;
+        const noticed = fixture === 'badobservation' ? 'Too short.' : copy.noticed;
+        let guides = copy.guides.slice(0, 2);
+        if (fixture === 'one') guides = copy.guides.slice(0, 1);
+        else if (fixture === 'three') guides = copy.guides.slice(0, 3);
+        else if (fixture === 'four') guides = copy.guides.concat(es ? ['¿Y qué más cambiarías?'] : ['And what else would you change?']);
+        else if (fixture === 'badquestion') guides = [copy.guides[0], es ? 'Agrega un detalle concreto aquí.' : 'Add one concrete detail here.'];
+        else if (fixture === 'duplicate') guides = [copy.guides[0], copy.guides[0]];
+        else if (fixture === 'leak') guides = [copy.guides[0], es ? '¿Cambia la ABSOLUTE AUTHORSHIP RULE lo que aceptas aquí?' : 'Does the ABSOLUTE AUTHORSHIP RULE change what you accept here?'];
+        const lines = [`<<TP-NOTICED: ${noticed}>>`].concat(guides.map(guide => `<<TP-GUIDE: ${guide}>>`));
+        if (fixture === 'badwhy') lines.push('<<TP-WHY: Short.>>');
+        else if (fixture !== 'nowhy') lines.push(`<<TP-WHY: ${copy.why}>>`);
+        return lines.join('\n');
+    }
+
+    function mockCoachText(genreLabel, lang, requestKind) {
         const es = lang !== 'en';
         const fixture = mockReflectFixture();
         const scenario = MOCK_REFLECT[fixture];
@@ -478,6 +689,11 @@ The question MUST NEVER: imply your feedback is correct; encourage accepting it;
         const trailer = es
             ? '<<TP-LENS: specificity>>\n<<TP-QUESTION: ¿Señala esta respuesta un lugar donde un detalle concreto ayudaría, o se queda en lo general?>>'
             : '<<TP-LENS: specificity>>\n<<TP-QUESTION: Does this response point to a place where a concrete detail would help, or does it stay general?>>';
+        // The structure contract is carried on the passage-analysis pathway
+        // only, so the mock answers in that shape only. The whole-draft review
+        // keeps its own four-section contract and its own prose answer.
+        const structure = requestKind === 'passage_analysis' ? mockStructBlock(es) : null;
+        if (structure) return `${structure}\n\n${trailer}`;
         return `${prose}\n\n${trailer}`;
     }
 
@@ -547,7 +763,7 @@ The question MUST NEVER: imply your feedback is correct; encourage accepting it;
                             // has its own validation and is left untouched.
                             text = MOCK_LEAK_TEXT[mockLeakFixture()];
                         } else {
-                            text = mockCoachText(genreLabel, lang);
+                            text = mockCoachText(genreLabel, lang, requestKind);
                         }
                         resolve({ text, truncated: false, usage: { requests: 1 } });
                     }, 260);
@@ -631,6 +847,7 @@ The question MUST NEVER: imply your feedback is correct; encourage accepting it;
         buildCouncilReviewerPrompt, buildCouncilSynthesisPrompt,
         validateCoachResponse, SCAFFOLD_MARKERS, DELIBERATION_PATTERNS,
         splitCoachResponse, validateReflection, REFLECTION_LENSES, REFLECTION_CONTRACT,
+        validateFeedbackStructure, composeFeedbackText, FEEDBACK_STRUCTURE_CONTRACT,
         errorMessage, active, createMockProvider, createGeminiProvider,
     };
 }());

@@ -399,6 +399,19 @@ html[data-appearance="dark"] .consent-box { color: var(--ink); }
 .review-card h3 { font-size: 1rem; }
 .review-meta { margin-bottom: 9px; color: var(--muted); font-size: .78rem; }
 .review-card blockquote { margin: 10px 0; padding: 10px 13px; border-left: 4px solid var(--mango); background: var(--mango-soft); font-family: Georgia, serif; }
+/* Refinement B — feedback information hierarchy. Typography and whitespace do
+   the work; no new colour, border, badge, icon, panel, or animation is
+   introduced, and body text is NOT shrunk to manufacture compactness. The
+   quiet-disclosure grammar is the one already established by
+   .critical-framework, reused rather than reinvented. */
+.feedback-structured { margin: 11px 0; }
+.feedback-heading { margin: 0 0 5px; color: var(--muted); font-size: .78rem; font-weight: 750; letter-spacing: .02em; text-transform: uppercase; }
+.feedback-heading + * { margin-top: 0; }
+.feedback-observation { margin: 0 0 15px; font-weight: 600; }
+.feedback-questions { margin: 0 0 13px; padding-left: 20px; }
+.feedback-questions li { margin: 7px 0; }
+.feedback-why > summary { min-height: 44px; padding: 10px 0; color: var(--muted); font-weight: 750; cursor: pointer; }
+.feedback-why-body { margin: 0 0 6px; }
 .critical-moment { margin-top: 13px; border: 1px solid #b8c9e0; border-radius: 11px; background: var(--blue-soft); }
 .critical-moment > summary { min-height: 44px; padding: 12px; color: var(--chip-ink); font-weight: 850; cursor: pointer; }
 .critical-moment-body { padding: 0 13px 13px; }

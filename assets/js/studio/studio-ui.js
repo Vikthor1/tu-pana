@@ -2027,10 +2027,38 @@
             // fails is rejected exactly as before; the reflection is judged
             // separately below, so a malformed reflection costs the writer
             // their reflection question and nothing else.
+            // Refinement B — the structure is judged BESIDE the prose, never
+            // instead of it. Three outcomes, and only three:
+            //
+            //   structure valid    → the structured card. Any prose the model
+            //                        added anyway is still run through the leak
+            //                        guard, so the guard's reach does not shrink
+            //                        just because fields also arrived. It is not
+            //                        displayed — the contract asked for the
+            //                        fields to BE the feedback — but the fact
+            //                        that something was dropped is RECORDED
+            //                        (`residualDropped`) rather than silent, so
+            //                        a model that starts answering twice is
+            //                        visible instead of quietly half-shown.
+            //   structure invalid, → the legacy paragraph card, stored in the
+            //   prose valid          legacy shape. This is a degradation path,
+            //                        not a second design: no writer chooses it,
+            //                        nothing offers it, and the reason is
+            //                        recorded so it is visible rather than
+            //                        silent.
+            //   neither valid      → fail closed, exactly as before F1.
+            //
+            // An incomplete card is never shown. A response with a good
+            // observation, a fourth question, and no prose has no valid prose
+            // to fall back to, so it is rejected rather than trimmed into
+            // something the model did not say.
             const parsed = StudioProvider.splitCoachResponse(result.text);
+            const structure = StudioProvider.validateFeedbackStructure(parsed);
             const verdict = StudioProvider.validateCoachResponse(parsed.prose);
-            if (!verdict.ok) {
-                recordProviderEvent(requestKind, { category: 'response_rejected', reason: verdict.reason });
+            const residualProse = Boolean(parsed.prose.trim());
+            const usable = structure.ok ? (!residualProse || verdict.ok) : verdict.ok;
+            if (!usable) {
+                recordProviderEvent(requestKind, { category: 'response_rejected', reason: verdict.reason, structureReason: structure.ok ? null : structure.reason });
                 token.settled = true;
                 clearRequestPending();
                 button.disabled = false;
@@ -2039,7 +2067,14 @@
                 return;
             }
             token.settled = true;
-            const suggestion = verdict.text;
+            // ONE canonical stored record. For a structured response the plain
+            // text every downstream consumer already reads is composed from the
+            // validated fields, in the order the card shows them — a rendering
+            // of the one answer, not a second answer.
+            const structured = structure.ok
+                ? { observation: structure.observation, questions: structure.questions, why: structure.why }
+                : null;
+            const suggestion = structure.ok ? StudioProvider.composeFeedbackText(structure) : verdict.text;
             const snapshotId = concept === 'notebook' || concept === 'integrated'
                 ? checkpointVersion(kind === 'focused' ? 'before focused review' : 'before coach feedback', consentedDraft)
                 : null;
@@ -2056,7 +2091,7 @@
             const criticalKey = concept === 'integrated' ? (reflection.ok ? reflection.key : profileKey) : null;
             const criticalSource = concept !== 'integrated' ? null : (reflection.ok ? 'model' : 'fallback');
             const reviewId = `review-${Date.now()}`;
-            state.reviews.push({ id: reviewId, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: !provider.live, provider: provider.name, requestKind, truncated: Boolean(result.truncated), purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? (provider.live ? 'Tu Pana genre-focused reviewer' : 'mock genre-focused reviewer') : (provider.live ? 'Tu Pana coach' : 'Tu Pana mock coach'), calls: 1, criticalKey, criticalSource, criticalQuestionAsked: reflection.ok ? reflection.question : null, reflectionReason: reflection.ok ? null : reflection.reason, criticalPrompt: reflection.ok ? reflection.question : (criticalKey ? criticalQuestion(criticalKey).en : null), criticalContext: criticalKey && criticalSource !== 'fallback' ? criticalRiskText(criticalKey) : null, draftSignature: draftSignature(consentedDraft), snapshotId, genre: consentedGenreId, genreLabel: genre.label.en, genreLabelEs: genre.label.es, voiceEntriesIncluded, moveContextIncluded, question: askedQuestion || null, requestDefaulted: kind !== 'focused' && !askedQuestion });
+            state.reviews.push({ id: reviewId, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: !provider.live, provider: provider.name, requestKind, truncated: Boolean(result.truncated), purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? (provider.live ? 'Tu Pana genre-focused reviewer' : 'mock genre-focused reviewer') : (provider.live ? 'Tu Pana coach' : 'Tu Pana mock coach'), calls: 1, criticalKey, criticalSource, criticalQuestionAsked: reflection.ok ? reflection.question : null, reflectionReason: reflection.ok ? null : reflection.reason, criticalPrompt: reflection.ok ? reflection.question : (criticalKey ? criticalQuestion(criticalKey).en : null), criticalContext: criticalKey && criticalSource !== 'fallback' ? criticalRiskText(criticalKey) : null, draftSignature: draftSignature(consentedDraft), snapshotId, genre: consentedGenreId, genreLabel: genre.label.en, genreLabelEs: genre.label.es, voiceEntriesIncluded, moveContextIncluded, question: askedQuestion || null, requestDefaulted: kind !== 'focused' && !askedQuestion, structured, responseLang: providerLang, structureReason: structure.ok ? null : structure.reason, whyReason: structure.ok ? structure.whyReason : null, residualDropped: Boolean(structure.ok && residualProse) });
             const contextMoved = Boolean(token.contextMoved);
             saveState(); closeDialog(true); renderApp(); reviewTab = 'history';
             // `seen` is set BEFORE the Review Center renders when the reveal
@@ -2114,6 +2149,9 @@
         // — never any fragment of the rejected response.
         const event = { requestKind, category: failure?.category || 'unknown', at: new Date().toISOString() };
         if (failure?.reason) event.reason = failure.reason;
+        // Refinement B. Also a category name only — 'question-count',
+        // 'observation-length', 'missing' — never a fragment of the response.
+        if (failure?.structureReason) event.structureReason = failure.structureReason;
         state.providerEvents.push(event);
         saveState();
     }
@@ -2413,6 +2451,42 @@
         return state.decisions.slice().reverse().map(decision => `<article class="review-card"><h3>${escapeHtml(decision.choiceLabel)}</h3><p class="review-meta">${shortDate(decision.createdAt)} · ${escapeHtml(decision.sourceType)}${decision.payloadScope ? ` · ${escapeHtml(decision.payloadScope)}` : ''}</p>${renderSnapshotLink(decision.relatedVersionId, 'decisions')}<blockquote>${escapeHtml(decision.suggestion)}</blockquote>${decision.criticalPrompt ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Critical prompt' : 'Pregunta crítica')}:</strong> ${escapeHtml(criticalPromptTextFor(decision))}</p>` : ''}${decision.rationale ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Student reason' : 'Razón estudiantil')}:</strong> ${escapeHtml(decision.rationale)}</p>` : ''}<p>${escapeHtml(t('decisionRecorded'))}</p></article>`).join('');
     }
 
+    // Refinement B — the feedback body, in one canonical progressive-disclosure
+    // shape. Reading order inside the card is fixed: metadata, what Tu Pana
+    // noticed, the questions, the collapsed rationale, then the critical-
+    // reflection layer and the decision controls, which are untouched.
+    //
+    // BACKWARD COMPATIBILITY IS THE FIRST BRANCH, deliberately. A record saved
+    // before this refinement carries no `structured` field, and it is rendered
+    // by exactly the markup it was always rendered by — one paragraph. Nothing
+    // is migrated, re-requested, or rewritten; an old card simply stays an old
+    // card, and its decisions, snapshot, timestamp, request label and stored
+    // critical question stay attached to it.
+    //
+    // Headings are h4 because the card's own h3 is the request title. That
+    // ordering also keeps the mobile reveal correct: scrollToResponse() takes
+    // the card's first h3, which is still the title and never a section label.
+    function renderFeedbackBody(review) {
+        const structured = review.structured;
+        if (!structured || !structured.observation || !Array.isArray(structured.questions) || !structured.questions.length) {
+            return `<p>${escapeHtml(review.suggestion)}</p>`;
+        }
+        // The model wrote in the language the request named, which is stored on
+        // the record. Marking it explicitly keeps a screen reader correct even
+        // after the writer switches the interface language later.
+        const langAttr = review.responseLang === 'en' || review.responseLang === 'es' ? ` lang="${review.responseLang}"` : '';
+        const why = structured.why
+            ? `<details class="feedback-why"><summary>${uiMarkup('Why this matters', 'Por qué esto importa')}</summary><p class="feedback-why-body"${langAttr}>${escapeHtml(structured.why)}</p></details>`
+            : '';
+        return `<div class="feedback-structured">`
+            + `<h4 class="feedback-heading">${uiMarkup('What Tu Pana noticed', 'Lo que Tu Pana notó')}</h4>`
+            + `<p class="feedback-observation"${langAttr}>${escapeHtml(structured.observation)}</p>`
+            + `<h4 class="feedback-heading">${uiMarkup('Questions to guide your revision', 'Preguntas para guiar tu revisión')}</h4>`
+            + `<ul class="feedback-questions"${langAttr}>${structured.questions.map(question => `<li>${escapeHtml(question)}</li>`).join('')}</ul>`
+            + why
+            + `</div>`;
+    }
+
     function renderReviewCard(review) {
         const voiceRequest = review.voiceEntriesIncluded?.length ? `<p class="voice-request-note">${escapeHtml(review.mock === false
             ? uiText(`Your ${review.voiceEntriesIncluded.length} Your Voice entr${review.voiceEntriesIncluded.length === 1 ? 'y was' : 'ies were'} sent as explicit protection constraints. A model can still miss them — the protected wording remains yours to keep.`, `Tu${review.voiceEntriesIncluded.length === 1 ? '' : 's'} ${review.voiceEntriesIncluded.length} entrada${review.voiceEntriesIncluded.length === 1 ? '' : 's'} de Tu voz se enviaron como restricciones explícitas de protección. Un modelo aún puede ignorarlas — la redacción protegida sigue siendo tuya.`)
@@ -2429,7 +2503,7 @@
             : '';
         const liveRecord = review.mock === false;
         const truncatedNote = review.truncated ? `<p class="truncated-note">${escapeHtml(uiText('This response was cut off by a length limit; what appears here is everything that arrived.', 'Esta respuesta fue cortada por un límite de longitud; lo que aparece aquí es todo lo que llegó.'))}</p>` : '';
-        return `<article class="review-card" data-review-id="${escapeHtml(review.id)}"><span class="mock-label">${escapeHtml(liveRecord ? uiText('Tu Pana AI', 'IA de Tu Pana') : 'Mock AI')} · ${escapeHtml(storedGenreLabel(review))} · ${escapeHtml(review.scope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(review.calls ? `${review.calls} ${liveRecord ? (state.lang === 'en' ? 'AI call' : 'llamada de IA') : (state.lang === 'en' ? 'mock call' : 'llamada simulada')}` : (state.lang === 'en' ? 'call count not stored' : 'cantidad de llamadas no guardada'))}` : ''}</p>${renderSnapshotLink(review.snapshotId, 'history')}<blockquote>${escapeHtml(review.exactExcerpt)}</blockquote>${questionRequest}${moveRequest}${voiceRequest}<p>${escapeHtml(review.suggestion)}</p>${truncatedNote}${concept === 'integrated' ? renderCriticalPrompt(review, review.genre) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}${concept === 'integrated' ? `<button class="text-button revision-focus-suggestion" data-action="revision-focus-suggestion" data-suggestion="${escapeHtml(review.suggestion)}">${escapeHtml(uiText('Choose your next move', 'Elige tu próximo paso'))}</button>` : ''}</article>`;
+        return `<article class="review-card" data-review-id="${escapeHtml(review.id)}"><span class="mock-label">${escapeHtml(liveRecord ? uiText('Tu Pana AI', 'IA de Tu Pana') : 'Mock AI')} · ${escapeHtml(storedGenreLabel(review))} · ${escapeHtml(review.scope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(review.calls ? `${review.calls} ${liveRecord ? (state.lang === 'en' ? 'AI call' : 'llamada de IA') : (state.lang === 'en' ? 'mock call' : 'llamada simulada')}` : (state.lang === 'en' ? 'call count not stored' : 'cantidad de llamadas no guardada'))}` : ''}</p>${renderSnapshotLink(review.snapshotId, 'history')}<blockquote>${escapeHtml(review.exactExcerpt)}</blockquote>${questionRequest}${moveRequest}${voiceRequest}${renderFeedbackBody(review)}${truncatedNote}${concept === 'integrated' ? renderCriticalPrompt(review, review.genre) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}${concept === 'integrated' ? `<button class="text-button revision-focus-suggestion" data-action="revision-focus-suggestion" data-suggestion="${escapeHtml(review.suggestion)}">${escapeHtml(uiText('Choose your next move', 'Elige tu próximo paso'))}</button>` : ''}</article>`;
     }
 
     function renderSnapshotLink(snapshotId, returnTab = reviewTab) {

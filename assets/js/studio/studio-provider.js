@@ -44,6 +44,55 @@ You must not write the student's work for them. Never produce full essays, draft
 - Ground feedback in the student's exact words, including relevant material later in the passage. Do not rewrite, paraphrase, or provide replacement prose.
 - Address the student's stated request directly. Offer one highest-impact next move and at most one focused decision question.`;
 
+    // ── Contextual critical-reflection contract (Refinement A) ───────────────
+    // The problem this fixes: the critical lens shown under a response was
+    // chosen from the STUDENT'S PLANNING MOVE, not from the response. A coach
+    // reply that diagnosed a weak sentence and offered guiding questions could
+    // therefore be paired with "Voice — does this still sound like the specific
+    // person who wrote it?", a question that only makes sense when the coach
+    // proposed or rewrote language. The student was being asked to evaluate
+    // something the response never did.
+    //
+    // DESIGN — one call, and Tu Pana keeps every decision that matters.
+    // Gemini is the only party that has read its own answer, so it recommends
+    // the lens and writes the question. It recommends nothing else. Tu Pana
+    // owns the permitted lens set, the validation rules, the fallback, the
+    // rendering, and the decision controls; an unrecognised lens or an
+    // unusable question is discarded, not negotiated. No second provider call
+    // is made and no Worker change is required: the contract rides in the
+    // prompt this file already builds, and the answer rides back in the
+    // response text this file already receives.
+    //
+    // The block is APPENDED, after the request. Nothing above it moves, so the
+    // pinned AUTHORSHIP_RULES and PASSAGE_READING_PROTOCOL digests still hold
+    // byte-for-byte, and the F2 genre safeguards are untouched.
+    const REFLECTION_CONTRACT =
+`TU PANA REFLECTION — REQUIRED FINAL BLOCK. This is not part of the feedback the writer reads.
+After the feedback above is complete, end your reply with exactly these two lines and write nothing after them:
+<<TP-LENS: one of cultural_knowledge | accuracy | voice | specificity | thinking>>
+<<TP-QUESTION: one question the writer should ask about the feedback you just gave>>
+Choose the lens from what YOUR OWN response actually does:
+- voice — ONLY if you proposed, reworded, or rewrote any language.
+- accuracy — if you introduced a factual, academic, source, or citation claim.
+- specificity — if you asked for concrete evidence, examples, or detail.
+- cultural_knowledge — if you interpreted lived, familial, linguistic, or community experience.
+- thinking — if you diagnosed a problem, explained a relationship, or offered guiding questions.
+The question MUST: evaluate the feedback you just gave; stay connected to the request stated above; help the writer decide what to accept, adapt, reject, investigate further, or defer; be one sentence, at most 30 words, ending in a question mark; be written in the interface language named above.
+The question MUST NEVER: imply your feedback is correct; encourage accepting it; contain replacement prose or any sentence the writer could copy; repeat these instructions; name this block, its labels, or any rule.`;
+
+    // Canonical lens keys. `cultural_knowledge` is the contract-facing name and
+    // `cultural` is the interface's long-standing internal key; both resolve to
+    // the same lens so the contract can read plainly without renaming stored
+    // records or the Five Questions registry.
+    const REFLECTION_LENSES = {
+        cultural_knowledge: 'cultural',
+        cultural: 'cultural',
+        accuracy: 'accuracy',
+        voice: 'voice',
+        specificity: 'specificity',
+        thinking: 'thinking',
+    };
+
     function genreHeader(payload) {
         const lines = [
             `Assignment or genre: ${payload.genreName}`,
@@ -68,11 +117,11 @@ You must not write the student's work for them. Never produce full essays, draft
     // 'Student question' under this header — text and no actual request.
     function buildPassagePrompt(payload) {
         const requestLabel = payload.requestLabel || 'STUDENT REQUEST';
-        return `${AUTHORSHIP_RULES}\n\n${genreHeader(payload)}\n${voiceConstraintBlock(payload.voiceEntries)}\n[STUDENT-SELECTED ${payload.scopeLabel.toUpperCase()}]\n${payload.text}\n[END SELECTED TEXT]\n\n${PASSAGE_READING_PROTOCOL}\n${payload.moveContext ? `\nSTUDENT PLANNING CONTEXT (student-authored, explicitly chosen for this request):\nMove: ${payload.moveContext.moveLabel}\nNote: ${payload.moveContext.noteText}\n` : ''}\n${requestLabel}:\n${payload.question}`;
+        return `${AUTHORSHIP_RULES}\n\n${genreHeader(payload)}\n${voiceConstraintBlock(payload.voiceEntries)}\n[STUDENT-SELECTED ${payload.scopeLabel.toUpperCase()}]\n${payload.text}\n[END SELECTED TEXT]\n\n${PASSAGE_READING_PROTOCOL}\n${payload.moveContext ? `\nSTUDENT PLANNING CONTEXT (student-authored, explicitly chosen for this request):\nMove: ${payload.moveContext.moveLabel}\nNote: ${payload.moveContext.noteText}\n` : ''}\n${requestLabel}:\n${payload.question}\n\n${REFLECTION_CONTRACT}`;
     }
 
     function buildFullDraftPrompt(payload) {
-        return `${AUTHORSHIP_RULES}\n\n[FULL-DRAFT REVIEW]\n${genreHeader(payload)}\nSelected lens: ${payload.lensLabel}\nStudent purpose for this reading: ${payload.purpose}\nDraft word count: ${payload.words}\n${voiceConstraintBlock(payload.voiceEntries)}\n[STUDENT DRAFT — READ ALL OF IT BEFORE RESPONDING]\n${payload.text}\n[END STUDENT DRAFT]\n\nMANDATORY WHOLE-DRAFT REVIEW CONTRACT:\n- Read the entire draft before diagnosing any part. Later paragraphs may develop, qualify, or answer something introduced earlier.\n- Apply only this assignment or genre's expectations. Do not import expectations from another genre.\n- Lens instruction: ${payload.lensInstruction || payload.lensLabel}\n- Do not rewrite, line-edit, or produce replacement prose. Do not add facts, experiences, evidence, sources, or language the student did not provide.\n- Ground every important observation in an exact anchor from the student's draft.\n- Never request information that appears elsewhere in the draft.\n- Prioritize. Do not turn the response into a line-by-line inventory.\n\nUse exactly these four labeled sections in the current interface language:\n1. CURRENT MOVEMENT — map what the draft currently does in 2–3 sentences.\n2. TWO STRENGTHS — two specific strengths, each with a draft anchor and its effect.\n3. PRIORITY REVISIONS — at most three high-impact priorities. For each: location, effect on the reader, and one revision route the student can carry out.\n4. BEST NEXT ACTION — one concrete action the student should do next.\nEnd after BEST NEXT ACTION. Do not add a rewritten model paragraph.`;
+        return `${AUTHORSHIP_RULES}\n\n[FULL-DRAFT REVIEW]\n${genreHeader(payload)}\nSelected lens: ${payload.lensLabel}\nStudent purpose for this reading: ${payload.purpose}\nDraft word count: ${payload.words}\n${voiceConstraintBlock(payload.voiceEntries)}\n[STUDENT DRAFT — READ ALL OF IT BEFORE RESPONDING]\n${payload.text}\n[END STUDENT DRAFT]\n\nMANDATORY WHOLE-DRAFT REVIEW CONTRACT:\n- Read the entire draft before diagnosing any part. Later paragraphs may develop, qualify, or answer something introduced earlier.\n- Apply only this assignment or genre's expectations. Do not import expectations from another genre.\n- Lens instruction: ${payload.lensInstruction || payload.lensLabel}\n- Do not rewrite, line-edit, or produce replacement prose. Do not add facts, experiences, evidence, sources, or language the student did not provide.\n- Ground every important observation in an exact anchor from the student's draft.\n- Never request information that appears elsewhere in the draft.\n- Prioritize. Do not turn the response into a line-by-line inventory.\n\nUse exactly these four labeled sections in the current interface language:\n1. CURRENT MOVEMENT — map what the draft currently does in 2–3 sentences.\n2. TWO STRENGTHS — two specific strengths, each with a draft anchor and its effect.\n3. PRIORITY REVISIONS — at most three high-impact priorities. For each: location, effect on the reader, and one revision route the student can carry out.\n4. BEST NEXT ACTION — one concrete action the student should do next.\nEnd after BEST NEXT ACTION. Do not add a rewritten model paragraph.\n\n${REFLECTION_CONTRACT}`;
     }
 
     // B1 de-duplication. The Council path receives BOTH the universal genre
@@ -152,6 +201,14 @@ You must not write the student's work for them. Never produce full essays, draft
         'revisionmove',
         'sourceids',
         'nofindings',
+        // Refinement A. The reflection trailer is stripped from the prose
+        // BEFORE this guard runs, so a well-formed response never reaches these
+        // markers. They exist so that a response which recites the reflection
+        // contract, or leaves a malformed sentinel behind in the visible text,
+        // fails closed exactly like any other scaffolding recital.
+        'tu pana reflection',
+        '<<tp-lens',
+        '<<tp-question',
     ];
 
     const DELIBERATION_PATTERNS = [
@@ -183,6 +240,79 @@ You must not write the student's work for them. Never produce full essays, draft
         const pattern = DELIBERATION_PATTERNS.find(entry => entry.test(text));
         if (pattern) return { ok: false, reason: 'deliberation', marker: String(pattern) };
         return { ok: true, text };
+    }
+
+    // ── Refinement A — reflection trailer: split, then validate ──────────────
+    // ORDER MATTERS, and it is the whole safety argument. The trailer is
+    // removed from the response FIRST, so the coaching prose is validated on
+    // its own and the writer can never be shown a transport label. The trailer
+    // is then validated SEPARATELY, so a malformed reflection costs the writer
+    // their reflection question and nothing else: valid coaching feedback that
+    // arrived in the same response is preserved and displayed.
+    //
+    // The parse is anchored, not heuristic. It matches only the two exact
+    // sentinels the contract names, strips every occurrence (so a model that
+    // emits the block twice cannot leave half of it in the visible prose), and
+    // keeps the LAST value of each — the block the contract says comes last.
+    // Anything left over that still looks like a sentinel is caught by
+    // SCAFFOLD_MARKERS above and fails the whole response closed.
+    const REFLECTION_SENTINEL = /<<\s*TP-(LENS|QUESTION)\s*:([\s\S]*?)>>/gi;
+
+    function splitCoachResponse(rawText) {
+        const text = typeof rawText === 'string' ? rawText : '';
+        let lensRaw = null;
+        let questionRaw = null;
+        let prose = text.replace(REFLECTION_SENTINEL, (whole, field, value) => {
+            if (/^lens$/i.test(field)) lensRaw = value.trim();
+            else questionRaw = value.trim();
+            return '';
+        }).replace(/[ \t]+$/gm, '');
+        // A model may decorate the trailer — bold it, fence it, precede it with
+        // a rule. Removing the sentinels then leaves that decoration dangling at
+        // the end of otherwise good coaching. Only TRAILING lines containing no
+        // word character at all are dropped, so nothing the writer would read is
+        // touched, and the result still passes through validateCoachResponse.
+        prose = prose.replace(/(?:\n[^\w]*)+$/, '').replace(/\n{3,}/g, '\n\n').trim();
+        return { prose, lensRaw, questionRaw, hadTrailer: lensRaw !== null || questionRaw !== null };
+    }
+
+    // Precision over reach, the same discipline as validateCoachResponse. Each
+    // rule below rejects a specific, nameable failure; none of them is a taste
+    // judgement about the wording, because rejecting a good question costs the
+    // writer real pedagogical value.
+    const REFLECTION_MIN_CHARS = 12;
+    const REFLECTION_MAX_CHARS = 240;
+    // A question that tells the writer the AI was right is the one thing this
+    // surface must never say. These match assertions, not topics.
+    const REFLECTION_ENDORSEMENT = [
+        /\b(this|the)\s+(feedback|response|suggestion|coach|ai)\s+is\s+(right|correct|accurate|true)\b/i,
+        /\byou\s+should\s+(accept|apply|use|follow)\s+(this|it|these)\b/i,
+        /\b(esta|la)\s+(respuesta|retroalimentación|sugerencia)\s+(es|está)\s+(correcta|acertada|bien)\b/i,
+        /\bdeberías\s+(aceptar|aplicar|usar|seguir)\b/i,
+    ];
+    // Replacement prose smuggled inside quotation marks. Short quotations are
+    // legitimate — a question may point at a phrase — so only a long quoted
+    // span is treated as copyable prose.
+    const REFLECTION_LONG_QUOTE = /["“][^"”]{60,}["”]/;
+
+    // Returns { ok: true, key, question } or { ok: false, reason }.
+    // `reason` is a category name only — 'missing' | 'lens' | 'length' |
+    // 'form' | 'markup' | 'quoted-prose' | 'unsafe' | 'endorsement' — and is
+    // safe to persist. The rejected text itself is never returned or stored.
+    function validateReflection(parsed) {
+        const lensRaw = parsed?.lensRaw;
+        const questionRaw = parsed?.questionRaw;
+        if (!lensRaw && !questionRaw) return { ok: false, reason: 'missing' };
+        const key = REFLECTION_LENSES[String(lensRaw || '').trim().toLowerCase().replace(/[^a-z_]/g, '')];
+        if (!key) return { ok: false, reason: 'lens' };
+        const question = String(questionRaw || '').replace(/\s+/g, ' ').trim();
+        if (question.length < REFLECTION_MIN_CHARS || question.length > REFLECTION_MAX_CHARS) return { ok: false, reason: 'length' };
+        if (!/\?\s*$/.test(question) || (question.match(/\?/g) || []).length > 2) return { ok: false, reason: 'form' };
+        if (/[<>]/.test(question)) return { ok: false, reason: 'markup' };
+        if (REFLECTION_LONG_QUOTE.test(question)) return { ok: false, reason: 'quoted-prose' };
+        if (!validateCoachResponse(question).ok) return { ok: false, reason: 'unsafe' };
+        if (REFLECTION_ENDORSEMENT.some(pattern => pattern.test(question))) return { ok: false, reason: 'endorsement' };
+        return { ok: true, key, question };
     }
 
     // ── Error copy (translated from legacy getGeminiErrorMessage) ─────────────
@@ -273,6 +403,84 @@ You must not write the student's work for them. Never produce full essays, draft
         empty: '   ',
     };
 
+    // Refinement A — deterministic reflection fixtures, the same idea as
+    // ?mockcouncil= and ?mockleak=: the contextual-lens contract is exercised
+    // end to end with zero live calls. ?mockreflect=
+    //   thinking | voice | accuracy | specificity | cultural  — a response of
+    //     that shape, with the lens the contract says it should choose;
+    //   badlens | noquestion | shortquestion | endorsement | unsafe | markup —
+    //     each an individual validation failure;
+    //   missing — no trailer at all, the pre-contract provider behaviour.
+    // Each fixture's PROSE matches its lens, so a test can assert that what is
+    // shown and what is asked about it belong to each other.
+    function mockReflectFixture() {
+        try { return new URLSearchParams(location.search).get('mockreflect') || null; } catch { return null; }
+    }
+
+    const MOCK_REFLECT = {
+        thinking: {
+            en: ['The weakest sentence is the last one: it states a conclusion the paragraph has not yet earned, so the reader arrives without the reasoning. Guiding questions: what happened between the two events you name? What would a reader need to see to accept the claim?',
+                'thinking', 'Do these guiding questions help you see why the final sentence may be weaker, and what connection is still missing?'],
+            es: ['La oración más débil es la última: enuncia una conclusión que el párrafo todavía no ha ganado, así que el lector llega sin el razonamiento. Preguntas guía: ¿qué ocurrió entre los dos hechos que nombras? ¿Qué necesitaría ver un lector para aceptar la afirmación?',
+                'thinking', '¿Te ayudan estas preguntas guía a ver por qué la última oración puede ser más débil y qué conexión falta?'],
+        },
+        voice: {
+            en: ['Your second sentence carries the paragraph. Consider whether the phrase you use for your aunt would read more plainly to someone outside the family, and decide for yourself whether plainer is what you want here.',
+                'voice', 'Would this change keep the way you actually speak, or would it smooth out something you meant to keep?'],
+            es: ['Tu segunda oración sostiene el párrafo. Considera si la frase que usas para tu tía se leería más llana para alguien fuera de la familia, y decide tú si lo llano es lo que quieres aquí.',
+                'voice', '¿Este cambio conservaría tu manera real de hablar o alisaría algo que querías conservar?'],
+        },
+        accuracy: {
+            en: ['The paragraph refers to a 1974 city ordinance as the reason the lot was cleared. That date and that instrument are a factual claim, and a reader in this genre will expect the source alongside it.',
+                'accuracy', 'Have you verified that date and ordinance in a source you can cite, or is it still something you were told?'],
+            es: ['El párrafo menciona una ordenanza municipal de 1974 como la razón del desalojo del solar. Esa fecha y ese instrumento son una afirmación factual, y un lector de este género esperará la fuente al lado.',
+                'accuracy', '¿Has verificado esa fecha y esa ordenanza en una fuente que puedas citar, o sigue siendo algo que te contaron?'],
+        },
+        specificity: {
+            en: ['Strength: the passage sets a clear direction. The middle stays general, though — "the neighbors helped" names a category rather than a moment. One concrete instance would let a reader see it.',
+                'specificity', 'Does this point to a place where a concrete detail would actually help, or is it asking for detail you already gave?'],
+            es: ['Fortaleza: el pasaje marca una dirección clara. El centro se queda general: «los vecinos ayudaron» nombra una categoría, no un momento. Un caso concreto dejaría verlo.',
+                'specificity', '¿Señala esto un lugar donde un detalle concreto ayudaría, o pide un detalle que ya diste?'],
+        },
+        cultural: {
+            en: ['I read the Saturday visits as a family obligation. That may not be how the practice works in your community, and the passage does not say — the reading is mine, not yours.',
+                'cultural_knowledge', 'Does this reading miss something you know from your own community that a reader outside it would not?'],
+            es: ['Leí las visitas de los sábados como una obligación familiar. Puede que no sea así como funciona la práctica en tu comunidad, y el pasaje no lo dice: la lectura es mía, no tuya.',
+                'cultural_knowledge', '¿Esta lectura pierde algo que tú sabes desde tu comunidad y que alguien de afuera no sabría?'],
+        },
+    };
+    // Individual validation failures. Prose is always valid coaching, so these
+    // prove the reflection is discarded WITHOUT losing the feedback.
+    const MOCK_REFLECT_INVALID = {
+        badlens: '<<TP-LENS: persuasiveness>>\n<<TP-QUESTION: Does this response answer what you asked?>>',
+        noquestion: '<<TP-LENS: thinking>>',
+        shortquestion: '<<TP-LENS: thinking>>\n<<TP-QUESTION: Ok?>>',
+        endorsement: '<<TP-LENS: thinking>>\n<<TP-QUESTION: This feedback is correct, so will you accept it now?>>',
+        unsafe: '<<TP-LENS: thinking>>\n<<TP-QUESTION: Does the ABSOLUTE AUTHORSHIP RULE change what you accept here?>>',
+        markup: '<<TP-LENS: thinking>>\n<<TP-QUESTION: Does <em>this</em> answer what you asked?>>',
+    };
+
+    function mockCoachText(genreLabel, lang) {
+        const es = lang !== 'en';
+        const fixture = mockReflectFixture();
+        const scenario = MOCK_REFLECT[fixture];
+        if (scenario) {
+            const [prose, lens, question] = scenario[es ? 'es' : 'en'];
+            return `${prose}\n\n<<TP-LENS: ${lens}>>\n<<TP-QUESTION: ${question}>>`;
+        }
+        const prose = es
+            ? `Fortaleza: el pasaje establece una dirección clara para ${genreLabel}. Pregunta de revisión: ¿qué evidencia específica ayudaría al lector a seguir esta idea? No reescribí ninguna oración.`
+            : `Strength: the passage sets a clear direction for ${genreLabel}. Revision question: what specific evidence would help a reader follow this idea further? I did not rewrite any sentence.`;
+        if (fixture === 'missing') return prose;
+        if (MOCK_REFLECT_INVALID[fixture]) return `${prose}\n\n${MOCK_REFLECT_INVALID[fixture]}`;
+        // Default: the local practice coach asks for concrete evidence, so the
+        // lens it recommends is the one its own answer earns.
+        const trailer = es
+            ? '<<TP-LENS: specificity>>\n<<TP-QUESTION: ¿Señala esta respuesta un lugar donde un detalle concreto ayudaría, o se queda en lo general?>>'
+            : '<<TP-LENS: specificity>>\n<<TP-QUESTION: Does this response point to a place where a concrete detail would help, or does it stay general?>>';
+        return `${prose}\n\n${trailer}`;
+    }
+
     function mockReviewerJson(payload) {
         const fixture = mockCouncilFixture();
         if (fixture === 'malformed') return 'I looked at the draft and here are my thoughts, unstructured.';
@@ -338,10 +546,8 @@ You must not write the student's work for them. Never produce full essays, draft
                             // Coach/full-draft pathways only; the Council kernel
                             // has its own validation and is left untouched.
                             text = MOCK_LEAK_TEXT[mockLeakFixture()];
-                        } else if (lang !== 'en') {
-                            text = `Fortaleza: el pasaje establece una dirección clara para ${genreLabel}. Pregunta de revisión: ¿qué evidencia específica ayudaría al lector a seguir esta idea? No reescribí ninguna oración.`;
                         } else {
-                            text = `Strength: the passage sets a clear direction for ${genreLabel}. Revision question: what specific evidence would help a reader follow this idea further? I did not rewrite any sentence.`;
+                            text = mockCoachText(genreLabel, lang);
                         }
                         resolve({ text, truncated: false, usage: { requests: 1 } });
                     }, 260);
@@ -424,6 +630,7 @@ You must not write the student's work for them. Never produce full essays, draft
         buildPassagePrompt, buildFullDraftPrompt,
         buildCouncilReviewerPrompt, buildCouncilSynthesisPrompt,
         validateCoachResponse, SCAFFOLD_MARKERS, DELIBERATION_PATTERNS,
+        splitCoachResponse, validateReflection, REFLECTION_LENSES, REFLECTION_CONTRACT,
         errorMessage, active, createMockProvider, createGeminiProvider,
     };
 }());

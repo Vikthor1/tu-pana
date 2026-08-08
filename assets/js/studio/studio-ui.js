@@ -476,19 +476,52 @@
             ],
         },
         summary: ['What happens to my writing?', '¿Qué pasa con mi escritura?'],
+        // Refinement B — LAYERED, not shortened. The 1E founder review found
+        // this disclosure accurate but too long and too architectural to be the
+        // FIRST thing a student reads at the consent moment: it opened with
+        // storage behaviour, then named a Cloudflare Worker, tracing and export
+        // configuration, and CPU-time metrics before it reached the part the
+        // student is actually deciding about.
+        //
+        // Every material truth is preserved and none is softened. What changed
+        // is WHERE each truth sits:
+        //   • primary (below) — what the student needs in order to consent:
+        //     the writing is local, nothing goes anywhere unless they ask, they
+        //     see exactly what will be shared, Google Gemini generates the
+        //     feedback, and the whole Studio works without AI.
+        //   • secondary (`liveMore`) — the qualified processing and retention
+        //     detail, one keyboard-reachable disclosure away, in calm language.
+        //   • Help (`help`, UNCHANGED) — the full technical account, including
+        //     the Cloudflare Worker hop, the logging/tracing/export
+        //     configuration, the CPU-time metric, and the geographic
+        //     non-claim.
+        // The architectural vocabulary is therefore not deleted from the
+        // product; it is removed from the surface where it obstructed the
+        // decision. This is a comprehension change, not an obscurity change.
+        //
+        // The A3 founder rulings all still bind: Google Gemini is named, no
+        // zero-retention claim is made, no geographic claim is made in either
+        // direction, the transit path is never implied to end inside Tu Pana,
+        // and Gemini is said to generate the COACHING FEEDBACK, never the
+        // student's writing.
         live: [
-            ['Your draft, notes, and saved work stay in this browser on this device. Tu Pana does not send your writing for AI processing while you type.',
-                'Tu borrador, tus notas y tu trabajo guardado permanecen en este navegador, en este dispositivo. Tu Pana no envía tu escritura para ser procesada por IA mientras escribes.'],
-            ['When you choose to send, the AI request includes the portion of your writing and any other content you explicitly chose to attach, all shown in the consent preview, plus the instructions Tu Pana needs to provide genre-specific coaching. No other part of your draft is included.',
-                'Cuando eliges enviar, la solicitud de IA incluye el fragmento de tu escritura y cualquier otro contenido que hayas decidido adjuntar, todo visible en la vista previa de consentimiento, además de las instrucciones que Tu Pana necesita para ofrecer orientación específica para ese género. Ninguna otra parte del borrador se incluye.'],
-            ['The request travels from your browser to Tu Pana’s coach service (a Cloudflare Worker), and from there to Google Gemini, which generates the coaching feedback.',
-                'La solicitud viaja desde tu navegador al servicio de acompañamiento de Tu Pana (un Worker de Cloudflare) y de ahí a Google Gemini, que genera la orientación.'],
-            ['Tu Pana’s service is not designed to store or log your writing. On Cloudflare, content logging, tracing, and export are disabled. Cloudflare still retains content-free aggregate operational metrics such as request counts, errors, and CPU time.',
-                'El servicio de Tu Pana no está diseñado para guardar ni registrar el contenido de tu escritura. En Cloudflare, el registro de contenido, el rastreo y la exportación están desactivados. Cloudflare conserva métricas operativas agregadas que no contienen la escritura, como la cantidad de solicitudes, los errores y el tiempo de CPU.'],
-            ['Under Tu Pana’s paid Gemini terms, Google does not use prompts or responses to improve its products. Google may temporarily log prompts and responses for abuse monitoring, and processes technical usage information needed to operate and maintain the service. This is not a zero-retention promise.',
-                'Bajo los términos del servicio de pago de Gemini de Tu Pana, Google no utiliza los textos enviados —los prompts— ni las respuestas para mejorar sus productos. Google puede registrarlos temporalmente para detectar usos indebidos. Google también procesa información técnica de uso necesaria para operar y mantener el servicio. Esto no es una promesa de retención cero.'],
-            ['You can complete the entire writing process without using AI at all.',
-                'Puedes completar todo el proceso de escritura sin usar IA.'],
+            ['Your draft, notes, and saved work stay in this browser on this device while you write. Nothing is sent to AI unless you choose to request feedback.',
+                'Tu borrador, tus notas y tu trabajo guardado permanecen en este navegador, en este dispositivo, mientras escribes. No se envía nada a la IA a menos que tú pidas retroalimentación.'],
+            ['Before sending, you will see exactly which portion of your writing — and any notes you chose to attach — will be shared. No other part of your draft is included.',
+                'Antes de enviar, verás exactamente qué parte de tu escritura — y las notas que hayas decidido adjuntar — se compartirá. Ninguna otra parte de tu borrador se incluye.'],
+            ['The content shown in the preview, together with Tu Pana’s coaching instructions, is sent to Google Gemini to generate the feedback. You can use the entire Studio without using AI at all.',
+                'El contenido que aparece en la vista previa, junto con las instrucciones de acompañamiento de Tu Pana, se envía a Google Gemini para generar la retroalimentación. Puedes usar todo el Studio sin usar IA.'],
+        ],
+        moreSummary: ['More about privacy and processing', 'Más sobre privacidad y procesamiento'],
+        liveMore: [
+            ['Cloudflare relays the approved request and Google Gemini generates the feedback.',
+                'Cloudflare transmite la solicitud aprobada y Google Gemini genera la retroalimentación.'],
+            ['Tu Pana’s relay service is not designed to store or log your writing. Content-free aggregate operational information may be retained.',
+                'El servicio de transmisión de Tu Pana no está diseñado para guardar ni registrar el contenido de tu escritura. Puede conservarse información operativa agregada que no contiene tu escritura.'],
+            ['Under Tu Pana’s paid Gemini terms, Google does not use prompts or responses to improve its products.',
+                'Bajo los términos del servicio de pago de Gemini de Tu Pana, Google no utiliza los textos enviados —los prompts— ni las respuestas para mejorar sus productos.'],
+            ['Google may temporarily retain prompts and responses for abuse monitoring, and processes technical information required to operate the service. This is not a zero-retention promise.',
+                'Google puede conservar temporalmente los textos enviados y las respuestas para detectar usos indebidos, y procesa la información técnica necesaria para operar el servicio. Esto no es una promesa de retención cero.'],
         ],
         mock: [
             ['This copy of the Studio is running the local practice coach, inside this page.',
@@ -529,9 +562,18 @@
     function boundaryMarkup() { return uiMarkup(...a3ConsentPair()); }
     // Tier 2: the expandable "What happens to my writing?" disclosure shown at
     // the consent moment. Opt-in, so the consent line itself stays short.
+    // Two layers, one opt-in each. `<details>` is used rather than a custom
+    // control so both are keyboard- and screen-reader-reachable by the
+    // platform's own semantics, and both stay collapsed so the consent moment
+    // remains calm. The secondary layer exists only in live mode: in mock mode
+    // there is no processing to qualify, and inventing one would be untruthful.
     function a3DisclosureMarkup() {
-        const rows = liveProviderActive() ? A3.live : A3.mock;
-        return `<details class="a3-disclosure"><summary>${uiMarkup(...A3.summary)}</summary><ul class="a3-disclosure-list">${uiMarkupList(rows)}</ul></details>`;
+        const live = liveProviderActive();
+        const rows = live ? A3.live : A3.mock;
+        const more = live
+            ? `<details class="a3-more"><summary>${uiMarkup(...A3.moreSummary)}</summary><ul class="a3-disclosure-list">${uiMarkupList(A3.liveMore)}</ul></details>`
+            : '';
+        return `<details class="a3-disclosure"><summary>${uiMarkup(...A3.summary)}</summary><ul class="a3-disclosure-list">${uiMarkupList(rows)}</ul>${more}</details>`;
     }
     function sendCoachLabel() { return liveProviderActive() ? uiText('Send to Tu Pana coach', 'Enviar al coach de Tu Pana') : t('sendCoach'); }
     function sendReviewLabel() { return liveProviderActive() ? uiText('Request review', 'Pedir revisión') : t('sendReview'); }
@@ -642,6 +684,31 @@
     }
     function criticalQuestion(key) { return criticalQuestions[key] || criticalQuestions.thinking; }
     function criticalQuestionText(key) { return criticalQuestion(key)[state.lang === 'en' ? 'en' : 'es']; }
+    // Refinement A — the governed universal fallback. It is shown when a
+    // response participated in the reflection contract but its reflection field
+    // was absent, malformed, unsafe, or otherwise unusable. It is deliberately
+    // lens-free: naming a lens Tu Pana did not actually derive from the
+    // response would repeat the defect this refinement corrects.
+    function reflectionFallbackText() {
+        return uiText(
+            'Does this response answer the question you asked? What would you accept, adapt, reject, or investigate further?',
+            '¿Responde esto a la pregunta que hiciste? ¿Qué aceptarías, adaptarías, rechazarías o investigarías más?');
+    }
+    // The single reader for "which critical question belongs to this record".
+    // It is a pure function of the STORED record, never of current state, so a
+    // question can never be regenerated, re-derived, or attached to a response
+    // it did not evaluate. Three provenances, all immutable once written:
+    //   'model'   — the response recommended a lens and wrote this question
+    //               about itself; the exact stored wording is shown.
+    //   'fallback'— the contract ran and produced nothing usable.
+    //   'profile' — no reflection contract was in play. This covers every
+    //               record written before this refinement and the Council
+    //               pathway, which keeps its profile-declared lens.
+    function criticalPromptTextFor(record) {
+        if (record?.criticalSource === 'model' && record.criticalQuestionAsked) return record.criticalQuestionAsked;
+        if (record?.criticalSource === 'fallback') return reflectionFallbackText();
+        return criticalQuestionText(record?.criticalKey);
+    }
     function criticalRiskText(key, genre = state.genre) {
         if (genre !== 'autobiographical') return '';
         if (key === 'cultural') return state.lang === 'en'
@@ -1793,7 +1860,104 @@
         return scope === 'selected' ? captured.text : scope === 'paragraph' ? captured.paragraph : captured.full;
     }
 
+    // ── Refinement C — the response has to arrive where the writer is ────────
+    // The 1E founder review, on a 390-wide phone, found the feedback generated
+    // correctly and then rendered roughly a full viewport below the writer's
+    // position: the Review Center opens scrolled to its own top, and the
+    // Revision Cycle entry, the contextual invitation, the "which kind of
+    // feedback" guide and the section nav all sit above the feed. The writer
+    // had to hunt for the thing they had just paid a call to receive.
+    //
+    // This is a bounded reveal, not a Review Center redesign. Nothing is
+    // restructured, compacted, removed, or re-navigated; one new response is
+    // brought into view inside the dialog's OWN scroll container, and the
+    // writer keeps their position whenever they have moved themselves.
+    let newFeedback = null;
+
+    function requestInFlight() {
+        return Boolean(pendingProviderToken && !pendingProviderToken.settled && !pendingProviderToken.cancelled);
+    }
+    function reducedMotion() {
+        try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
+    }
+    // A visible, announced pending state at the point of attention, so the
+    // writer is never left wondering whether the request went anywhere. The
+    // scroll listener records the one thing that must override the reveal: the
+    // writer moving themselves while they wait.
+    function showRequestPending() {
+        const body = dialogRoot.querySelector('.dialog-body');
+        const dialog = dialogRoot.querySelector('.dialog');
+        if (!body) return;
+        body.querySelector('.coach-pending')?.remove();
+        body.insertAdjacentHTML('beforeend', `<p class="coach-pending" role="status">${escapeHtml(uiText('Tu Pana is preparing your feedback…', 'Tu Pana está preparando tu retroalimentación…'))}</p>`);
+        if (!dialog) return;
+        // Attached synchronously. The status line is appended to the END of the
+        // dialog body, which cannot change the container's scroll position, so
+        // there is no self-inflicted scroll event to guard against — and a
+        // listener attached a frame later would miss a writer who starts
+        // scrolling immediately, which on a phone is exactly what happens.
+        dialog.addEventListener('scroll', () => {
+            if (pendingProviderToken && !pendingProviderToken.settled) pendingProviderToken.contextMoved = true;
+        }, { passive: true });
+    }
+    function clearRequestPending() {
+        dialogRoot.querySelector('.coach-pending')?.remove();
+    }
+    // Persistent, never modal, and it targets ONE response by id — not the top
+    // of the feed, which is what made the founder's copy hard to find.
+    function feedbackReadyBarMarkup() {
+        if (!newFeedback || newFeedback.seen || !state.reviews.some(review => review.id === newFeedback.id)) return '';
+        return `<button class="feedback-ready-bar" data-action="view-new-feedback">${escapeHtml(uiText('Feedback ready — View response', 'Retroalimentación lista — Ver respuesta'))}</button>`;
+    }
+    // Moves ONE named response into view inside the Review Center's own scroll
+    // container. It targets the response by id rather than the top of the feed,
+    // which is the difference between answering the founder's finding and
+    // merely opening the list again.
+    function scrollToResponse(reviewId) {
+        const dialog = dialogRoot.querySelector('.dialog');
+        const card = dialog?.querySelector(`.review-card[data-review-id="${reviewId}"]`);
+        if (!card) return;
+        const heading = card.querySelector('h3') || card;
+        requestAnimationFrame(() => {
+            if (!document.contains(heading)) return;
+            // `.dialog` is the scroll container; its header and footer are
+            // sticky, so the heading is placed BELOW the header rather than at
+            // the container's raw top, where the header would cover it.
+            const headerHeight = dialog.querySelector('.dialog-header')?.getBoundingClientRect().height || 0;
+            const delta = heading.getBoundingClientRect().top - dialog.getBoundingClientRect().top - headerHeight - 12;
+            dialog.scrollTo({ top: Math.max(0, dialog.scrollTop + delta), behavior: reducedMotion() ? 'auto' : 'smooth' });
+            // Focus is deliberately NOT moved. The announcement is polite and
+            // the card is a static region; taking focus here would interrupt a
+            // screen-reader user mid-utterance and strand a keyboard user.
+            card.classList.add('response-fresh');
+            window.setTimeout(() => card.classList.remove('response-fresh'), 2600);
+        });
+    }
+    // The arrival. Announced in both branches, because a writer who moved still
+    // needs to know the response landed; only the movement differs.
+    function revealNewFeedback() {
+        if (!newFeedback) return;
+        announce(uiText('Your feedback is ready', 'Tu retroalimentación está lista'));
+        // The writer moved while waiting. Their position is theirs; the ready
+        // affordance is how they come back to it when they choose.
+        if (newFeedback.suppressed) return;
+        scrollToResponse(newFeedback.id);
+    }
+    function viewNewFeedback() {
+        if (!newFeedback) return;
+        const target = newFeedback.id;
+        newFeedback.seen = true;
+        newFeedback.suppressed = false;
+        openReviewCenter('history');
+        scrollToResponse(target);
+    }
+
     function submitMockReview(kind, button) {
+        // Refinement C — one request at a time. The send button is disabled
+        // below, but that is a paint; this is the authoritative block, and it
+        // is what stops a repeated mobile tap from buying a second paid call
+        // for the same consented text.
+        if (requestInFlight()) return;
         const scope = dialogRoot.querySelector('input[name="reviewScope"]:checked')?.value || 'full';
         const text = scopeText(scope);
         if (!text) return;
@@ -1843,8 +2007,9 @@
         const prompt = kind === 'focused' && scope === 'full'
             ? StudioProvider.buildFullDraftPrompt({ genreName: genre.label.en, genreContext, lang: providerLang, lensLabel: lens, lensInstruction: lens, purpose: 'genre-focused review', words: wordCount(text), text, voiceEntries: voiceEntriesIncluded })
             : StudioProvider.buildPassagePrompt({ genreName: genre.label.en, genreContext, lang: providerLang, scopeLabel: scope, text, question: kind === 'focused' ? `Focused review request — lens: ${lens}. Review only this consented ${scope === 'paragraph' ? 'paragraph' : 'passage'}; do not ask for the rest of the draft.` : coachRequest, requestLabel: kind !== 'focused' && !askedQuestion ? 'REQUEST GENERATED BY TU PANA (the writer did not type a question)' : undefined, moveContext: moveContextIncluded, voiceEntries: voiceEntriesIncluded });
-        const token = { cancelled: false, settled: false };
+        const token = { cancelled: false, settled: false, contextMoved: false };
         pendingProviderToken = token;
+        showRequestPending();
         provider.call({ requestKind, prompt, payload: { genreName: genre.label.en }, lang: providerLang }).then(result => {
             recordProviderUsage(requestKind, result.usage);
             if (token.cancelled) { recordProviderEvent(requestKind, { category: 'cancelled' }); return; }
@@ -1856,10 +2021,18 @@
             // counted above: the call really happened and really cost money.
             // Only the REASON is recorded — verdict.marker is a fragment of the
             // scaffolding itself, so persisting it would reintroduce the leak.
-            const verdict = StudioProvider.validateCoachResponse(result.text);
+            // Refinement A — SPLIT, THEN VALIDATE. The reflection trailer is
+            // removed first, so the coaching prose is judged on its own and no
+            // transport label can ever reach the writer. A response whose prose
+            // fails is rejected exactly as before; the reflection is judged
+            // separately below, so a malformed reflection costs the writer
+            // their reflection question and nothing else.
+            const parsed = StudioProvider.splitCoachResponse(result.text);
+            const verdict = StudioProvider.validateCoachResponse(parsed.prose);
             if (!verdict.ok) {
                 recordProviderEvent(requestKind, { category: 'response_rejected', reason: verdict.reason });
                 token.settled = true;
+                clearRequestPending();
                 button.disabled = false;
                 button.textContent = restoreLabel;
                 renderProviderFailure({ category: 'response_rejected', message: StudioProvider.errorMessage('response_rejected', providerLang), retryable: false });
@@ -1870,13 +2043,33 @@
             const snapshotId = concept === 'notebook' || concept === 'integrated'
                 ? checkpointVersion(kind === 'focused' ? 'before focused review' : 'before coach feedback', consentedDraft)
                 : null;
-            const criticalKey = concept === 'integrated' ? integratedCriticalKey(kind, lensIndex) : null;
-            state.reviews.push({ id: `review-${Date.now()}`, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: !provider.live, provider: provider.name, requestKind, truncated: Boolean(result.truncated), purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? (provider.live ? 'Tu Pana genre-focused reviewer' : 'mock genre-focused reviewer') : (provider.live ? 'Tu Pana coach' : 'Tu Pana mock coach'), calls: 1, criticalKey, criticalPrompt: criticalKey ? criticalQuestion(criticalKey).en : null, criticalContext: criticalKey ? criticalRiskText(criticalKey) : null, draftSignature: draftSignature(consentedDraft), snapshotId, genre: consentedGenreId, genreLabel: genre.label.en, genreLabelEs: genre.label.es, voiceEntriesIncluded, moveContextIncluded, question: askedQuestion || null, requestDefaulted: kind !== 'focused' && !askedQuestion });
-            saveState(); closeDialog(true); renderApp(); reviewTab = 'history'; openReviewCenter();
+            // The lens and the question are decided ONCE, here, from the
+            // response that was just validated, and are written into the same
+            // record as the feedback, the request, the genre, the draft
+            // snapshot and the decision state. Nothing regenerates them later:
+            // a reflection question that could drift away from the response it
+            // evaluates would be worse than no reflection question at all.
+            const reflection = concept === 'integrated'
+                ? StudioProvider.validateReflection(parsed)
+                : { ok: false, reason: 'not-applicable' };
+            const profileKey = concept === 'integrated' ? integratedCriticalKey(kind, lensIndex) : null;
+            const criticalKey = concept === 'integrated' ? (reflection.ok ? reflection.key : profileKey) : null;
+            const criticalSource = concept !== 'integrated' ? null : (reflection.ok ? 'model' : 'fallback');
+            const reviewId = `review-${Date.now()}`;
+            state.reviews.push({ id: reviewId, type: kind, lens, scope, words: wordCount(text), exactExcerpt: text.slice(0, 180), suggestion, createdAt: new Date().toISOString(), mock: !provider.live, provider: provider.name, requestKind, truncated: Boolean(result.truncated), purpose: kind === 'focused' ? 'genre-focused review' : 'writing coach question', reviewer: kind === 'focused' ? (provider.live ? 'Tu Pana genre-focused reviewer' : 'mock genre-focused reviewer') : (provider.live ? 'Tu Pana coach' : 'Tu Pana mock coach'), calls: 1, criticalKey, criticalSource, criticalQuestionAsked: reflection.ok ? reflection.question : null, reflectionReason: reflection.ok ? null : reflection.reason, criticalPrompt: reflection.ok ? reflection.question : (criticalKey ? criticalQuestion(criticalKey).en : null), criticalContext: criticalKey && criticalSource !== 'fallback' ? criticalRiskText(criticalKey) : null, draftSignature: draftSignature(consentedDraft), snapshotId, genre: consentedGenreId, genreLabel: genre.label.en, genreLabelEs: genre.label.es, voiceEntriesIncluded, moveContextIncluded, question: askedQuestion || null, requestDefaulted: kind !== 'focused' && !askedQuestion });
+            const contextMoved = Boolean(token.contextMoved);
+            saveState(); closeDialog(true); renderApp(); reviewTab = 'history';
+            // `seen` is set BEFORE the Review Center renders when the reveal
+            // will run, so the ready affordance never appears alongside a
+            // response the writer is already being taken to.
+            newFeedback = { id: reviewId, seen: !contextMoved, suppressed: contextMoved };
+            openReviewCenter('history');
+            revealNewFeedback();
         }).catch(failure => {
             recordProviderEvent(requestKind, failure);
             if (token.cancelled) return;
             token.settled = true;
+            clearRequestPending();
             button.disabled = false;
             button.textContent = restoreLabel;
             renderProviderFailure(failure);
@@ -2180,7 +2373,7 @@
             return;
         }
         reviewTab = tab;
-        openDialog(t('reviewCenter'), state.lang !== 'en' ? 'Pide, escucha, decide, revisa y verifica.' : 'Ask, hear, decide, revise, and verify.', `${renderRevisionCycleEntry('center')}${renderMoveReviewInvitation()}${renderFeedbackChoiceGuide()}<div class="review-layout"><nav class="review-nav" aria-label="${escapeHtml(uiText('Review sections', 'Secciones de revisión'))}"><button data-action="review-tab" data-tab="history" ${tab === 'history' ? 'aria-current="page"' : ''}>${reviewTabLabel(t('focusedReview'), state.reviews.length)}</button><button data-action="review-tab" data-tab="council" ${tab === 'council' ? 'aria-current="page"' : ''}>${reviewTabLabel(t('council'), state.councilRuns.length)}</button><button data-action="review-tab" data-tab="decisions" ${tab === 'decisions' ? 'aria-current="page"' : ''}>${reviewTabLabel(state.lang !== 'en' ? 'Decisiones' : 'Decisions', state.decisions.length)}</button></nav><section class="review-feed" id="reviewFeed">${renderReviewFeed(tab)}</section></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button>`, { wide: true });
+        openDialog(t('reviewCenter'), state.lang !== 'en' ? 'Pide, escucha, decide, revisa y verifica.' : 'Ask, hear, decide, revise, and verify.', `${feedbackReadyBarMarkup()}${renderRevisionCycleEntry('center')}${renderMoveReviewInvitation()}${renderFeedbackChoiceGuide()}<div class="review-layout"><nav class="review-nav" aria-label="${escapeHtml(uiText('Review sections', 'Secciones de revisión'))}"><button data-action="review-tab" data-tab="history" ${tab === 'history' ? 'aria-current="page"' : ''}>${reviewTabLabel(t('focusedReview'), state.reviews.length)}</button><button data-action="review-tab" data-tab="council" ${tab === 'council' ? 'aria-current="page"' : ''}>${reviewTabLabel(t('council'), state.councilRuns.length)}</button><button data-action="review-tab" data-tab="decisions" ${tab === 'decisions' ? 'aria-current="page"' : ''}>${reviewTabLabel(state.lang !== 'en' ? 'Decisiones' : 'Decisions', state.decisions.length)}</button></nav><section class="review-feed" id="reviewFeed">${renderReviewFeed(tab)}</section></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button>`, { wide: true });
     }
 
     function renderCouncilRunCard(run) {
@@ -2196,14 +2389,14 @@
         const droppedNote = run.droppedCount
             ? `<p class="council-dropped-note">${escapeHtml(uiText(`${run.droppedCount} unverifiable item${run.droppedCount === 1 ? ' was' : 's were'} discarded because its quotation could not be anchored to your exact draft.`, `${run.droppedCount} elemento${run.droppedCount === 1 ? '' : 's'} sin verificación se descartó porque su cita no pudo anclarse a tu borrador exacto.`))}</p>`
             : '';
-        const findingsHtml = run.findings.map((finding, index) => `<div class="council-finding"><p class="council-finding-head"><strong>${escapeHtml(finding.role)}</strong>${finding.corroborated ? ` <span class="corroborated-mark" title="${escapeHtml(uiText('Two or more perspectives agree', 'Dos o más perspectivas coinciden'))}">✓✓</span>` : ''}${finding.confidence === 'low' ? ` <span class="tentative-chip">${escapeHtml(uiText('tentative reading', 'lectura tentativa'))}</span>` : ''}</p><p>${escapeHtml(finding.suggestion)}</p>${finding.quote ? `<blockquote class="council-anchor">“${escapeHtml(finding.quote)}”</blockquote>` : ''}${finding.voiceNote ? `<p class="voice-note"><strong>${escapeHtml(uiText('Protect your voice:', 'Protege tu voz:'))}</strong> ${escapeHtml(finding.voiceNote)}</p>` : ''}${decisionButtons(run.id, index, finding.suggestion, run.criticalKey)}${concept === 'integrated' ? `<button class="text-button revision-focus-suggestion" data-action="revision-focus-suggestion" data-suggestion="${escapeHtml(finding.suggestion)}">${escapeHtml(uiText('Pick one revision to try', 'Elige una revisión para probar'))}</button>` : ''}</div>`).join('');
+        const findingsHtml = run.findings.map((finding, index) => `<div class="council-finding"><p class="council-finding-head"><strong>${escapeHtml(finding.role)}</strong>${finding.corroborated ? ` <span class="corroborated-mark" title="${escapeHtml(uiText('Two or more perspectives agree', 'Dos o más perspectivas coinciden'))}">✓✓</span>` : ''}${finding.confidence === 'low' ? ` <span class="tentative-chip">${escapeHtml(uiText('tentative reading', 'lectura tentativa'))}</span>` : ''}</p><p>${escapeHtml(finding.suggestion)}</p>${finding.quote ? `<blockquote class="council-anchor">“${escapeHtml(finding.quote)}”</blockquote>` : ''}${finding.voiceNote ? `<p class="voice-note"><strong>${escapeHtml(uiText('Protect your voice:', 'Protege tu voz:'))}</strong> ${escapeHtml(finding.voiceNote)}</p>` : ''}${decisionButtons(run.id, index, finding.suggestion, run.criticalKey)}${concept === 'integrated' ? `<button class="text-button revision-focus-suggestion" data-action="revision-focus-suggestion" data-suggestion="${escapeHtml(finding.suggestion)}">${escapeHtml(uiText('Choose your next move', 'Elige tu próximo paso'))}</button>` : ''}</div>`).join('');
         const preserveHtml = run.report?.preserve?.length
             ? `<div class="council-preserve"><h4>${escapeHtml(uiText('Worth preserving', 'Vale la pena conservar'))}</h4>${run.report.preserve.map(item => `<blockquote class="council-anchor">“${escapeHtml(item.quote)}”</blockquote><p>${escapeHtml(item.why)}</p>`).join('')}</div>`
             : '';
         const disagreementsHtml = run.report?.disagreements?.length
             ? `<div class="council-disagreements"><h4>${escapeHtml(uiText('Your call — the Council does not agree', 'Tu decisión — el Consejo no coincide'))}</h4>${run.report.disagreements.map(item => `<p><strong>${escapeHtml(item.question)}</strong></p><ul>${item.positions.map(position => `<li>${escapeHtml(position.roleKey)}: ${escapeHtml(position.view)}</li>`).join('')}</ul>`).join('')}</div>`
             : '';
-        return `<article class="review-card"><span class="mock-label">${escapeHtml(providerLabel)} · ${escapeHtml(storedGenreLabel(run))}</span><h3>${escapeHtml(t('council'))}</h3><p class="review-meta">${shortDate(run.createdAt)} · ${escapeHtml(run.payloadScope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))} · ${run.words} ${escapeHtml(state.lang === 'en' ? 'words reviewed' : 'palabras revisadas')}${concept === 'integrated' ? ` · ${escapeHtml(callsLabel)}` : ''}</p>${renderSnapshotLink(run.snapshotId, 'council')}${concept === 'integrated' ? renderCriticalPrompt(run.criticalKey, run.genre) : ''}${run.report?.summary ? `<p class="council-summary">${escapeHtml(run.report.summary)}</p>` : ''}${partialNote}${findingsHtml}${preserveHtml}${disagreementsHtml}${droppedNote}</article>`;
+        return `<article class="review-card"><span class="mock-label">${escapeHtml(providerLabel)} · ${escapeHtml(storedGenreLabel(run))}</span><h3>${escapeHtml(t('council'))}</h3><p class="review-meta">${shortDate(run.createdAt)} · ${escapeHtml(run.payloadScope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))} · ${run.words} ${escapeHtml(state.lang === 'en' ? 'words reviewed' : 'palabras revisadas')}${concept === 'integrated' ? ` · ${escapeHtml(callsLabel)}` : ''}</p>${renderSnapshotLink(run.snapshotId, 'council')}${concept === 'integrated' ? renderCriticalPrompt(run, run.genre) : ''}${run.report?.summary ? `<p class="council-summary">${escapeHtml(run.report.summary)}</p>` : ''}${partialNote}${findingsHtml}${preserveHtml}${disagreementsHtml}${droppedNote}</article>`;
     }
 
     function renderReviewFeed(tab) {
@@ -2217,7 +2410,7 @@
             return `${reports}${concept === 'integrated' ? `<div class="review-secondary-action"><button class="button secondary" data-action="convene-again">${escapeHtml(state.lang === 'en' ? 'Convene again' : 'Convocar de nuevo')}</button><small>${escapeHtml(state.lang === 'en' ? 'Creates a new mock Council report after a separate consent step.' : 'Crea un nuevo informe simulado después de un consentimiento separado.')}</small></div>` : ''}`;
         }
         if (!state.decisions.length) return `<div class="empty-state">${escapeHtml(state.lang !== 'en' ? 'Todavía no has decidido sobre una sugerencia.' : 'You have not decided on a suggestion yet.')}</div>`;
-        return state.decisions.slice().reverse().map(decision => `<article class="review-card"><h3>${escapeHtml(decision.choiceLabel)}</h3><p class="review-meta">${shortDate(decision.createdAt)} · ${escapeHtml(decision.sourceType)}${decision.payloadScope ? ` · ${escapeHtml(decision.payloadScope)}` : ''}</p>${renderSnapshotLink(decision.relatedVersionId, 'decisions')}<blockquote>${escapeHtml(decision.suggestion)}</blockquote>${decision.criticalPrompt ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Critical prompt' : 'Pregunta crítica')}:</strong> ${escapeHtml(criticalQuestionText(decision.criticalKey))}</p>` : ''}${decision.rationale ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Student reason' : 'Razón estudiantil')}:</strong> ${escapeHtml(decision.rationale)}</p>` : ''}<p>${escapeHtml(t('decisionRecorded'))}</p></article>`).join('');
+        return state.decisions.slice().reverse().map(decision => `<article class="review-card"><h3>${escapeHtml(decision.choiceLabel)}</h3><p class="review-meta">${shortDate(decision.createdAt)} · ${escapeHtml(decision.sourceType)}${decision.payloadScope ? ` · ${escapeHtml(decision.payloadScope)}` : ''}</p>${renderSnapshotLink(decision.relatedVersionId, 'decisions')}<blockquote>${escapeHtml(decision.suggestion)}</blockquote>${decision.criticalPrompt ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Critical prompt' : 'Pregunta crítica')}:</strong> ${escapeHtml(criticalPromptTextFor(decision))}</p>` : ''}${decision.rationale ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Student reason' : 'Razón estudiantil')}:</strong> ${escapeHtml(decision.rationale)}</p>` : ''}<p>${escapeHtml(t('decisionRecorded'))}</p></article>`).join('');
     }
 
     function renderReviewCard(review) {
@@ -2236,7 +2429,7 @@
             : '';
         const liveRecord = review.mock === false;
         const truncatedNote = review.truncated ? `<p class="truncated-note">${escapeHtml(uiText('This response was cut off by a length limit; what appears here is everything that arrived.', 'Esta respuesta fue cortada por un límite de longitud; lo que aparece aquí es todo lo que llegó.'))}</p>` : '';
-        return `<article class="review-card"><span class="mock-label">${escapeHtml(liveRecord ? uiText('Tu Pana AI', 'IA de Tu Pana') : 'Mock AI')} · ${escapeHtml(storedGenreLabel(review))} · ${escapeHtml(review.scope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(review.calls ? `${review.calls} ${liveRecord ? (state.lang === 'en' ? 'AI call' : 'llamada de IA') : (state.lang === 'en' ? 'mock call' : 'llamada simulada')}` : (state.lang === 'en' ? 'call count not stored' : 'cantidad de llamadas no guardada'))}` : ''}</p>${renderSnapshotLink(review.snapshotId, 'history')}<blockquote>${escapeHtml(review.exactExcerpt)}</blockquote>${questionRequest}${moveRequest}${voiceRequest}<p>${escapeHtml(review.suggestion)}</p>${truncatedNote}${concept === 'integrated' ? renderCriticalPrompt(review.criticalKey, review.genre) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}${concept === 'integrated' ? `<button class="text-button revision-focus-suggestion" data-action="revision-focus-suggestion" data-suggestion="${escapeHtml(review.suggestion)}">${escapeHtml(uiText('Pick one revision to try', 'Elige una revisión para probar'))}</button>` : ''}</article>`;
+        return `<article class="review-card" data-review-id="${escapeHtml(review.id)}"><span class="mock-label">${escapeHtml(liveRecord ? uiText('Tu Pana AI', 'IA de Tu Pana') : 'Mock AI')} · ${escapeHtml(storedGenreLabel(review))} · ${escapeHtml(review.scope || (state.lang === 'en' ? 'scope not stored' : 'alcance no guardado'))}</span><h3>${escapeHtml(review.lens)}</h3><p class="review-meta">${shortDate(review.createdAt)} · ${review.words} ${escapeHtml(state.lang !== 'en' ? 'palabras compartidas' : 'words shared')}${concept === 'integrated' ? ` · ${escapeHtml(review.calls ? `${review.calls} ${liveRecord ? (state.lang === 'en' ? 'AI call' : 'llamada de IA') : (state.lang === 'en' ? 'mock call' : 'llamada simulada')}` : (state.lang === 'en' ? 'call count not stored' : 'cantidad de llamadas no guardada'))}` : ''}</p>${renderSnapshotLink(review.snapshotId, 'history')}<blockquote>${escapeHtml(review.exactExcerpt)}</blockquote>${questionRequest}${moveRequest}${voiceRequest}<p>${escapeHtml(review.suggestion)}</p>${truncatedNote}${concept === 'integrated' ? renderCriticalPrompt(review, review.genre) : ''}${decisionButtons(review.id, 0, review.suggestion, review.criticalKey)}${concept === 'integrated' ? `<button class="text-button revision-focus-suggestion" data-action="revision-focus-suggestion" data-suggestion="${escapeHtml(review.suggestion)}">${escapeHtml(uiText('Choose your next move', 'Elige tu próximo paso'))}</button>` : ''}</article>`;
     }
 
     function renderSnapshotLink(snapshotId, returnTab = reviewTab) {
@@ -2321,11 +2514,19 @@
         } else renderApp();
     }
 
-    function renderCriticalPrompt(key, genre = state.genre) {
+    // ONE primary contextual question, always. The complete Five Questions
+    // framework stays exactly where it was — collapsed, one disclosure deeper —
+    // so this carries no extra cognitive load than before the refinement.
+    // On the fallback provenance no lens is highlighted and no lens kicker is
+    // shown, because none was derived.
+    function renderCriticalPrompt(record, genre = state.genre) {
+        const key = record?.criticalKey;
         if (!key) return '';
+        const fallback = record.criticalSource === 'fallback';
         const available = Object.entries(criticalQuestions).filter(([questionKey]) => !(genre === 'stem' && questionKey === 'cultural'));
-        const risk = criticalRiskText(key, genre);
-        return `<details class="critical-moment" data-critical-key="${escapeHtml(key)}"><summary>${escapeHtml(t('criticalAction'))}</summary><div class="critical-moment-body"><span class="panel-kicker">${escapeHtml(criticalQuestion(key).principle)}</span>${risk ? `<p class="critical-risk">${escapeHtml(risk)}</p>` : ''}<p class="critical-primary">${escapeHtml(criticalQuestionText(key))}</p><p>${escapeHtml(t('decisionMaker'))}</p><details class="critical-framework"><summary>${escapeHtml(t('allQuestions'))}</summary><ul>${available.map(([questionKey, question]) => `<li class="${questionKey === key ? 'current' : ''}"><strong>${escapeHtml(question.principle)}</strong> — ${escapeHtml(question[state.lang === 'en' ? 'en' : 'es'])}</li>`).join('')}</ul></details></div></details>`;
+        const risk = fallback ? '' : criticalRiskText(key, genre);
+        const kicker = fallback ? '' : `<span class="panel-kicker">${escapeHtml(criticalQuestion(key).principle)}</span>`;
+        return `<details class="critical-moment" data-critical-key="${escapeHtml(key)}" data-critical-source="${escapeHtml(record.criticalSource || 'profile')}"><summary>${escapeHtml(t('criticalAction'))}</summary><div class="critical-moment-body">${kicker}${risk ? `<p class="critical-risk">${escapeHtml(risk)}</p>` : ''}<p class="critical-primary">${escapeHtml(criticalPromptTextFor(record))}</p><p>${escapeHtml(t('decisionMaker'))}</p><details class="critical-framework"><summary>${escapeHtml(t('allQuestions'))}</summary><ul>${available.map(([questionKey, question]) => `<li class="${!fallback && questionKey === key ? 'current' : ''}"><strong>${escapeHtml(question.principle)}</strong> — ${escapeHtml(question[state.lang === 'en' ? 'en' : 'es'])}</li>`).join('')}</ul></details></div></details>`;
     }
 
     function decisionButtons(sourceId, suggestionIndex, suggestion, criticalKey = '') {
@@ -2345,6 +2546,11 @@
                 sourceId, index, choice, choiceLabel: labels[choice], suggestion: button.dataset.suggestion,
                 criticalKey: button.dataset.critical || review?.criticalKey || council?.criticalKey || 'thinking',
                 criticalContext: review?.criticalContext || council?.criticalContext || criticalRiskText(button.dataset.critical || 'thinking'),
+                // Refinement A — the decision surface must repeat the question
+                // the writer actually saw under that response, not re-derive
+                // one. Both fields come from the stored record.
+                criticalQuestionAsked: review?.criticalQuestionAsked || council?.criticalQuestionAsked || null,
+                criticalSource: review?.criticalSource || council?.criticalSource || 'profile',
                 sourceType: council ? t('council') : t('focusedReview'),
                 aiSource: council ? 'Mock Council' : (review?.reviewer || 'Tu Pana mock coach'),
                 payloadScope: council ? 'full' : (review?.scope || 'unknown'),
@@ -2354,7 +2560,7 @@
                 genreLabel: council?.genreLabel || review?.genreLabel || currentGenre().label.en,
                 genreLabelEs: council?.genreLabelEs || review?.genreLabelEs || currentGenre().label.es,
             };
-            openDialog(labels[choice], t('criticalAction'), `<div class="critical-decision-summary"><span class="panel-kicker">${escapeHtml(criticalQuestion(pendingDecision.criticalKey).principle)}</span><p>${escapeHtml(criticalQuestionText(pendingDecision.criticalKey))}</p><blockquote>${escapeHtml(pendingDecision.suggestion)}</blockquote></div><div class="field"><label for="decisionRationale">${escapeHtml(t('rationale'))}</label><textarea id="decisionRationale" data-protect-dirty spellcheck="${spellcheckEnabled()}" maxlength="500" placeholder="${escapeHtml(state.lang === 'en' ? 'I chose this because…' : 'Elegí esto porque…')}"></textarea></div><p>${escapeHtml(t('decisionMaker'))}</p>`, `<button class="button ghost" data-action="review-center">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-integrated-decision">${escapeHtml(t('saveDecision'))}</button>`);
+            openDialog(labels[choice], t('criticalAction'), `<div class="critical-decision-summary">${pendingDecision.criticalSource === 'fallback' ? '' : `<span class="panel-kicker">${escapeHtml(criticalQuestion(pendingDecision.criticalKey).principle)}</span>`}<p>${escapeHtml(criticalPromptTextFor(pendingDecision))}</p><blockquote>${escapeHtml(pendingDecision.suggestion)}</blockquote></div><div class="field"><label for="decisionRationale">${escapeHtml(t('rationale'))}</label><textarea id="decisionRationale" data-protect-dirty spellcheck="${spellcheckEnabled()}" maxlength="500" placeholder="${escapeHtml(state.lang === 'en' ? 'I chose this because…' : 'Elegí esto porque…')}"></textarea></div><p>${escapeHtml(t('decisionMaker'))}</p>`, `<button class="button ghost" data-action="review-center">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="save-integrated-decision">${escapeHtml(t('saveDecision'))}</button>`);
             return;
         }
         state.decisions = state.decisions.filter(d => !(d.sourceId === sourceId && d.suggestionIndex === index));
@@ -2380,7 +2586,9 @@
             aiSource: pendingDecision.aiSource,
             payloadScope: pendingDecision.payloadScope,
             criticalKey: pendingDecision.criticalKey,
-            criticalPrompt: criticalQuestion(pendingDecision.criticalKey).en,
+            criticalPrompt: pendingDecision.criticalQuestionAsked || criticalQuestion(pendingDecision.criticalKey).en,
+            criticalQuestionAsked: pendingDecision.criticalQuestionAsked,
+            criticalSource: pendingDecision.criticalSource,
             criticalContext: pendingDecision.criticalContext,
             draftSignature: pendingDecision.draftSignature,
             relatedVersionId: pendingDecision.relatedVersionId,
@@ -2805,6 +3013,7 @@
         else if (action === 'submit-mock') submitMockReview(target.dataset.kind, target);
         else if (action === 'run-council') runCouncil(target);
         else if (action === 'review-tab') openReviewCenter(target.dataset.tab);
+        else if (action === 'view-new-feedback') viewNewFeedback();
         else if (action === 'evidence-browser') openEvidenceArchive();
         else if (action === 'evidence-filter') openEvidenceArchive(target.dataset.filter || 'moves');
         else if (action === 'evidence-open-review') openReviewCenter(target.dataset.tab || 'history');

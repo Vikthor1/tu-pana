@@ -132,6 +132,10 @@
 !studio_disclosure_test.mjs
 !studio_safeguard_matrix_test.mjs
 !studio_ask_question_test.mjs
+# ── Allow the 2026-08-08 1E refinement suites ────────────
+# Contextual critical-reflection contract, and the bounded mobile reveal.
+!studio_reflection_contract_test.mjs
+!studio_feedback_reveal_test.mjs
 
 # ── Allow the reproducible test toolchain (E1) ────────────
 # Non-secret harness only: dependency manifest, lockfile, the local mock server,

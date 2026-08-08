@@ -17,7 +17,7 @@ const KEY = 'tupana-studio:v1';
 // Scope and ceiling are declared by the caller. The fall-readiness pass runs
 // STUDIO_LIVE_SCOPE=fall with a ceiling of 6.
 const SCOPE = process.env.STUDIO_LIVE_SCOPE || 'default';
-const CALL_CEILING = Number(process.env.STUDIO_LIVE_CEILING || (SCOPE === 'fall' ? 6 : 30));
+const CALL_CEILING = Number(process.env.STUDIO_LIVE_CEILING || (SCOPE === 'fall' || SCOPE === 'reflect' ? 6 : 30));
 let callsUsed = 0;
 const results = [];
 const browser = await chromium.launch({ headless: true });
@@ -40,7 +40,11 @@ async function fresh(assignment, lang = 'en') {
     if (page) await page.close();
     page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
     page.setDefaultTimeout(15000);
-    await page.goto(`${ORIGIN}/studio.html?provider=gemini${assignment ? `&assignment=${assignment}` : ''}`);
+    // DRY PASS. STUDIO_LIVE_DRY=1 runs the exact same case list against the
+    // deterministic mock provider, so the harness mechanics are rehearsed end
+    // to end with zero provider calls and zero cost before any money is spent.
+    const providerParam = process.env.STUDIO_LIVE_DRY === '1' ? 'mock' : 'gemini';
+    await page.goto(`${ORIGIN}/studio.html?provider=${providerParam}${assignment ? `&assignment=${assignment}` : ''}`);
     // Onboarding answered: this harness exercises the Desk's AI surfaces, not
     // the first-run welcome (which makes no provider call of any kind).
     await page.evaluate(key => {
@@ -153,6 +157,58 @@ async function councilCase(assignment, lang) {
     else console.log(`\n===== COUNCIL FAILED [${assignment} ${lang}]: ${await page.locator('.provider-error').textContent().catch(() => outcome)}`);
 }
 
+// ── Refinement A — bounded live validation of the reflection contract ───────
+// The Ask Tu Pana pathway, because that is where the 1E defect was observed and
+// where the contract now rides. Each case records ONLY what can be judged
+// without keeping the writer's text: the lens the model recommended, the
+// question it wrote, whether that question survived Tu Pana's validation, and
+// whether any transport label or scaffolding survived into the visible prose.
+const REFLECT_SENTINELS = ['<<TP-', 'TP-LENS', 'TP-QUESTION', 'TU PANA REFLECTION', 'cultural_knowledge'];
+
+async function coachCase(assignment, lang, question, label) {
+    guardCeiling(2); // 1 call + the adapter's possible transparent retry
+    await fresh(assignment, lang);
+    const draft = DRAFTS[assignment.includes('statement') ? 'admissions' : assignment.includes('research') ? 'research' : 'neutral'];
+    await page.locator('#draftEditor').fill(draft);
+    await page.waitForTimeout(240);
+    await page.locator('[data-action="coach"]').first().click();
+    await page.waitForTimeout(250);
+    if (question) await page.locator('#coachQuestion').fill(question);
+    const requestPreview = (await page.locator('#coachRequestPreview').textContent()) || '';
+    await page.locator('#transmitConsent').check();
+    const started = Date.now();
+    await page.locator('[data-action="submit-mock"]').click();
+    const outcome = await Promise.race([
+        page.waitForFunction(key => (JSON.parse(localStorage.getItem(key) || '{}').reviews || []).length === 1, KEY, { timeout: 90000 }).then(() => 'ok'),
+        page.locator('.provider-error').waitFor({ timeout: 90000 }).then(() => 'failure'),
+    ]).catch(() => 'timeout');
+    const latency = Date.now() - started;
+    const record = await stored();
+    callsUsed += 1;
+    const review = record.reviews?.[0];
+    const visible = await page.evaluate(() => document.body.innerText);
+    const leaked = REFLECT_SENTINELS.filter(marker =>
+        (review?.suggestion || '').includes(marker) || visible.includes(marker) || JSON.stringify(record).includes(marker));
+    results.push({
+        case: `coach:${label}:${assignment}:${lang}`, kind: 'passage_analysis', outcome, latency,
+        requestDefaulted: review?.requestDefaulted, questionStored: review?.question,
+        lens: review?.criticalKey, reflectionSource: review?.criticalSource,
+        reflectionReason: review?.reflectionReason || null,
+        reflectionQuestion: review?.criticalQuestionAsked || null,
+        sentinelsLeaked: leaked, textLen: review?.suggestion?.length || 0,
+        draftIntact: record.draft === draft,
+    });
+    if (review) {
+        console.log(`\n===== RESPONSE [coach ${label} ${assignment} ${lang}] (${latency}ms) =====`);
+        console.log(`REQUEST SENT: ${requestPreview}`);
+        console.log(`FEEDBACK:\n${review.suggestion}`);
+        console.log(`REFLECTION: lens=${review.criticalKey} source=${review.criticalSource}${review.reflectionReason ? ` reason=${review.reflectionReason}` : ''}`);
+        console.log(`QUESTION: ${review.criticalQuestionAsked || '(governed fallback shown)'}\n`);
+    } else {
+        console.log(`\n===== FAILED [coach ${label} ${assignment} ${lang}]: ${await page.locator('.provider-error').textContent().catch(() => outcome)}`);
+    }
+}
+
 // Rerun subset after the model-parameter fix (first round used 15 calls incl.
 // 2 diagnostic probes; passage + zero-call cases already validated).
 // FALL-READINESS SCOPE — exactly 6 declared calls, the minimum that exercises
@@ -173,7 +229,25 @@ const DEFAULT_CASES = [
     () => councilCase('mixed-genre-autobiographical-essay', 'en'),
     () => councilCase('cap200-bronx-beautiful-service-learning', 'es'),
 ];
-const cases = SCOPE === 'fall' ? FALL_CASES : DEFAULT_CASES;
+// REFLECT SCOPE — the bounded matrix for the 2026-08-08 refinement package.
+// 5 declared calls against a ceiling of 6; the sixth is reserved because the
+// Gemini adapter retries retryable categories transparently.
+//   1  EN, custom question inviting DIAGNOSIS and guiding questions
+//   2  EN, custom question inviting PROPOSED LANGUAGE
+//   3  ES, custom question
+//   4  EN, pre-populated bounded request (writer typed nothing)
+//   5  ES, pre-populated bounded request
+const REFLECT_CASES = [
+    () => coachCase('college-personal-statement', 'en',
+        'What is the weakest sentence in this paragraph, and why is it weaker than the others?', 'diagnosis'),
+    () => coachCase('college-personal-statement', 'en',
+        'Is "the real problem was trust" the right wording here, or should I say it another way?', 'language'),
+    () => coachCase('research-paper', 'es',
+        '¿Qué evidencia concreta le falta a este párrafo para que un lector pueda seguirlo?', 'custom-es'),
+    () => coachCase('college-personal-statement', 'en', '', 'default-en'),
+    () => coachCase('research-paper', 'es', '', 'default-es'),
+];
+const cases = SCOPE === 'fall' ? FALL_CASES : SCOPE === 'reflect' ? REFLECT_CASES : DEFAULT_CASES;
 try {
     for (const run of cases) {
         try { await run(); } catch (caseError) {
@@ -182,7 +256,10 @@ try {
         }
     }
 
-    // Zero-call verifications
+    // Zero-call verifications. The reflect scope is deliberately narrow: these
+    // check surfaces this package did not touch, and they were already
+    // validated in the fall pass.
+    if (SCOPE === 'reflect') throw new Error('reflect scope complete');
     await fresh('totally-unknown-live-check');
     const unknownStops = await page.evaluate(() => document.body.textContent.includes('not configured') || document.body.textContent.includes('no está configurado'));
     results.push({ case: 'unknown-assignment', kind: 'none', outcome: unknownStops ? 'stops-no-ai' : 'FAIL' });

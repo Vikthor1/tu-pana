@@ -582,6 +582,47 @@ body.focus-mode .draft-editor { min-height: calc(100dvh - 96px); }
 .move-deeper { margin-top: 8px; }
 .assignment-notice { font-style: italic; }
 
+/* Refinement B — the secondary privacy layer, nested one disclosure deeper so
+   the consent moment stays short without any material fact being dropped. */
+.a3-more { margin: 10px 0 0; padding: 0 0 0 2px; border-top: 1px solid var(--line); }
+.a3-more > summary { min-height: 44px; padding: 12px 0 6px; color: var(--muted); font-size: .88rem; font-weight: 750; cursor: pointer; }
+.a3-more .a3-disclosure-list { font-size: .84rem; }
+
+/* Refinement C — pending, ready, and the brief arrival highlight. Calm by
+   construction: one status line, one persistent affordance, one soft ring. */
+.coach-pending {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border: 1px dashed #b8cbbf;
+    border-radius: 10px;
+    background: var(--jade-soft);
+    color: var(--ink);
+    font-weight: 750;
+}
+.feedback-ready-bar {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--jade);
+    border-radius: 12px;
+    background: var(--jade-soft);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 800;
+    text-align: left;
+    cursor: pointer;
+}
+.review-card.response-fresh { box-shadow: 0 0 0 2px var(--jade); }
+@media (prefers-reduced-motion: no-preference) {
+    .review-card.response-fresh { animation: responseFresh 2.4s ease-out forwards; }
+    @keyframes responseFresh {
+        0% { box-shadow: 0 0 0 3px var(--jade); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+    }
+}
+
 /* Council structured report */
 .council-summary { font-weight: 600; margin: 10px 0 4px; }
 .council-finding { border-top: 1px solid var(--line, rgba(0,0,0,0.12)); padding-top: 10px; margin-top: 10px; }

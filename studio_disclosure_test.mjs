@@ -103,23 +103,68 @@ await page.locator('.a3-disclosure summary').first().click();
 await page.waitForTimeout(120);
 const disclosure = await page.locator('.a3-disclosure').first().textContent();
 
-check('drafts are described as browser-local', /stay in this browser on this device/.test(disclosure));
-check('no AI processing happens while typing', /does not send your writing for AI processing while you type/.test(disclosure));
-check('the request composition is described accurately',
-    /includes the portion of your writing and any other content you explicitly chose to attach, all shown in the consent preview/.test(disclosure));
-check('coaching instructions are disclosed as part of the request',
-    /the instructions Tu Pana needs to provide genre-specific coaching/.test(disclosure));
-check('nothing else from the draft is included', /No other part of your draft is included/.test(disclosure));
-check('the Cloudflare Worker hop is named', /Tu Pana’s coach service \(a Cloudflare Worker\)/.test(disclosure));
-check('Cloudflare logging, tracing and export are described as disabled',
-    /content logging, tracing, and export are disabled/.test(disclosure));
-check('content-free aggregate metrics are disclosed, not hidden',
-    /content-free aggregate operational metrics such as request counts, errors, and CPU time/.test(disclosure));
-check('the paid-terms position is stated', /Google does not use prompts or responses to improve its products/.test(disclosure));
-check('temporary abuse-monitoring logging is disclosed', /temporarily log prompts and responses for abuse monitoring/.test(disclosure));
-check('technical usage processing is disclosed', /technical usage information needed to operate and maintain the service/.test(disclosure));
-check('it explicitly refuses a zero-retention promise', /This is not a zero-retention promise/.test(disclosure));
-check('AI is stated to be optional', /without using AI at all/.test(disclosure));
+// Refinement B (2026-08-08) — this tier is now TWO layers. The 1E founder
+// review found the copy accurate but too long and too architectural to be the
+// first thing a student reads while deciding whether to consent. Nothing was
+// dropped from the product: each fact below is asserted at the layer where it
+// now lives, and the layers themselves are asserted to be reachable. The eight
+// assertions that used to live in this block are RELOCATED, not removed —
+// four to the secondary layer immediately below, four to Tier 3 in section 3 —
+// and the primary layer gains a boundary check that they are not there.
+const primary = await page.locator('.a3-disclosure > .a3-disclosure-list').first().textContent();
+console.log('\n2a. Primary layer — what a student needs in order to consent');
+check('drafts are described as browser-local', /stay in this browser on this device/.test(primary));
+check('the AI boundary is stated as a choice the student makes',
+    /Nothing is sent to AI unless you choose to request feedback/.test(primary));
+check('the consent preview promise is made before sending',
+    /Before sending, you will see exactly which portion of your writing/.test(primary));
+check('attached notes are named as part of what is shared',
+    /any notes you chose to attach \u2014 will be shared/.test(primary));
+check('nothing else from the draft is included', /No other part of your draft is included/.test(primary));
+check('Google Gemini is named in the primary layer, not buried',
+    /sent to Google Gemini to generate the feedback/.test(primary));
+check('Gemini is said to generate the feedback, never the writing',
+    !/(writes|generates) (your|the student\u2019s) (writing|draft)/i.test(primary));
+check('AI is stated to be optional', /without using AI at all/.test(primary));
+check('the primary layer is short enough to read at the consent moment',
+    primary.length < 700, `${primary.length} chars`);
+
+console.log('\n2b. Primary layer carries no architectural vocabulary');
+// This is a comprehension boundary, not obscurity: every phrase below is still
+// asserted verbatim in Tier 3 (section 3). It must not be in the layer a
+// student reads while deciding.
+for (const phrase of ['Cloudflare Worker', 'CPU time', 'tracing', 'export', 'endpoint', 'Worker']) {
+    check(`primary layer omits "${phrase}"`, !primary.includes(phrase));
+}
+
+console.log('\n2c. Secondary layer — "More about privacy and processing"');
+check('a secondary disclosure exists', await page.locator('.a3-disclosure .a3-more').count() === 1);
+check('it is collapsed by default', await page.locator('.a3-more').first().evaluate(el => !el.open));
+check('its summary names privacy and processing',
+    /More about privacy and processing/.test((await page.locator('.a3-more > summary').first().textContent()) || ''));
+check('its summary is keyboard reachable and operable',
+    await page.locator('.a3-more > summary').first().evaluate(el => {
+        el.focus();
+        return document.activeElement === el;
+    }));
+await page.locator('.a3-more > summary').first().click();
+await page.waitForTimeout(120);
+check('activating it by keyboard-equivalent opens it', await page.locator('.a3-more').first().evaluate(el => el.open));
+const secondary = await page.locator('.a3-more .a3-disclosure-list').first().textContent();
+check('the relay hop is named without architecture vocabulary',
+    /Cloudflare relays the approved request and Google Gemini generates the feedback/.test(secondary));
+check('the no-store, no-log posture is stated', /not designed to store or log your writing/.test(secondary));
+check('content-free aggregate retention is disclosed, not hidden',
+    /Content-free aggregate operational information may be retained/.test(secondary));
+check('the paid-terms position is stated', /Google does not use prompts or responses to improve its products/.test(secondary));
+check('temporary abuse-monitoring retention is disclosed',
+    /temporarily retain prompts and responses for abuse monitoring/.test(secondary));
+check('technical operating processing is disclosed',
+    /processes technical information required to operate the service/.test(secondary));
+check('it explicitly refuses a zero-retention promise', /This is not a zero-retention promise/.test(secondary));
+check('the qualification is not weakened into a guarantee',
+    !/(never|not) retained|no retention|nothing is kept/i.test(secondary));
+check('the whole tier still refuses a zero-retention promise', /This is not a zero-retention promise/.test(disclosure));
 
 // ── 3. Tier 3: the Help explanation ─────────────────────────────────────────
 console.log('\n3. Tier 3 — the fuller Help explanation');
@@ -141,6 +186,26 @@ check('Help refuses a zero-retention promise', /This is not a zero-retention pro
 check('Help states platform processing is outside Tu Pana\'s configuration',
     /Google and Cloudflare may also perform their own platform processing under their applicable terms/.test(help));
 
+// RELOCATED FROM TIER 2 by Refinement B. These are the full technical account,
+// and Tier 3 is where the full technical account belongs. Each was asserted in
+// the tier-2 block before 2026-08-08 and is asserted here now, verbatim and
+// unweakened, so the simplification provably lost no disclosed fact.
+check('Help states no AI processing happens while typing',
+    /does not send your writing for AI processing while you type/.test(help));
+check('Help describes the request composition exactly',
+    /includes the portion of your writing and any other content you explicitly chose to attach, all shown in the consent preview/.test(help));
+check('Help discloses the coaching instructions as part of the request',
+    /the instructions Tu Pana needs to provide genre-specific coaching/.test(help));
+check('Help names the Cloudflare Worker hop', /runs as a Cloudflare Worker/.test(help));
+check('Help states logging, tracing and export are disabled',
+    /content logging, tracing, and export are disabled/.test(help));
+check('Help discloses the content-free aggregate metrics by name',
+    /content-free aggregate operational metrics such as request counts, errors, and CPU time/.test(help));
+check('Help discloses temporary abuse-monitoring logging',
+    /temporarily log prompts and responses for abuse monitoring/.test(help));
+check('Help discloses technical usage processing',
+    /technical usage information needed to operate and maintain the service/.test(help));
+
 // ── 4. Hard content boundaries ──────────────────────────────────────────────
 console.log('\n4. Founder-ruled content boundaries');
 const allCopy = `${disclosure}\n${help}`;
@@ -159,6 +224,29 @@ check('the only geographic mention is the explicit disclaimer',
 check('no jurisdiction is named', !/United States|Europe|European Union|\bEU\b|Ireland|Iowa/i.test(allCopy));
 check('does not claim the writing stays inside Tu Pana',
     !/stays (inside|within) Tu Pana|only Tu Pana (sees|receives)/i.test(allCopy));
+
+console.log('\n4b. Bilingual markup survives the new layer');
+await fresh('both', 'gemini');
+await openReviewConsent();
+await page.locator('.a3-disclosure summary').first().click();
+await page.locator('.a3-more > summary').first().click();
+await page.waitForTimeout(150);
+const langMarkup = await page.evaluate(() => {
+    const scope = document.querySelector('.a3-more .a3-disclosure-list');
+    const items = [...scope.querySelectorAll('li')];
+    return {
+        items: items.length,
+        everyItemAttributed: items.every(li =>
+            li.querySelector('span[lang="es"]') && li.querySelector('span[lang="en"]')),
+        separatorsHidden: [...scope.querySelectorAll('span[aria-hidden="true"]')].every(el => el.textContent.includes('\u00b7')),
+        noLooseText: items.every(li => !/[A-Za-z]/.test([...li.childNodes]
+            .filter(n => n.nodeType === 3).map(n => n.textContent).join(''))),
+    };
+});
+check('every secondary item carries both attributed language runs',
+    langMarkup.items === 4 && langMarkup.everyItemAttributed, JSON.stringify(langMarkup));
+check('the separator stays hidden from assistive technology', langMarkup.separatorsHidden);
+check('no unattributed text leaks between the language runs', langMarkup.noLooseText);
 
 console.log('\n   Mock mode is distinguished truthfully');
 await fresh('en', 'mock');

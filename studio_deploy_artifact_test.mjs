@@ -45,10 +45,21 @@ const localRefs = html => {
     return out;
 };
 
-const SURFACES = ['studio.html', 'index.html', 'start-here.html'];
+const SURFACES = ['studio.html', 'index.html', 'start-here.html', '404.html'];
 
 console.log('\nStudent-facing surfaces are in the artifact');
 for (const s of SURFACES) check(`${s} is served`, allow.has(s));
+
+console.log('\n404.html is load-bearing for the boundary');
+// Cloudflare Pages answers an unmatched path with index.html and HTTP 200 unless
+// a 404.html exists. Without this file an excluded artifact is indistinguishable
+// from a served one, so the exclusion cannot be demonstrated at all.
+const notFound = read('404.html');
+check('404.html is in the artifact', allow.has('404.html'));
+check('404.html has no local dependency (cannot itself 404)', localRefs(notFound).size === 0,
+    [...localRefs(notFound)].join(', '));
+check('404.html carries inline styling only', /<style/i.test(notFound) && !/<link\b/i.test(notFound));
+check('404.html links back to the Studio', /href=["']studio\.html["']/.test(notFound));
 
 console.log('\nEvery declared dependency of every served surface is in the artifact');
 for (const surface of SURFACES) {
@@ -131,8 +142,11 @@ check('no duplicate entries', new Set(PREVIEW_ARTIFACT).size === PREVIEW_ARTIFAC
 check('no absolute path', !PREVIEW_ARTIFACT.some(p => p.startsWith('/')));
 check('no parent-directory escape', !PREVIEW_ARTIFACT.some(p => p.split('/').includes('..')));
 check('no backslash separator', !PREVIEW_ARTIFACT.some(p => p.includes('\\')));
-check('every entry is under studio.html, index.html, start-here.html, or assets/',
-    PREVIEW_ARTIFACT.every(p => p === 'studio.html' || p === 'index.html' || p === 'start-here.html' || p.startsWith('assets/')));
+// Derived from SURFACES rather than restated, so adding a served page updates this
+// assertion in one place instead of leaving it quietly stale.
+const outsideScope = PREVIEW_ARTIFACT.filter(p => !SURFACES.includes(p) && !p.startsWith('assets/'));
+check(`every entry is a declared surface (${SURFACES.join(', ')}) or under assets/`,
+    outsideScope.length === 0, outsideScope.join(', '));
 
 const trackedAtHead = new Set(
     execFileSync('git', ['ls-tree', '-r', '--name-only', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim().split('\n')

@@ -102,6 +102,13 @@ export const PREVIEW_ARTIFACT = [
     // Self-contained: inline CSS and inline JS, no external stylesheet, no font
     // link, no external origin. Its only exit is index.html, above.
     'start-here.html',
+
+    // ── Not-found page ───────────────────────────────────────────────────────
+    // Load-bearing for the boundary, not decoration. Without a 404.html,
+    // Cloudflare Pages answers every unmatched path with index.html and HTTP 200,
+    // so an excluded file is indistinguishable from a served one and "excluded"
+    // cannot be demonstrated. Self-contained, so it can never itself 404.
+    '404.html',
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────

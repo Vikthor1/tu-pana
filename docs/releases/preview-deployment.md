@@ -98,6 +98,17 @@ deployment-integrity fix.
 > indefinitely.** Any retirement, migration, archival access path, or student
 > notice is a separate decision requiring its own bounded authorization.
 
+**`404.html`.** Load-bearing, not decoration. Cloudflare Pages answers any unmatched
+path with `index.html` and **HTTP 200** unless a `404.html` exists — so without it an
+excluded file is byte-indistinguishable from a served one and the exclusion cannot be
+demonstrated at all. It is self-contained (inline CSS, no script, font, or image) so
+it can never itself 404.
+
+> Verify exclusion by **content**, not by status code. A 200 here never meant the file
+> was still there; it meant Pages had fallen back. The first verification pass of this
+> package reported 31 false failures for exactly that reason — the third time a
+> post-deploy probe, rather than the product, has been the defect.
+
 **Not served:** `explore.html` and the exploration prototype's CSS and JS — nothing
 in either student-facing runtime references them, and the standing constraint is
 that the exploration prototype must never be publicly reachable on a student-facing

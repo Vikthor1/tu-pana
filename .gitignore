@@ -155,6 +155,9 @@
 # BOTH. See docs/releases/preview-deployment.md.
 !scripts_build_preview_artifact.mjs
 !studio_deploy_artifact_test.mjs
+# Served: without it Cloudflare Pages answers unmatched paths with index.html
+# and HTTP 200, which hides the difference between excluded and served.
+!404.html
 
 # ── Allow project documentation ──────────────────────────
 !docs/

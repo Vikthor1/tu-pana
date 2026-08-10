@@ -87,6 +87,24 @@ check('failure names the category message and the unchanged-draft boundary', /bu
 check('failed request saves no review and no snapshot', await stored().then(r => r.reviews.length === 0 && r.versions.length === (before?.versions?.length || 0)));
 check('failed request is recorded as a metadata-only provider event', await stored().then(r => r.providerEvents?.length === 1 && r.providerEvents[0].category === 'rate_limited'));
 check('the send button recovers for another attempt', await page.locator('[data-action="submit-mock"]').isEnabled());
+// W1 — this assertion is EXTENDED, deliberately and visibly, not re-baselined.
+// The transient copy above is unchanged byte for byte; what W1 changed is that a
+// tripped usage cap no longer reaches it. Both halves are pinned here so a
+// future edit cannot quietly re-merge the two failures into one message: an
+// invitation to "wait a minute and try again" is true for a rate limit and
+// false for a cap trip, and a writer cannot tell them apart from the copy alone.
+check('the transient rate-limit copy is unchanged, byte for byte',
+    errorText.includes('The coach is busy right now. Wait a minute and try again — your work is saved.'),
+    errorText);
+const capCopy = await page.evaluate(() => ({
+    rate: window.StudioProvider.errorMessage('rate_limited', 'en'),
+    quota: window.StudioProvider.errorMessage('quota_exhausted', 'en'),
+    quotaEs: window.StudioProvider.errorMessage('quota_exhausted', 'es'),
+}));
+check('a tripped usage cap is a DIFFERENT message from a transient rate limit',
+    capCopy.quota !== capCopy.rate && capCopy.quota.length > 0);
+check('and the cap message does not invite a retry that cannot succeed',
+    !/try again/i.test(capCopy.quota) && !/inténtalo/i.test(capCopy.quotaEs), capCopy.quota);
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 

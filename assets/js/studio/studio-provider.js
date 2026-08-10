@@ -518,6 +518,17 @@ Write every field in the interface language named above. Never name these labels
             es: 'El servicio de IA no está configurado. Puedes continuar todo el proceso de escritura sin IA.',
             en: 'The AI service is not configured. You can continue the entire writing process without AI.',
         },
+        // W1 — a tripped spend/usage cap. Distinct from rate_limited BECAUSE it
+        // is not transient: inviting a retry would be false. Wording is the
+        // founder-approved text (VC-OS decisions.log, Decision W, pre-gate
+        // answer 2) and must be taken from that entry, never re-drafted here.
+        // It names the product's own shipped mode vocabulary — Coach IA / Live
+        // AI coach and Guía sin IA / Built-in, no AI — so the sentence points at
+        // a control the writer can actually see and use.
+        quota_exhausted: {
+            es: 'El Coach IA alcanzó su límite de uso por ahora, así que no está disponible. Tu trabajo está guardado. Puedes continuar todo el proceso de escritura con la Guía sin IA.',
+            en: 'The Live AI coach has reached its usage limit for now, so it isn\'t available. Your work is saved. You can continue the entire writing process with Built-in, no AI.',
+        },
         // F1 — the response arrived but failed the integrity guard. Calm and
         // truthful: it says what happened, that nothing was kept, and what the
         // writer can do next. It never names or quotes what was rejected.
@@ -778,11 +789,56 @@ Write every field in the interface language named above. Never name these labels
 
     function statusToCategory(status) {
         if (status === 429) return 'rate_limited';
+        if (status === 401) return 'auth_error';
         if (status === 403) return 'origin_forbidden';
         if (status === 400) return 'bad_request';
         if (status === 503) return 'service_unavailable';
         if (status === 502) return 'upstream_error';
         return 'upstream_error';
+    }
+
+    // W1 — honest failure semantics.
+    //
+    // The Worker already states a truthful failure category in its JSON body,
+    // and for upstream failures it forwards the validated Gemini status enum as
+    // `upstreamStatus` (a NAME such as RESOURCE_EXHAUSTED, never an HTTP
+    // number). Deriving the category from the HTTP status alone discarded both,
+    // with two consequences the writer could see:
+    //
+    //   - a tripped spend/usage cap arrives as HTTP 429 and was shown the
+    //     transient `rate_limited` copy, which invites a retry that cannot
+    //     succeed;
+    //   - the Worker reports an upstream auth failure as `category:
+    //     'auth_error'` carried on HTTP 503, so status-only derivation produced
+    //     `service_unavailable` — a RETRYABLE category, meaning `auth_error`
+    //     was unreachable on this path and the client spent two useless
+    //     retries before giving up.
+    //
+    // Reading the body fixes both. The status-derived value remains the
+    // fallback whenever the body is absent, unparseable, or declares nothing we
+    // recognise, so a malformed error response degrades to today's behaviour
+    // rather than to a guess.
+    async function readErrorBody(response) {
+        try {
+            const data = await response.json();
+            return data && typeof data === 'object' ? data : null;
+        } catch {
+            return null;
+        }
+    }
+
+    function categoryFromErrorBody(data, status) {
+        const fallback = statusToCategory(status);
+        const declared = typeof data?.category === 'string' ? data.category.trim() : '';
+        const category = declared && ERROR_COPY[declared] ? declared : fallback;
+        // A cap trip is not a transient rate limit. Until the Worker splits the
+        // two itself (its half of this correction belongs to a separate,
+        // separately authorized window), RESOURCE_EXHAUSTED is the only signal
+        // that distinguishes them, and it must win over the `rate_limited`
+        // category the Worker currently sends alongside it. Deliberately narrow:
+        // it promotes ONLY rate_limited, so no other category is reinterpreted.
+        if (category === 'rate_limited' && data?.upstreamStatus === 'RESOURCE_EXHAUSTED') return 'quota_exhausted';
+        return category;
     }
 
     // Legacy request contract (ai-provider.js selectGeminiModel): these request
@@ -817,7 +873,7 @@ Write every field in the interface language named above. Never name these labels
                         });
                         window.clearTimeout(timeoutId);
                         if (!response.ok) {
-                            const category = statusToCategory(response.status);
+                            const category = categoryFromErrorBody(await readErrorBody(response), response.status);
                             lastError = { category, message: errorMessage(category, lang), retryable: RETRYABLE.has(category) };
                             if (!lastError.retryable) throw lastError;
                             continue;

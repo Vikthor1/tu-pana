@@ -143,6 +143,10 @@
 # scripts_build_preview_artifact.mjs is unaffected.
 !studio_genre_isolation_test.mjs
 
+# ── Allow the W1 client provider-error semantics suite ───
+# Test file only — not deployed, same note as above.
+!studio_provider_errors_test.mjs
+
 # ── Allow the reproducible test toolchain (E1) ────────────
 # Non-secret harness only: dependency manifest, lockfile, the local mock server,
 # the deterministic runner, and the runtime pin. Dependencies themselves

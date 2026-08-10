@@ -401,6 +401,15 @@ console.log('\n10. The wiring is real — a live request path carries the genre 
 await page.evaluate(() => {
     localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' }));
     localStorage.removeItem('tupana-studio:v1');
+    // W1 — the RESET is what changed here, not the assertions. The Studio saves
+    // on `beforeunload`, so removing the record and then navigating away let the
+    // outgoing page rewrite it from its own in-memory state: this section only
+    // looked like it started from a clean workspace. That went unnoticed while a
+    // link silently adopted whatever genre it named; now that an existing
+    // workspace is asked rather than relabelled, the stale record surfaced as a
+    // notice over the Desk. Freezing this page's writes makes the reset real, so
+    // the section starts where it always intended to.
+    localStorage.setItem = () => {};
 });
 await page.goto(`${ORIGIN}/studio.html?assignment=college-personal-statement&provider=mock`);
 await page.evaluate(() => {
@@ -427,6 +436,15 @@ console.log('\n10b. The same wiring check on a B2 profile — autobiographical, 
 await page.evaluate(() => {
     localStorage.setItem('tupana-studio:tour:v1', JSON.stringify({ v: 2, dismissedAt: '2026-01-01T00:00:00.000Z' }));
     localStorage.removeItem('tupana-studio:v1');
+    // W1 — the RESET is what changed here, not the assertions. The Studio saves
+    // on `beforeunload`, so removing the record and then navigating away let the
+    // outgoing page rewrite it from its own in-memory state: this section only
+    // looked like it started from a clean workspace. That went unnoticed while a
+    // link silently adopted whatever genre it named; now that an existing
+    // workspace is asked rather than relabelled, the stale record surfaced as a
+    // notice over the Desk. Freezing this page's writes makes the reset real, so
+    // the section starts where it always intended to.
+    localStorage.setItem = () => {};
 });
 await page.goto(`${ORIGIN}/studio.html?assignment=mixed-genre-autobiographical-essay&provider=mock`);
 await page.evaluate(() => {

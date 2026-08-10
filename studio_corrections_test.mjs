@@ -111,11 +111,27 @@ await page.locator('[data-action="discard-dialog"]').click();
 check('discarding paste text never changes the canonical Draft', await page.locator('#draftEditor').inputValue() === draftB);
 
 // C5: history remains labeled from the run, not from the current project.
+//
+// W1 — the two provenance assertions below are UNCHANGED and still run
+// verbatim; what moved is where they run. The Review Center now reports the
+// active project's work, so an autobiographical Council report is no longer
+// listed while the Statement of Purpose is open. C5's actual claim — that a
+// stored report keeps its own genre rather than being relabelled by the current
+// project — is unaffected and is checked on the project the report belongs to,
+// after first proving the switch listed nothing and deleted nothing.
 await page.locator('.icon-button[data-action="settings"]').click();
 await page.locator('#settingsGenre').selectOption('sop');
+await page.locator('[data-action="review-center"]').first().click();
+const sopCenterText = await page.locator('.dialog').textContent();
+check('the autobiographical Council report is not listed while SOP is the open project',
+    !/Connection and structure reviewer/.test(sopCenterText));
+check('and switching projects deleted no Council run', await page.evaluate(key => JSON.parse(localStorage.getItem(key)).councilRuns.length, KEY) === 1);
+await page.keyboard.press('Escape');
+await page.locator('.icon-button[data-action="settings"]').click();
+await page.locator('#settingsGenre').selectOption('autobiographical');
 await page.locator('.integrated-support [data-action="review-tab"][data-tab="council"]').click();
 const historicalCouncil = await page.locator('.dialog .review-card').first().textContent();
-check('historical Council remains autobiographical after switching to SOP', /Mixed-genre autobiographical essay/.test(historicalCouncil) && /Connection and structure reviewer/.test(historicalCouncil) && /Voice and cultural-integrity reviewer/.test(historicalCouncil));
+check('historical Council keeps its own genre and reviewers when its project is reopened', /Mixed-genre autobiographical essay/.test(historicalCouncil) && /Connection and structure reviewer/.test(historicalCouncil) && /Voice and cultural-integrity reviewer/.test(historicalCouncil));
 check('historical Council retains timestamp, full scope, and mock-call provenance', /full/.test(historicalCouncil) && /4 mock calls represented/.test(historicalCouncil));
 check('switching projects does not create another Council run', await page.evaluate(key => JSON.parse(localStorage.getItem(key)).councilRuns.length, KEY) === 1);
 await page.locator('.dialog [data-action="decision"][data-choice="adapt"]').first().click();

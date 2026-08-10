@@ -86,9 +86,26 @@ record = await fresh('graduate-sop').then(convene);
 await page.locator('[data-action="close-dialog"]').first().click();
 await page.locator('[data-action="settings"]').first().click();
 await page.locator('#settingsGenre').selectOption('neutral');
+// W1 — the assertion below MOVES, deliberately and visibly. This section has
+// always been about one thing: a saved report keeps its OWN genre and is never
+// relabelled by whatever project happens to be open. That claim is unchanged
+// and is still asserted, one step further down — on the assignment the report
+// belongs to. What changed is where the report is LISTED: the Review Center now
+// reports the active assignment's work, so a General Writing session no longer
+// shows a Statement of Purpose report. Nothing is weakened: the record is
+// proven still present and unmodified while the other project is open, and the
+// original provenance check runs verbatim once its own project is reopened.
+await page.locator('[data-action="review-center"]').first().click();
+const neutralCenter = await page.locator('.dialog').textContent();
+check('the SOP report is not listed while General Writing is the open project',
+    !/Graduate statement of purpose/.test(neutralCenter));
+check('and the switch deleted nothing', await stored().then(r => r.councilRuns.length === 1));
+await page.keyboard.press('Escape');
+await page.locator('[data-action="settings"]').first().click();
+await page.locator('#settingsGenre').selectOption('sop');
 await page.locator('.integrated-support [data-action="review-tab"][data-tab="council"], .review-nav [data-tab="council"]').first().click();
 const reportText = await page.locator('.dialog').textContent();
-check('saved SOP report renders its stored genre after switching to General Writing', /Graduate statement of purpose/.test(reportText));
+check('saved SOP report renders its stored genre when its own project is reopened', /Graduate statement of purpose/.test(reportText));
 check('revisit after switch creates no new run', await stored().then(r => r.councilRuns.length === 1));
 
 console.log('\nIsolation');

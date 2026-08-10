@@ -31,6 +31,10 @@
     // True only inside one synchronous Guided Discovery preview render, during
     // which the canonical state is swapped for synthetic data and saving is off.
     let previewLock = false;
+    // W1 — an assignment link that disagrees with the saved workspace. Held in
+    // memory ONLY and never persisted: while a choice is pending, the stored
+    // record must stay exactly as the writer left it.
+    let pendingAssignment = null;
     let editorCaret = null;
     let activeEditSurface = null;
     const editHistories = new Map();
@@ -431,6 +435,174 @@
         return pairs.map(([en, es]) => `<${tag}>${uiMarkup(en, es)}</${tag}>`).join('');
     }
     function voiceEntries() { return state.voiceEntries || []; }
+    // W1 — Your Voice is one array whose members carry a genre stamp, NOT a
+    // per-genre partition. Every student-visible and provider-bound consumption
+    // reads the active genre's entries only, so protected wording chosen for one
+    // assignment can never enter another assignment's coaching request.
+    //
+    // Three properties this helper exists to preserve:
+    //   1. NOTHING IS REMOVED. The stored array is never filtered, re-ordered,
+    //      de-duplicated, or rewritten — only the VIEW is narrowed. Every entry
+    //      and every genre stamp survives a genre switch untouched.
+    //   2. INDEX PROVENANCE. `data-voice` indices address the UNFILTERED array,
+    //      because openVoiceNote()/saveVoiceNote() look entries up by position.
+    //      The index is therefore captured BEFORE the filter and carried
+    //      through, exactly as the evidence archive already did. Filtering
+    //      first would silently open — and overwrite the note of — an entry
+    //      belonging to a different genre.
+    //   3. LEGACY RECORDS RENDER UNCHANGED. Entries saved before the genre stamp
+    //      existed carry no `genre` and stay visible under every genre, which is
+    //      the predicate the archive and the evidence gate already used.
+    function voiceEntriesForGenre() {
+        return voiceEntries()
+            .map((entry, index) => ({ entry, index }))
+            .filter(({ entry }) => !entry.genre || entry.genre === state.genre);
+    }
+
+    // W1 — the same discipline for the saved-record collections. Reviews,
+    // Council runs and decisions are stamped with the genre they were consented
+    // under, but every listing, count and summary read the flat arrays, so one
+    // assignment's Review Center reported another assignment's work.
+    //
+    // These accessors narrow the VIEW ONLY. Three rules govern where they are
+    // used, and they are the reason this is not a blanket substitution:
+    //   - LISTINGS, COUNTS AND SUMMARIES use them, because that is what the
+    //     writer reads as "my work on this assignment".
+    //   - ID RESOLUTION NEVER DOES. `reviews.find(id)`, `councilRuns.find(id)`,
+    //     `versions.find(snapshotId)` and the decision de-duplication filters
+    //     must keep seeing every record, or a cross-genre snapshot link would
+    //     break and a de-duplication would silently admit a duplicate row.
+    //   - RECORDS ARE NEVER DELETED, MOVED OR RESTAMPED. A genre switch changes
+    //     what is shown, never what is stored.
+    // Records written before genre stamping existed carry no `genre` and stay
+    // visible under every genre, so existing saved records render unchanged.
+    function belongsToActiveGenre(record) { return !record?.genre || record.genre === state.genre; }
+    function activeReviews() { return (state.reviews || []).filter(belongsToActiveGenre); }
+    function activeCouncilRuns() { return (state.councilRuns || []).filter(belongsToActiveGenre); }
+    function activeDecisions() { return (state.decisions || []).filter(belongsToActiveGenre); }
+    // Draft snapshots follow the same rule, and matter more than the others:
+    // a snapshot carries the writer's EXACT PRIOR TEXT. Listing one under
+    // another assignment would not merely miscount — it would expose one
+    // assignment's writing inside another. Every listing, count, summary and
+    // history therefore reads this, never `state.versions`.
+    //
+    // ID RESOLUTION DELIBERATELY STAYS GLOBAL. reviewCopySnapshot(),
+    // renderSnapshotLink(), openSnapshotViewer() and copySnapshotText() resolve
+    // a snapshotId carried by a record that is ALREADY visible under the active
+    // assignment; that is identity resolution, not listing, and filtering it
+    // would break a legitimately reachable link rather than close a leak.
+    function activeVersions() { return (state.versions || []).filter(belongsToActiveGenre); }
+
+    // W1 — snapshot OWNERSHIP, enforced at the moment of EXPOSURE.
+    //
+    // Resolving an id and exposing what it resolves to are different acts, and
+    // only the second one is a boundary. Identity resolution has to stay global:
+    // a saved record carries a `snapshotId`, and looking that id up in anything
+    // narrower than the full stored array would break a legitimately reachable
+    // link rather than close a leak.
+    //
+    // But records written BEFORE this wave can already hold a cross-assignment
+    // reference. The draft used to follow the writer across a genre switch, and
+    // checkpointVersion() reused the last GLOBAL snapshot whenever signatures
+    // matched — so a review stamped for one assignment can point at a snapshot
+    // stamped for another. Filtering listings cannot close that: the review is
+    // legitimately visible under its own assignment; it is the ID it carries
+    // that crosses. A visible record is therefore NOT proof that its snapshot
+    // belongs here.
+    //
+    // Hence: resolve globally, then check ownership before exposing anything at
+    // all — metadata, exact text, a link, a viewer, a comparison, or a clipboard
+    // write. The stored arrays are never filtered, rewritten, restamped, or
+    // detached; this is a read-side guard only.
+    function snapshotById(id) {
+        return id ? (state.versions || []).find(version => version.id === id) || null : null;
+    }
+    // Unstamped snapshots keep the established legacy-compatibility rule: they
+    // predate stamping, so they remain readable under every assignment.
+    function snapshotIsOwned(version) {
+        return concept !== 'integrated' || !version?.genre || version.genre === state.genre;
+    }
+    function ownedSnapshotById(id) {
+        const version = snapshotById(id);
+        return version && snapshotIsOwned(version) ? version : null;
+    }
+    // True ONLY when the id resolves to a real snapshot this assignment must not
+    // see. Deliberately distinct from "no longer exists": those are different
+    // facts about the writer's record and deserve different words.
+    function snapshotBelongsToAnotherProject(id) {
+        const version = snapshotById(id);
+        return Boolean(version) && !snapshotIsOwned(version);
+    }
+    function foreignSnapshotNotice() {
+        return uiText(
+            'The draft checkpoint linked to this saved record belongs to another writing project, so it is not shown here. Nothing was deleted or changed.',
+            'El punto de control del borrador vinculado a este registro guardado pertenece a otro proyecto de escritura, por lo que no se muestra aquí. No se eliminó ni cambió nada.');
+    }
+
+    // Guided Discovery's long-standing predicate, extracted from tourContext()
+    // verbatim and otherwise UNCHANGED. It answers the tour's own question —
+    // "is this a genuinely new workspace" — and nothing else depends on it.
+    //
+    // It is deliberately NOT used for the assignment-link decision. It is
+    // workspace-wide, so another assignment's reviews or snapshots answer yes
+    // for work the writer cannot see from here; and it is incomplete, missing
+    // reflections and revision-cycle content that are unmistakably the writer's.
+    // See activeAssignmentHasWork() below, which exists because those two
+    // questions are different and must not be conflated.
+    function workspaceHasWork() {
+        return Boolean((getDraft() || '').trim())
+            || (state.versions || []).length > 0
+            || (state.reviews || []).length > 0
+            || (state.councilRuns || []).length > 0
+            || Boolean(state.legacyImport)
+            || hasMeaningfulStudentEvidence();
+    }
+
+    // W1 — the assignment-link safety predicate, and the ONLY predicate that
+    // decides whether a differing `?assignment=` asks before it acts.
+    //
+    // Its question is deliberately narrow and conservative: does the ACTIVE
+    // assignment hold durable writer-created, writer-selected, or recoverable
+    // work that a silent assignment change could obscure or reinterpret? Every
+    // term is scoped to the active assignment, because that is the only
+    // workspace a link could relabel — work parked under another genre is
+    // untouched by the switch either way, and must not raise a notice about
+    // something the writer is not looking at.
+    //
+    // DELIBERATELY NOT WORK: an assignment identifier, an onboarding timestamp,
+    // and a system-generated invitation the writer never answered. None of those
+    // is something the writer made or chose, and treating them as work would put
+    // an interruption in front of a writer who has nothing to lose.
+    function activeAssignmentHasWork() {
+        const ownedNote = bag => Object.entries(bag || {})
+            .some(([key, entry]) => key.startsWith(`${state.genre}:`) && wordCount(entry?.text));
+        const reflections = state.reflections || {};
+        const revision = state.revisionCycle || {};
+        return Boolean((getDraft() || '').trim())
+            // Recoverable exact prior text belonging to this assignment.
+            || activeVersions().length > 0
+            // Saved feedback and the writer's decisions about it.
+            || activeReviews().length > 0
+            || activeCouncilRuns().length > 0
+            || activeDecisions().length > 0
+            // Exact wording the writer chose to protect.
+            || voiceEntriesForGenre().length > 0
+            // Thinking the writer typed outside the draft.
+            || ownedNote(state.notebookEntries)
+            || ownedNote(state.moveNotes)
+            // The writer's own words in Process Reflection.
+            || Object.values(reflections).some(value => String(value || '').trim())
+            // A deliberate second-look copy, and the revision cycle around it.
+            || Boolean(state.reviewCopy)
+            || Boolean(String(revision.focus || '').trim())
+            || Boolean(String(revision.closure || '').trim())
+            || Boolean(revision.selectedSuggestion)
+            // Durable student selections.
+            || Object.values(state.finishChecks || {}).some(Boolean)
+            || state.knowledgeChoice !== null && state.knowledgeChoice !== undefined
+            || Boolean(state.legacyImport);
+    }
+
     // Truthful provider-aware copy. Current-mode surfaces (consent, buttons,
     // banner) reflect the ACTIVE provider; saved cards reflect the RECORD's
     // stored provenance, never the current mode.
@@ -607,6 +779,46 @@
         return (genreMovesEs[state.genre] || genreMovesEs.neutral)[kind];
     }
 
+    // W1 — the per-genre partition.
+    //
+    // The live top-level fields are always the ACTIVE genre's truth; the
+    // `genreStates` bag is the parking lot for every genre that is not active.
+    // Switching genre parks the outgoing genre's fields and restores the
+    // incoming genre's, so nothing follows the writer across an assignment
+    // boundary.
+    //
+    // Before this, the partition carried six fields, so `state.draft` followed
+    // the writer into another genre and was then coached under that genre's
+    // rules; `reviewCopy`, `revisionCycle` and `invitations` were reassigned in
+    // place; and `assignmentId`/`assignmentNotice` went stale, describing an
+    // assignment that was no longer open.
+    //
+    // Deliberately unchanged, and load-bearing:
+    //   - SCHEMA STAYS 1 and the storage key is untouched. The widened slots
+    //     live INSIDE the existing `genreStates` bag, so an older record simply
+    //     has fewer keys in each entry and reads back exactly as it always did.
+    //   - NO WRITER BYTES ARE REWRITTEN. Parking and restoring moves whole
+    //     string values between slots; it never edits, trims, or re-encodes
+    //     them.
+    //   - A GENRE WITH NO PARKED ENTRY RESTORES TO EMPTY, which is correct: it
+    //     has not been written in yet. Nothing is lost — the text the writer was
+    //     working on is parked under the genre that was active while they wrote
+    //     it, and switching back restores it byte for byte.
+    const GENRE_SCOPED_DEFAULTS = () => ({
+        reflections: { changed: '', decision: '', voice: '', knowledge: '' },
+        reflectionSavedAt: null,
+        finishChecks: {},
+        knowledgeChoice: null,
+        knowledgeChoiceAt: null,
+        onboardingSeenAt: null,
+        draft: '',
+        reviewCopy: null,
+        revisionCycle: { focus: '', closure: '', selectedSuggestion: null, updatedAt: null },
+        invitations: { moveReview: null, finishReflection: null },
+        assignmentId: null,
+        assignmentNotice: null,
+    });
+
     function storeActiveGenreState() {
         if (concept !== 'integrated' || !state.genre) return;
         state.genreStates ||= {};
@@ -614,18 +826,101 @@
             reflections: { ...state.reflections }, reflectionSavedAt: state.reflectionSavedAt,
             finishChecks: { ...state.finishChecks }, knowledgeChoice: state.knowledgeChoice,
             knowledgeChoiceAt: state.knowledgeChoiceAt, onboardingSeenAt: state.onboardingSeenAt,
+            // The writer's exact bytes, moved between slots and never rewritten.
+            draft: state.draft || '',
+            reviewCopy: state.reviewCopy || null,
+            revisionCycle: { ...(state.revisionCycle || {}) },
+            invitations: { ...(state.invitations || {}) },
+            assignmentId: state.assignmentId ?? null,
+            assignmentNotice: state.assignmentNotice ?? null,
         };
     }
 
     function loadActiveGenreState(genreId) {
         if (concept !== 'integrated') return;
         const saved = state.genreStates?.[genreId];
-        state.reflections = { changed: '', decision: '', voice: '', knowledge: '', ...(saved?.reflections || {}) };
+        const blank = GENRE_SCOPED_DEFAULTS();
+        state.reflections = { ...blank.reflections, ...(saved?.reflections || {}) };
         state.reflectionSavedAt = saved?.reflectionSavedAt || null;
         state.finishChecks = { ...(saved?.finishChecks || {}) };
         state.knowledgeChoice = saved?.knowledgeChoice ?? null;
         state.knowledgeChoiceAt = saved?.knowledgeChoiceAt || null;
         state.onboardingSeenAt = saved?.onboardingSeenAt || null;
+        // A record written before the partition widened has no `draft` key here.
+        // `?? ''` (not `|| ''`) so a deliberately emptied draft restores as
+        // empty rather than falling through to something else.
+        state.draft = saved?.draft ?? blank.draft;
+        state.reviewCopy = saved?.reviewCopy ?? blank.reviewCopy;
+        state.revisionCycle = { ...blank.revisionCycle, ...(saved?.revisionCycle || {}) };
+        state.invitations = { ...blank.invitations, ...(saved?.invitations || {}) };
+        state.assignmentId = saved?.assignmentId ?? blank.assignmentId;
+        state.assignmentNotice = saved?.assignmentNotice ?? blank.assignmentNotice;
+    }
+
+    // W1 — different `?assignment=` on an existing saved workspace.
+    //
+    // The founder-ruled behaviour (VC-OS decisions.log, Decision W, pre-gate
+    // answer 1): never silently relabel, reinterpret, or mutate the workspace.
+    // Show a calm notice carrying an explicit choice — continuing the current
+    // workspace is the PRIMARY SAFE ACTION — and preserve all existing data
+    // whichever way the writer chooses.
+    //
+    // Dismissing the notice (×, Escape, backdrop) is the same as continuing the
+    // current workspace: it writes nothing at all. The notice is deliberately
+    // shown again on a later reload of the same link, because the link still
+    // asks for a different assignment and the answer is still the writer's.
+    function requestedAssignmentName() {
+        const requested = genres[pendingAssignment?.resolved?.profileId];
+        if (!requested) return pendingAssignment?.raw || '';
+        return (requested.fullName || requested.label)[state.lang === 'en' ? 'en' : 'es'];
+    }
+
+    function openAssignmentMismatchNotice() {
+        if (!pendingAssignment) return;
+        const requestedName = requestedAssignmentName();
+        const currentName = genreFullName();
+        openDialog(
+            uiText('This link opens a different assignment', 'Este enlace abre una tarea diferente'),
+            uiText('Nothing has been changed', 'No se ha cambiado nada'),
+            `<p>${escapeHtml(uiText(
+                `You are working in ${currentName}. This link asks for ${requestedName}.`,
+                `Estás trabajando en ${currentName}. Este enlace pide ${requestedName}.`))}</p>`
+            + `<p>${escapeHtml(uiText(
+                'Your work is saved and untouched. Nothing has been renamed, reinterpreted, or moved — and nothing will be until you choose.',
+                'Tu trabajo está guardado e intacto. Nada se ha renombrado, reinterpretado ni movido, y nada cambiará hasta que elijas.'))}</p>`
+            + `<p>${escapeHtml(uiText(
+                `If you open ${requestedName}, this workspace stays exactly as it is and waits for you. You can come back to it whenever you want.`,
+                `Si abres ${requestedName}, este espacio queda tal como está y te espera. Puedes volver cuando quieras.`))}</p>`,
+            `<button class="button secondary" data-action="assignment-open-requested">${escapeHtml(uiText(`Open ${requestedName}`, `Abrir ${requestedName}`))}</button>`
+            + `<button class="button primary" data-action="assignment-keep-current">${escapeHtml(uiText(`Continue in ${currentName}`, `Continuar en ${currentName}`))}</button>`
+        );
+    }
+
+    function keepCurrentWorkspace() {
+        pendingAssignment = null;
+        closeDialog(true);
+        announce(uiText('You are still in this workspace. Nothing changed.', 'Sigues en este espacio de trabajo. Nada cambió.'));
+    }
+
+    function openRequestedAssignment() {
+        if (!pendingAssignment) return closeDialog(true);
+        const { raw, resolved } = pendingAssignment;
+        pendingAssignment = null;
+        // The ordinary genre switch: the current workspace is parked whole,
+        // under its own genre, and can be returned to unchanged.
+        storeActiveGenreState();
+        state.genre = resolved.profileId;
+        loadActiveGenreState(resolved.profileId);
+        captured = null;
+        state.assignmentId = raw;
+        state.assignmentNotice = resolved.notice || null;
+        saveState();
+        closeDialog(true);
+        renderApp();
+        window.StudioTour?.notifyEnvironmentChanged?.(tourContext());
+        announce(uiText(
+            `Opened ${genreFullName()}. Your other workspace is saved and unchanged.`,
+            `Abriste ${genreFullName()}. Tu otro espacio está guardado y sin cambios.`));
     }
     function notebookCards() { return genreNotebooks[state.genre] || genreNotebooks.neutral; }
     function notebookCardLabel(card) { return card[state.lang === 'en' ? 'en' : 'es']; }
@@ -979,7 +1274,7 @@
 
     function renderNotebookPlaces() {
         const draftAction = state.draftDeclared ? 'place-draft' : 'create-draft';
-        return `<nav class="phase-strip notebook-places" aria-label="Notebook and draft places"><button class="phase-tab" data-action="place-notebook" ${state.place !== 'draft' ? 'aria-current="page"' : ''}><strong>${escapeHtml(t('notebook'))}</strong><span id="notebookPlaceCount">${Object.values(state.notebookEntries).filter(entry => wordCount(entry.text)).length}/${notebookCards().length}</span></button><button class="phase-tab" data-action="${draftAction}" ${state.place === 'draft' ? 'aria-current="page"' : ''}><strong>${escapeHtml(t('draft'))}</strong><span id="draftPlaceCount">${escapeHtml(state.draftDeclared ? t('words', { n: wordCount(state.draft) }) : t('draftMissing'))}</span></button><button class="phase-tab" data-action="my-work"><strong>${escapeHtml(t('myWork'))}</strong><span>${state.versions.length + state.reviews.length + state.councilRuns.length} ${escapeHtml(state.lang === 'en' ? 'records' : 'registros')}</span></button></nav>`;
+        return `<nav class="phase-strip notebook-places" aria-label="Notebook and draft places"><button class="phase-tab" data-action="place-notebook" ${state.place !== 'draft' ? 'aria-current="page"' : ''}><strong>${escapeHtml(t('notebook'))}</strong><span id="notebookPlaceCount">${Object.values(state.notebookEntries).filter(entry => wordCount(entry.text)).length}/${notebookCards().length}</span></button><button class="phase-tab" data-action="${draftAction}" ${state.place === 'draft' ? 'aria-current="page"' : ''}><strong>${escapeHtml(t('draft'))}</strong><span id="draftPlaceCount">${escapeHtml(state.draftDeclared ? t('words', { n: wordCount(state.draft) }) : t('draftMissing'))}</span></button><button class="phase-tab" data-action="my-work"><strong>${escapeHtml(t('myWork'))}</strong><span>${activeVersions().length + activeReviews().length + activeCouncilRuns().length} ${escapeHtml(state.lang === 'en' ? 'records' : 'registros')}</span></button></nav>`;
     }
 
     function renderNotebook() {
@@ -1008,7 +1303,7 @@
     }
 
     function renderVersionsPanel() {
-        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('versions'))}</h2><p>${escapeHtml(state.lang === 'en' ? 'Dated snapshots of the canonical draft' : 'Instantáneas fechadas del borrador canónico')}</p></div></div><div class="panel-body artifact-list">${state.versions.length ? state.versions.slice().reverse().map(version => `<div class="artifact-row"><strong>${escapeHtml(t('draftSnapshot'))} · ${version.words}</strong><small>${shortDate(version.createdAt)}</small></div>`).join('') : `<div class="empty-state">${escapeHtml(state.lang === 'en' ? 'A snapshot is added before review and Finish.' : 'Se añade una instantánea antes de revisión y Finalizar.')}</div>`}</div></section>`;
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('versions'))}</h2><p>${escapeHtml(state.lang === 'en' ? 'Dated snapshots of the canonical draft' : 'Instantáneas fechadas del borrador canónico')}</p></div></div><div class="panel-body artifact-list">${activeVersions().length ? activeVersions().slice().reverse().map(version => `<div class="artifact-row"><strong>${escapeHtml(t('draftSnapshot'))} · ${version.words}</strong><small>${shortDate(version.createdAt)}</small></div>`).join('') : `<div class="empty-state">${escapeHtml(state.lang === 'en' ? 'A snapshot is added before review and Finish.' : 'Se añade una instantánea antes de revisión y Finalizar.')}</div>`}</div></section>`;
     }
 
     function renderNotebookEvidencePanel() {
@@ -1068,9 +1363,12 @@
     }
 
     function renderYourVoiceReference() {
-        const entries = voiceEntries();
+        // Active-genre view. `index` remains the position in the UNFILTERED
+        // array, because openVoiceNote()/saveVoiceNote() resolve `data-voice`
+        // against that array.
+        const entries = voiceEntriesForGenre();
         if (concept !== 'integrated' || !entries.length) return '';
-        return `<details class="planning-reference your-voice-reference"><summary>${escapeHtml(uiText('Your Voice', 'Tu voz'))} · ${entries.length}</summary><p>${escapeHtml(uiText('Keep what sounds like you. These student-owned entries stay local and are not sent to mock AI unless you explicitly request it in a review.', 'Conserva lo que suena como tú. Estas entradas del estudiante se quedan locales y no se envían a la IA simulada a menos que lo pidas explícitamente en una revisión.'))}</p><div class="artifact-list">${entries.map((item, index) => `<div class="artifact-row"><strong>“${escapeHtml(item.text)}”</strong><small>${escapeHtml(item.reason || uiText('No reason added. You decide what this wording means.', 'No agregaste una razón. Tú decides qué significa esta redacción.'))}</small><button class="text-button" data-action="voice-note" data-voice="${index}">${escapeHtml(item.reason ? uiText('Edit your note', 'Editar tu nota') : uiText('Add a note', 'Agregar una nota'))}</button></div>`).join('')}</div></details>`;
+        return `<details class="planning-reference your-voice-reference"><summary>${escapeHtml(uiText('Your Voice', 'Tu voz'))} · ${entries.length}</summary><p>${escapeHtml(uiText('Keep what sounds like you. These student-owned entries stay local and are not sent to mock AI unless you explicitly request it in a review.', 'Conserva lo que suena como tú. Estas entradas del estudiante se quedan locales y no se envían a la IA simulada a menos que lo pidas explícitamente en una revisión.'))}</p><div class="artifact-list">${entries.map(({ entry: item, index }) => `<div class="artifact-row"><strong>“${escapeHtml(item.text)}”</strong><small>${escapeHtml(item.reason || uiText('No reason added. You decide what this wording means.', 'No agregaste una razón. Tú decides qué significa esta redacción.'))}</small><button class="text-button" data-action="voice-note" data-voice="${index}">${escapeHtml(item.reason ? uiText('Edit your note', 'Editar tu nota') : uiText('Add a note', 'Agregar una nota'))}</button></div>`).join('')}</div></details>`;
     }
 
     function renderKnowledgeRevisit() {
@@ -1197,12 +1495,7 @@
             // The same laptop-and-coffee companion as the header, so the
             // conversation is visibly with the Studio's own character.
             avatar: brandIconSvg,
-            hasWork: () => Boolean((getDraft() || '').trim())
-                || (state.versions || []).length > 0
-                || (state.reviews || []).length > 0
-                || (state.councilRuns || []).length > 0
-                || Boolean(state.legacyImport)
-                || hasMeaningfulStudentEvidence(),
+            hasWork: () => workspaceHasWork(),
             openDialog: (title, subtitle, body, footer, options) => openDialog(title, subtitle, body, footer, options),
             closeDialog: force => closeDialog(force),
             rerender: () => renderApp(),
@@ -1239,48 +1532,57 @@
     }
 
     function renderReviewPanel() {
-        const reportCount = state.reviews.length + state.councilRuns.length;
+        const reportCount = activeReviews().length + activeCouncilRuns().length;
         const councilAction = concept === 'integrated' && !councilEnabled()
             ? `<div class="support-action unavailable"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(councilUnavailableText())}</span></div>`
-            : concept === 'integrated' && state.councilRuns.length
+            : concept === 'integrated' && activeCouncilRuns().length
                 ? `<button class="support-action" data-action="review-tab" data-tab="council"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(t('revisit'))}</span></button>`
-                : `<button class="support-action" data-action="council"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(state.councilRuns.length ? t('revisit') : t('convene'))}</span></button>`;
-        const historyAction = reportCount || state.decisions.length
+                : `<button class="support-action" data-action="council"><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(activeCouncilRuns().length ? t('revisit') : t('convene'))}</span></button>`;
+        const historyAction = reportCount || activeDecisions().length
             ? `<button class="support-action" data-action="review-center"><strong>${escapeHtml(t('priorWork'))}</strong><span>${escapeHtml(t('revisit'))}</span></button>`
             : `<button class="support-action" data-action="review-center"><strong>${escapeHtml(uiText('Review options & history', 'Opciones e historial de revisión'))}</strong><span>${escapeHtml(uiText('self-review and saved feedback', 'revisión propia y comentarios guardados'))}</span></button>`;
-        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('reviewCenter'))}</h2><p>${escapeHtml(reportCount ? uiText(`${reportCount} saved report${reportCount === 1 ? '' : 's'}`, `${reportCount} informe${reportCount === 1 ? '' : 's'} guardado${reportCount === 1 ? '' : 's'}`) : uiText('Feedback is optional.', 'La retroalimentación es opcional.'))}</p></div>${state.decisions.length ? `<span class="evidence-count" aria-label="${escapeHtml(uiText(`${state.decisions.length} decisions`, `${state.decisions.length} decisiones`))}">${state.decisions.length}</span>` : ''}</div><div class="panel-body"><button class="support-action" data-action="coach"><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(state.lang === 'en' ? 'passage, paragraph, or draft' : 'pasaje, párrafo o borrador')}</span></button><button class="support-action" data-action="focused-review"><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(genreMoves('review')[0])}</span></button>${councilAction}${historyAction}</div></section>`;
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('reviewCenter'))}</h2><p>${escapeHtml(reportCount ? uiText(`${reportCount} saved report${reportCount === 1 ? '' : 's'}`, `${reportCount} informe${reportCount === 1 ? '' : 's'} guardado${reportCount === 1 ? '' : 's'}`) : uiText('Feedback is optional.', 'La retroalimentación es opcional.'))}</p></div>${activeDecisions().length ? `<span class="evidence-count" aria-label="${escapeHtml(uiText(`${activeDecisions().length} decisions`, `${activeDecisions().length} decisiones`))}">${activeDecisions().length}</span>` : ''}</div><div class="panel-body"><button class="support-action" data-action="coach"><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(state.lang === 'en' ? 'passage, paragraph, or draft' : 'pasaje, párrafo o borrador')}</span></button><button class="support-action" data-action="focused-review"><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(genreMoves('review')[0])}</span></button>${councilAction}${historyAction}</div></section>`;
     }
 
     function reviewCopySnapshot() {
-        const id = state.reviewCopy?.snapshotId;
-        return id ? state.versions.find(version => version.id === id) || null : null;
+        // Ownership-guarded: a historical review copy may reference a snapshot
+        // belonging to another assignment. Returning null keeps its exact text,
+        // word count, and timestamp out of every dependent surface (the entry
+        // card, the evidence archive, the comparison view, the packet). The
+        // stored `state.reviewCopy` record itself is left exactly as it is.
+        return ownedSnapshotById(state.reviewCopy?.snapshotId);
     }
 
     function renderRevisionCycleEntry(context = 'review') {
         if (concept !== 'integrated' || !getDraft().trim()) return '';
         const copy = reviewCopySnapshot();
+        // The review-copy RECORD stays visible; only the foreign checkpoint it
+        // points at is withheld, with the reason stated plainly.
+        const foreignCopy = snapshotBelongsToAnotherProject(state.reviewCopy?.snapshotId);
         const label = copy
             ? uiText('View review copy', 'Ver copia de revisión')
             : uiText('Ready for a second look', '¿Listo/a para una segunda mirada?');
         const detail = copy
             ? uiText(`Saved ${versionTimestamp(copy)}. Your live draft is still editable.`, `Guardada ${versionTimestamp(copy)}. Tu borrador activo sigue siendo editable.`)
-            : uiText('Save an exact local copy when you want to look again—not a final lock.', 'Guarda una copia local exacta cuando quieras volver a mirar; no es un cierre final.');
+            : foreignCopy
+                ? foreignSnapshotNotice()
+                : uiText('Save an exact local copy when you want to look again—not a final lock.', 'Guarda una copia local exacta cuando quieras volver a mirar; no es un cierre final.');
         return `<section class="revision-cycle-entry revision-cycle-${context}"><div><strong>${escapeHtml(uiText('Revision cycle', 'Ciclo de revisión'))}</strong><span>${escapeHtml(detail)}</span></div><button class="button secondary" data-action="revision-cycle">${escapeHtml(label)}</button></section>`;
     }
 
     function renderEvidencePanel() {
-        const currentVersions = concept === 'journey' ? Object.keys(state.artifacts).length : state.versions.length;
+        const currentVersions = concept === 'journey' ? Object.keys(state.artifacts).length : activeVersions().length;
         const moveNoteCount = concept === 'integrated' ? integratedMoves().filter(move => wordCount(state.moveNotes[moveNoteKey(move)]?.text)).length : 0;
-        const rationaleCount = state.decisions.filter(decision => decision.rationale?.trim()).length;
-        const recoverableSnapshots = concept === 'integrated' ? state.versions.filter(version => typeof version.text === 'string').length : 0;
-        const metadataCheckpoints = concept === 'integrated' ? state.versions.length - recoverableSnapshots : 0;
+        const rationaleCount = activeDecisions().filter(decision => decision.rationale?.trim()).length;
+        const recoverableSnapshots = concept === 'integrated' ? activeVersions().filter(version => typeof version.text === 'string').length : 0;
+        const metadataCheckpoints = concept === 'integrated' ? activeVersions().length - recoverableSnapshots : 0;
         const versionEvidence = concept === 'integrated'
-            ? (state.versions.length ? `<div class="artifact-row"><strong>${recoverableSnapshots} ${escapeHtml(state.lang === 'en' ? 'recoverable draft snapshots' : 'instantáneas recuperables del borrador')}</strong><small>${escapeHtml(metadataCheckpoints ? `${metadataCheckpoints} ${state.lang === 'en' ? 'earlier metadata-only checkpoints' : 'puntos anteriores solo con metadatos'}` : (state.lang === 'en' ? 'Exact prior text is viewable when a snapshot exists.' : 'El texto anterior exacto se puede ver cuando existe una instantánea.'))}</small><button class="text-button" data-action="version-history">${escapeHtml(state.lang === 'en' ? 'View draft history' : 'Ver historial del borrador')}</button></div>` : '')
+            ? (activeVersions().length ? `<div class="artifact-row"><strong>${recoverableSnapshots} ${escapeHtml(state.lang === 'en' ? 'recoverable draft snapshots' : 'instantáneas recuperables del borrador')}</strong><small>${escapeHtml(metadataCheckpoints ? `${metadataCheckpoints} ${state.lang === 'en' ? 'earlier metadata-only checkpoints' : 'puntos anteriores solo con metadatos'}` : (state.lang === 'en' ? 'Exact prior text is viewable when a snapshot exists.' : 'El texto anterior exacto se puede ver cuando existe una instantánea.'))}</small><button class="text-button" data-action="version-history">${escapeHtml(state.lang === 'en' ? 'View draft history' : 'Ver historial del borrador')}</button></div>` : '')
             : `<div class="artifact-row"><strong>${currentVersions} ${escapeHtml(state.lang !== 'en' ? 'versiones o artefactos' : 'versions or artifacts')}</strong><small>${escapeHtml(t('autosaved'))}</small></div>`;
         const moveEvidence = concept === 'integrated' && moveNoteCount ? `<div class="artifact-row"><strong>${moveNoteCount} ${escapeHtml(state.lang === 'en' ? 'Move notes with content' : 'notas de Movidas con contenido')}</strong></div>` : '';
-        const voiceEvidence = concept === 'integrated' && voiceEntries().length ? `<div class="artifact-row"><strong>${voiceEntries().length} ${escapeHtml(uiText('student-owned Your Voice entries', 'entradas de Tu voz del estudiante'))}</strong><small>${escapeHtml(uiText('Exact text only; no quality or understanding is inferred.', 'Solo texto exacto; no se infiere calidad ni comprensión.'))}</small></div>` : '';
-        const decisionEvidence = state.decisions.length ? `<div class="artifact-row"><strong>${state.decisions.length} ${escapeHtml(state.lang !== 'en' ? 'decisiones' : 'decisions')}</strong><small>${escapeHtml(`${state.decisions.map(d => d.choice).join(', ')}${concept === 'integrated' ? ` · ${rationaleCount} ${state.lang === 'en' ? 'student reasons' : 'razones estudiantiles'}` : ''}`)}</small></div>` : '';
-        const councilEvidence = state.councilRuns.length ? `<div class="artifact-row"><strong>${state.councilRuns.length} ${escapeHtml(state.lang !== 'en' ? 'Consejos' : 'Council runs')}</strong><small>${escapeHtml(t('revisit'))}</small></div>` : '';
+        const voiceEvidence = concept === 'integrated' && voiceEntriesForGenre().length ? `<div class="artifact-row"><strong>${voiceEntriesForGenre().length} ${escapeHtml(uiText('student-owned Your Voice entries', 'entradas de Tu voz del estudiante'))}</strong><small>${escapeHtml(uiText('Exact text only; no quality or understanding is inferred.', 'Solo texto exacto; no se infiere calidad ni comprensión.'))}</small></div>` : '';
+        const decisionEvidence = activeDecisions().length ? `<div class="artifact-row"><strong>${activeDecisions().length} ${escapeHtml(state.lang !== 'en' ? 'decisiones' : 'decisions')}</strong><small>${escapeHtml(`${activeDecisions().map(d => d.choice).join(', ')}${concept === 'integrated' ? ` · ${rationaleCount} ${state.lang === 'en' ? 'student reasons' : 'razones estudiantiles'}` : ''}`)}</small></div>` : '';
+        const councilEvidence = activeCouncilRuns().length ? `<div class="artifact-row"><strong>${activeCouncilRuns().length} ${escapeHtml(state.lang !== 'en' ? 'Consejos' : 'Council runs')}</strong><small>${escapeHtml(t('revisit'))}</small></div>` : '';
         return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('evidence'))}</h2><p>${escapeHtml(uiText('Evidence grows from your own words, saved drafts, sources, and revision decisions—not simply from moving through the Studio.', 'La evidencia crece a partir de tus propias palabras, borradores guardados, fuentes y decisiones de revisión; no simplemente al recorrer el espacio de escritura.'))}</p></div></div><div class="panel-body artifact-list">${moveEvidence}${voiceEvidence}${versionEvidence}${decisionEvidence}${councilEvidence}${concept === 'integrated' ? `<button class="button secondary" data-action="evidence-browser">${escapeHtml(uiText('Browse evidence', 'Explorar evidencia'))}</button>` : ''}<button class="button secondary" data-action="reflection">${escapeHtml(t('reflection'))}</button></div></section>`;
     }
 
@@ -1291,19 +1593,22 @@
             return entries.length ? entries.map(({ move, index, note }) => `<article class="evidence-entry"><span class="evidence-date">${escapeHtml(versionTimestamp({ createdAt: note.updatedAt }))}</span><h3>${escapeHtml(integratedMoveLabel(move))}</h3><p>${escapeHtml(note.text)}</p>${note.passageLink ? `<blockquote>${escapeHtml(note.passageLink.quote)}</blockquote><small>${escapeHtml(resolvePassageLink(note.passageLink).label)}</small>` : ''}<button class="text-button" data-action="integrated-move-note" data-move="${index}">${escapeHtml(uiText('Open this note', 'Abrir esta nota'))}</button></article>`).join('') : empty;
         }
         if (filter === 'voice') {
-            const entries = voiceEntries().map((entry, index) => ({ entry, index })).filter(({ entry }) => !entry.genre || entry.genre === state.genre);
+            const entries = voiceEntriesForGenre();
             return entries.length ? entries.map(({ entry, index }) => `<article class="evidence-entry"><span class="evidence-date">${escapeHtml(versionTimestamp({ createdAt: entry.protectedAt }))}</span><h3>${escapeHtml(uiText('Your Voice', 'Tu voz'))}</h3><blockquote>${escapeHtml(entry.text)}</blockquote><p>${escapeHtml(entry.reason || uiText('No meaning is inferred; you chose this exact wording.', 'No se infiere ningún significado; tú elegiste esta redacción exacta.'))}</p><button class="text-button" data-action="voice-note" data-voice="${index}">${escapeHtml(uiText('Open this entry', 'Abrir esta entrada'))}</button></article>`).join('') : empty;
         }
         if (filter === 'decisions') {
-            return state.decisions.length ? state.decisions.slice().reverse().map(decision => `<article class="evidence-entry"><span class="evidence-date">${escapeHtml(versionTimestamp({ createdAt: decision.createdAt }))}</span><h3>${escapeHtml(decision.choiceLabel)}</h3><p>${escapeHtml(storedGenreLabel(decision))}</p><blockquote>${escapeHtml(decision.suggestion)}</blockquote>${decision.rationale ? `<p>${escapeHtml(decision.rationale)}</p>` : ''}<button class="text-button" data-action="evidence-open-review" data-tab="decisions">${escapeHtml(uiText('Open decision record', 'Abrir registro de decisión'))}</button></article>`).join('') : empty;
+            return activeDecisions().length ? activeDecisions().slice().reverse().map(decision => `<article class="evidence-entry"><span class="evidence-date">${escapeHtml(versionTimestamp({ createdAt: decision.createdAt }))}</span><h3>${escapeHtml(decision.choiceLabel)}</h3><p>${escapeHtml(storedGenreLabel(decision))}</p><blockquote>${escapeHtml(decision.suggestion)}</blockquote>${decision.rationale ? `<p>${escapeHtml(decision.rationale)}</p>` : ''}<button class="text-button" data-action="evidence-open-review" data-tab="decisions">${escapeHtml(uiText('Open decision record', 'Abrir registro de decisión'))}</button></article>`).join('') : empty;
         }
         if (filter === 'copies') {
+            if (snapshotBelongsToAnotherProject(state.reviewCopy?.snapshotId)) {
+                return `<article class="evidence-entry"><h3>${escapeHtml(uiText('Review copy', 'Copia de revisión'))}</h3><p class="checkpoint-note foreign-snapshot-note">${escapeHtml(foreignSnapshotNotice())}</p></article>`;
+            }
             const copy = reviewCopySnapshot();
             return copy ? `<article class="evidence-entry"><span class="evidence-date">${escapeHtml(versionTimestamp(copy))}</span><h3>${escapeHtml(uiText('Review copy', 'Copia de revisión'))}</h3><p>${copy.words} ${escapeHtml(uiText('words · exact local text', 'palabras · texto local exacto'))}</p><button class="text-button" data-action="view-snapshot" data-snapshot="${escapeHtml(copy.id)}" data-return-tab="evidence">${escapeHtml(uiText('View exact review copy', 'Ver copia de revisión exacta'))}</button><button class="text-button" data-action="compare-review-copy">${escapeHtml(uiText('Compare with current draft', 'Comparar con el borrador actual'))}</button></article>` : empty;
         }
         const records = [
-            ...state.reviews.map(item => ({ ...item, recordType: 'review' })),
-            ...state.councilRuns.map(item => ({ ...item, recordType: 'council' })),
+            ...activeReviews().map(item => ({ ...item, recordType: 'review' })),
+            ...activeCouncilRuns().map(item => ({ ...item, recordType: 'council' })),
         ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         return records.length ? records.map(item => `<article class="evidence-entry"><span class="evidence-date">${escapeHtml(versionTimestamp({ createdAt: item.createdAt }))}</span><h3>${escapeHtml(item.recordType === 'council' ? t('council') : item.lens)}</h3><p>${escapeHtml(storedGenreLabel(item))} · ${escapeHtml(item.scope || item.payloadScope || uiText('stored scope unavailable', 'alcance guardado no disponible'))}</p><button class="text-button" data-action="evidence-open-review" data-tab="${item.recordType === 'council' ? 'council' : 'history'}">${escapeHtml(uiText('Open saved report', 'Abrir informe guardado'))}</button></article>`).join('') : empty;
     }
@@ -1370,7 +1675,22 @@
         const text = textOverride !== null ? textOverride : getDraft();
         if (!text || concept === 'journey') return null;
         const signature = `${text.length}:${text.slice(0, 24)}`;
-        const existing = state.versions.at(-1);
+        // W1 — the de-duplication target must belong to the assignment being
+        // checkpointed. The old check took `state.versions.at(-1)` — the last
+        // snapshot in the flat array, whichever assignment wrote it — so two
+        // assignments holding identical text handed the second one the FIRST
+        // one's snapshot id, and every record that then stored that id pointed
+        // at another assignment's draft.
+        //
+        // In the integrated Studio the match must be EXPLICIT: a newly written
+        // snapshot is stamped with the active genre, so an unstamped legacy
+        // snapshot is not an eligible reuse target for it. (Legacy snapshots are
+        // still displayed under every assignment — that compatibility rule is
+        // unchanged; they are simply never reused as a new snapshot's identity.)
+        const dedupeCandidates = concept === 'integrated'
+            ? (state.versions || []).filter(version => version.genre === state.genre)
+            : (state.versions || []);
+        const existing = dedupeCandidates.at(-1);
         if (existing?.signature === signature) return existing.id;
         const version = {
             id: crypto.randomUUID?.() || `${Date.now()}`,
@@ -1536,7 +1856,7 @@
         const check = validateCapture();
         if (!check.ok) { captureInvalid(check.reason); return; }
         const normalized = captured.text.trim();
-        if (!voiceEntries().some(item => item.text === normalized)) {
+        if (!voiceEntriesForGenre().some(({ entry }) => entry.text === normalized)) {
             const entry = { id: `voice-${Date.now()}`, text: normalized, protectedAt: new Date().toISOString(), genre: state.genre, studentAuthored: true, reason: '' };
             state.voiceEntries.push(entry);
             state.protectedPhrases.push(entry);
@@ -1691,7 +2011,7 @@
     function openMyWork() {
         const currentEntries = notebookCards().map(card => ({ card, entry: state.notebookEntries[notebookEntryKey(card)] })).filter(item => wordCount(item.entry?.text));
         const draftStatus = state.draftDeclared ? `${wordCount(state.draft)} ${state.lang === 'en' ? 'words' : 'palabras'} · ${t('currentVersion')}` : t('draftMissing');
-        openDialog(t('myWork'), state.lang === 'en' ? 'A truthful inventory—not a submission screen.' : 'Un inventario veraz—no una pantalla de entrega.', `<div class="artifact-list"><div class="artifact-row"><strong>${escapeHtml(t('draft'))}</strong><small>${escapeHtml(draftStatus)}</small></div><div class="artifact-row"><strong>${escapeHtml(t('notebook'))}</strong><small>${currentEntries.length}/${notebookCards().length} ${escapeHtml(state.lang === 'en' ? 'cards with useful work' : 'tarjetas con trabajo útil')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('versions'))}</strong><small>${state.versions.length}</small></div><div class="artifact-row"><strong>${escapeHtml(t('reviewCenter'))}</strong><small>${state.reviews.length + state.councilRuns.length} ${escapeHtml(state.lang === 'en' ? 'saved reports' : 'informes guardados')} · ${state.decisions.length} ${escapeHtml(state.lang === 'en' ? 'decisions' : 'decisiones')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('reflection'))}</strong><small>${['changed','decision','voice'].filter(key => state.reflections[key].trim()).length}/3</small></div></div><p>${escapeHtml(state.lang === 'en' ? 'Backup is available in Settings. Submit happens outside Tu Pana.' : 'La copia de seguridad está en Configuración. La entrega ocurre fuera de Tu Pana.')}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button secondary" data-action="settings">${escapeHtml(t('settings'))}</button>`);
+        openDialog(t('myWork'), state.lang === 'en' ? 'A truthful inventory—not a submission screen.' : 'Un inventario veraz—no una pantalla de entrega.', `<div class="artifact-list"><div class="artifact-row"><strong>${escapeHtml(t('draft'))}</strong><small>${escapeHtml(draftStatus)}</small></div><div class="artifact-row"><strong>${escapeHtml(t('notebook'))}</strong><small>${currentEntries.length}/${notebookCards().length} ${escapeHtml(state.lang === 'en' ? 'cards with useful work' : 'tarjetas con trabajo útil')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('versions'))}</strong><small>${activeVersions().length}</small></div><div class="artifact-row"><strong>${escapeHtml(t('reviewCenter'))}</strong><small>${activeReviews().length + activeCouncilRuns().length} ${escapeHtml(state.lang === 'en' ? 'saved reports' : 'informes guardados')} · ${activeDecisions().length} ${escapeHtml(state.lang === 'en' ? 'decisions' : 'decisiones')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('reflection'))}</strong><small>${['changed','decision','voice'].filter(key => state.reflections[key].trim()).length}/3</small></div></div><p>${escapeHtml(state.lang === 'en' ? 'Backup is available in Settings. Submit happens outside Tu Pana.' : 'La copia de seguridad está en Configuración. La entrega ocurre fuera de Tu Pana.')}</p>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button secondary" data-action="settings">${escapeHtml(t('settings'))}</button>`);
     }
 
     function openMoveDialog(index) {
@@ -1825,8 +2145,8 @@
     }
 
     function renderVoiceConstraintOffer() {
-        if (concept !== 'integrated' || !voiceEntries().length) return '';
-        return `<details class="voice-constraint"><summary>${escapeHtml(uiText('Optional: ask the mock reviewer to honor selected Your Voice entries', 'Opcional: pide al revisor simulado que respete entradas seleccionadas de Tu voz'))}</summary><label class="check-line"><input type="checkbox" id="includeVoiceEntries"> <span>${escapeHtml(uiText('Include these exact entries with this mock request', 'Incluye estas entradas exactas con esta solicitud simulada'))}</span></label><div class="exact-preview voice-entry-preview">${voiceEntries().map(item => `“${escapeHtml(item.text)}”`).join('\n')}</div><p>${escapeHtml(uiText('This local mock records your request only. It does not claim live-model enforcement.', 'Esta simulación local solo registra tu solicitud. No afirma que un modelo en vivo la aplique.'))}</p></details>`;
+        if (concept !== 'integrated' || !voiceEntriesForGenre().length) return '';
+        return `<details class="voice-constraint"><summary>${escapeHtml(uiText('Optional: ask the mock reviewer to honor selected Your Voice entries', 'Opcional: pide al revisor simulado que respete entradas seleccionadas de Tu voz'))}</summary><label class="check-line"><input type="checkbox" id="includeVoiceEntries"> <span>${escapeHtml(uiText('Include these exact entries with this mock request', 'Incluye estas entradas exactas con esta solicitud simulada'))}</span></label><div class="exact-preview voice-entry-preview">${voiceEntriesForGenre().map(({ entry }) => `“${escapeHtml(entry.text)}”`).join('\n')}</div><p>${escapeHtml(uiText('This local mock records your request only. It does not claim live-model enforcement.', 'Esta simulación local solo registra tu solicitud. No afirma que un modelo en vivo la aplique.'))}</p></details>`;
     }
 
     function renderIntegratedTransmissionFacts(kind) {
@@ -1969,7 +2289,7 @@
         const coachRequest = kind === 'focused' ? '' : coachRequestText(askedQuestion);
         const lens = lensInput ? lensInput.value : coachReviewTitle(askedQuestion);
         const lensIndex = lensInput ? Number(lensInput.dataset.lensIndex) : null;
-        const voiceEntriesIncluded = dialogRoot.querySelector('#includeVoiceEntries')?.checked ? voiceEntries().map(item => ({ id: item.id, text: item.text })) : [];
+        const voiceEntriesIncluded = dialogRoot.querySelector('#includeVoiceEntries')?.checked ? voiceEntriesForGenre().map(({ entry }) => ({ id: entry.id, text: entry.text })) : [];
         const moveIndex = Number(dialogRoot.querySelector('input[name="moveContext"]:checked')?.value);
         const linkedMove = Number.isInteger(moveIndex) ? integratedMoves()[moveIndex] : null;
         const linkedMoveNote = linkedMove ? state.moveNotes[moveNoteKey(linkedMove)] : null;
@@ -2171,7 +2491,7 @@
             openDialog(t('council'), state.lang === 'en' ? 'Explicit profile boundary' : 'Límite explícito del perfil', `<p>${escapeHtml(councilUnavailableText())}</p><p>${escapeHtml(state.lang === 'en' ? 'No mock Council calls are represented. Your draft remains unchanged.' : 'No se representa ninguna llamada simulada del Consejo. Tu borrador no cambia.')}</p>`, `<button class="button primary" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
             return;
         }
-        if (state.councilRuns.length && !getDraft().trim()) return openReviewCenter('council');
+        if (activeCouncilRuns().length && !getDraft().trim()) return openReviewCenter('council');
         const draft = getDraft();
         if (!draft.trim()) return openCoachDialog();
         const roles = genreMoves('council');
@@ -2326,6 +2646,11 @@
             return true;
         }
         const snapshotId = checkpointVersion('review copy saved for a second look');
+        // Deliberately unguarded, and safe: this id was just produced by
+        // checkpointVersion(), whose de-duplication target is now restricted to
+        // the active genre — so a newly created OR reused id necessarily belongs
+        // here. Every other resolution path reads a STORED id of unknown
+        // provenance and must go through the ownership guard.
         const snapshot = state.versions.find(version => version.id === snapshotId);
         state.reviewCopy = {
             snapshotId,
@@ -2359,7 +2684,7 @@
     }
 
     function openRevisionFocus(suggestion = '') {
-        const voice = voiceEntries();
+        const voice = voiceEntriesForGenre();
         const existing = state.revisionCycle?.focus || '';
         const prompt = suggestion
             ? uiText('A saved suggestion is shown as context. You decide whether to use it, adapt it, reject it, or set it aside.', 'Una sugerencia guardada aparece como contexto. Tú decides si la usas, adaptas, rechazas o la dejas para después.')
@@ -2411,7 +2736,7 @@
             return;
         }
         reviewTab = tab;
-        openDialog(t('reviewCenter'), state.lang !== 'en' ? 'Pide, escucha, decide, revisa y verifica.' : 'Ask, hear, decide, revise, and verify.', `${feedbackReadyBarMarkup()}${renderRevisionCycleEntry('center')}${renderMoveReviewInvitation()}${renderFeedbackChoiceGuide()}<div class="review-layout"><nav class="review-nav" aria-label="${escapeHtml(uiText('Review sections', 'Secciones de revisión'))}"><button data-action="review-tab" data-tab="history" ${tab === 'history' ? 'aria-current="page"' : ''}>${reviewTabLabel(t('focusedReview'), state.reviews.length)}</button><button data-action="review-tab" data-tab="council" ${tab === 'council' ? 'aria-current="page"' : ''}>${reviewTabLabel(t('council'), state.councilRuns.length)}</button><button data-action="review-tab" data-tab="decisions" ${tab === 'decisions' ? 'aria-current="page"' : ''}>${reviewTabLabel(state.lang !== 'en' ? 'Decisiones' : 'Decisions', state.decisions.length)}</button></nav><section class="review-feed" id="reviewFeed">${renderReviewFeed(tab)}</section></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button>`, { wide: true });
+        openDialog(t('reviewCenter'), state.lang !== 'en' ? 'Pide, escucha, decide, revisa y verifica.' : 'Ask, hear, decide, revise, and verify.', `${feedbackReadyBarMarkup()}${renderRevisionCycleEntry('center')}${renderMoveReviewInvitation()}${renderFeedbackChoiceGuide()}<div class="review-layout"><nav class="review-nav" aria-label="${escapeHtml(uiText('Review sections', 'Secciones de revisión'))}"><button data-action="review-tab" data-tab="history" ${tab === 'history' ? 'aria-current="page"' : ''}>${reviewTabLabel(t('focusedReview'), activeReviews().length)}</button><button data-action="review-tab" data-tab="council" ${tab === 'council' ? 'aria-current="page"' : ''}>${reviewTabLabel(t('council'), activeCouncilRuns().length)}</button><button data-action="review-tab" data-tab="decisions" ${tab === 'decisions' ? 'aria-current="page"' : ''}>${reviewTabLabel(state.lang !== 'en' ? 'Decisiones' : 'Decisions', activeDecisions().length)}</button></nav><section class="review-feed" id="reviewFeed">${renderReviewFeed(tab)}</section></div>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(state.lang !== 'en' ? 'Volver al borrador' : 'Return to draft')}</button>`, { wide: true });
     }
 
     function renderCouncilRunCard(run) {
@@ -2439,16 +2764,16 @@
 
     function renderReviewFeed(tab) {
         if (tab === 'history') {
-            if (!state.reviews.length) return `<div class="empty-state">${escapeHtml(t('noReviews'))}<br><button class="button secondary" data-action="focused-review" style="margin-top:12px">${escapeHtml(t('sendReview'))}</button></div>`;
-            return state.reviews.slice().reverse().map(review => renderReviewCard(review)).join('');
+            if (!activeReviews().length) return `<div class="empty-state">${escapeHtml(t('noReviews'))}<br><button class="button secondary" data-action="focused-review" style="margin-top:12px">${escapeHtml(t('sendReview'))}</button></div>`;
+            return activeReviews().slice().reverse().map(review => renderReviewCard(review)).join('');
         }
         if (tab === 'council') {
-            if (!state.councilRuns.length) return `<div class="empty-state">${escapeHtml(t('noReviews'))}<br><button class="button secondary" data-action="council" style="margin-top:12px">${escapeHtml(t('convene'))}</button></div>`;
-            const reports = state.councilRuns.slice().reverse().map(run => renderCouncilRunCard(run)).join('');
+            if (!activeCouncilRuns().length) return `<div class="empty-state">${escapeHtml(t('noReviews'))}<br><button class="button secondary" data-action="council" style="margin-top:12px">${escapeHtml(t('convene'))}</button></div>`;
+            const reports = activeCouncilRuns().slice().reverse().map(run => renderCouncilRunCard(run)).join('');
             return `${reports}${concept === 'integrated' ? `<div class="review-secondary-action"><button class="button secondary" data-action="convene-again">${escapeHtml(state.lang === 'en' ? 'Convene again' : 'Convocar de nuevo')}</button><small>${escapeHtml(state.lang === 'en' ? 'Creates a new mock Council report after a separate consent step.' : 'Crea un nuevo informe simulado después de un consentimiento separado.')}</small></div>` : ''}`;
         }
-        if (!state.decisions.length) return `<div class="empty-state">${escapeHtml(state.lang !== 'en' ? 'Todavía no has decidido sobre una sugerencia.' : 'You have not decided on a suggestion yet.')}</div>`;
-        return state.decisions.slice().reverse().map(decision => `<article class="review-card"><h3>${escapeHtml(decision.choiceLabel)}</h3><p class="review-meta">${shortDate(decision.createdAt)} · ${escapeHtml(decision.sourceType)}${decision.payloadScope ? ` · ${escapeHtml(decision.payloadScope)}` : ''}</p>${renderSnapshotLink(decision.relatedVersionId, 'decisions')}<blockquote>${escapeHtml(decision.suggestion)}</blockquote>${decision.criticalPrompt ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Critical prompt' : 'Pregunta crítica')}:</strong> ${escapeHtml(criticalPromptTextFor(decision))}</p>` : ''}${decision.rationale ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Student reason' : 'Razón estudiantil')}:</strong> ${escapeHtml(decision.rationale)}</p>` : ''}<p>${escapeHtml(t('decisionRecorded'))}</p></article>`).join('');
+        if (!activeDecisions().length) return `<div class="empty-state">${escapeHtml(state.lang !== 'en' ? 'Todavía no has decidido sobre una sugerencia.' : 'You have not decided on a suggestion yet.')}</div>`;
+        return activeDecisions().slice().reverse().map(decision => `<article class="review-card"><h3>${escapeHtml(decision.choiceLabel)}</h3><p class="review-meta">${shortDate(decision.createdAt)} · ${escapeHtml(decision.sourceType)}${decision.payloadScope ? ` · ${escapeHtml(decision.payloadScope)}` : ''}</p>${renderSnapshotLink(decision.relatedVersionId, 'decisions')}<blockquote>${escapeHtml(decision.suggestion)}</blockquote>${decision.criticalPrompt ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Critical prompt' : 'Pregunta crítica')}:</strong> ${escapeHtml(criticalPromptTextFor(decision))}</p>` : ''}${decision.rationale ? `<p><strong>${escapeHtml(state.lang === 'en' ? 'Student reason' : 'Razón estudiantil')}:</strong> ${escapeHtml(decision.rationale)}</p>` : ''}<p>${escapeHtml(t('decisionRecorded'))}</p></article>`).join('');
     }
 
     // Refinement B — the feedback body, in one canonical progressive-disclosure
@@ -2508,7 +2833,13 @@
 
     function renderSnapshotLink(snapshotId, returnTab = reviewTab) {
         if (!snapshotId) return '';
-        const version = state.versions.find(item => item.id === snapshotId);
+        // A saved record from before this wave may point at another
+        // assignment's snapshot. Say so calmly and render NO functional control:
+        // no id, no label, no metadata, nothing to click.
+        if (snapshotBelongsToAnotherProject(snapshotId)) {
+            return `<p class="checkpoint-note foreign-snapshot-note">${escapeHtml(foreignSnapshotNotice())}</p>`;
+        }
+        const version = snapshotById(snapshotId);
         if (!version) return `<p class="checkpoint-note">${escapeHtml(state.lang === 'en' ? 'Linked checkpoint is no longer available in this synthetic record.' : 'El punto vinculado ya no está disponible en este registro sintético.')}</p>`;
         const label = typeof version.text === 'string'
             ? (state.lang === 'en' ? 'View draft snapshot used for this feedback' : 'Ver la instantánea usada para esta retroalimentación')
@@ -2521,7 +2852,7 @@
     }
 
     function openVersionHistory() {
-        const versions = state.versions.slice().reverse();
+        const versions = activeVersions().slice().reverse();
         const body = versions.length
             ? `<div class="artifact-list">${versions.map(version => {
                 const recoverable = typeof version.text === 'string';
@@ -2538,7 +2869,18 @@
     }
 
     function openSnapshotViewer(snapshotId, returnTab = 'versions') {
-        const version = state.versions.find(item => item.id === snapshotId);
+        // Defensive by design. Normal rendering no longer offers a control for a
+        // foreign snapshot, but a stale DOM node, an already-open dialog, or a
+        // manually dispatched action must not get past the boundary either.
+        if (snapshotBelongsToAnotherProject(snapshotId)) {
+            openDialog(
+                uiText('Checkpoint from another writing project', 'Punto de control de otro proyecto de escritura'),
+                uiText('Nothing was deleted or changed', 'No se eliminó ni cambió nada'),
+                `<p class="checkpoint-note foreign-snapshot-note">${escapeHtml(foreignSnapshotNotice())}</p>`,
+                `<button class="button primary" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+            return;
+        }
+        const version = snapshotById(snapshotId);
         if (!version) return openVersionHistory();
         const recoverable = typeof version.text === 'string';
         const title = recoverable
@@ -2558,7 +2900,13 @@
     }
 
     async function copySnapshotText(snapshotId) {
-        const version = state.versions.find(item => item.id === snapshotId);
+        // Same defensive boundary as the viewer, checked BEFORE any clipboard or
+        // execCommand write can happen.
+        if (snapshotBelongsToAnotherProject(snapshotId)) {
+            announce(foreignSnapshotNotice());
+            return;
+        }
+        const version = ownedSnapshotById(snapshotId);
         if (typeof version?.text !== 'string') return;
         try {
             await navigator.clipboard.writeText(version.text);
@@ -2638,7 +2986,15 @@
             return;
         }
         state.decisions = state.decisions.filter(d => !(d.sourceId === sourceId && d.suggestionIndex === index));
-        state.decisions.push({ id: `decision-${Date.now()}`, sourceId, suggestionIndex: index, sourceType: sourceId.startsWith('council') ? t('council') : t('focusedReview'), choice, choiceLabel: labels[choice], suggestion: button.dataset.suggestion, createdAt: new Date().toISOString(), studentAuthored: true });
+        // W1 — this sibling push omitted the genre stamp its integrated
+        // counterpart writes (see saveIntegratedDecision). It is not reachable
+        // while `concept` is pinned to 'integrated', but an unstamped record
+        // would be indistinguishable from a pre-stamping legacy record and so
+        // would show under every genre. Stamped from the SOURCE record, exactly
+        // as the integrated path does, falling back to the active genre.
+        const decisionSource = state.reviews.find(item => item.id === sourceId)
+            || state.councilRuns.find(item => item.id === sourceId);
+        state.decisions.push({ id: `decision-${Date.now()}`, sourceId, suggestionIndex: index, sourceType: sourceId.startsWith('council') ? t('council') : t('focusedReview'), choice, choiceLabel: labels[choice], suggestion: button.dataset.suggestion, createdAt: new Date().toISOString(), studentAuthored: true, genre: decisionSource?.genre || state.genre, genreLabel: decisionSource?.genreLabel || currentGenre().label.en, genreLabelEs: decisionSource?.genreLabelEs || currentGenre().label.es });
         saveState(t('decisionRecorded'));
         renderApp();
         openReviewCenter(reviewTab);
@@ -2692,23 +3048,23 @@
                 ? (state.lang !== 'en' ? 'Lente opcional de conocimiento e idioma abierta' : 'Optional knowledge and language lens opened')
                 : (state.lang !== 'en' ? 'Lente opcional omitida por ahora' : 'Optional knowledge and language lens skipped for now'));
             if (state.criticalViews.length) items.push(`${state.criticalViews.length} ${state.lang !== 'en' ? 'preguntas críticas abiertas' : 'critical prompts opened'}`);
-            if (voiceEntries().length) items.push(`${voiceEntries().length} ${state.lang !== 'en' ? 'entradas exactas de Tu voz elegidas por el estudiante' : 'student-selected exact Your Voice entries'}`);
+            if (voiceEntriesForGenre().length) items.push(`${voiceEntriesForGenre().length} ${state.lang !== 'en' ? 'entradas exactas de Tu voz elegidas por el estudiante' : 'student-selected exact Your Voice entries'}`);
             if (reviewCopySnapshot()) items.push(state.lang !== 'en' ? 'Copia de revisión exacta guardada localmente' : 'Exact review copy saved locally');
             if (state.revisionCycle?.focus?.trim()) items.push(state.lang !== 'en' ? 'Elección de revisión escrita por el estudiante' : 'Student-authored revision choice');
             if (state.revisionCycle?.closure?.trim()) items.push(state.lang !== 'en' ? 'Nota breve de revisión escrita por el estudiante' : 'Student-authored brief revision note');
             if (state.genre === 'autobiographical' && Object.values(state.finishChecks).filter(Boolean).length) items.push(`${Object.values(state.finishChecks).filter(Boolean).length}/4 ${state.lang !== 'en' ? 'marcas del checklist hechas por el estudiante' : 'student-marked Finish checks'}`);
         }
         if (wordCount(getDraft())) items.push(`${wordCount(getDraft())} ${state.lang !== 'en' ? 'palabras en la versión actual' : 'words in the current version'}`);
-        if (state.versions.length) {
-            const exactSnapshots = state.versions.filter(version => typeof version.text === 'string').length;
-            const metadataOnly = state.versions.length - exactSnapshots;
+        if (activeVersions().length) {
+            const exactSnapshots = activeVersions().filter(version => typeof version.text === 'string').length;
+            const metadataOnly = activeVersions().length - exactSnapshots;
             if (exactSnapshots) items.push(`${exactSnapshots} ${state.lang !== 'en' ? 'instantáneas locales recuperables' : 'recoverable local snapshots'}`);
             if (metadataOnly) items.push(`${metadataOnly} ${state.lang !== 'en' ? 'puntos anteriores solo con metadatos' : 'earlier metadata-only checkpoints'}`);
         }
         if (Object.keys(state.artifacts).length) items.push(`${Object.keys(state.artifacts).length} ${state.lang !== 'en' ? 'artefactos con texto' : 'artifacts with text'}`);
-        if (state.reviews.length) items.push(`${state.reviews.length} ${state.lang !== 'en' ? 'lecturas enfocadas' : 'focused reviews'}`);
-        if (state.councilRuns.length) items.push(`${state.councilRuns.length} ${state.lang !== 'en' ? 'reuniones del Consejo' : 'Council runs'}`);
-        state.decisions.forEach(d => items.push(`${d.choiceLabel}: ${d.sourceType}${d.rationale?.trim() ? (state.lang !== 'en' ? ' · razón estudiantil guardada' : ' · student reason saved') : ''}`));
+        if (activeReviews().length) items.push(`${activeReviews().length} ${state.lang !== 'en' ? 'lecturas enfocadas' : 'focused reviews'}`);
+        if (activeCouncilRuns().length) items.push(`${activeCouncilRuns().length} ${state.lang !== 'en' ? 'reuniones del Consejo' : 'Council runs'}`);
+        activeDecisions().forEach(d => items.push(`${d.choiceLabel}: ${d.sourceType}${d.rationale?.trim() ? (state.lang !== 'en' ? ' · razón estudiantil guardada' : ' · student reason saved') : ''}`));
         return items;
     }
 
@@ -2766,7 +3122,7 @@
         const currentDecision = state.decisions.some(decision => decision?.choice && decision.genre === state.genre);
         const currentCopy = state.reviewCopy?.genre === state.genre && Boolean(reviewCopySnapshot());
         return integratedMoves().some(move => wordCount(state.moveNotes[moveNoteKey(move)]?.text))
-            || voiceEntries().some(entry => entry?.text && (!entry.genre || entry.genre === state.genre))
+            || voiceEntriesForGenre().some(({ entry }) => Boolean(entry?.text))
             || currentDecision || currentCopy;
     }
 
@@ -2783,7 +3139,7 @@
         const packetReady = Boolean(state.packetCreatedAt);
         return `<section class="finish-page" aria-labelledby="finishTitle"><div class="finish-hero"><p class="eyebrow">${escapeHtml(t('finish'))}</p><h2 id="finishTitle">${escapeHtml(t('preparePacket'))}</h2><p>${escapeHtml(state.lang !== 'en' ? 'Guardar mantiene tu trabajo en progreso. Finalizar confirma una versión y arma un paquete local. Entregar ocurre fuera del Writing Studio, según las instrucciones de tu instructor.' : 'Save keeps work in progress. Finish confirms one version and assembles a local packet. Submission happens outside the Writing Studio, according to your instructor’s directions.')}</p></div>
             ${renderFinishReflectionInvitation()}${concept === 'integrated' ? renderRevisionCycleEntry('finish') : ''}<div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('packetDraft'))}</h3><p>${wordCount(draft)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')} · ${escapeHtml(concept === 'journey' ? state.currentArtifact : t('currentDraft'))}</p><div class="packet-preview" id="finalDraftPreview">${escapeHtml(draft || (state.lang !== 'en' ? 'No hay borrador todavía.' : 'No draft yet.'))}</div><label class="consent-box" style="margin-top:12px"><input id="packetConfirm" type="checkbox" ${state.packetCreatedAt ? 'checked' : ''}><span>${escapeHtml(t('confirmDraft'))}</span></label></section>
-            <section class="packet-section"><h3>${escapeHtml(state.lang !== 'en' ? 'Comprobación honesta' : 'Truthful readiness check')}</h3><ul class="check-list"><li class="${draft.trim() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Una versión exacta está identificada' : 'One exact version is identified')}</li><li class="${reflectionComplete() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Tres respuestas contienen texto' : 'Three student-authored responses contain text')}</li><li class="${concept === 'integrated' || state.councilRuns.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.councilRuns.length ? (state.lang !== 'en' ? 'No se solicitó Consejo—es opcional' : 'No Council requested—optional') : (state.lang !== 'en' ? 'La evidencia del Consejo está incluida si existe' : 'Council evidence is included when it exists'))}</li><li class="${concept === 'integrated' || state.decisions.length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !state.decisions.length ? (state.lang !== 'en' ? 'No hubo decisiones de IA—la IA es opcional' : 'No AI decisions—AI is optional') : (state.lang !== 'en' ? 'Las decisiones sobre sugerencias están incluidas' : 'Suggestion decisions are included'))}</li></ul><p><strong>${escapeHtml(ready ? (state.lang !== 'en' ? 'Listo para crear el paquete local' : 'Ready to create the local packet') : (state.lang !== 'en' ? 'Todavía en progreso' : 'Still in progress'))}</strong></p><button class="button primary" data-action="create-packet" ${!ready ? 'disabled' : ''}>${escapeHtml(t('createPacket'))}</button></section></div>
+            <section class="packet-section"><h3>${escapeHtml(state.lang !== 'en' ? 'Comprobación honesta' : 'Truthful readiness check')}</h3><ul class="check-list"><li class="${draft.trim() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Una versión exacta está identificada' : 'One exact version is identified')}</li><li class="${reflectionComplete() ? 'done' : ''}">${escapeHtml(state.lang !== 'en' ? 'Tres respuestas contienen texto' : 'Three student-authored responses contain text')}</li><li class="${concept === 'integrated' || activeCouncilRuns().length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !activeCouncilRuns().length ? (state.lang !== 'en' ? 'No se solicitó Consejo—es opcional' : 'No Council requested—optional') : (state.lang !== 'en' ? 'La evidencia del Consejo está incluida si existe' : 'Council evidence is included when it exists'))}</li><li class="${concept === 'integrated' || activeDecisions().length ? 'done' : ''}">${escapeHtml(concept === 'integrated' && !activeDecisions().length ? (state.lang !== 'en' ? 'No hubo decisiones de IA—la IA es opcional' : 'No AI decisions—AI is optional') : (state.lang !== 'en' ? 'Las decisiones sobre sugerencias están incluidas' : 'Suggestion decisions are included'))}</li></ul><p><strong>${escapeHtml(ready ? (state.lang !== 'en' ? 'Listo para crear el paquete local' : 'Ready to create the local packet') : (state.lang !== 'en' ? 'Todavía en progreso' : 'Still in progress'))}</strong></p><button class="button primary" data-action="create-packet" ${!ready ? 'disabled' : ''}>${escapeHtml(t('createPacket'))}</button></section></div>
             <div class="finish-grid"><section class="packet-section"><h3>${escapeHtml(t('studentReflection'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Solo contiene las palabras del estudiante.' : 'Contains only the student’s words.')}</p>${reflectionPrompts().map(([key, label], i) => state.reflections[key] ? `<h4>${i + 1}. ${escapeHtml(label)}</h4><p>${escapeHtml(state.reflections[key])}</p>` : '').join('') || `<p>${escapeHtml(state.lang !== 'en' ? 'Todavía no hay reflexión.' : 'No reflection yet.')}</p>`}</section>
             <section class="packet-section"><h3>${escapeHtml(t('instructorAppendix'))}</h3><p>${escapeHtml(state.lang !== 'en' ? 'Evidencia factual del sistema, separada de la reflexión.' : 'Factual system evidence, separate from reflection.')}</p><ul class="check-list">${factualEvidence().map(item => `<li class="done">${escapeHtml(item)}</li>`).join('') || `<li>${escapeHtml(t('noPrior'))}</li>`}</ul></section></div>${renderGenreFinishChecklist()}
             ${concept === 'notebook' || concept === 'integrated' ? `<section class="packet-section action-meanings"><h3>${escapeHtml(state.lang === 'en' ? 'Five different actions' : 'Cinco acciones distintas')}</h3><div class="artifact-list"><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Save' : 'Guardar')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Keeps your exact work in this browser.' : 'Mantiene tu trabajo exacto en este navegador.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('finish'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Confirms which draft and reflection belong in the packet.' : 'Confirma qué borrador y reflexión pertenecen al paquete.')}</small></div><div class="artifact-row"><strong>${escapeHtml(t('createPacket'))}</strong><small>${escapeHtml(state.lang === 'en' ? 'Assembles a local preview; it submits nothing.' : 'Arma una vista previa local; no entrega nada.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'Backup' : 'Copia de seguridad')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Downloads your saved Writing Studio work as one file on this device.' : 'Descarga tu trabajo guardado del Writing Studio como un archivo en este dispositivo.')}</small></div><div class="artifact-row"><strong>${escapeHtml(state.lang === 'en' ? 'External Submit' : 'Entrega externa')}</strong><small>${escapeHtml(state.lang === 'en' ? 'Happens outside Tu Pana under instructor directions.' : 'Ocurre fuera de Tu Pana según las instrucciones del instructor.')}</small></div></div><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button></section>` : ''}
@@ -2880,8 +3236,8 @@
             return;
         }
         if (choice === 'feedback') {
-            const review = state.reviews.at(-1);
-            const council = state.councilRuns.at(-1);
+            const review = activeReviews().at(-1);
+            const council = activeCouncilRuns().at(-1);
             const latest = review || council;
             if (!latest) {
                 openDialog(uiText('Understand feedback', 'Entender la retroalimentación'), uiText('No saved feedback yet', 'Aún no hay retroalimentación guardada'), `<p>${escapeHtml(uiText('There is no saved report to explain. You can keep writing, or ask for review later if it would help.', 'No hay un informe guardado para explicar. Puedes seguir escribiendo o pedir una revisión más tarde si te ayuda.'))}</p>`, `<button class="button primary" data-action="return-write">${escapeHtml(uiText('Return to draft', 'Volver al borrador'))}</button>`);
@@ -2909,8 +3265,8 @@
             `Tu Pana Writing Studio`,
             `${uiText('Writing project', 'Proyecto de escritura')}: ${genreLabel()}`,
             `${uiText('Draft word count', 'Conteo de palabras del borrador')}: ${wordCount(getDraft())}`,
-            `${uiText('Saved feedback reports', 'Informes de retroalimentación guardados')}: ${state.reviews.length + state.councilRuns.length}`,
-            `${uiText('Student decisions recorded', 'Decisiones estudiantiles registradas')}: ${state.decisions.length}`,
+            `${uiText('Saved feedback reports', 'Informes de retroalimentación guardados')}: ${activeReviews().length + activeCouncilRuns().length}`,
+            `${uiText('Student decisions recorded', 'Decisiones estudiantiles registradas')}: ${activeDecisions().length}`,
         ].join('\n');
     }
 
@@ -3018,7 +3374,7 @@
         else if (action === 'save-review-copy') { if (saveReviewCopy()) openRevisionCycle(); }
         else if (action === 'update-review-copy') { if (saveReviewCopy()) openRevisionCycle(); }
         else if (action === 'revision-self-review') openRevisionFocus();
-        else if (action === 'revision-existing-feedback') { if (state.reviews.length || state.councilRuns.length) closeDialog(true, () => openReviewCenter(state.reviews.length ? 'history' : 'council')); else openDialog(uiText('Use feedback I already have', 'Usar comentarios que ya tengo'), uiText('No saved feedback yet', 'Aún no hay comentarios guardados'), `<p>${escapeHtml(uiText('There is no saved report to reopen. You can review the copy yourself, keep revising, or intentionally ask for feedback later.', 'No hay un informe guardado para reabrir. Puedes revisar la copia por tu cuenta, seguir revisando o pedir comentarios más tarde de forma intencional.'))}</p>`, `<button class="button secondary" data-action="revision-self-review">${escapeHtml(uiText('Review it myself', 'Revisarlo yo mismo/a'))}</button><button class="button ghost" data-action="return-write">${escapeHtml(uiText('Keep revising', 'Seguir revisando'))}</button>`); }
+        else if (action === 'revision-existing-feedback') { if (activeReviews().length || activeCouncilRuns().length) closeDialog(true, () => openReviewCenter(activeReviews().length ? 'history' : 'council')); else openDialog(uiText('Use feedback I already have', 'Usar comentarios que ya tengo'), uiText('No saved feedback yet', 'Aún no hay comentarios guardados'), `<p>${escapeHtml(uiText('There is no saved report to reopen. You can review the copy yourself, keep revising, or intentionally ask for feedback later.', 'No hay un informe guardado para reabrir. Puedes revisar la copia por tu cuenta, seguir revisando o pedir comentarios más tarde de forma intencional.'))}</p>`, `<button class="button secondary" data-action="revision-self-review">${escapeHtml(uiText('Review it myself', 'Revisarlo yo mismo/a'))}</button><button class="button ghost" data-action="return-write">${escapeHtml(uiText('Keep revising', 'Seguir revisando'))}</button>`); }
         else if (action === 'revision-ask-feedback') closeDialog(true, openFocusedReviewDialog);
         else if (action === 'revision-council') closeDialog(true, openCouncilDialog);
         else if (action === 'revision-focus-suggestion') openRevisionFocus(target.dataset.suggestion || '');
@@ -3106,6 +3462,8 @@
         else if (action === 'download-packet') downloadText(packetText(), 'tupana-writing-packet.txt');
         else if (action === 'export-state') downloadText(JSON.stringify({ app: 'tupana-writing-studio', exportedAt: new Date().toISOString(), state }, null, 2), 'tupana-writing-studio-backup.json', 'application/json');
         else if (action === 'delete-state') deletePrototypeState();
+        else if (action === 'assignment-keep-current') keepCurrentWorkspace();
+        else if (action === 'assignment-open-requested') openRequestedAssignment();
     }
 
     root.addEventListener('click', event => {
@@ -3129,7 +3487,14 @@
         }
         else if (target.matches('[data-action="genre"]')) {
             storeActiveGenreState();
-            state.genre = genres[target.value] ? target.value : target.value;
+            // Fail closed. The menu only offers configured profiles, so this is
+            // defence in depth rather than a reachable path — but the guard it
+            // replaces was a ternary with the SAME expression in both branches,
+            // which validated nothing. An unrecognised value now takes the same
+            // configuration-required stop an unknown ?assignment= link takes,
+            // and never a silent default: prefixing guarantees no registry hit.
+            const requestedGenre = String(target.value ?? '');
+            state.genre = genres[requestedGenre] ? requestedGenre : `unconfigured:${requestedGenre}`;
             loadActiveGenreState(state.genre);
             captured = null;
             saveState();
@@ -3217,6 +3582,15 @@
         const resolved = resolveAssignment(raw);
         if (resolved) {
             if (state.genre !== resolved.profileId) {
+                // A saved workspace that already holds the writer's work is
+                // never reinterpreted by a link. Nothing is written on this
+                // path — not the genre, not the assignment id, not a save — so
+                // reloading leaves the stored record byte for byte as it was,
+                // and the writer chooses what happens next.
+                if (activeAssignmentHasWork()) {
+                    pendingAssignment = { raw: raw.trim(), resolved };
+                    return;
+                }
                 storeActiveGenreState();
                 state.genre = resolved.profileId;
                 loadActiveGenreState(resolved.profileId);
@@ -3237,4 +3611,5 @@
         saveState();
     }());
     renderApp();
+    if (pendingAssignment) openAssignmentMismatchNotice();
 })();

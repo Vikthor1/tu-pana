@@ -817,6 +817,12 @@
         invitations: { moveReview: null, finishReflection: null },
         assignmentId: null,
         assignmentNotice: null,
+        // A packet is a confirmation of ONE genre's draft; parked with its
+        // genre so Finish never renders another assignment's confirmation as
+        // already made, and creating a packet can never overwrite another
+        // genre's only packet record.
+        packetCreatedAt: null,
+        packetDraft: '',
     });
 
     function storeActiveGenreState() {
@@ -833,6 +839,8 @@
             invitations: { ...(state.invitations || {}) },
             assignmentId: state.assignmentId ?? null,
             assignmentNotice: state.assignmentNotice ?? null,
+            packetCreatedAt: state.packetCreatedAt ?? null,
+            packetDraft: state.packetDraft ?? '',
         };
     }
 
@@ -855,6 +863,12 @@
         state.invitations = { ...blank.invitations, ...(saved?.invitations || {}) };
         state.assignmentId = saved?.assignmentId ?? blank.assignmentId;
         state.assignmentNotice = saved?.assignmentNotice ?? blank.assignmentNotice;
+        // Records parked before these fields joined the partition have no
+        // packet keys and load as "no packet" — nothing invented, nothing
+        // deleted. The pre-partition global values park with whichever genre
+        // is active at the first boundary after this shipped.
+        state.packetCreatedAt = saved?.packetCreatedAt ?? blank.packetCreatedAt;
+        state.packetDraft = saved?.packetDraft ?? blank.packetDraft;
     }
 
     // W1 — different `?assignment=` on an existing saved workspace.

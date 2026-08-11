@@ -912,6 +912,7 @@
         state.genre = resolved.profileId;
         loadActiveGenreState(resolved.profileId);
         captured = null;
+        resetEditHistories();
         state.assignmentId = raw;
         state.assignmentNotice = resolved.notice || null;
         saveState();
@@ -1136,6 +1137,16 @@
     }
 
     function editSurfaceKey(field) { return field?.dataset.editKey || field?.id || ''; }
+    // The session-side half of the W1 partition. Undo/redo history lives in
+    // memory keyed by surface id, so without this it survives a genre switch
+    // and one ↶ writes the outgoing genre's text into the incoming genre's
+    // editor — a cross-assignment channel the storage partition never sees.
+    // Every workspace boundary clears it whole; renderApp's bindEditSurfaces
+    // then reseeds each surface from its freshly rendered value.
+    function resetEditHistories() {
+        editHistories.clear();
+        activeEditSurface = null;
+    }
     function ensureEditHistory(field) {
         if (!field || !/^(TEXTAREA|INPUT)$/.test(field.tagName)) return null;
         const key = editSurfaceKey(field);
@@ -3309,6 +3320,7 @@
         localStorage.removeItem(storageKey(concept));
         state = defaultState(concept);
         captured = null;
+        resetEditHistories();
         closeDialog(true); renderApp();
         announce(state.lang !== 'en' ? 'Datos guardados borrados de este dispositivo.' : 'Saved data deleted from this device.');
     }
@@ -3497,6 +3509,7 @@
             state.genre = genres[requestedGenre] ? requestedGenre : `unconfigured:${requestedGenre}`;
             loadActiveGenreState(state.genre);
             captured = null;
+            resetEditHistories();
             saveState();
             if (dialogRoot.contains(target)) closeDialog(true);
             renderApp();
@@ -3595,6 +3608,7 @@
                 state.genre = resolved.profileId;
                 loadActiveGenreState(resolved.profileId);
                 captured = null;
+                resetEditHistories();
             }
             state.assignmentId = raw.trim();
             state.assignmentNotice = resolved.notice || null;

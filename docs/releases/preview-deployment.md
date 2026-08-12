@@ -58,9 +58,13 @@ byte-identity checks compare against.
 
 The builder exits non-zero, rather than shipping something partial, when:
 
-- an allowlist path is absent from the commit;
+- an allowlist path is absent from its source commit (the target commit for
+  payload files; `HEAD` for the overlay pair under `--overlay-boundary`);
 - the worktree is dirty and you are building `HEAD` (the recorded `--commit-hash`
   would otherwise describe bytes that were never uploaded);
+- `--overlay-boundary` is given for `HEAD` (which needs no overlay), for a target
+  that already contains either boundary file (ambiguous provenance), or while
+  either overlay source file is dirty in the worktree;
 - the out-dir already contains files (a stale build must not contribute to a new one);
 - the written set does not match the allowlist **exactly, in both directions**;
 - an allowlist entry would escape the artifact root, is duplicated, or lands empty.
@@ -80,6 +84,70 @@ deploy, not as a 404 in front of a writer. It also pins the exclusions by class
 lockfile, no `.map`, no env file, no `assets/audio/**`, no top-level
 `assets/js/*.js`), so a future convenience edit cannot quietly re-publish internals
 or the retired application.
+
+Since W2 it also **executes** the builder: every automatable refusal it exercises
+(usage, unknown ref, non-empty out-dir, overlay of `HEAD`, overlay of a commit
+that already has the boundary, missing payload, plain build of a boundary-lacking
+commit) is observed refusing on each run, and both sanitized replacement
+artifacts are built into a temp dir and verified byte-for-byte **from the
+artifact directory** — payload against the historical commit, overlay pair
+against `HEAD` — because worktree-read checks cannot catch a mixed artifact.
+The two dirty-tree guards require mutating the worktree and were observed
+refusing **manually** (W2 evidence record); the overlay-source-absent-from-`HEAD`
+branch is untestable at a `HEAD` that carries both boundary files and rests on
+code review.
+
+## Sanitized replacement rollbacks
+
+Two historical preview surfaces are preserved as full-tree deployments that expose
+repository internals, and both predate `404.html`/`_redirects`. Deleting the
+exposed deployments is a **separately gated founder decision (step 2b)** that must
+never leave a rollback gap — so sanitized replacements are created **first**:
+
+```bash
+# payload from the historical commit; ONLY 404.html + _redirects from HEAD
+node scripts_build_preview_artifact.mjs /tmp/tupana-replacement \
+  --ref <historical-commit> --overlay-boundary
+
+# deploy as NON-PRODUCTION (branch ≠ main) so the serving alias never moves
+npx wrangler pages deploy /tmp/tupana-replacement \
+  --project-name=tupana-preview \
+  --branch=rollback-<short-hash> \
+  --commit-hash=<historical-commit-full> \
+  --commit-dirty=false
+```
+
+- **The deploy must be non-production.** `--branch=main` would repoint
+  `tupana-preview.pages.dev` at the replacement. A `rollback-*` branch name
+  creates a preview deployment with its own immutable
+  `<id>.tupana-preview.pages.dev` URL and leaves the alias serving what it served
+  before — verify the alias byte-identical before and after.
+- **One `--commit-hash` cannot describe a mixed artifact.** It records the
+  payload commit; the overlay's true provenance lives in the builder's per-file
+  report and the inventory below. Record both, or the replacement's description
+  is partially false.
+- **Verify on the immutable URL only, by content:** never-existed control first,
+  then every excluded path must answer 404 **and** a body byte-identical to
+  `404.html`; every served path byte-identical to the builder report. Never probe
+  the canonical host.
+- `a51aaff` has **no replacement by founder ruling** — its disposition (and
+  `ed6dead8`'s) belongs to the step-2b deletion ruling.
+
+### W2 replacement inventory
+
+Bounded, durable record of the W2 sanitized-replacement work and its immediate
+context — **not** a complete historical inventory of `tupana-preview`
+deployments, and **not** the step-2b deletion inventory. Step 2b remains
+separately gated and requires its own full inventory of the exposed historical
+deployments plus `ed6dead8`; nothing here prepares or substitutes for it.
+Ids are recorded **after** the deployment exists, never predicted.
+
+| Deployment id | Source commit | Overlay | Purpose |
+|---|---|---|---|
+| `591679e9` | `6c18e1c` | — | Studio-only preview (Decision S); rollback anchor |
+| `71ab741e` | `5d7303e` | — | Serving deployment behind the alias (W1-C release) |
+| *pending — not yet deployed* | `6c8bc78` | `404.html`, `_redirects` ← HEAD | Sanitized replacement rollback (Decision D surface) |
+| *pending — not yet deployed* | `d8ff0b0` | `404.html`, `_redirects` ← HEAD | Sanitized replacement rollback (1E surface) |
 
 ## The artifact — 10 paths
 

@@ -21,12 +21,17 @@
 // tupana-preview.pages.dev is exactly the defect this boundary corrects; a future
 // convenience edit that re-adds package.json or a test suite fails here.
 //
-// Pure static analysis — no browser, no network, no harness dependency.
+// Static analysis plus builder execution — no browser, no network. Since W2
+// (sanitized replacement rollbacks) this suite also RUNS the builder: it
+// observes every guard refusing and verifies a mixed-provenance replacement
+// artifact byte-for-byte from the artifact directory itself, because the
+// worktree-read checks above it cannot catch a mixed artifact.
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PREVIEW_ARTIFACT } from './scripts_build_preview_artifact.mjs';
+import { BOUNDARY_OVERLAY, PREVIEW_ARTIFACT } from './scripts_build_preview_artifact.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 let passed = 0;
@@ -273,6 +278,112 @@ check('artifact is exactly 10 paths — 9 served + 1 deployment-control',
     PREVIEW_ARTIFACT.length === 10, `${PREVIEW_ARTIFACT.length}`);
 check('exactly one of them is a control file',
     PREVIEW_ARTIFACT.filter(p => CONTROL.includes(p)).length === 1);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// W2 — sanitized replacement rollbacks. Everything below EXECUTES the builder.
+//
+// Two historical preview surfaces predate 404.html/_redirects; their sanitized
+// replacements carry the historical payload with exactly those two boundary
+// files overlaid from HEAD. The commit hashes are pinned deliberately: they are
+// the two surfaces the step-2a ruling names, they are permanent history on this
+// branch, and a replacement that drifted to a different source commit must fail
+// loudly here. `a51aaff` has NO replacement by founder ruling — its disposition
+// belongs to the separately gated step-2b decision, not to this suite.
+// ─────────────────────────────────────────────────────────────────────────────
+const REPLACEMENT_TARGETS = [
+    '6c8bc781193404af3e0a6e4a811c87815e8024cd', // Decision D surface
+    'd8ff0b08728208bb7891c898ff466a5816922727', // 1E surface
+];
+const PRE_STUDIO = 'f5c2c1bde5b34454422e57162631396c28b3a0c9';   // initial commit — no Studio files
+const HAS_BOUNDARY = '5d7303e2599cdeb50ccc303989995818122ddc80'; // carries 404.html + _redirects, is not HEAD
+
+const BUILDER = join(ROOT, 'scripts_build_preview_artifact.mjs');
+const runBuilder = args => {
+    try {
+        const out = execFileSync(process.execPath, [BUILDER, ...args],
+            { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+        return { code: 0, out, err: '' };
+    } catch (e) {
+        return { code: e.status ?? 1, out: String(e.stdout ?? ''), err: String(e.stderr ?? '') };
+    }
+};
+const gitShow = spec => execFileSync('git', ['show', spec], { cwd: ROOT, maxBuffer: 1 << 28 });
+const headCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim();
+const tmp = () => mkdtempSync(join(tmpdir(), 'tupana-artifact-test-'));
+// A thrown comparison (missing file, failed build) must COUNT as a failed
+// check, not abort the suite — the check total stays fixed either way.
+const checkT = (label, fn) => {
+    let ok = false, detail = '';
+    try { ok = Boolean(fn()); } catch (e) { detail = e.message.split('\n')[0]; }
+    check(label, ok, detail);
+};
+
+console.log('\nOverlay contract');
+check('the overlay set is exactly 404.html + _redirects, nothing else',
+    BOUNDARY_OVERLAY.join(',') === '404.html,_redirects', BOUNDARY_OVERLAY.join(','));
+check('every overlay path is itself an allowlisted artifact path',
+    BOUNDARY_OVERLAY.every(p => allow.has(p)));
+
+console.log('\nBuilder fail-safes are observed refusing, not assumed');
+const scratchDirs = [];
+try {
+    const refusal = (label, args, needle) => {
+        const r = runBuilder(args);
+        check(label, r.code !== 0 && r.err.includes(needle),
+            r.code === 0 ? 'builder exited 0' : `stderr lacks "${needle}"`);
+    };
+    refusal('no arguments → usage refusal', [], 'usage:');
+    refusal('unknown ref → refusal', [(scratchDirs.push(tmp()), scratchDirs.at(-1)), '--ref', 'no-such-ref-w2'], 'not a commit');
+    const preloaded = tmp(); scratchDirs.push(preloaded);
+    writeFileSync(join(preloaded, 'stale.txt'), 'stale');
+    refusal('non-empty out-dir → refusal', [preloaded, '--ref', REPLACEMENT_TARGETS[0], '--overlay-boundary'], 'refusing to build into it');
+    refusal('overlay of HEAD → refusal (HEAD needs no overlay)',
+        [(scratchDirs.push(tmp()), scratchDirs.at(-1)), '--overlay-boundary'], 'HEAD already carries the boundary files');
+    refusal('overlay of a commit that already has the boundary → refusal',
+        [(scratchDirs.push(tmp()), scratchDirs.at(-1)), '--ref', HAS_BOUNDARY, '--overlay-boundary'], 'refusing an ambiguous overlay');
+    refusal('overlay build with payload absent from target → refusal',
+        [(scratchDirs.push(tmp()), scratchDirs.at(-1)), '--ref', PRE_STUDIO, '--overlay-boundary'], 'refusing to build a partial artifact');
+    refusal('plain build of a boundary-lacking commit still refuses (overlay is required, not optional)',
+        [(scratchDirs.push(tmp()), scratchDirs.at(-1)), '--ref', REPLACEMENT_TARGETS[0]], 'refusing to build a partial artifact');
+
+    console.log('\nReplacement artifacts — mixed provenance verified from the artifact directory');
+    for (const target of REPLACEMENT_TARGETS) {
+        const short = target.slice(0, 7);
+        const dir = tmp(); scratchDirs.push(dir);
+        const r = runBuilder([dir, '--ref', target, '--overlay-boundary']);
+        check(`${short}: builder exits 0`, r.code === 0, r.err.split('\n').find(l => l.trim()) ?? '');
+        check(`${short}: report logs per-file overlay provenance`,
+            r.out.includes(`overlay   ${BOUNDARY_OVERLAY.join(', ')} ← HEAD ${headCommit}`)
+            && BOUNDARY_OVERLAY.every(p => r.out.includes(`${p}  [overlay ← HEAD ${headCommit.slice(0, 7)}]`)));
+        const walk = d => readdirSync(d, { withFileTypes: true })
+            .flatMap(e => e.isDirectory() ? walk(join(d, e.name)) : [relative(dir, join(d, e.name))]);
+        checkT(`${short}: artifact holds exactly the allowlist, both directions`,
+            () => walk(dir).sort().join('\n') === [...PREVIEW_ARTIFACT].sort().join('\n'));
+        for (const p of PREVIEW_ARTIFACT.filter(p => !BOUNDARY_OVERLAY.includes(p))) {
+            checkT(`${short}: ${p} is byte-identical to the historical commit`,
+                () => Buffer.compare(readFileSync(join(dir, p)), gitShow(`${target}:${p}`)) === 0);
+        }
+        for (const p of BOUNDARY_OVERLAY) {
+            checkT(`${short}: ${p} is byte-identical to HEAD (the overlay)`,
+                () => Buffer.compare(readFileSync(join(dir, p)), gitShow(`${headCommit}:${p}`)) === 0);
+        }
+        checkT(`${short}: every dependency the ARTIFACT's studio.html declares is in the artifact`,
+            () => {
+                const refs = [...localRefs(readFileSync(join(dir, 'studio.html'), 'utf8'))];
+                return refs.length > 0 && refs.every(p => allow.has(p));
+            });
+        checkT(`${short}: the ARTIFACT's 404.html is self-contained`,
+            () => localRefs(readFileSync(join(dir, '404.html'), 'utf8')).size === 0);
+        checkT(`${short}: the ARTIFACT's _redirects is the single exact 302 root rule`,
+            () => {
+                const rs = readFileSync(join(dir, '_redirects'), 'utf8').split('\n')
+                    .map(l => l.trim()).filter(l => l && !l.startsWith('#')).map(l => l.split(/\s+/));
+                return rs.length === 1 && rs[0][0] === '/' && rs[0][1] === '/studio.html' && rs[0][2] === '302';
+            });
+    }
+} finally {
+    for (const d of scratchDirs) rmSync(d, { recursive: true, force: true });
+}
 
 console.log(`\n${passed}/${passed + failed} PASS${failed ? ` — ${failed} FAIL` : ''}`);
 if (failed) process.exit(1);

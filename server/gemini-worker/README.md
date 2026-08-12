@@ -40,9 +40,10 @@
 ## Allowed origins
 
 Configured in `src/index.js` (`ALLOWED_ORIGINS`). Currently:
-- `http://localhost:8000`
-- `http://localhost:3001`
-- `https://vikthor1.github.io`
+- `http://localhost:8000` (dev only)
+- `http://localhost:3001` (dev only)
+- `https://tupana-preview.pages.dev` (bounded family/reviewer preview)
+- `https://vikthor1.github.io` (production GitHub Pages)
 
 Tighten this list before any public deployment.
 

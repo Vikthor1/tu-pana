@@ -214,6 +214,62 @@ try {
     check('request above 128k safety ceiling is rejected', r.status === 400);
     check('oversize response has a precise category', r.body?.category === 'prompt_too_large');
     check('oversize request is rejected before spending Gemini quota', captured === null);
+
+    // ── W3: origin allowlist reconciliation (R-1.5) ──
+    console.log('\n── W3 origin allowlist ──');
+    async function callWorkerFrom(origin, payload, env = ENV) {
+        captured = null;
+        const req = new Request('https://vikthor1.github.io/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Origin': origin },
+            body: JSON.stringify(payload),
+        });
+        const res = await worker.fetch(req, env);
+        let body = null; try { body = await res.json(); } catch (_) {}
+        return { status: res.status, body };
+    }
+    const SMALL = { prompt: 'x', model: 'gemini-2.5-flash-lite', stageId: 2 };
+    mockUpstream({ finishReason: 'STOP' });
+    let d = await callWorkerFrom('http://127.0.0.1:8000', SMALL);
+    check('127.0.0.1:8000 origin is refused (403)', d.status === 403);
+    check('127.0.0.1:8000 refusal states category origin_forbidden', d.body?.category === 'origin_forbidden');
+    check('refused 127.0.0.1:8000 never reaches Gemini', captured === null);
+    d = await callWorkerFrom('http://127.0.0.1:3001', SMALL);
+    check('127.0.0.1:3001 origin is refused (403)', d.status === 403);
+    check('refused 127.0.0.1:3001 never reaches Gemini', captured === null);
+    mockUpstream({ finishReason: 'STOP' });
+    d = await callWorkerFrom('http://localhost:3001', SMALL);
+    check('localhost:3001 (mock test server) origin remains allowed', d.status === 200);
+    mockUpstream({ finishReason: 'STOP' });
+    d = await callWorkerFrom('https://tupana-preview.pages.dev', SMALL);
+    check('tupana-preview.pages.dev origin remains allowed', d.status === 200);
+
+    // ── W3: step-4 Worker-side error semantics ──
+    console.log('\n── W3 quota / auth semantics ──');
+    function mockUpstreamGeminiError({ httpStatus, statusEnum = null }) {
+        globalThis.fetch = async (_url, opts) => {
+            captured = JSON.parse(opts.body);
+            const errBody = { error: { code: httpStatus, message: 'upstream detail never forwarded' } };
+            if (statusEnum) errBody.error.status = statusEnum;
+            return new Response(JSON.stringify(errBody),
+                { status: httpStatus, headers: { 'content-type': 'application/json' } });
+        };
+    }
+    mockUpstreamGeminiError({ httpStatus: 429, statusEnum: 'RESOURCE_EXHAUSTED' });
+    r = await callWorker(SMALL);
+    check('429 + RESOURCE_EXHAUSTED → category quota_exhausted', r.body?.category === 'quota_exhausted');
+    check('quota_exhausted keeps HTTP 429', r.status === 429);
+    check('quota_exhausted carries upstreamStatus RESOURCE_EXHAUSTED', r.body?.upstreamStatus === 'RESOURCE_EXHAUSTED');
+    check('quota_exhausted forwards no upstream message text', !JSON.stringify(r.body).includes('never forwarded'));
+    mockUpstreamGeminiError({ httpStatus: 429 });
+    r = await callWorker(SMALL);
+    check('429 without RESOURCE_EXHAUSTED enum stays rate_limited', r.body?.category === 'rate_limited');
+    check('plain-429 rate_limited keeps HTTP 429', r.status === 429);
+    mockUpstream({ finishReason: 'STOP' });
+    d = await callWorkerFrom(ORIGIN, SMALL, {});
+    check('missing GEMINI_API_KEY → 503', d.status === 503);
+    check('missing-secret guard states category auth_error', d.body?.category === 'auth_error');
+    check('missing-secret guard never calls upstream', captured === null);
 } finally {
     globalThis.fetch = origFetch;
 }

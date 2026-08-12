@@ -1,6 +1,6 @@
 // scripts_build_preview_artifact.mjs — build the bounded preview deployment artifact.
 //
-//   node scripts_build_preview_artifact.mjs <out-dir> [--ref <commit-ish>]
+//   node scripts_build_preview_artifact.mjs <out-dir> [--ref <commit-ish>] [--overlay-boundary]
 //
 // WHY THIS EXISTS
 // ---------------
@@ -40,6 +40,19 @@
 // Add it to PREVIEW_ARTIFACT below. studio_deploy_artifact_test.mjs re-derives the
 // dependency closure from the HTML and will fail if you add a <script src> or
 // <link href> and forget this list — that suite is the backstop, not this comment.
+//
+// SANITIZED REPLACEMENT ROLLBACKS (--overlay-boundary)
+// ----------------------------------------------------
+// Two historical preview surfaces predate 404.html and _redirects, so a faithful
+// rebuild of either would ship without the boundary that makes "excluded"
+// demonstrable — without a 404.html, Pages answers every unmatched path with a
+// soft-404 at HTTP 200, and an excluded file is indistinguishable from a served
+// one. Their sanitized replacements are built with --overlay-boundary: every
+// payload file comes from the historical commit, and ONLY 404.html and
+// _redirects are supplied from HEAD. The overlay is narrow (that fixed pair,
+// never anything else), logged (the report names each file's source commit),
+// and guarded (it refuses a target that is HEAD, a target that already contains
+// either boundary file, and a dirty working copy of the consumed HEAD paths).
 //
 // See docs/releases/preview-deployment.md.
 
@@ -89,6 +102,12 @@ export const PREVIEW_ARTIFACT = [
     // retired legacy path is redirected.
     '_redirects',
 ];
+
+// The narrow overlay set for sanitized replacement rollbacks — exactly the two
+// boundary files above and never anything else. A replacement's payload must
+// stay byte-identical to its historical commit, or it is not a rollback target;
+// it is a new deployment wearing an old commit's name.
+export const BOUNDARY_OVERLAY = ['404.html', '_redirects'];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THE RETIREMENT — 2026-08-08, founder Decision R, step 1.
@@ -142,16 +161,19 @@ const die = (msg, detail = []) => {
 
 // ── arguments ────────────────────────────────────────────────────────────────
 const argv = process.argv.slice(2);
+const overlayIdx = argv.indexOf('--overlay-boundary');
+const overlay = overlayIdx !== -1;
 const refIdx = argv.indexOf('--ref');
 const ref = refIdx === -1 ? 'HEAD' : argv[refIdx + 1];
 // Skip both the flag and its value by INDEX. Filtering on `refIdx + 1` without
 // first checking for -1 silently discards argv[0] — the out-dir — whenever --ref
 // is omitted, which is the common invocation.
 const skip = refIdx === -1 ? new Set() : new Set([refIdx, refIdx + 1]);
+if (overlay) skip.add(overlayIdx);
 const outArg = argv.filter((_, i) => !skip.has(i))[0];
 
 if (!outArg || !ref) {
-    die('usage: node scripts_build_preview_artifact.mjs <out-dir> [--ref <commit-ish>]');
+    die('usage: node scripts_build_preview_artifact.mjs <out-dir> [--ref <commit-ish>] [--overlay-boundary]');
 }
 
 const OUT = resolve(outArg);
@@ -162,15 +184,46 @@ try {
     die(`not a commit: ${ref}`);
 }
 
-// ── guard: building HEAD requires a clean worktree ────────────────────────────
-// The deployment records --commit-hash. If the tree were dirty that hash would
-// describe something other than the bytes uploaded, and every later byte-identity
-// check would be comparing against the wrong thing.
-if (git('rev-parse', 'HEAD') === commit) {
+const headCommit = git('rev-parse', 'HEAD');
+const tracked = new Set(git('ls-tree', '-r', '--name-only', commit).split('\n'));
+
+// ── guards: the overlay is only for commits that PREDATE the boundary ────────
+// A target that is HEAD needs no overlay (HEAD carries the boundary files), and
+// a target that already contains either boundary file would make the artifact's
+// provenance ambiguous — which 404.html is this? Refuse both; a plain build
+// serves those commits.
+if (overlay) {
+    if (commit === headCommit) {
+        die('--overlay-boundary builds a sanitized replacement of a HISTORICAL commit — HEAD already carries the boundary files; build it without the flag');
+    }
+    const present = BOUNDARY_OVERLAY.filter(p => tracked.has(p));
+    if (present.length) {
+        die(`target commit ${commit.slice(0, 7)} already contains boundary file(s) — refusing an ambiguous overlay`, present);
+    }
+}
+
+// ── guard: bytes consumed from HEAD must not be shadowed by uncommitted edits ─
+// The deployment records --commit-hash, and the report records each file's
+// source commit. `git show` reads committed objects, so a dirty working copy can
+// never reach the artifact — but a build that silently ignored the edit sitting
+// in the worktree would hand the operator provenance they do not expect. So:
+// whenever HEAD bytes are consumed, the paths being consumed must be clean —
+// the whole tree for a HEAD build, exactly the overlay pair for an overlay
+// build. (Overlay checks only its consumed paths on purpose: an unrelated dirty
+// file cannot change overlay bytes, and the backstop suite executes overlay
+// builds — a whole-tree check there would fail the deterministic suite on any
+// dirty development tree.)
+if (commit === headCommit) {
     const dirty = git('status', '--porcelain');
     if (dirty) {
         die('worktree is dirty — commit or stash before building from HEAD',
             dirty.split('\n').slice(0, 20));
+    }
+} else if (overlay) {
+    const dirty = git('status', '--porcelain', '--', ...BOUNDARY_OVERLAY);
+    if (dirty) {
+        die('overlay source file(s) are dirty in the worktree — commit or restore them before overlaying from HEAD',
+            dirty.split('\n'));
     }
 }
 
@@ -192,11 +245,20 @@ const escaping = PREVIEW_ARTIFACT.filter(p => {
 });
 if (escaping.length) die('allowlist entries escape the artifact root', escaping);
 
-// ── guard: every allowlist entry must exist in the commit ────────────────────
-const tracked = new Set(git('ls-tree', '-r', '--name-only', commit).split('\n'));
-const missing = PREVIEW_ARTIFACT.filter(p => !tracked.has(p));
+// ── guard: every allowlist entry must exist in its source commit ─────────────
+// Payload paths must exist in the target commit; under --overlay-boundary the
+// two boundary paths are sourced from HEAD instead and must exist THERE.
+const overlaid = new Set(overlay ? BOUNDARY_OVERLAY : []);
+const missing = PREVIEW_ARTIFACT.filter(p => !overlaid.has(p) && !tracked.has(p));
 if (missing.length) {
     die(`${missing.length} allowlist path(s) absent from ${commit.slice(0, 7)} — refusing to build a partial artifact`, missing);
+}
+if (overlay) {
+    const headTracked = new Set(git('ls-tree', '-r', '--name-only', headCommit).split('\n'));
+    const absent = BOUNDARY_OVERLAY.filter(p => !headTracked.has(p));
+    if (absent.length) {
+        die(`overlay source(s) absent from HEAD ${headCommit.slice(0, 7)} — nothing to overlay`, absent);
+    }
 }
 
 const dupes = PREVIEW_ARTIFACT.filter((p, i) => PREVIEW_ARTIFACT.indexOf(p) !== i);
@@ -206,11 +268,12 @@ if (dupes.length) die('duplicate allowlist entries', [...new Set(dupes)]);
 const digests = [];
 let bytes = 0;
 for (const path of PREVIEW_ARTIFACT) {
-    const content = gitBytes('show', `${commit}:${path}`);
+    const source = overlaid.has(path) ? headCommit : commit;
+    const content = gitBytes('show', `${source}:${path}`);
     const target = join(OUT, path);
     mkdirSync(dirname(target), { recursive: true });
     writeFileSync(target, content);
-    digests.push([createHash('sha256').update(content).digest('hex'), path]);
+    digests.push([createHash('sha256').update(content).digest('hex'), path, source]);
     bytes += content.length;
 }
 
@@ -232,12 +295,25 @@ for (const p of written) {
 }
 
 // ── report ───────────────────────────────────────────────────────────────────
+// Under --overlay-boundary this report IS the provenance log: one deployment
+// hash cannot describe a mixed artifact, so each file names its source commit
+// and the inventory in docs/releases/preview-deployment.md records the pairing.
+const payloadCount = written.length - overlaid.size;
 console.log(`Tu Pana — preview deployment artifact`);
 console.log(`  commit    ${commit}`);
+if (overlay) console.log(`  overlay   ${BOUNDARY_OVERLAY.join(', ')} ← HEAD ${headCommit}`);
 console.log(`  out       ${OUT}`);
-console.log(`  files     ${written.length} (of ${tracked.size} tracked — ${tracked.size - written.length} excluded)`);
+if (overlay) {
+    console.log(`  files     ${written.length} = ${payloadCount} from ${commit.slice(0, 7)} (of ${tracked.size} tracked — ${tracked.size - payloadCount} excluded) + ${overlaid.size} overlaid`);
+} else {
+    console.log(`  files     ${written.length} (of ${tracked.size} tracked — ${tracked.size - written.length} excluded)`);
+}
 console.log(`  bytes     ${bytes.toLocaleString()}\n`);
-for (const [sha, path] of digests) console.log(`  ${sha}  ${path}`);
-console.log(`\n✔ artifact matches the allowlist exactly`);
+for (const [sha, path, source] of digests) {
+    console.log(`  ${sha}  ${path}${source === commit ? '' : `  [overlay ← HEAD ${source.slice(0, 7)}]`}`);
+}
+console.log(`\n✔ artifact matches the allowlist exactly${overlay
+    ? ` — ${payloadCount} file(s) from ${commit.slice(0, 7)}, ${overlaid.size} overlaid from HEAD ${headCommit.slice(0, 7)}`
+    : ''}`);
 
 }

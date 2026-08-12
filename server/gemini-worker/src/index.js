@@ -204,7 +204,7 @@ export default {
         // Secret guard — checked early so the error is clear during setup
         if (!env.GEMINI_API_KEY) {
             return Response.json(
-                { error: 'Gemini not configured' },
+                { error: true, category: 'auth_error', message: 'Gemini not configured' },
                 { status: 503, headers: corsHeaders(origin) }
             );
         }
@@ -275,7 +275,13 @@ export default {
             console.error('Gemini proxy error:', err.name, err.status || '', err.upstreamStatus || '');
             const upStatus = err.status;
             let category, outStatus, message;
-            if (upStatus === 429) {
+            if (upStatus === 429 && err.upstreamStatus === 'RESOURCE_EXHAUSTED') {
+                // Gemini reports cap/quota exhaustion and transient rate limiting on the
+                // same 429; only the status enum distinguishes them. Quota exhaustion is
+                // not retryable — retrying burns nothing but cannot succeed this period.
+                category = 'quota_exhausted';     outStatus = 429;
+                message  = 'Usage limit reached for now.';
+            } else if (upStatus === 429) {
                 category = 'rate_limited';        outStatus = 429;
                 message  = 'Too many requests. Wait briefly and try again.';
             } else if (upStatus === 400) {

@@ -29,8 +29,6 @@ const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
 const ALLOWED_ORIGINS = new Set([
     'http://localhost:8000',    // dev only
     'http://localhost:3001',    // dev only
-    'http://127.0.0.1:8000',    // dev only
-    'http://127.0.0.1:3001',    // test server only
     // Family-preview deployment of the redesign branch (Cloudflare Pages,
     // founder-authorized 2026-07-31). Bounded personal use; NOT the release —
     // Sprint 0 B3–B7 still gate the real launch. Retire with the preview.

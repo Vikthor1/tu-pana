@@ -1,6 +1,41 @@
 # Tu Pana — Session Status
 
-Last updated: 2026-07-31 (Start Here tutorial generalized to all genre layers)
+Last updated: 2026-08-11 (W3 Worker reconciliation deployed)
+
+## W3 — Worker reconciliation DEPLOYED (2026-08-11 21:48 EDT / 2026-08-12 UTC, wave A-W3)
+
+- **Deployed version: `dd35e846-32a6-493b-99df-d55683446f36`** — `wrangler deploy` EXIT=0,
+  wrangler 4.121.0 via npx, 2026-08-11 21:48:46–21:48:52 EDT (Cloudflare records the
+  version created 2026-08-12T01:48:50Z); confirmed serving at 100% via
+  `wrangler deployments list`. Deployed from committed, pushed branch tip `15e3525`
+  (commits `0ad199f` + `d65b775` + `15e3525` on `migrate/pedagogical-engine-2026-08`).
+  Founder re-designated the deployment window to Tue 2026-08-11 21:45–23:00 ET (attested
+  no students in use); single-deployment rule observed.
+- **Prior live version (captured read-only 2026-08-11 pre-deploy, = rollback target):
+  `ce5538f8-975f-49a8-a656-c8d46942d3ea`** (2026-07-31T18:51:52Z, source == `8e22fc7`).
+  Rollback NOT needed — all probes passed; the rollback authorization (one emergency
+  rollback, no corrected redeploy) expired unused.
+- **What changed (the only source drift since `8e22fc7` was `1462aea`):** per ruling R-1.5
+  the two `127.0.0.1` dev origins were REMOVED from source rather than deployed —
+  preserving the live-AI-cannot-activate-in-automation invariant; the protective
+  `origin_forbidden` JSON error body shipped. Step-4 Worker-side semantics: Gemini 429 +
+  `RESOURCE_EXHAUSTED` → non-retryable `quota_exhausted` (plain 429 stays `rate_limited`);
+  missing-secret 503 now states `category: 'auth_error'`. Aligns the Worker with the
+  client semantics shipped in W1 Commit B. No prompt, contract, model-routing,
+  generation-config, cap, budget, credential, or secret change.
+- **Allowed origins now (source == deployed):** `http://localhost:8000` ·
+  `http://localhost:3001` · `https://tupana-preview.pages.dev` ·
+  `https://vikthor1.github.io` (README reconciled to match).
+- **Post-deploy verification — exactly 3 no-spend probes, zero Gemini calls:**
+  (1) allowed-origin OPTIONS preflight → 204 + correct ACAO/methods/`Vary: Origin`;
+  (2) POST from `Origin: http://127.0.0.1:3001` → 403 +
+  `{"error":true,"category":"origin_forbidden","message":"Origin not allowed"}` — this
+  body shape exists only in the new code, confirming the served version;
+  (3) allowed-origin empty-body POST → 400 with CORS headers, terminated at input
+  validation before any upstream access. Local regression evidence at the deployed
+  commit: worker suite 48/48; full deterministic suite 77/3,770/0 (log sha `b5992817…`).
+- **Product-provider calls: ZERO** throughout the wave (probes are Worker interactions
+  accounted separately; none can reach Gemini by construction).
 
 ## Start Here tutorial — cross-genre generalization (2026-07-31)
 

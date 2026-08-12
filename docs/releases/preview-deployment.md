@@ -142,12 +142,12 @@ separately gated and requires its own full inventory of the exposed historical
 deployments plus `ed6dead8`; nothing here prepares or substitutes for it.
 Ids are recorded **after** the deployment exists, never predicted.
 
-| Deployment id | Source commit | Overlay | Purpose |
-|---|---|---|---|
-| `591679e9` | `6c18e1c` | — | Studio-only preview (Decision S); rollback anchor |
-| `71ab741e` | `5d7303e` | — | Serving deployment behind the alias (W1-C release) |
-| *pending — not yet deployed* | `6c8bc78` | `404.html`, `_redirects` ← HEAD | Sanitized replacement rollback (Decision D surface) |
-| *pending — not yet deployed* | `d8ff0b0` | `404.html`, `_redirects` ← HEAD | Sanitized replacement rollback (1E surface) |
+| Deployment id | Immutable URL | Source commit | Overlay | Purpose |
+|---|---|---|---|---|
+| `591679e9-fd1b-4f1f-8a79-21355df6aa85` | `https://591679e9.tupana-preview.pages.dev` | `6c18e1c` | — | Studio-only preview (Decision S); rollback anchor |
+| `71ab741e-1242-4cff-bd9b-11367388c95e` | `https://71ab741e.tupana-preview.pages.dev` | `5d7303e` | — | Serving deployment behind the alias (W1-C release) |
+| `0e56e72d-6e54-4012-9707-6e1f7d81ec81` | `https://0e56e72d.tupana-preview.pages.dev` | `6c8bc781193404af3e0a6e4a811c87815e8024cd` | `404.html`, `_redirects` ← commit `25a86ff7017fe9290d8ef762810b3310b35efe13` | Sanitized replacement rollback (Decision D surface); build report sha256 `7fd7c1ff36e6af9701cd5c3a86c6c4b00a7854e517eabc73c50948040cd60a58` |
+| `97bc82eb-9ca5-4e2b-bd5b-c7972ae5f679` | `https://97bc82eb.tupana-preview.pages.dev` | `d8ff0b08728208bb7891c898ff466a5816922727` | `404.html`, `_redirects` ← commit `25a86ff7017fe9290d8ef762810b3310b35efe13` | Sanitized replacement rollback (1E surface); build report sha256 `26e21063839d43edb34d9c6e41d3e7c62dc60f97fca9ccab88cd0189af83a9fe` |
 
 ## The artifact — 10 paths
 

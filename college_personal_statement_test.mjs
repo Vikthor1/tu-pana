@@ -34,24 +34,56 @@ function check(label, cond) {
 const browser = await chromium.launch();
 const consoleErrs = [];
 
+// ── Diagnostics (K) ──
+// A failing `zero console/page errors` check used to say only that something went wrong:
+// the assertion is an aggregate over every page, and the payload was printed on a line
+// carrying no ❌, which run_test_suite.mjs drops from failing suites. So a full-suite
+// failure arrived with no way to tell which page, request, or resource was involved.
+//
+// DIAG records that context passively. It is READ-ONLY with respect to the assertion:
+// the response/requestfailed listeners below NEVER write to consoleErrs, so the check
+// still tests exactly what it tested before — pageerror plus console-error events.
+const DIAG = [];
+let DIAG_SEQ = 0;
+let STAGE = 'pre-first-visit';
+// Origin + path + search only: never a hash, credentials, body, header, or storage value.
+const safeHref = (raw) => { try { const u = new URL(raw); return u.origin + u.pathname + u.search; } catch { return '(unparseable)'; } };
+const safeUrl = (p) => { try { return safeHref(p.url()); } catch { return '(unavailable)'; } };
+function pushDiag(origin, p, text, resourceUrl, location) {
+    DIAG.push({
+        seq: ++DIAG_SEQ, t: new Date().toISOString(), origin, stage: STAGE,
+        pageUrl: safeUrl(p), resourceUrl: resourceUrl || null,
+        text: String(text), location: location || null,
+    });
+}
+
 async function newPage() {
     const p = await browser.newPage();
-    p.on('pageerror', e => consoleErrs.push(String(e)));
-    p.on('console', m => { if (m.type() === 'error') consoleErrs.push(m.text()); });
+    p.on('pageerror', e => { pushDiag('pageerror', p, e, null, null); consoleErrs.push(String(e)); });
+    p.on('console', m => { if (m.type() === 'error') { pushDiag('console.error', p, m.text(), null, m.location()); consoleErrs.push(m.text()); } });
+    // Diagnostic-only. Deliberately NOT pushed into consoleErrs — a 404 that produces no
+    // console error must not start failing this suite.
+    p.on('response', r => { const s = r.status(); if (s >= 400) pushDiag(`response:${s}`, p, `HTTP ${s}`, safeHref(r.url()), null); });
+    p.on('requestfailed', r => { pushDiag('requestfailed', p, (r.failure() && r.failure().errorText) || 'request failed', safeHref(r.url()), null); });
     return p;
 }
 // Visit with a clean, onboarded storage baseline (so the journey renders).
 async function visit(url) {
     const p = await newPage();
+    STAGE = `visit(${url}):goto-root`;
     await p.goto(BASE + '/');
+    STAGE = `visit(${url}):seed-storage`;
     await p.evaluate(() => {
         localStorage.clear();
         localStorage.setItem('tupana_mani_done', 'true');
         localStorage.setItem('tupana_lab_done', 'true');
         localStorage.setItem('tupana_project_chosen', 'true');
     });
+    STAGE = `visit(${url}):goto-target`;
     await p.goto(BASE + url);
+    STAGE = `visit(${url}):settle`;
     await p.waitForTimeout(1000);
+    STAGE = `visit(${url}):active`;
     return p;
 }
 const node1 = (p) => p.evaluate(() => document.querySelector('.stage-node[data-id="1"] .label-en')?.textContent?.trim());
@@ -62,6 +94,7 @@ console.log('\n── A. Activation + persistence ──');
 let p = await visit(`/?assignment=${AID}`);
 check('link activates admissions (assignmentId + Story Inventory)', (await aidOf(p)) === AID && (await node1(p)) === 'Story Inventory');
 // persist across reload WITHOUT the query param (do not clear storage between loads)
+STAGE = 'A:reload-without-query';
 await p.goto(BASE + '/');
 await p.waitForTimeout(1000);
 check('persists after reload without ?assignment=', (await aidOf(p)) === AID && (await node1(p)) === 'Story Inventory');
@@ -198,7 +231,101 @@ check('does not write the reflection for the student', /Do NOT write the reflect
 check('no admissions-specific reflection schema/capstone override', D.hasCapstone === false && D.hasReflectionSchema === false);
 
 // ── K. Errors ──
-check('zero console/page errors across all cases', consoleErrs.length === 0);
+// On failure the payload rides on the ❌ line itself, because run_test_suite.mjs prints
+// only ❌ lines from a failing suite. Bounded and single-line by fixed constants so the
+// runner's output stays readable and the record stays deterministic.
+// The payload is assembled INSIDE the ceiling, not clipped to it at the end. Clipping the
+// assembled line dropped whole trailing events and the `…+N more` marker, and the per-event
+// clip cut `resource=` off network events — the one field this change exists to deliver.
+// So each event is built from its critical fields first, optional context is added only
+// while it fits, and an event that cannot carry its critical fields is omitted whole and
+// counted in the marker rather than shown incomplete.
+const DIAG_MAX_EVENTS = 5, DIAG_MAX_EVENT_CHARS = 160, DIAG_MAX_PAYLOAD_CHARS = 600;
+const oneLine = (s) => String(s).replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+const clip = (s, n) => (s.length > n ? s.slice(0, n - 12) + '…[truncated]' : s);
+const diagHasUrl = (e) => !!e.resourceUrl;
+const diagAsserted = (e) => e.origin === 'pageerror' || e.origin === 'console.error';
+// Critical first: sequence and origin, then whichever fields this event kind is
+// responsible for — a resource URL for a network event, stage and page URL for an
+// asserted one. Everything after that is context and may be cut or dropped.
+function diagParts(e) {
+    const req = diagHasUrl(e) ? [`resource=${e.resourceUrl}`] : [`stage=${e.stage}`, `page=${e.pageUrl}`];
+    const opt = diagHasUrl(e) ? [`stage=${e.stage}`, `page=${e.pageUrl}`] : [];
+    if (e.location && e.location.url) opt.push(`at=${safeHref(e.location.url)}:${e.location.lineNumber}:${e.location.columnNumber}`);
+    opt.push(`t=${e.t}`, `msg=${e.text}`);
+    return { head: `#${e.seq} ${e.origin}`, req, opt };
+}
+function diagEvent(e, budget) {
+    const cap = Math.min(DIAG_MAX_EVENT_CHARS, budget);
+    const { head, req, opt } = diagParts(e);
+    let s = oneLine(head);
+    if (s.length > cap) return null;   // cannot even carry sequence + origin
+    for (let i = 0; i < req.length; i++) {
+        const next = `${s} ${oneLine(req[i])}`;
+        if (next.length <= cap) { s = next; continue; }
+        // A critical field may be clipped and marked — a marked partial URL is evidence —
+        // but it is never silently dropped, and neither are the critical fields after it.
+        // An event that cannot carry ALL of them is omitted whole and counted in the
+        // `…+N more` marker, so the line can never show an asserted event with a stage
+        // identity but no page URL, which would read as adequate while failing §6 item 5.
+        const room = cap - s.length - 1;
+        if (room <= 13 || i < req.length - 1) return null;
+        return `${s} ${clip(oneLine(req[i]), room)}`;
+    }
+    for (const seg of opt) {
+        const next = `${s} ${oneLine(seg)}`;
+        if (next.length <= cap) { s = next; continue; }
+        const room = cap - s.length - 1;
+        if (room > 13) s = `${s} ${clip(oneLine(seg), room)}`;
+        break;
+    }
+    return s;
+}
+// The earliest asserted event and the earliest URL-bearing event: without them the line
+// cannot carry the stage/page or the resource URL at all, whatever else it shows.
+function diagMust() {
+    const m = [];
+    const a = DIAG.find(diagAsserted), u = DIAG.find(diagHasUrl);
+    if (a) m.push(a);
+    if (u && u !== a) m.push(u);
+    return m;
+}
+// Ascending sequence counter, except that those two are each guaranteed a slot.
+// Deterministic — no randomness, no time dependence.
+function diagSelect() {
+    const must = diagMust();
+    const rest = DIAG.filter(e => !must.includes(e));
+    return must.concat(rest.slice(0, Math.max(0, DIAG_MAX_EVENTS - must.length))).sort((x, y) => x.seq - y.seq);
+}
+function diagPayload() {
+    const total = DIAG.length;
+    // Reserve the widest marker this run could need, so it can never be the thing cut.
+    const head = `events=${total}`;
+    let left = DIAG_MAX_PAYLOAD_CHARS - ` | …+${total} more`.length - head.length;
+    const sel = diagSelect(), must = diagMust(), done = new Map();
+    const render = (e, budget) => {
+        const one = diagEvent(e, Math.min(budget, left) - 3);
+        if (one === null) return;
+        done.set(e.seq, one);
+        left -= one.length + 3;
+    };
+    // The guaranteed events are rendered FIRST, each against its own share, so a long
+    // earlier event can never spend the budget they need.
+    let n = must.length;
+    for (const e of must) { if (n > 0) render(e, Math.floor(left / n)); n--; }
+    // Then the rest, in ascending sequence, on whatever remains.
+    for (const e of sel) { if (!done.has(e.seq)) render(e, left); }
+    // The total is always stated, so a truncated payload never reads as complete.
+    let out = head;
+    for (const e of sel) if (done.has(e.seq)) out += ` | ${done.get(e.seq)}`;
+    const omitted = total - done.size;
+    if (omitted > 0) out += ` | …+${omitted} more`;
+    // Never fires — the assembly above is bounded by construction. Kept so the ceiling
+    // is enforced literally as well as structurally.
+    return clip(oneLine(out), DIAG_MAX_PAYLOAD_CHARS);
+}
+const zeroErrors = consoleErrs.length === 0;
+check('zero console/page errors across all cases' + (zeroErrors ? '' : ` — ${diagPayload()}`), zeroErrors);
 if (consoleErrs.length) console.log('  errors:', consoleErrs.slice(0, 5));
 
 console.log(`\ncollege_personal_statement_test: ${passed} passed, ${failed} failed`);

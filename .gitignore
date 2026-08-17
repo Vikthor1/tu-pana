@@ -147,6 +147,11 @@
 # Test file only — not deployed, same note as above.
 !studio_provider_errors_test.mjs
 
+# ── Allow the A7 drill-gating zero-call invariant suite ───
+# Test file only — not deployed, same note as above. Run alone immediately
+# before the A7 provider-shutoff drill; a failure here is a stop.
+!a7_zero_call_invariants_test.mjs
+
 # ── Allow the reproducible test toolchain (E1) ────────────
 # Non-secret harness only: dependency manifest, lockfile, the local mock server,
 # the deterministic runner, and the runtime pin. Dependencies themselves

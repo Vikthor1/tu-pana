@@ -108,8 +108,28 @@ await mobile.locator('[data-action="compare-review-copy"]').click();
 check('mobile comparison uses accessible Before/Current controls rather than squeezed columns', await mobile.locator('.compare-mobile-tabs [role="tab"]').count() === 2 && await mobile.locator('.compare-before').isVisible() && !(await mobile.locator('.compare-current').isVisible()));
 await mobile.locator('[data-action="compare-view"][data-view="current"]').click();
 check('mobile Current switch preserves orientation, 44px targets, and no horizontal overflow', await mobile.locator('.compare-current').isVisible() && await mobile.locator('[data-action="compare-view"][data-view="current"]').evaluate(el => el.getBoundingClientRect().height >= 44) && await mobile.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth));
-await mobile.locator('[data-action="compare-view"][data-view="before"]').press('Enter');
-check('mobile comparison tabs are keyboard-operable and Escape closes the single dialog', await mobile.locator('.compare-before').isVisible() && (await mobile.locator('[role="dialog"]').count()) === 1);
+// Keyboard-activation determinism (bounded focus-race repair): the line-above tab switch
+// re-renders the dialog, and openDialog schedules a requestAnimationFrame that focuses the
+// dialog's first focusable element — the header close button (studio-ui.js:1929). If that
+// scheduled focus lands between a press()'s internal focus step and its key dispatch, Enter
+// reaches the close button and the dialog closes. Sequence explicitly instead: (1) wait on a
+// bounded DOM/focus condition proving the scheduled focus has landed — never a timer;
+// (2) explicitly focus the Before tab and confirm that focus move landed; (3) only then
+// dispatch Enter to the focused element. Diagnostic detail is captured so a failure shows
+// which condition failed; the check itself and the check count are unchanged.
+let focusSequenceDetail;
+try {
+    await mobile.waitForFunction(() => { const el = document.activeElement; return Boolean(el) && el.matches('[role="dialog"] [data-action="close-dialog"]'); }, undefined, { timeout: 5000 });
+    await mobile.locator('[data-action="compare-view"][data-view="before"]').evaluate(el => el.focus());
+    await mobile.waitForFunction(() => { const el = document.activeElement; return Boolean(el) && el.matches('[data-action="compare-view"][data-view="before"]'); }, undefined, { timeout: 5000 });
+    focusSequenceDetail = 'scheduled dialog focus observed on the close button; Before-tab focus confirmed before Enter';
+} catch (err) {
+    const active = await mobile.evaluate(() => { const el = document.activeElement; return el ? `${el.tagName.toLowerCase()}[data-action="${el.getAttribute('data-action') || ''}"][data-view="${el.getAttribute('data-view') || ''}"]` : 'none'; }).catch(() => 'unreadable');
+    focusSequenceDetail = `focus sequencing failed before Enter: ${String((err && err.message) || err).split('\n')[0]}; activeElement at failure: ${active}`;
+    console.log(`  (focus sequencing diagnostic — ${focusSequenceDetail})`);
+}
+await mobile.keyboard.press('Enter');
+check('mobile comparison tabs are keyboard-operable and Escape closes the single dialog', await mobile.locator('.compare-before').isVisible() && (await mobile.locator('[role="dialog"]').count()) === 1, focusSequenceDetail);
 await mobile.keyboard.press('Escape');
 check('Escape returns from comparison without changing the live mobile Draft', (await mobile.locator('[role="dialog"]').count()) === 0 && await mobile.locator('#draftEditor').inputValue() === 'Mobile review copy: aquí escuchamos primero.');
 await mobile.close();

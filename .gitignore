@@ -152,6 +152,11 @@
 # before the A7 provider-shutoff drill; a failure here is a stop.
 !a7_zero_call_invariants_test.mjs
 
+# ── Allow the discoverability-refinement suite (2026-08-19) ──
+# Test file only — not deployed, so the preview allowlist in
+# scripts_build_preview_artifact.mjs is unaffected.
+!studio_discoverability_test.mjs
+
 # ── Allow the reproducible test toolchain (E1) ────────────
 # Non-secret harness only: dependency manifest, lockfile, the local mock server,
 # the deterministic runner, and the runtime pin. Dependencies themselves

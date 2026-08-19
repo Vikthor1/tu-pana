@@ -1411,7 +1411,7 @@
 
     function renderPlanningNotesReference() {
         const notes = integratedMoves().map(move => ({ move, note: state.moveNotes[moveNoteKey(move)] })).filter(item => wordCount(item.note?.text));
-        if (!notes.length) return `<p class="planning-empty">${escapeHtml(state.lang === 'en' ? 'Planning notes appear here only after you write useful content. They never enter the draft automatically.' : 'Las notas aparecen aquí solo cuando escribes contenido útil. Nunca entran al borrador automáticamente.')}</p>`;
+        if (!notes.length) return `<p class="planning-empty">${escapeHtml(state.lang === 'en' ? 'Planning notes appear here after you save a note in your own words on a Move. They never enter the draft automatically.' : 'Las notas de planeación aparecen aquí después de que guardas una nota con tus propias palabras en una Movida. Nunca entran al borrador automáticamente.')}</p>`;
         return `<details class="planning-reference"><summary>${escapeHtml(t('planningNotes'))} · ${notes.length}</summary><div class="artifact-list">${notes.map(({ move, note }) => {
             const linked = note.passageLink ? ` · “${note.passageLink.quote.slice(0, 48)}”` : '';
             return `<button class="artifact-row notebook-reference-row" data-action="integrated-move-note" data-move="${integratedMoves().indexOf(move)}"><strong>${escapeHtml(integratedMoveLabel(move))}</strong><small>${escapeHtml(`${wordCount(note.text)} ${state.lang === 'en' ? 'words' : 'palabras'} · ${note.text.slice(0, 70)}${linked}`)}</small></button>`;
@@ -1430,7 +1430,7 @@
     function renderKnowledgeRevisit() {
         if (state.genre !== 'autobiographical' || state.knowledgeChoice === null) return '';
         const engaged = state.knowledgeChoice === 'engage';
-        return `<details class="knowledge-revisit"><summary>${escapeHtml(t('revisitKnowledge'))}</summary><p>${escapeHtml(state.lang === 'en' ? 'Cultural, linguistic, family, community, historical, and experiential knowledge may be resources. You control what remains private.' : 'El conocimiento cultural, lingüístico, familiar, comunitario, histórico y vivido puede ser recurso. Tú controlas lo privado.')}</p><p><strong>${escapeHtml(engaged ? (state.lang === 'en' ? 'You chose to use this lens.' : 'Elegiste usar esta lente.') : (state.lang === 'en' ? 'You chose not now. You may return at any time.' : 'Elegiste ahora no. Puedes regresar cuando quieras.'))}</strong></p><button class="text-button" data-action="knowledge-reset">${escapeHtml(state.lang === 'en' ? 'Choose again' : 'Elegir de nuevo')}</button></details>`;
+        return `<details class="knowledge-revisit"><summary>${escapeHtml(t('revisitKnowledge'))}</summary><p>${escapeHtml(state.lang === 'en' ? 'Cultural, linguistic, family, community, historical, and experiential knowledge may be resources. You control what remains private.' : 'El conocimiento cultural, lingüístico, familiar, comunitario, histórico y vivido puede ser recurso. Tú controlas lo privado.')}</p><p><strong>${escapeHtml(engaged ? (state.lang === 'en' ? 'You chose to use this lens.' : 'Elegiste usar esta lente.') : (state.lang === 'en' ? 'You chose not to use the knowledge and language lens for now. You may return at any time.' : 'Elegiste no usar la lente de conocimiento e idioma por ahora. Puedes regresar cuando quieras.'))}</strong></p><button class="text-button" data-action="knowledge-reset">${escapeHtml(state.lang === 'en' ? 'Choose again' : 'Elegir de nuevo')}</button></details>`;
     }
 
     function renderJourneyWorkspace() {
@@ -1562,13 +1562,33 @@
         };
     }
 
+    // Blank page only. Surfaces the SAME genre-specific starter the "I’m
+    // stuck" path already offers, next to the editor where the blank page
+    // actually is. Reference only: no code path writes it into the draft, the
+    // sole action copies it to the clipboard, and the block disappears as soon
+    // as the writer has a word of their own. Suppressed while Guided Discovery
+    // is offering its welcome, so the page never shows two openings at once.
+    function renderBlankDraftStarter(welcomeOffered) {
+        if (concept !== 'integrated' || welcomeOffered) return '';
+        if (!genres[state.genre]) return '';
+        const starter = stuckMicroTask();
+        if (!starter) return '';
+        // Rendered whenever a genre is known, and `hidden` while the draft has
+        // words. The editor's input handler flips that one attribute, so the
+        // block appears and disappears with the blank page without a re-render
+        // stealing the caret mid-sentence.
+        return `<section class="blank-start"${wordCount(getDraft()) ? ' hidden' : ''} aria-label="${escapeHtml(uiText('Optional way to start', 'Manera opcional de empezar'))}"><strong>${escapeHtml(uiText('One optional way to start', 'Una manera opcional de empezar'))}</strong><p class="stuck-microtask">${escapeHtml(starter)}</p><p class="blank-start-boundary">${escapeHtml(uiText('Nothing is inserted into your draft. Use it, change it, or write your own way.', 'No se inserta nada en tu borrador. Úsalo, cámbialo o escribe a tu manera.'))}</p><div class="blank-start-actions"><button class="button ghost" data-action="copy-stuck-starter" data-starter="${escapeHtml(starter)}">${escapeHtml(uiText('Copy starter', 'Copiar inicio'))}</button></div></section>`;
+    }
+
     function renderEditor() {
         const isCurrent = concept !== 'journey' || state.currentArtifact === `step-${state.step}`;
+        const welcomeOffered = concept === 'integrated' && Boolean(window.StudioTour?.shouldOfferWelcome(tourContext()));
         const focusAvailable = concept === 'desk' || concept === 'journey' || concept === 'integrated';
         return `<section class="panel editor-panel" aria-labelledby="draftTitle"><div class="editor-topline"><div class="draft-identity"><strong id="draftTitle">${escapeHtml(concept === 'journey' ? stepData(state.step - 1)[0] : t('currentDraft'))}</strong><span>${escapeHtml(isCurrent ? t('currentVersion') : t('priorWork'))}${concept === 'journey' ? ` · ${escapeHtml(t('whereJourney', { n: state.step }))}` : ''}</span></div><div class="editor-actions">${concept === 'integrated' ? renderEditControls() : ''}<button class="button ghost" data-action="paste">${escapeHtml(t('paste'))}</button>${focusAvailable ? `<button class="button ghost focus-btn" data-action="focus">${escapeHtml(t('focus'))}</button>` : ''}</div></div>
             <div class="editor-wrap"><textarea id="draftEditor" class="draft-editor" spellcheck="${spellcheckEnabled()}" aria-label="${escapeHtml(t('currentDraft'))}" placeholder="${escapeHtml(state.lang !== 'en' ? 'Comienza con tus propias palabras…' : 'Start with your own words…')}">${escapeHtml(getDraft())}</textarea><div class="editor-meta"><span id="wordCount">${escapeHtml(t('words', { n: wordCount(getDraft()) }))}</span><span class="autosave-message" data-save-state role="status" aria-live="polite" aria-atomic="true">${escapeHtml(t('autosaved'))}</span></div></div>
             <p class="editor-privacy">${instruction('selectHint')} ${escapeHtml(liveProviderActive() ? uiText('Nothing is ever sent without your explicit consent and an exact preview.', 'Nada se envía nunca sin tu consentimiento explícito y una vista previa exacta.') : t('noNetwork'))}</p>
-            ${concept === 'integrated' && window.StudioTour?.shouldOfferWelcome(tourContext()) ? window.StudioTour.welcomeCardHtml(tourContext()) : ''}
+            ${renderBlankDraftStarter(welcomeOffered)}
+            ${welcomeOffered ? window.StudioTour.welcomeCardHtml(tourContext()) : ''}
             ${concept === 'integrated' ? `<section class="coach-entry" aria-label="${escapeHtml(t('askVisible'))}"><div><strong>${escapeHtml(t('askVisible'))}</strong><span>${escapeHtml(t('coachEntryHint'))}</span></div><button class="button secondary" data-action="coach">${escapeHtml(t('askVisible'))}</button></section>` : ''}
             <footer class="editor-footer"><div class="footer-group"><button class="button ghost" data-action="back" ${atBeginning() ? 'disabled' : ''}>← ${escapeHtml(t('back'))}</button><button class="button primary" data-action="continue">${escapeHtml(continueLabel())} →</button></div><div class="footer-group">${concept === 'journey' && !isCurrent && state.step >= 6 ? `<button class="button secondary" data-action="mark-current">${escapeHtml(t('markCurrent'))}</button>` : ''}${concept === 'integrated' ? `<button class="button ghost stuck-inline" data-action="stuck" aria-label="${escapeHtml(uiText('I’m stuck — get one small next step', 'Estoy atascado/a — recibe un pequeño próximo paso'))}">${escapeHtml(uiText('I’m stuck', 'Estoy atascado/a'))}</button>` : ''}<button class="button secondary" data-action="review-center">${escapeHtml(t('reviewCenter'))}</button></div></footer>
         </section>`;
@@ -1587,6 +1607,22 @@
         return generic[index] || generic[0];
     }
 
+    // The one plain-language distinction among the three optional supports,
+    // in the wording the Review Center guide already used. Single-sourced so
+    // the always-visible panel and the guide inside the dialog cannot drift.
+    // Copy only: it changes no scope, no request, and no consent step.
+    function supportDistinctions() {
+        return [
+            [t('coach'), uiText('For a specific question about a passage, paragraph, or draft.', 'Para una pregunta específica sobre un pasaje, párrafo o borrador.')],
+            [t('focusedReview'), uiText('For one careful lens, such as structure, evidence, or voice.', 'Para una sola mirada cuidadosa, como estructura, evidencia o voz.')],
+            [t('council'), uiText('For several perspectives on a developed draft.', 'Para varias perspectivas sobre un borrador desarrollado.')],
+        ];
+    }
+
+    function renderSupportDistinction() {
+        return `<div class="support-distinction"><p class="support-distinction-lead">${escapeHtml(uiText('What each one is for', 'Para qué sirve cada una'))}</p><dl>${supportDistinctions().map(([label, detail]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(detail)}</dd></div>`).join('')}</dl><p class="support-distinction-note">${escapeHtml(uiText('Each one is optional, shows you the exact request, and asks your consent first.', 'Cada una es opcional, te muestra la solicitud exacta y pide tu consentimiento primero.'))}</p></div>`;
+    }
+
     function renderReviewPanel() {
         const reportCount = activeReviews().length + activeCouncilRuns().length;
         const councilAction = concept === 'integrated' && !councilEnabled()
@@ -1597,7 +1633,7 @@
         const historyAction = reportCount || activeDecisions().length
             ? `<button class="support-action" data-action="review-center"><strong>${escapeHtml(t('priorWork'))}</strong><span>${escapeHtml(t('revisit'))}</span></button>`
             : `<button class="support-action" data-action="review-center"><strong>${escapeHtml(uiText('Review options & history', 'Opciones e historial de revisión'))}</strong><span>${escapeHtml(uiText('self-review and saved feedback', 'revisión propia y comentarios guardados'))}</span></button>`;
-        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('reviewCenter'))}</h2><p>${escapeHtml(reportCount ? uiText(`${reportCount} saved report${reportCount === 1 ? '' : 's'}`, `${reportCount} informe${reportCount === 1 ? '' : 's'} guardado${reportCount === 1 ? '' : 's'}`) : uiText('Feedback is optional.', 'La retroalimentación es opcional.'))}</p></div>${activeDecisions().length ? `<span class="evidence-count" aria-label="${escapeHtml(uiText(`${activeDecisions().length} decisions`, `${activeDecisions().length} decisiones`))}">${activeDecisions().length}</span>` : ''}</div><div class="panel-body"><button class="support-action" data-action="coach"><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(state.lang === 'en' ? 'passage, paragraph, or draft' : 'pasaje, párrafo o borrador')}</span></button><button class="support-action" data-action="focused-review"><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(genreMoves('review')[0])}</span></button>${councilAction}${historyAction}</div></section>`;
+        return `<section class="panel"><div class="panel-header"><div><h2>${escapeHtml(t('reviewCenter'))}</h2><p>${escapeHtml(reportCount ? uiText(`${reportCount} saved report${reportCount === 1 ? '' : 's'}`, `${reportCount} informe${reportCount === 1 ? '' : 's'} guardado${reportCount === 1 ? '' : 's'}`) : uiText('Feedback is optional.', 'La retroalimentación es opcional.'))}</p></div>${activeDecisions().length ? `<span class="evidence-count" aria-label="${escapeHtml(uiText(`${activeDecisions().length} decisions`, `${activeDecisions().length} decisiones`))}">${activeDecisions().length}</span>` : ''}</div><div class="panel-body">${renderSupportDistinction()}<button class="support-action" data-action="coach"><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(state.lang === 'en' ? 'passage, paragraph, or draft' : 'pasaje, párrafo o borrador')}</span></button><button class="support-action" data-action="focused-review"><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(genreMoves('review')[0])}</span></button>${councilAction}${historyAction}</div></section>`;
     }
 
     function reviewCopySnapshot() {
@@ -1779,6 +1815,9 @@
             if (orientationCount) orientationCount.textContent = t('words', { n: wordCount(editor.value) });
             const placeCount = document.getElementById('draftPlaceCount');
             if (placeCount) placeCount.textContent = t('words', { n: wordCount(editor.value) });
+            // The blank-page starter belongs to an empty draft only.
+            const blankStart = document.querySelector('.blank-start');
+            if (blankStart) blankStart.hidden = wordCount(editor.value) > 0;
         });
         ['click', 'pointerup', 'keyup', 'touchend'].forEach(type => editor.addEventListener(type, () => { editorCaret = editor.selectionStart; }, { passive: true }));
         ['select'].forEach(type => editor.addEventListener(type, () => setTimeout(() => captureSelection(editor), 0), { passive: true }));
@@ -2779,7 +2818,7 @@
     }
 
     function renderFeedbackChoiceGuide() {
-        return `<details class="feedback-choice-guide"><summary>${escapeHtml(uiText('Which kind of feedback would help?', '¿Qué tipo de retroalimentación te ayudaría?'))}</summary><div class="feedback-choice-grid"><div><strong>${escapeHtml(t('coach'))}</strong><span>${escapeHtml(uiText('For a specific question about a passage, paragraph, or draft.', 'Para una pregunta específica sobre un pasaje, párrafo o borrador.'))}</span></div><div><strong>${escapeHtml(t('focusedReview'))}</strong><span>${escapeHtml(uiText('For one careful lens, such as structure, evidence, or voice.', 'Para una sola mirada cuidadosa, como estructura, evidencia o voz.'))}</span></div><div><strong>${escapeHtml(t('council'))}</strong><span>${escapeHtml(uiText('For several perspectives on a developed draft.', 'Para varias perspectivas sobre un borrador desarrollado.'))}</span></div></div><p>${escapeHtml(uiText('These are optional choices, not steps. Reviewing it yourself or using feedback from an instructor or another person are equally valid.', 'Son opciones voluntarias, no pasos. Revisarlo por tu cuenta o usar comentarios de un instructor u otra persona son alternativas igualmente válidas.'))}</p></details>`;
+        return `<details class="feedback-choice-guide"><summary>${escapeHtml(uiText('Which kind of feedback would help?', '¿Qué tipo de retroalimentación te ayudaría?'))}</summary><div class="feedback-choice-grid">${supportDistinctions().map(([label, detail]) => `<div><strong>${escapeHtml(label)}</strong><span>${escapeHtml(detail)}</span></div>`).join('')}</div><p>${escapeHtml(uiText('These are optional choices, not steps. Reviewing it yourself or using feedback from an instructor or another person are equally valid.', 'Son opciones voluntarias, no pasos. Revisarlo por tu cuenta o usar comentarios de un instructor u otra persona son alternativas igualmente válidas.'))}</p></details>`;
     }
 
     function reviewTabLabel(label, count) {

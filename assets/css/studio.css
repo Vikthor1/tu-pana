@@ -379,6 +379,7 @@ html[data-appearance="dark"] .consent-box { color: var(--ink); }
     html[data-appearance="system"] .exact-preview { background: #202721; color: var(--ink); }
     html[data-appearance="system"] .editor-privacy, html[data-appearance="system"] .coach-entry, html[data-appearance="system"] .consent-box { color: var(--ink); }
     html[data-appearance="system"] .coach-entry span { color: var(--muted); }
+    html[data-appearance="system"] .exploration-banner { color: #ffe8ad; border-color: #876b35; }
 }
 
 .review-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; }
@@ -916,3 +917,31 @@ html[data-appearance="dark"] .gd-preview { background: rgba(255,255,255,0.04); }
     .gd-preview--expanded { margin-inline: -12px; border-radius: 0; }
     .gd-preview--expanded .gd-preview-surface { padding: 12px; }
 }
+
+/* Backup is a routine, safe, every-session action. It is deliberately styled
+   as an ordinary settings section and kept OUT of .danger-zone, which holds
+   only the type-DELETE destructive controls. */
+.backup-section { border: 1px solid var(--line); border-radius: 14px; padding: 17px; background: var(--surface); }
+.backup-section h3 { color: var(--ink); }
+
+/* Bilingual limitation disclosure, beside the language control.
+   Artifact PART 3 rule 2: disclosure, NOT a warning banner and NOT a
+   barrier — no alert colouring, no error icon, no confirmation step. */
+.bilingual-limitation-note {
+    display: grid;
+    gap: 4px;
+    /* Fluid by default. A fixed ch-based max-width overflowed the header at
+       200% zoom (WCAG 1.4.10 reflow), so the measure is capped only when
+       there is room for it. */
+    width: min(1480px, calc(100% - 28px));
+    max-width: 100%;
+    min-width: 0;
+    margin: 6px auto 0;
+    justify-items: end;
+    text-align: right;
+    color: var(--ink);
+    font-size: .74rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+@media (max-width: 700px) { .bilingual-limitation-note { justify-items: start; text-align: left; width: calc(100% - 18px); } }

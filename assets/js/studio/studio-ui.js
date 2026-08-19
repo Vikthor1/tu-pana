@@ -83,6 +83,7 @@
             createPacket: 'Create local packet', downloadPacket: 'Download packet', packetReady: 'Final packet is ready locally.',
             settingsTitle: 'Settings', storageNote: 'Your work is saved only in this browser, in one Writing Studio record. Tu Pana never reads other work saved on this device.',
             focusDecision: 'Mobile Focus decision', danger: 'Danger Zone', export: 'Export safety copy', delete: 'Delete this Writing Studio’s saved data',
+            backupSection: 'Back up your work', backupExplain: 'Backup downloads your saved Writing Studio work as one file onto your device. Do this at least once each time you work — your writing is saved only in this browser, so clearing browser data can remove it. This only downloads a copy; it changes and deletes nothing.',
             deleteExplain: 'Only the Writing Studio’s saved record in this browser will be removed. Other work saved on this device is untouched.',
             typeDelete: 'Type DELETE to enable deletion', deleteNow: 'Delete saved data',
             startBlank: 'Start with a blank draft', replaceDraft: 'Replace draft with this text',
@@ -144,6 +145,7 @@
             createPacket: 'Crear paquete local', downloadPacket: 'Descargar paquete', packetReady: 'El paquete final está listo localmente.',
             settingsTitle: 'Configuración', storageNote: 'Tu trabajo se guarda solo en este navegador, en un registro del Writing Studio. Tu Pana nunca lee otro trabajo guardado en este dispositivo.',
             focusDecision: 'Decisión de Enfoque móvil', danger: 'Zona de peligro', export: 'Exportar copia de seguridad', delete: 'Borrar los datos guardados del Writing Studio',
+            backupSection: 'Haz una copia de seguridad', backupExplain: 'La copia de seguridad descarga tu trabajo guardado del Writing Studio como un archivo en tu dispositivo. Hazla al menos una vez cada vez que trabajes: tu escritura se guarda solo en este navegador, así que borrar los datos del navegador puede eliminarla. Esto solo descarga una copia; no cambia ni borra nada.',
             deleteExplain: 'Solo se borrará el registro guardado del Writing Studio en este navegador. El resto del trabajo guardado en este dispositivo no cambia.',
             typeDelete: 'Escribe DELETE para activar el borrado', deleteNow: 'Borrar datos del prototipo',
             startBlank: 'Comenzar con borrador vacío', replaceDraft: 'Reemplazar el borrador con este texto',
@@ -1058,9 +1060,37 @@
         return state.lang === 'en' ? reason.en : reason.es;
     }
 
+    // Bilingual limitation disclosure — installed beside the language control.
+    //
+    // Copy is the COMPACT FORM, verbatim from the founder-approved artifact
+    // `bilingual-limitation-disclosure-rev1.md` (sha 5fa40a0a…4631cd, approved
+    // 2026-08-19). That artifact is the source of record and is NOT edited by
+    // this installation and NOT fetched at runtime.
+    //
+    // Placement follows the artifact's PART 3: the compact form sits directly
+    // beneath the selector, visible without interaction, in the current
+    // language; in bilingual mode BOTH versions appear, Spanish first, matching
+    // the studio's Spanish-primary presentation. It is a disclosure, not a
+    // warning banner and not a barrier — no alert colouring, no icon, no
+    // confirmation step. `aria-describedby` on the select is what satisfies
+    // rule 3: the notice is announced when the control receives focus, rather
+    // than sitting nearby as unlinked text. Wording is fixed by rule 4 and must
+    // not be paraphrased.
+    const BILINGUAL_LIMITATION_NOTE = {
+        en: 'Español + English shows both languages at once. Language marking for screen readers is still incomplete here, so pronunciation may be wrong in places. For screen-reader use, choose English or Español. This view is not verified as fully accessible.',
+        es: 'Español + English muestra los dos idiomas a la vez. La marcación de idioma para lectores de pantalla todavía está incompleta, así que la pronunciación puede fallar en algunas partes. Si usas lector de pantalla, elige English o Español. Esta vista no está verificada como plenamente accesible.',
+    };
+
+    function bilingualLimitationNoteMarkup() {
+        const parts = state.lang === 'both'
+            ? [BILINGUAL_LIMITATION_NOTE.es, BILINGUAL_LIMITATION_NOTE.en]
+            : [state.lang === 'en' ? BILINGUAL_LIMITATION_NOTE.en : BILINGUAL_LIMITATION_NOTE.es];
+        return `<p class="bilingual-limitation-note" id="bilingualLimitationNote">${parts.map(text => `<span>${escapeHtml(text)}</span>`).join('')}</p>`;
+    }
+
     function renderBanner() {
         const text = liveProviderActive()
-            ? uiText('Family preview — the AI coach is live, used only with your explicit consent. Do not paste sensitive personal information.', 'Vista familiar — el coach de IA está en vivo y se usa solo con tu consentimiento explícito. No pegues información personal sensible.')
+            ? uiText('The AI coach is live and is used only with your explicit consent. Do not paste sensitive personal information.', 'El coach de IA está en vivo y se usa solo con tu consentimiento explícito. No pegues información personal sensible.')
             : t('prototype');
         return `<div class="exploration-banner"><span class="banner-dot" aria-hidden="true"></span><strong>${escapeHtml(text)}</strong></div>`;
     }
@@ -1110,9 +1140,10 @@
                     <strong class="product-title">Tu Pana Writing Studio</strong>
                     <span class="genre-select-wrap"><span class="genre-select-face" aria-hidden="true">${escapeHtml(genreKnown ? genreHeaderLabel() : (state.lang === 'en' ? 'Choose a writing project' : 'Elige un proyecto'))}<span class="genre-select-caret">▾</span></span><select class="header-select genre-select" data-action="genre" aria-label="${escapeHtml(`${t('genre')}: ${genreKnown ? genreFullName() : ''}`)}">${genreOptionsMarkup()}</select></span>
                 </div></div>
-                <div class="prototype-actions"><select class="header-select" data-action="language" aria-label="${escapeHtml(t('language'))}"><option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option><option value="es" ${state.lang === 'es' ? 'selected' : ''}>Español</option><option value="both" ${state.lang === 'both' ? 'selected' : ''}>Español + English</option></select>
+                <div class="prototype-actions"><select class="header-select" data-action="language" aria-describedby="bilingualLimitationNote" aria-label="${escapeHtml(t('language'))}"><option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option><option value="es" ${state.lang === 'es' ? 'selected' : ''}>Español</option><option value="both" ${state.lang === 'both' ? 'selected' : ''}>Español + English</option></select>
                     ${appearanceControl}<button class="icon-button" data-action="settings" aria-label="${escapeHtml(t('settings'))}" title="${escapeHtml(t('settings'))}">⚙</button></div>
             </div></header>
+            ${bilingualLimitationNoteMarkup()}
             <section class="orientation-bar" aria-label="Current location and next action"><div class="orientation-inner"><div class="orientation-copy"><span class="location-pill">${escapeHtml(o.where)}</span><div class="orientation-text"><strong>${escapeHtml(o.doing)}</strong><span>${escapeHtml(o.next)}</span></div>${concept === 'integrated' ? `<button class="mobile-project-chip" data-action="settings" aria-label="${escapeHtml(`${t('genre')}: ${genres[state.genre] ? genreFullName() : state.genre}`)}"><span>${escapeHtml(t('genre'))}</span><strong>${escapeHtml(genres[state.genre] ? genreHeaderLabel() : genreLabel())}</strong></button>` : ''}</div><div class="orientation-next"><small>${escapeHtml(t('currentDraft'))}</small><strong id="orientationDraftWords">${concept === 'notebook' && !state.draftDeclared ? escapeHtml(t('draftMissing')) : `${wordCount(getDraft())} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}`}</strong></div></div></section>`;
     }
 
@@ -2019,7 +2050,7 @@
             announce(state.lang === 'en' ? 'Write a notebook note before asking about it.' : 'Escribe una nota antes de preguntar sobre ella.');
             return;
         }
-        openDialog(t('notebookCoach'), t('notebookCoachBoundary'), `<div class="field"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="notebookPayloadPreview">${escapeHtml(text)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-notebook-coach" disabled>${escapeHtml(t('sendCoach'))}</button>`);
+        openDialog(t('notebookCoach'), t('notebookCoachBoundary'), `<div class="field"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="notebookPayloadPreview">${escapeHtml(text)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(t('consent'))}</strong><br>${escapeHtml(t('noNetwork'))}</span></label>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('notNow'))}</button><button class="button primary" data-action="submit-notebook-coach" disabled>${escapeHtml(t('sendCoach'))}</button>`);
     }
 
     function submitNotebookCoach(button) {
@@ -2159,7 +2190,7 @@
         const defaultScope = scopes[0]?.[0] || 'full';
         const facts = concept === 'integrated' ? renderIntegratedTransmissionFacts(kind) : '';
         const scopeHint = captured?.hasSelection ? '' : `<p class="scope-hint">${escapeHtml(state.lang === 'en' ? 'No passage is selected. Select words in the draft to add a passage option.' : 'No hay un pasaje seleccionado. Selecciona palabras del borrador para añadir esa opción.')}</p>`;
-        openDialog(title, subtitle, `${facts}${scopeHint}<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(scopeText(defaultScope))}</div></div>${kind === 'focused' ? renderLensChoices() : `${renderCoachQuestionField()}${renderCoachRequestPreview()}`}${renderMoveContextOffer()}${renderVoiceConstraintOffer()}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${boundaryMarkup()}</span></label>${a3DisclosureMarkup()}`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? sendReviewLabel() : sendCoachLabel())}</button>`);
+        openDialog(title, subtitle, `${facts}${scopeHint}<div class="scope-grid" role="radiogroup" aria-label="Review scope">${scopes.map(([id, label, text]) => `<label class="scope-choice"><input type="radio" name="reviewScope" value="${id}" ${id === defaultScope ? 'checked' : ''}><strong>${escapeHtml(label)}</strong><span>${wordCount(text)} ${escapeHtml(state.lang !== 'en' ? 'palabras' : 'words')}</span></label>`).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview" id="scopePreview">${escapeHtml(scopeText(defaultScope))}</div></div>${kind === 'focused' ? renderLensChoices() : `${renderCoachQuestionField()}${renderCoachRequestPreview()}`}${renderMoveContextOffer()}${renderVoiceConstraintOffer()}<label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${boundaryMarkup()}</span></label>${a3DisclosureMarkup()}`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('notNow'))}</button><button class="button primary" data-action="submit-mock" data-kind="${kind}" disabled>${escapeHtml(kind === 'focused' ? sendReviewLabel() : sendCoachLabel())}</button>`);
     }
 
     function renderMoveContextOffer() {
@@ -2531,7 +2562,7 @@
                 ? (state.lang === 'en' ? blurb.en : blurb.es)
                 : (state.lang !== 'en' ? 'Busca una fortaleza y una pregunta.' : 'Looks for one strength and one question.');
             return `<div class="radio-card"><span><strong>${escapeHtml(role)}</strong><br><small>${escapeHtml(detail)}</small></span></div>`;
-        }).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview">${escapeHtml(draft)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${boundaryMarkup()}</span></label>${a3DisclosureMarkup()}`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button><button class="button primary" data-action="run-council" disabled>${escapeHtml(conveneLabel())}</button>`);
+        }).join('')}</div><div class="field" style="margin-top:17px"><label>${escapeHtml(t('exactPreview'))}</label><div class="exact-preview">${escapeHtml(draft)}</div></div><label class="consent-box"><input id="transmitConsent" type="checkbox"><span><strong>${escapeHtml(consentText())}</strong><br>${boundaryMarkup()}</span></label>${a3DisclosureMarkup()}`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('notNow'))}</button><button class="button primary" data-action="run-council" disabled>${escapeHtml(conveneLabel())}</button>`);
     }
 
     function runCouncil(button) {
@@ -3327,7 +3358,7 @@
 
     function openSettings() {
         const integratedSettings = concept === 'integrated' ? `<section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing project' : 'Proyecto de escritura')}</h3><p>${escapeHtml(state.lang === 'en' ? 'An assignment link can set this writing project automatically; this control also lets you choose it yourself.' : 'Un enlace de tarea puede definir este proyecto de escritura automáticamente; este control también te deja elegirlo.')}</p>${state.assignmentNotice ? `<p class="assignment-notice">${escapeHtml(state.lang === 'en' ? state.assignmentNotice.en : state.assignmentNotice.es)}</p>` : ''}<label class="field" for="settingsGenre"><span>${escapeHtml(t('genre'))}</span><select id="settingsGenre" class="settings-select" data-action="genre" aria-label="${escapeHtml(t('genre'))}">${genreOptionsMarkup()}</select></label></section><section class="packet-section settings-section"><h3>${escapeHtml(state.lang === 'en' ? 'Writing utilities' : 'Utilidades de escritura')}</h3><label class="check-line"><input type="checkbox" data-action="native-spellcheck" ${spellcheckEnabled() ? 'checked' : ''}> <span>${escapeHtml(state.lang === 'en' ? 'Native spelling suggestions' : 'Sugerencias ortográficas nativas')}</span></label><p>${escapeHtml(state.lang === 'en' ? 'Spelling suggestions come from your browser or device. Tu Pana does not send your writing for this feature.' : 'Las sugerencias ortográficas provienen de tu navegador o dispositivo. Tu Pana no envía tu escritura para esta función.')}</p></section><section class="packet-section settings-section"><h3>${escapeHtml(uiText('Appearance', 'Apariencia'))}</h3><p>${escapeHtml(uiText('Choose a local visual-comfort preference. It does not affect your writing or evidence.', 'Elige una preferencia local de comodidad visual. No afecta tu escritura ni la evidencia.'))}</p><div class="choice-stack appearance-choices">${[['system', uiText('System default', 'Predeterminado del sistema')], ['light', uiText('Paper / Light', 'Papel / Claro')], ['dark', uiText('Dark', 'Oscuro')]].map(([value, label]) => `<button class="radio-card ${state.appearance === value ? 'selected' : ''}" data-action="appearance-choice" data-appearance="${value}" aria-pressed="${state.appearance === value}"><span>${escapeHtml(label)}</span></button>`).join('')}</div></section><section class="packet-section settings-section"><h3>${escapeHtml(uiText('Legacy Writing Studio work', 'Trabajo del Writing Studio anterior'))}</h3><p>${escapeHtml(uiText('If this browser holds work from the earlier ten-step Writing Studio, you can preview exactly what an import would bring over. Nothing is imported, changed, or deleted without this preview, and your legacy record stays untouched.', 'Si este navegador guarda trabajo del Writing Studio anterior de diez pasos, puedes previsualizar exactamente qué traería una importación. Nada se importa, cambia o borra sin esta previsualización, y tu registro anterior queda intacto.'))}</p><button class="button secondary" data-action="legacy-import">${escapeHtml(uiText('Preview legacy import', 'Previsualizar importación'))}</button>${state.legacyImport ? `<p class="assignment-notice">${escapeHtml(uiText(`Legacy import applied ${new Date(state.legacyImport.appliedAt).toLocaleDateString()}.`, `Importación aplicada ${new Date(state.legacyImport.appliedAt).toLocaleDateString()}.`))}</p><button class="button ghost" data-action="legacy-import-restore">${escapeHtml(uiText('Restore pre-import state', 'Restaurar estado previo a la importación'))}</button>` : ''}</section>` : '';
-        openDialog(t('settingsTitle'), conceptMeta[concept].name, `<p>${escapeHtml(t('storageNote'))}</p>${integratedSettings}<section class="danger-zone"><h3>${escapeHtml(t('danger'))}</h3><p>${escapeHtml(t('deleteExplain'))}</p><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button><div class="field" style="margin-top:15px"><label for="deleteConfirm">${escapeHtml(t('typeDelete'))}</label><input class="delete-confirm" id="deleteConfirm" type="text" autocomplete="off"></div><button class="button danger" data-action="delete-state" disabled>${escapeHtml(t('deleteNow'))}</button></section>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
+        openDialog(t('settingsTitle'), conceptMeta[concept].name, `<p>${escapeHtml(t('storageNote'))}</p>${integratedSettings}<section class="packet-section settings-section backup-section"><h3>${escapeHtml(t('backupSection'))}</h3><p>${escapeHtml(t('backupExplain'))}</p><button class="button secondary" data-action="export-state">${escapeHtml(t('export'))}</button></section><section class="danger-zone"><h3>${escapeHtml(t('danger'))}</h3><p>${escapeHtml(t('deleteExplain'))}</p><div class="field" style="margin-top:15px"><label for="deleteConfirm">${escapeHtml(t('typeDelete'))}</label><input class="delete-confirm" id="deleteConfirm" type="text" autocomplete="off"></div><button class="button danger" data-action="delete-state" disabled>${escapeHtml(t('deleteNow'))}</button></section>`, `<button class="button ghost" data-action="close-dialog">${escapeHtml(t('cancel'))}</button>`);
     }
 
     function deletePrototypeState() {
